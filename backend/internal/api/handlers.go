@@ -5,16 +5,17 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/revisemieux/backend/internal/store"
 )
 
 // Handlers contient les dépendances des handlers
 type Handlers struct {
-	// Les dépendances seront ajoutées ici (store, services, etc.)
+	store *store.Store
 }
 
 // NouveauHandlers crée une nouvelle instance de Handlers
-func NouveauHandlers() *Handlers {
-	return &Handlers{}
+func NouveauHandlers(s *store.Store) *Handlers {
+	return &Handlers{store: s}
 }
 
 // HealthHandler retourne l'état de santé du serveur
@@ -32,9 +33,17 @@ func (h *Handlers) RootHandler(c *gin.Context) {
 
 // StatutHandler retourne le statut complet de l'API
 func (h *Handlers) StatutHandler(c *gin.Context) {
+	// Vérifier la connexion à la base de données
+	statutDB := "connectee"
+	if h.store == nil {
+		statutDB = "non configuree"
+	} else if err := h.store.Ping(); err != nil {
+		statutDB = "erreur"
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"statut":        "ok",
-		"baseDeDonnees": "connectee", // TODO: vérification réelle
+		"baseDeDonnees": statutDB,
 		"version":       "0.1.0",
 	})
 }
