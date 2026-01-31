@@ -23,6 +23,7 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers) {
 			cours.POST("", h.CreerCoursHandler)
 			cours.GET("/:id", h.ObtenirCoursHandler)
 			cours.GET("/:id/fiches", h.ObtenirFichesHandler)
+			cours.GET("/:id/ressources", h.ObtenirRessourcesHandler)
 		}
 
 		// Routes OCR
@@ -34,6 +35,7 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers) {
 			generer.POST("/fiches", h.GenererFichesHandler)
 			generer.POST("/quiz", h.GenererQuizHandler)
 			generer.POST("/mindmap", h.GenererMindmapHandler)
+			generer.POST("/ressources", h.GenererRessourcesHandler)
 		}
 
 		// Routes Quiz

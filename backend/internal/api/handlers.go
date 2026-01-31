@@ -216,3 +216,35 @@ func (h *Handlers) GenererMindmapHandler(c *gin.Context) {
 		"message": "Génération de mindmap pas encore implémentée",
 	})
 }
+
+// --- Handlers Ressources ---
+
+// GenererRessourcesHandler génère des ressources complémentaires
+func (h *Handlers) GenererRessourcesHandler(c *gin.Context) {
+	if h.handlersGeneration != nil {
+		h.handlersGeneration.GenererRessourcesHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de génération n'est pas configuré",
+		},
+	})
+}
+
+// ObtenirRessourcesHandler récupère les ressources d'un cours
+func (h *Handlers) ObtenirRessourcesHandler(c *gin.Context) {
+	if h.handlersGeneration != nil {
+		h.handlersGeneration.ObtenirRessourcesHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service n'est pas configuré",
+		},
+	})
+}

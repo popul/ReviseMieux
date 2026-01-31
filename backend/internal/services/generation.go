@@ -44,12 +44,13 @@ var (
 	ErrServiceNonDisponible  = &ErreurGeneration{Code: "SERVICE_NON_DISPONIBLE", Message: "Le service de génération n'est pas disponible"}
 )
 
-// ServiceGeneration gère la génération de contenu (fiches, quiz, mindmaps)
+// ServiceGeneration gère la génération de contenu (fiches, quiz, mindmaps, ressources)
 type ServiceGeneration struct {
-	gestionnaireLLM *llm.GestionnaireLLM
-	coursRepo       store.CoursRepository
-	fichesRepo      store.FichesRepository
-	quizRepo        store.QuizRepository
+	gestionnaireLLM  *llm.GestionnaireLLM
+	coursRepo        store.CoursRepository
+	fichesRepo       store.FichesRepository
+	quizRepo         store.QuizRepository
+	ressourcesRepo   store.RessourcesRepository
 }
 
 // NouveauServiceGeneration crée une nouvelle instance du service de génération
@@ -58,12 +59,14 @@ func NouveauServiceGeneration(
 	coursRepo store.CoursRepository,
 	fichesRepo store.FichesRepository,
 	quizRepo store.QuizRepository,
+	ressourcesRepo store.RessourcesRepository,
 ) *ServiceGeneration {
 	return &ServiceGeneration{
-		gestionnaireLLM: gestionnaireLLM,
-		coursRepo:       coursRepo,
-		fichesRepo:      fichesRepo,
-		quizRepo:        quizRepo,
+		gestionnaireLLM:  gestionnaireLLM,
+		coursRepo:        coursRepo,
+		fichesRepo:       fichesRepo,
+		quizRepo:         quizRepo,
+		ressourcesRepo:   ressourcesRepo,
 	}
 }
 
@@ -551,4 +554,169 @@ func (s *ServiceGeneration) ListerQuizParCours(ctx context.Context, coursID stri
 	}
 
 	return s.quizRepo.ListerParCours(ctx, coursID)
+}
+
+// --- Génération de Ressources ---
+
+// ResultatGenerationRessources contient le résultat de la génération de ressources
+type ResultatGenerationRessources struct {
+	Ressources    []*store.Ressource `json:"ressources"`
+	NombreGenere  int                `json:"nombreGenere"`
+	Avertissement string             `json:"avertissement"`
+}
+
+// Codes d'erreur ressources
+var (
+	ErrParsingRessourcesEchoue = &ErreurGeneration{Code: "PARSING_RESSOURCES_ECHOUE", Message: "Erreur lors du parsing des ressources générées"}
+)
+
+// GenererRessources génère des suggestions de ressources pour un cours
+func (s *ServiceGeneration) GenererRessources(ctx context.Context, coursID string) (*ResultatGenerationRessources, error) {
+	if s.gestionnaireLLM == nil {
+		return nil, ErrServiceNonDisponible
+	}
+
+	// Récupérer le cours
+	cours, err := s.coursRepo.ObtenirParID(ctx, coursID)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrCoursNonTrouve, err.Error())
+	}
+
+	// Vérifier que le cours a du texte
+	texte := cours.TexteCorrige
+	if texte == "" {
+		texte = cours.TexteOCR
+	}
+	if texte == "" {
+		return nil, ErrCoursVideOCR
+	}
+
+	// Construire le prompt
+	prompt := s.construirePromptRessources(texte, cours.Titre, cours.Matiere)
+
+	// Appeler le LLM
+	llmOptions := llm.OptionsGeneration{
+		Temperature:   0.7,
+		MaxTokens:     2000,
+		FormatReponse: "json",
+		SystemPrompt:  "Tu es un assistant pédagogique expert en recherche de ressources éducatives pour lycéens. Tu réponds uniquement en JSON valide.",
+	}
+
+	reponseJSON, err := s.gestionnaireLLM.GenererJSON(ctx, prompt, nil, llmOptions)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrGenerationLLMEchouee, err.Error())
+	}
+
+	// Parser la réponse
+	ressources, err := s.parserReponseRessources(reponseJSON, coursID)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrParsingRessourcesEchoue, err.Error())
+	}
+
+	// Sauvegarder les ressources en base
+	if s.ressourcesRepo != nil {
+		if err := s.ressourcesRepo.CreerPlusieurs(ctx, ressources); err != nil {
+			return nil, fmt.Errorf("erreur sauvegarde ressources: %w", err)
+		}
+	}
+
+	return &ResultatGenerationRessources{
+		Ressources:    ressources,
+		NombreGenere:  len(ressources),
+		Avertissement: "Les liens suggérés sont générés par IA et doivent être vérifiés avant utilisation.",
+	}, nil
+}
+
+// construirePromptRessources construit le prompt pour la génération de ressources
+func (s *ServiceGeneration) construirePromptRessources(texte, titre, matiere string) string {
+	matiereInfo := ""
+	if matiere != "" {
+		matiereInfo = fmt.Sprintf("Matière : %s\n", matiere)
+	}
+	titreInfo := ""
+	if titre != "" {
+		titreInfo = fmt.Sprintf("Titre du cours : %s\n", titre)
+	}
+
+	return fmt.Sprintf(`Tu es un assistant pédagogique qui suggère des ressources complémentaires pour aider un lycéen à approfondir un cours.
+
+%s%sCours :
+"""
+%s
+"""
+
+Instructions :
+1. Suggère entre 5 et 10 ressources pertinentes et éducatives
+2. Varie les types : vidéos YouTube éducatives, articles de référence, sites pédagogiques
+3. Privilégie les ressources en français quand possible
+4. Choisis des sources fiables : Khan Academy, Les Bons Profs, Lumni, Wikipedia, sites .edu/.gouv
+5. Décris brièvement chaque ressource (1-2 phrases)
+6. Pour les vidéos YouTube, suggère des chaînes éducatives reconnues
+7. Les URLs doivent être plausibles mais n'ont pas besoin d'être vérifiées (l'utilisateur sera averti)
+
+Types de ressources à inclure :
+- video : vidéos YouTube ou cours en ligne
+- article : articles Wikipedia, encyclopédies, blogs éducatifs
+- site : sites web éducatifs, plateformes d'apprentissage
+
+Réponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou après :
+{
+  "ressources": [
+    {
+      "titre": "Nom de la ressource",
+      "url": "https://...",
+      "type": "video|article|site",
+      "description": "Brève description de la ressource"
+    }
+  ]
+}`, titreInfo, matiereInfo, texte)
+}
+
+// reponseRessourcesJSON représente la structure de réponse du LLM pour les ressources
+type reponseRessourcesJSON struct {
+	Ressources []struct {
+		Titre       string `json:"titre"`
+		URL         string `json:"url"`
+		Type        string `json:"type"`
+		Description string `json:"description"`
+	} `json:"ressources"`
+}
+
+// parserReponseRessources parse la réponse JSON du LLM en ressources
+func (s *ServiceGeneration) parserReponseRessources(reponseJSON []byte, coursID string) ([]*store.Ressource, error) {
+	var reponse reponseRessourcesJSON
+	if err := json.Unmarshal(reponseJSON, &reponse); err != nil {
+		return nil, fmt.Errorf("erreur parsing JSON: %w", err)
+	}
+
+	ressources := make([]*store.Ressource, 0, len(reponse.Ressources))
+	for _, r := range reponse.Ressources {
+		// Valider le type de ressource
+		typeRessource := store.TypeRessource(r.Type)
+		if typeRessource != store.TypeRessourceVideo &&
+			typeRessource != store.TypeRessourceArticle &&
+			typeRessource != store.TypeRessourceSite {
+			typeRessource = store.TypeRessourceSite // valeur par défaut
+		}
+
+		ressource := &store.Ressource{
+			CoursID:     coursID,
+			Titre:       r.Titre,
+			URL:         r.URL,
+			Type:        typeRessource,
+			Description: r.Description,
+		}
+		ressources = append(ressources, ressource)
+	}
+
+	return ressources, nil
+}
+
+// ObtenirRessourcesParCours récupère les ressources existantes d'un cours
+func (s *ServiceGeneration) ObtenirRessourcesParCours(ctx context.Context, coursID string) ([]*store.Ressource, error) {
+	if s.ressourcesRepo == nil {
+		return nil, ErrServiceNonDisponible
+	}
+
+	return s.ressourcesRepo.ListerParCours(ctx, coursID)
 }
