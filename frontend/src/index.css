@@ -52,3 +52,23 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: #4A4A4A;
 }
+
+/* Animation barre de progression */
+@keyframes progress {
+  0% {
+    transform: translateX(-100%);
+    width: 50%;
+  }
+  50% {
+    transform: translateX(50%);
+    width: 80%;
+  }
+  100% {
+    transform: translateX(200%);
+    width: 50%;
+  }
+}
+
+.animate-progress {
+  animation: progress 1.5s ease-in-out infinite;
+}
