@@ -134,3 +134,113 @@ export async function genererFiches(
   })
   return gererReponse<ReponseFiches>(response)
 }
+
+// Types Quiz
+export interface Question {
+  id: string
+  enonce: string
+  choix: string[]
+  reponseCorrecte: number
+  explication: string
+}
+
+export interface Quiz {
+  id: string
+  coursId: string
+  titre: string
+  difficulte: 'facile' | 'moyen' | 'difficile'
+  nombreQuestions: number
+  questions: Question[]
+}
+
+export interface ReponseQuiz {
+  succes: boolean
+  quiz?: Quiz
+  erreur?: ErreurAPI
+}
+
+export interface ReponseSession {
+  questionId: string
+  choixIndex: number
+  estCorrecte: boolean
+}
+
+export interface SessionQuiz {
+  id: string
+  quizId: string
+  reponses: ReponseSession[]
+  score?: number
+  termine: boolean
+  dateDebut: string
+  dateFin?: string
+}
+
+export interface ReponseSessionQuiz {
+  succes: boolean
+  session?: SessionQuiz
+  erreur?: ErreurAPI
+}
+
+export interface ReponseRepondre {
+  succes: boolean
+  estCorrecte: boolean
+  explication?: string
+  erreur?: ErreurAPI
+}
+
+// API Quiz
+export async function genererQuiz(
+  coursId: string,
+  options?: { nombreQuestions?: number; difficulte?: string; titre?: string }
+): Promise<ReponseQuiz> {
+  const response = await fetch(`${API_BASE}/generer/quiz`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      coursId,
+      nombreQuestions: options?.nombreQuestions,
+      difficulte: options?.difficulte,
+      titre: options?.titre,
+    }),
+  })
+  return gererReponse<ReponseQuiz>(response)
+}
+
+export async function obtenirQuiz(quizId: string): Promise<ReponseQuiz> {
+  const response = await fetch(`${API_BASE}/quiz/${quizId}`)
+  return gererReponse<ReponseQuiz>(response)
+}
+
+export async function demarrerSession(quizId: string): Promise<ReponseSessionQuiz> {
+  const response = await fetch(`${API_BASE}/quiz/${quizId}/demarrer`, {
+    method: 'POST',
+  })
+  return gererReponse<ReponseSessionQuiz>(response)
+}
+
+export async function repondreQuestion(
+  quizId: string,
+  sessionId: string,
+  questionId: string,
+  choixIndex: number
+): Promise<ReponseRepondre> {
+  const response = await fetch(`${API_BASE}/quiz/${quizId}/session/${sessionId}/repondre`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      questionId,
+      choixIndex,
+    }),
+  })
+  return gererReponse<ReponseRepondre>(response)
+}
+
+export async function terminerSession(
+  quizId: string,
+  sessionId: string
+): Promise<ReponseSessionQuiz> {
+  const response = await fetch(`${API_BASE}/quiz/${quizId}/session/${sessionId}/terminer`, {
+    method: 'POST',
+  })
+  return gererReponse<ReponseSessionQuiz>(response)
+}

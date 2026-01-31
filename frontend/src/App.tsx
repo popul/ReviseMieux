@@ -3,6 +3,7 @@ import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Scanner from './pages/Scanner'
 import Fiches from './pages/Fiches'
+import Quiz from './pages/Quiz'
 
 // Placeholder pages - à implémenter dans les prochaines étapes
 function PageEnConstruction({ titre }: { titre: string }) {
@@ -24,7 +25,7 @@ export default function App() {
           <Route path="scanner" element={<Scanner />} />
           <Route path="cours" element={<PageEnConstruction titre="Mes cours" />} />
           <Route path="fiches" element={<Fiches />} />
-          <Route path="quiz" element={<PageEnConstruction titre="Quiz" />} />
+          <Route path="quiz" element={<Quiz />} />
           <Route path="mindmap" element={<PageEnConstruction titre="Cartes mentales" />} />
           <Route path="analyser" element={<PageEnConstruction titre="Analyser une copie" />} />
           <Route path="progression" element={<PageEnConstruction titre="Ma progression" />} />
