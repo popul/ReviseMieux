@@ -15,11 +15,13 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers) {
 	api := r.Group("/api")
 	{
 		api.GET("/statut", h.StatutHandler)
+		api.GET("/statistiques", h.ObtenirStatistiquesHandler)
 
 		// Routes Cours
 		cours := api.Group("/cours")
 		{
 			cours.GET("", h.ListerCoursHandler)
+			cours.GET("/recents", h.ObtenirCoursRecentsHandler)
 			cours.POST("", h.CreerCoursHandler)
 			cours.GET("/:id", h.ObtenirCoursHandler)
 			cours.GET("/:id/fiches", h.ObtenirFichesHandler)

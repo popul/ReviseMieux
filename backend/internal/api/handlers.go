@@ -11,9 +11,10 @@ import (
 
 // Handlers contient les dépendances des handlers
 type Handlers struct {
-	store              *store.Store
-	handlersOCR        *HandlersOCR
-	handlersGeneration *HandlersGeneration
+	store                *store.Store
+	handlersOCR          *HandlersOCR
+	handlersGeneration   *HandlersGeneration
+	handlersStatistiques *HandlersStatistiques
 }
 
 // NouveauHandlers crée une nouvelle instance de Handlers
@@ -21,12 +22,14 @@ func NouveauHandlers(
 	s *store.Store,
 	serviceOCR *services.ServiceOCR,
 	serviceGeneration *services.ServiceGeneration,
+	serviceStatistiques *services.ServiceStatistiques,
 	coursRepo store.CoursRepository,
 ) *Handlers {
 	return &Handlers{
-		store:              s,
-		handlersOCR:        NouveauHandlersOCR(serviceOCR, coursRepo),
-		handlersGeneration: NouveauHandlersGeneration(serviceGeneration),
+		store:                s,
+		handlersOCR:          NouveauHandlersOCR(serviceOCR, coursRepo),
+		handlersGeneration:   NouveauHandlersGeneration(serviceGeneration),
+		handlersStatistiques: NouveauHandlersStatistiques(serviceStatistiques),
 	}
 }
 
@@ -245,6 +248,38 @@ func (h *Handlers) ObtenirRessourcesHandler(c *gin.Context) {
 		"erreur": gin.H{
 			"code":    "SERVICE_NON_DISPONIBLE",
 			"message": "Le service n'est pas configuré",
+		},
+	})
+}
+
+// --- Handlers Statistiques ---
+
+// ObtenirStatistiquesHandler retourne les statistiques globales
+func (h *Handlers) ObtenirStatistiquesHandler(c *gin.Context) {
+	if h.handlersStatistiques != nil {
+		h.handlersStatistiques.ObtenirStatistiquesHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de statistiques n'est pas configuré",
+		},
+	})
+}
+
+// ObtenirCoursRecentsHandler retourne les cours récents avec leurs statistiques
+func (h *Handlers) ObtenirCoursRecentsHandler(c *gin.Context) {
+	if h.handlersStatistiques != nil {
+		h.handlersStatistiques.ObtenirCoursRecentsHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de statistiques n'est pas configuré",
 		},
 	})
 }

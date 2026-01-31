@@ -70,6 +70,13 @@ func main() {
 		log.Println("✓ Service génération initialisé")
 	}
 
+	// Créer le service de statistiques
+	var serviceStatistiques *services.ServiceStatistiques
+	if coursRepo != nil {
+		serviceStatistiques = services.NouveauServiceStatistiques(coursRepo, fichesRepo, quizRepo)
+		log.Println("✓ Service statistiques initialisé")
+	}
+
 	// Créer le routeur Gin
 	r := gin.Default()
 
@@ -77,7 +84,7 @@ func main() {
 	api.ConfigurerMiddleware(r)
 
 	// Créer les handlers avec toutes les dépendances
-	handlers := api.NouveauHandlers(db, serviceOCR, serviceGeneration, coursRepo)
+	handlers := api.NouveauHandlers(db, serviceOCR, serviceGeneration, serviceStatistiques, coursRepo)
 
 	// Configurer les routes
 	api.ConfigurerRoutes(r, handlers)

@@ -244,3 +244,45 @@ export async function terminerSession(
   })
   return gererReponse<ReponseSessionQuiz>(response)
 }
+
+// Types Statistiques
+export interface Statistiques {
+  nombreCours: number
+  nombreFiches: number
+  nombreQuiz: number
+  quizCompletes: number
+  scoreMoyen?: number
+}
+
+export interface ReponseStatistiques {
+  succes: boolean
+  statistiques?: Statistiques
+  erreur?: ErreurAPI
+}
+
+export interface CoursResume {
+  id: string
+  titre: string
+  matiere?: string
+  nombreFiches: number
+  nombreQuiz: number
+  dateCreation: string
+  dateModification: string
+}
+
+export interface ReponseCoursRecents {
+  succes: boolean
+  cours: CoursResume[]
+  erreur?: ErreurAPI
+}
+
+// API Statistiques
+export async function obtenirStatistiques(): Promise<ReponseStatistiques> {
+  const response = await fetch(`${API_BASE}/statistiques`)
+  return gererReponse<ReponseStatistiques>(response)
+}
+
+export async function obtenirCoursRecents(): Promise<ReponseCoursRecents> {
+  const response = await fetch(`${API_BASE}/cours/recents`)
+  return gererReponse<ReponseCoursRecents>(response)
+}
