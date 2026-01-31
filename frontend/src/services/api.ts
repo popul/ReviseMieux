@@ -286,3 +286,51 @@ export async function obtenirCoursRecents(): Promise<ReponseCoursRecents> {
   const response = await fetch(`${API_BASE}/cours/recents`)
   return gererReponse<ReponseCoursRecents>(response)
 }
+
+// Types Mindmap
+export interface Position {
+  x: number
+  y: number
+}
+
+export interface NoeudMindmap {
+  id: string
+  label: string
+  type: 'central' | 'branche' | 'feuille'
+  position: Position
+}
+
+export interface LienMindmap {
+  id: string
+  source: string
+  target: string
+}
+
+export interface Mindmap {
+  id: string
+  coursId: string
+  noeuds: NoeudMindmap[]
+  liens: LienMindmap[]
+  dateCreation: string
+}
+
+export interface ReponseMindmap {
+  succes: boolean
+  mindmap?: Mindmap
+  erreur?: ErreurAPI
+}
+
+// API Mindmap
+export async function genererMindmap(coursId: string): Promise<ReponseMindmap> {
+  const response = await fetch(`${API_BASE}/generer/mindmap`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ coursId }),
+  })
+  return gererReponse<ReponseMindmap>(response)
+}
+
+export async function obtenirMindmap(coursId: string): Promise<ReponseMindmap> {
+  const response = await fetch(`${API_BASE}/cours/${coursId}/mindmap`)
+  return gererReponse<ReponseMindmap>(response)
+}
