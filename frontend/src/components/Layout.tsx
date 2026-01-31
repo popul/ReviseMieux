@@ -1,4 +1,7 @@
 import { Outlet, NavLink } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { obtenirQuotas } from '../services/api'
+import type { StatutQuota } from '../services/api'
 
 interface LienNavigation {
   vers: string
@@ -49,7 +52,68 @@ function SectionNavigation({ titre, liens }: { titre: string; liens: LienNavigat
   )
 }
 
+function AffichageQuotas({ quotas }: { quotas: StatutQuota | null }) {
+  if (!quotas) return null
+
+  const pourcentageOCR = (quotas.pagesOcrUtilisees / quotas.pagesOcrMax) * 100
+  const pourcentageGen = (quotas.generationsUtilisees / quotas.generationsMax) * 100
+
+  const couleurBarre = (pourcent: number) => {
+    if (pourcent >= 90) return 'bg-coral'
+    if (pourcent >= 70) return 'bg-gold'
+    return 'bg-teal'
+  }
+
+  return (
+    <div className="mb-lg p-sm bg-white/5 rounded-md">
+      <div className="text-xs font-semibold text-ink-muted uppercase tracking-wider mb-sm">
+        Quotas du jour
+      </div>
+      <div className="space-y-2">
+        <div>
+          <div className="flex justify-between text-xs text-white/70 mb-1">
+            <span>OCR</span>
+            <span>{quotas.pagesOcrRestantes} restants</span>
+          </div>
+          <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div
+              className={`h-full ${couleurBarre(pourcentageOCR)} transition-all`}
+              style={{ width: `${pourcentageOCR}%` }}
+            />
+          </div>
+        </div>
+        <div>
+          <div className="flex justify-between text-xs text-white/70 mb-1">
+            <span>Générations</span>
+            <span>{quotas.generationsRestantes} restants</span>
+          </div>
+          <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+            <div
+              className={`h-full ${couleurBarre(pourcentageGen)} transition-all`}
+              style={{ width: `${pourcentageGen}%` }}
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Layout() {
+  const [quotas, setQuotas] = useState<StatutQuota | null>(null)
+
+  useEffect(() => {
+    obtenirQuotas()
+      .then((response) => {
+        if (response.succes && response.quotas) {
+          setQuotas(response.quotas)
+        }
+      })
+      .catch(() => {
+        // Silencieusement ignorer les erreurs de quota
+      })
+  }, [])
+
   return (
     <div className="grid grid-cols-[280px_1fr] min-h-screen">
       {/* Sidebar */}
@@ -63,6 +127,8 @@ export default function Layout() {
           <SectionNavigation titre="Réviser" liens={menuRevision} />
           <SectionNavigation titre="Analyse" liens={menuAnalyse} />
         </nav>
+
+        <AffichageQuotas quotas={quotas} />
 
         <div className="pt-lg border-t border-white/10">
           <div className="flex items-center gap-sm p-sm rounded-md transition-colors cursor-pointer hover:bg-white/[0.08]">

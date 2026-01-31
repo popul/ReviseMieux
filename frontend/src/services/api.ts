@@ -334,3 +334,25 @@ export async function obtenirMindmap(coursId: string): Promise<ReponseMindmap> {
   const response = await fetch(`${API_BASE}/cours/${coursId}/mindmap`)
   return gererReponse<ReponseMindmap>(response)
 }
+
+// Types Quotas
+export interface StatutQuota {
+  pagesOcrUtilisees: number
+  pagesOcrMax: number
+  generationsUtilisees: number
+  generationsMax: number
+  pagesOcrRestantes: number
+  generationsRestantes: number
+}
+
+export interface ReponseQuotas {
+  succes: boolean
+  quotas?: StatutQuota
+  erreur?: ErreurAPI
+}
+
+// API Quotas
+export async function obtenirQuotas(): Promise<ReponseQuotas> {
+  const response = await fetch(`${API_BASE}/quotas`)
+  return gererReponse<ReponseQuotas>(response)
+}

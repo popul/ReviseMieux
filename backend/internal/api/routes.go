@@ -3,10 +3,11 @@ package api
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/revisemieux/backend/internal/services"
 )
 
 // ConfigurerRoutes configure toutes les routes de l'API
-func ConfigurerRoutes(r *gin.Engine, h *Handlers) {
+func ConfigurerRoutes(r *gin.Engine, h *Handlers, serviceQuotas *services.ServiceQuotas) {
 	// Routes racine
 	r.GET("/health", h.HealthHandler)
 	r.GET("/", h.RootHandler)
@@ -16,6 +17,7 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers) {
 	{
 		api.GET("/statut", h.StatutHandler)
 		api.GET("/statistiques", h.ObtenirStatistiquesHandler)
+		api.GET("/quotas", h.ObtenirQuotasHandler)
 
 		// Routes Cours
 		cours := api.Group("/cours")
@@ -29,11 +31,12 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers) {
 			cours.GET("/:id/mindmap", h.ObtenirMindmapHandler)
 		}
 
-		// Routes OCR
-		api.POST("/ocr", h.OCRHandler)
+		// Routes OCR (avec middleware quota)
+		api.POST("/ocr", MiddlewareVerificationQuotaOCR(serviceQuotas), h.OCRHandler)
 
-		// Routes Génération
+		// Routes Génération (avec middleware quota)
 		generer := api.Group("/generer")
+		generer.Use(MiddlewareVerificationQuotaGeneration(serviceQuotas))
 		{
 			generer.POST("/fiches", h.GenererFichesHandler)
 			generer.POST("/quiz", h.GenererQuizHandler)

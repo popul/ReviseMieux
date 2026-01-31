@@ -56,13 +56,15 @@ func main() {
 	var quizRepo store.QuizRepository
 	var ressourcesRepo store.RessourcesRepository
 	var mindmapRepo store.MindmapRepository
+	var quotasRepo store.QuotasRepository
 	if db != nil {
 		coursRepo = store.NouveauCoursRepo(db)
 		fichesRepo = store.NouveauFichesRepo(db)
 		quizRepo = store.NouveauQuizRepo(db)
 		ressourcesRepo = store.NouveauRessourcesRepo(db)
 		mindmapRepo = store.NouveauMindmapRepo(db)
-		log.Println("✓ Repositories initialisés (cours, fiches, quiz, ressources, mindmaps)")
+		quotasRepo = store.NouveauQuotasRepo(db)
+		log.Println("✓ Repositories initialisés (cours, fiches, quiz, ressources, mindmaps, quotas)")
 	}
 
 	// Créer le service de génération
@@ -79,6 +81,13 @@ func main() {
 		log.Println("✓ Service statistiques initialisé")
 	}
 
+	// Créer le service de quotas
+	var serviceQuotas *services.ServiceQuotas
+	if quotasRepo != nil {
+		serviceQuotas = services.NouveauServiceQuotas(quotasRepo, cfg.QuotaOCRJour, cfg.QuotaGenerationJour)
+		log.Printf("✓ Service quotas initialisé (OCR: %d/jour, Génération: %d/jour)", cfg.QuotaOCRJour, cfg.QuotaGenerationJour)
+	}
+
 	// Créer le routeur Gin
 	r := gin.Default()
 
@@ -86,10 +95,10 @@ func main() {
 	api.ConfigurerMiddleware(r)
 
 	// Créer les handlers avec toutes les dépendances
-	handlers := api.NouveauHandlers(db, serviceOCR, serviceGeneration, serviceStatistiques, coursRepo)
+	handlers := api.NouveauHandlers(db, serviceOCR, serviceGeneration, serviceStatistiques, serviceQuotas, coursRepo)
 
 	// Configurer les routes
-	api.ConfigurerRoutes(r, handlers)
+	api.ConfigurerRoutes(r, handlers, serviceQuotas)
 
 	// Démarrer le serveur
 	log.Printf("🚀 Serveur démarré sur le port %s", cfg.Port)

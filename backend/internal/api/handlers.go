@@ -15,6 +15,7 @@ type Handlers struct {
 	handlersOCR          *HandlersOCR
 	handlersGeneration   *HandlersGeneration
 	handlersStatistiques *HandlersStatistiques
+	handlersQuotas       *HandlersQuotas
 }
 
 // NouveauHandlers crée une nouvelle instance de Handlers
@@ -23,6 +24,7 @@ func NouveauHandlers(
 	serviceOCR *services.ServiceOCR,
 	serviceGeneration *services.ServiceGeneration,
 	serviceStatistiques *services.ServiceStatistiques,
+	serviceQuotas *services.ServiceQuotas,
 	coursRepo store.CoursRepository,
 ) *Handlers {
 	return &Handlers{
@@ -30,6 +32,7 @@ func NouveauHandlers(
 		handlersOCR:          NouveauHandlersOCR(serviceOCR, coursRepo),
 		handlersGeneration:   NouveauHandlersGeneration(serviceGeneration),
 		handlersStatistiques: NouveauHandlersStatistiques(serviceStatistiques),
+		handlersQuotas:       NouveauHandlersQuotas(serviceQuotas),
 	}
 }
 
@@ -303,6 +306,23 @@ func (h *Handlers) ObtenirCoursRecentsHandler(c *gin.Context) {
 		"erreur": gin.H{
 			"code":    "SERVICE_NON_DISPONIBLE",
 			"message": "Le service de statistiques n'est pas configuré",
+		},
+	})
+}
+
+// --- Handlers Quotas ---
+
+// ObtenirQuotasHandler retourne l'état actuel des quotas
+func (h *Handlers) ObtenirQuotasHandler(c *gin.Context) {
+	if h.handlersQuotas != nil {
+		h.handlersQuotas.ObtenirQuotasHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de quotas n'est pas configuré",
 		},
 	})
 }
