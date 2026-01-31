@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
+import Scanner from './pages/Scanner'
 
 // Placeholder pages - à implémenter dans les prochaines étapes
 function PageEnConstruction({ titre }: { titre: string }) {
@@ -19,7 +20,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Dashboard />} />
-          <Route path="scanner" element={<PageEnConstruction titre="Scanner un cours" />} />
+          <Route path="scanner" element={<Scanner />} />
           <Route path="cours" element={<PageEnConstruction titre="Mes cours" />} />
           <Route path="fiches" element={<PageEnConstruction titre="Fiches de révision" />} />
           <Route path="quiz" element={<PageEnConstruction titre="Quiz" />} />
