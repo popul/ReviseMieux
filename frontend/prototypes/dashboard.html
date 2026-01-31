@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de bord — Révise mieux</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400;1,9..144,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --coral: #E85D4C;
+            --coral-light: #FF7A6B;
+            --coral-dark: #C94A3B;
+            --teal: #1A4D4D;
+            --teal-light: #2A6B6B;
+            --gold: #F5C542;
+            --gold-light: #FFD966;
+            --cream: #FBF8F3;
+            --cream-dark: #F5F0E8;
+            --ink: #1A1A1A;
+            --ink-light: #4A4A4A;
+            --ink-muted: #8A8A8A;
+            --success: #34A853;
+            --success-light: #E6F4EA;
+
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+
+            --space-xs: 0.5rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 2rem;
+            --space-xl: 3rem;
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-full: 100px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--cream);
+            color: var(--ink);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Paper texture */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.35;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            z-index: 1000;
+        }
+
+        /* ===== LAYOUT ===== */
+        .app-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            background: var(--ink);
+            padding: var(--space-lg);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            width: 280px;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-logo {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: white;
+            text-decoration: none;
+            margin-bottom: var(--space-xl);
+        }
+
+        .sidebar-logo span {
+            color: var(--coral);
+        }
+
+        .sidebar-nav {
+            flex: 1;
+        }
+
+        .nav-section {
+            margin-bottom: var(--space-lg);
+        }
+
+        .nav-section-title {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--ink-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: var(--space-sm);
+            padding-left: var(--space-sm);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: 0.875rem var(--space-sm);
+            border-radius: var(--radius-md);
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .nav-item.active {
+            background: var(--coral);
+            color: white;
+        }
+
+        .nav-item-icon {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            padding-top: var(--space-lg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+            padding: var(--space-sm);
+            border-radius: var(--radius-md);
+            transition: background 0.2s ease;
+            cursor: pointer;
+        }
+
+        .user-card:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--coral), var(--gold));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .user-class {
+            font-size: 0.8rem;
+            color: var(--ink-muted);
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            margin-left: 280px;
+            padding: var(--space-xl);
+            max-width: 1200px;
+        }
+
+        /* Header */
+        .page-header {
+            margin-bottom: var(--space-xl);
+        }
+
+        .greeting {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: var(--space-xs);
+        }
+
+        .greeting-sub {
+            color: var(--ink-light);
+            font-size: 1.1rem;
+        }
+
+        /* Quick actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-md);
+            margin-bottom: var(--space-xl);
+        }
+
+        .quick-action {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            text-decoration: none;
+            color: var(--ink);
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            cursor: pointer;
+        }
+
+        .quick-action:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(26, 26, 26, 0.1);
+        }
+
+        .quick-action.primary {
+            background: var(--coral);
+            color: white;
+        }
+
+        .quick-action.primary:hover {
+            background: var(--coral-dark);
+        }
+
+        .quick-action-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .quick-action.primary .quick-action-icon {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .quick-action:not(.primary) .quick-action-icon {
+            background: var(--cream);
+        }
+
+        .quick-action-content h3 {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .quick-action-content p {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Stats grid */
+        .stats-section {
+            margin-bottom: var(--space-xl);
+        }
+
+        .section-title {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: var(--space-md);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-md);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-md);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .stat-card:nth-child(1) .stat-value { color: var(--coral); }
+        .stat-card:nth-child(2) .stat-value { color: var(--teal); }
+        .stat-card:nth-child(3) .stat-value { color: var(--gold); }
+        .stat-card:nth-child(4) .stat-value { color: var(--success); }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--ink-light);
+        }
+
+        /* Recent courses */
+        .courses-section {
+            margin-bottom: var(--space-xl);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-md);
+        }
+
+        .section-link {
+            font-size: 0.9rem;
+            color: var(--coral);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .section-link:hover {
+            text-decoration: underline;
+        }
+
+        .courses-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-md);
+        }
+
+        .course-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(26, 26, 26, 0.1);
+        }
+
+        .course-header {
+            padding: var(--space-md);
+            position: relative;
+        }
+
+        .course-card:nth-child(1) .course-header { background: linear-gradient(135deg, var(--coral), var(--coral-light)); }
+        .course-card:nth-child(2) .course-header { background: linear-gradient(135deg, var(--teal), var(--teal-light)); }
+        .course-card:nth-child(3) .course-header { background: linear-gradient(135deg, var(--gold), var(--gold-light)); }
+
+        .course-subject {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 4px;
+        }
+
+        .course-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .course-body {
+            padding: var(--space-md);
+        }
+
+        .course-meta {
+            display: flex;
+            gap: var(--space-md);
+            margin-bottom: var(--space-sm);
+        }
+
+        .course-meta-item {
+            font-size: 0.85rem;
+            color: var(--ink-light);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .course-progress {
+            display: flex;
+            align-items: center;
+            gap: var(--space-sm);
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 6px;
+            background: var(--cream);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            border-radius: var(--radius-full);
+            transition: width 0.3s ease;
+        }
+
+        .progress-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        /* Activity feed */
+        .activity-section {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+        }
+
+        .activity-list {
+            list-style: none;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-md);
+            padding: var(--space-md) 0;
+            border-bottom: 1px solid var(--cream-dark);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+
+        .activity-icon.quiz { background: var(--coral-light); color: var(--coral-dark); }
+        .activity-icon.course { background: var(--teal-light); color: white; }
+        .activity-icon.cards { background: var(--gold-light); color: var(--ink); }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            font-size: 0.95rem;
+            color: var(--ink);
+            margin-bottom: 4px;
+        }
+
+        .activity-text strong {
+            font-weight: 600;
+        }
+
+        .activity-time {
+            font-size: 0.8rem;
+            color: var(--ink-muted);
+        }
+
+        .activity-badge {
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: var(--radius-full);
+        }
+
+        .activity-badge.success {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .courses-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .courses-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .quick-actions, .stats-section, .courses-section, .activity-section {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .stats-section { animation-delay: 0.1s; }
+        .courses-section { animation-delay: 0.2s; }
+        .activity-section { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <a href="landing.html" class="sidebar-logo">Révise<span>mieux</span></a>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Menu</div>
+                    <a href="dashboard.html" class="nav-item active">
+                        <span class="nav-item-icon">🏠</span>
+                        Tableau de bord
+                    </a>
+                    <a href="scan.html" class="nav-item">
+                        <span class="nav-item-icon">📸</span>
+                        Scanner un cours
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="nav-item-icon">📚</span>
+                        Mes cours
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Réviser</div>
+                    <a href="cards.html" class="nav-item">
+                        <span class="nav-item-icon">📄</span>
+                        Fiches de révision
+                    </a>
+                    <a href="quiz.html" class="nav-item">
+                        <span class="nav-item-icon">🎯</span>
+                        Quiz
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="nav-item-icon">🧠</span>
+                        Cartes mentales
+                    </a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Analyse</div>
+                    <a href="#" class="nav-item">
+                        <span class="nav-item-icon">📝</span>
+                        Analyser une copie
+                    </a>
+                    <a href="#" class="nav-item">
+                        <span class="nav-item-icon">📊</span>
+                        Ma progression
+                    </a>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-card">
+                    <div class="user-avatar">LM</div>
+                    <div class="user-info">
+                        <div class="user-name">Léa Martin</div>
+                        <div class="user-class">Terminale S</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="page-header">
+                <h1 class="greeting">Bonjour Léa 👋</h1>
+                <p class="greeting-sub">Prête pour une session de révision ?</p>
+            </header>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <a href="scan.html" class="quick-action primary">
+                    <div class="quick-action-icon">📸</div>
+                    <div class="quick-action-content">
+                        <h3>Scanner un cours</h3>
+                        <p>Transforme tes notes en fiches et quiz</p>
+                    </div>
+                </a>
+                <a href="#" class="quick-action">
+                    <div class="quick-action-icon">📝</div>
+                    <div class="quick-action-content">
+                        <h3>Analyser une copie</h3>
+                        <p>Identifie tes erreurs et progresse</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Stats -->
+            <section class="stats-section">
+                <h2 class="section-title">Tes statistiques</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Cours scannés</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">47</div>
+                        <div class="stat-label">Quiz complétés</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">156</div>
+                        <div class="stat-label">Fiches créées</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">78%</div>
+                        <div class="stat-label">Score moyen</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Recent Courses -->
+            <section class="courses-section">
+                <div class="section-header">
+                    <h2 class="section-title">Cours récents</h2>
+                    <a href="#" class="section-link">Voir tout →</a>
+                </div>
+                <div class="courses-grid">
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-subject">Histoire</div>
+                            <div class="course-title">La Révolution française</div>
+                        </div>
+                        <div class="course-body">
+                            <div class="course-meta">
+                                <span class="course-meta-item">📄 12 fiches</span>
+                                <span class="course-meta-item">🎯 3 quiz</span>
+                            </div>
+                            <div class="course-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 75%"></div>
+                                </div>
+                                <span class="progress-label">75%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-subject">Mathématiques</div>
+                            <div class="course-title">Les fonctions dérivées</div>
+                        </div>
+                        <div class="course-body">
+                            <div class="course-meta">
+                                <span class="course-meta-item">📄 8 fiches</span>
+                                <span class="course-meta-item">🎯 2 quiz</span>
+                            </div>
+                            <div class="course-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 40%"></div>
+                                </div>
+                                <span class="progress-label">40%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="course-card">
+                        <div class="course-header">
+                            <div class="course-subject">Philosophie</div>
+                            <div class="course-title">La conscience et l'inconscient</div>
+                        </div>
+                        <div class="course-body">
+                            <div class="course-meta">
+                                <span class="course-meta-item">📄 6 fiches</span>
+                                <span class="course-meta-item">🎯 1 quiz</span>
+                            </div>
+                            <div class="course-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 20%"></div>
+                                </div>
+                                <span class="progress-label">20%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Activity Feed -->
+            <section class="activity-section">
+                <h2 class="section-title">Activité récente</h2>
+                <ul class="activity-list">
+                    <li class="activity-item">
+                        <div class="activity-icon quiz">🎯</div>
+                        <div class="activity-content">
+                            <p class="activity-text">Quiz terminé : <strong>La Révolution française - Chapitre 2</strong></p>
+                            <span class="activity-time">Il y a 2 heures</span>
+                        </div>
+                        <span class="activity-badge success">85%</span>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon course">📚</div>
+                        <div class="activity-content">
+                            <p class="activity-text">Nouveau cours scanné : <strong>Les fonctions dérivées</strong></p>
+                            <span class="activity-time">Hier à 18:30</span>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon cards">📄</div>
+                        <div class="activity-content">
+                            <p class="activity-text">8 fiches de révision créées pour <strong>Mathématiques</strong></p>
+                            <span class="activity-time">Hier à 18:32</span>
+                        </div>
+                    </li>
+                    <li class="activity-item">
+                        <div class="activity-icon quiz">🎯</div>
+                        <div class="activity-content">
+                            <p class="activity-text">Quiz terminé : <strong>Introduction à la philosophie</strong></p>
+                            <span class="activity-time">Il y a 3 jours</span>
+                        </div>
+                        <span class="activity-badge success">72%</span>
+                    </li>
+                </ul>
+            </section>
+        </main>
+    </div>
+</body>
+</html>

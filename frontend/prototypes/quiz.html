@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz — Révise mieux</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400;1,9..144,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --coral: #E85D4C;
+            --coral-light: #FF7A6B;
+            --coral-dark: #C94A3B;
+            --teal: #1A4D4D;
+            --teal-light: #2A6B6B;
+            --gold: #F5C542;
+            --gold-light: #FFD966;
+            --cream: #FBF8F3;
+            --cream-dark: #F5F0E8;
+            --ink: #1A1A1A;
+            --ink-light: #4A4A4A;
+            --ink-muted: #8A8A8A;
+            --success: #34A853;
+            --success-light: #E8F5E9;
+            --error: #D93025;
+            --error-light: #FFEBEE;
+
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+
+            --space-xs: 0.5rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 2rem;
+            --space-xl: 3rem;
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-full: 100px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--teal);
+            color: var(--ink);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            padding: var(--space-md) var(--space-xl);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-full);
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .header-center {
+            text-align: center;
+        }
+
+        .header-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .header-subtitle {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .header-right {
+            width: 100px;
+        }
+
+        /* Progress bar */
+        .quiz-progress {
+            padding: 0 var(--space-xl);
+            margin-bottom: var(--space-lg);
+        }
+
+        .progress-track {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gold);
+            border-radius: var(--radius-full);
+            transition: width 0.5s ease;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: var(--space-xs);
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Main content */
+        .quiz-container {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 var(--space-xl) var(--space-xl);
+        }
+
+        /* Question card */
+        .question-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .question-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-md);
+        }
+
+        .question-number {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--coral);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .question-type {
+            font-size: 0.8rem;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+            background: var(--cream);
+            color: var(--ink-muted);
+        }
+
+        .question-text {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: var(--space-lg);
+            line-height: 1.4;
+        }
+
+        /* Answer options */
+        .answers-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-sm);
+        }
+
+        .answer-option {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+            padding: var(--space-md);
+            border: 2px solid var(--cream-dark);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .answer-option:hover:not(.disabled) {
+            border-color: var(--teal);
+            background: rgba(26, 77, 77, 0.03);
+        }
+
+        .answer-option.selected {
+            border-color: var(--teal);
+            background: rgba(26, 77, 77, 0.05);
+        }
+
+        .answer-option.correct {
+            border-color: var(--success);
+            background: var(--success-light);
+        }
+
+        .answer-option.incorrect {
+            border-color: var(--error);
+            background: var(--error-light);
+        }
+
+        .answer-option.disabled {
+            cursor: default;
+        }
+
+        .answer-option.disabled:not(.correct):not(.incorrect) {
+            opacity: 0.5;
+        }
+
+        .answer-letter {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--cream);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--ink-light);
+            flex-shrink: 0;
+            transition: all 0.2s ease;
+        }
+
+        .answer-option.selected .answer-letter {
+            background: var(--teal);
+            color: white;
+        }
+
+        .answer-option.correct .answer-letter {
+            background: var(--success);
+            color: white;
+        }
+
+        .answer-option.incorrect .answer-letter {
+            background: var(--error);
+            color: white;
+        }
+
+        .answer-text {
+            flex: 1;
+            font-size: 1rem;
+            color: var(--ink);
+        }
+
+        .answer-icon {
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .answer-option.correct .answer-icon,
+        .answer-option.incorrect .answer-icon {
+            opacity: 1;
+        }
+
+        /* Feedback */
+        .feedback {
+            margin-top: var(--space-lg);
+            padding: var(--space-md);
+            border-radius: var(--radius-md);
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: var(--success-light);
+            border-left: 4px solid var(--success);
+        }
+
+        .feedback.incorrect {
+            background: var(--error-light);
+            border-left: 4px solid var(--error);
+        }
+
+        .feedback-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            font-weight: 600;
+            margin-bottom: var(--space-xs);
+        }
+
+        .feedback.correct .feedback-header {
+            color: var(--success);
+        }
+
+        .feedback.incorrect .feedback-header {
+            color: var(--error);
+        }
+
+        .feedback-text {
+            font-size: 0.95rem;
+            color: var(--ink-light);
+            line-height: 1.6;
+        }
+
+        /* Actions */
+        .quiz-actions {
+            margin-top: var(--space-lg);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .next-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: 0.875rem var(--space-lg);
+            border-radius: var(--radius-full);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: var(--teal);
+            color: white;
+        }
+
+        .next-btn:hover {
+            background: var(--teal-light);
+            transform: translateY(-2px);
+        }
+
+        .next-btn:disabled {
+            background: var(--cream-dark);
+            color: var(--ink-muted);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Results screen */
+        .results-screen {
+            display: none;
+            text-align: center;
+            animation: slideUp 0.5s ease;
+        }
+
+        .results-screen.show {
+            display: block;
+        }
+
+        .results-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .results-icon {
+            font-size: 5rem;
+            margin-bottom: var(--space-md);
+        }
+
+        .results-title {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: var(--space-xs);
+        }
+
+        .results-subtitle {
+            color: var(--ink-light);
+            margin-bottom: var(--space-xl);
+        }
+
+        .results-score {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-xl);
+            margin-bottom: var(--space-xl);
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-value {
+            font-family: var(--font-display);
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .score-value.main {
+            color: var(--coral);
+        }
+
+        .score-value.correct {
+            color: var(--success);
+        }
+
+        .score-value.incorrect {
+            color: var(--error);
+        }
+
+        .score-label {
+            font-size: 0.9rem;
+            color: var(--ink-muted);
+        }
+
+        .results-message {
+            background: var(--cream);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-lg);
+        }
+
+        .results-message h4 {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--teal);
+            margin-bottom: var(--space-xs);
+        }
+
+        .results-message p {
+            font-size: 0.95rem;
+            color: var(--ink-light);
+        }
+
+        .results-actions {
+            display: flex;
+            justify-content: center;
+            gap: var(--space-md);
+            flex-wrap: wrap;
+        }
+
+        .result-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: 0.875rem var(--space-lg);
+            border-radius: var(--radius-full);
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .result-btn.primary {
+            background: var(--coral);
+            color: white;
+        }
+
+        .result-btn.primary:hover {
+            background: var(--coral-dark);
+            transform: translateY(-2px);
+        }
+
+        .result-btn.secondary {
+            background: var(--cream);
+            color: var(--ink);
+        }
+
+        .result-btn.secondary:hover {
+            background: var(--cream-dark);
+        }
+
+        /* Review section */
+        .review-section {
+            margin-top: var(--space-xl);
+            text-align: left;
+        }
+
+        .review-title {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+            text-align: center;
+        }
+
+        .review-item {
+            background: var(--cream);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin-bottom: var(--space-sm);
+            border-left: 4px solid var(--success);
+        }
+
+        .review-item.wrong {
+            border-left-color: var(--error);
+        }
+
+        .review-question {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: var(--space-xs);
+        }
+
+        .review-answer {
+            font-size: 0.9rem;
+            color: var(--ink-light);
+        }
+
+        .review-answer span {
+            font-weight: 600;
+        }
+
+        .review-answer.correct span {
+            color: var(--success);
+        }
+
+        .review-answer.wrong span {
+            color: var(--error);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: var(--space-sm) var(--space-md);
+            }
+            .quiz-progress {
+                padding: 0 var(--space-md);
+            }
+            .quiz-container {
+                padding: 0 var(--space-md) var(--space-md);
+            }
+            .question-card, .results-card {
+                padding: var(--space-lg);
+            }
+            .question-text {
+                font-size: 1.2rem;
+            }
+            .results-score {
+                flex-direction: column;
+                gap: var(--space-md);
+            }
+            .results-actions {
+                flex-direction: column;
+            }
+            .result-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <a href="dashboard.html" class="back-btn">← Quitter</a>
+        <div class="header-center">
+            <h1 class="header-title">La Révolution française</h1>
+            <p class="header-subtitle">Quiz de révision</p>
+        </div>
+        <div class="header-right"></div>
+    </header>
+
+    <!-- Progress -->
+    <div class="quiz-progress">
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill" style="width: 10%"></div>
+        </div>
+        <div class="progress-info">
+            <span id="questionCounter">Question 1/10</span>
+            <span id="scoreDisplay">Score: 0</span>
+        </div>
+    </div>
+
+    <div class="quiz-container">
+        <!-- Question Card -->
+        <div class="question-card" id="questionCard">
+            <div class="question-header">
+                <span class="question-number" id="questionNumber">Question 1</span>
+                <span class="question-type" id="questionType">Connaissance</span>
+            </div>
+
+            <p class="question-text" id="questionText">
+                Quelle est la date de la prise de la Bastille ?
+            </p>
+
+            <div class="answers-list" id="answersList">
+                <!-- Answers will be inserted here -->
+            </div>
+
+            <div class="feedback" id="feedback">
+                <div class="feedback-header">
+                    <span id="feedbackIcon"></span>
+                    <span id="feedbackTitle"></span>
+                </div>
+                <p class="feedback-text" id="feedbackText"></p>
+            </div>
+
+            <div class="quiz-actions">
+                <button class="next-btn" id="nextBtn" disabled>
+                    Suivant <span>→</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Screen -->
+        <div class="results-screen" id="resultsScreen">
+            <div class="results-card">
+                <div class="results-icon" id="resultsIcon">🎉</div>
+                <h2 class="results-title" id="resultsTitle">Excellent travail !</h2>
+                <p class="results-subtitle" id="resultsSubtitle">Tu as terminé le quiz sur la Révolution française</p>
+
+                <div class="results-score">
+                    <div class="score-item">
+                        <div class="score-value main" id="finalScore">80%</div>
+                        <div class="score-label">Score final</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value correct" id="correctCount">8</div>
+                        <div class="score-label">Bonnes réponses</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-value incorrect" id="incorrectCount">2</div>
+                        <div class="score-label">À revoir</div>
+                    </div>
+                </div>
+
+                <div class="results-message" id="resultsMessage">
+                    <h4>💡 Conseil</h4>
+                    <p>Revois les fiches sur les dates clés pour améliorer ton score !</p>
+                </div>
+
+                <div class="results-actions">
+                    <button class="result-btn primary" onclick="restartQuiz()">
+                        🔄 Refaire le quiz
+                    </button>
+                    <a href="cards.html" class="result-btn secondary">
+                        📄 Revoir les fiches
+                    </a>
+                    <a href="dashboard.html" class="result-btn secondary">
+                        🏠 Retour au tableau de bord
+                    </a>
+                </div>
+
+                <div class="review-section" id="reviewSection">
+                    <h3 class="review-title">Récapitulatif</h3>
+                    <div id="reviewList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Quelle est la date de la prise de la Bastille ?",
+                type: "Date clé",
+                answers: ["14 juillet 1789", "5 mai 1789", "21 septembre 1792", "26 août 1789"],
+                correct: 0,
+                explanation: "La prise de la Bastille a eu lieu le 14 juillet 1789. C'est un événement symbolique marquant la fin de l'absolutisme royal, devenu aujourd'hui la fête nationale française."
+            },
+            {
+                question: "Qu'est-ce que l'Ancien Régime ?",
+                type: "Définition",
+                answers: [
+                    "Le système politique après la Révolution",
+                    "Le système politique et social avant 1789",
+                    "Une période de paix en Europe",
+                    "Le règne de Napoléon"
+                ],
+                correct: 1,
+                explanation: "L'Ancien Régime désigne le système politique et social de la France avant 1789, caractérisé par la monarchie absolue et la société d'ordres (clergé, noblesse, tiers état)."
+            },
+            {
+                question: "Quelle différence principale oppose les Girondins aux Montagnards ?",
+                type: "Compréhension",
+                answers: [
+                    "Les Girondins veulent la monarchie, les Montagnards la république",
+                    "Les Girondins sont modérés, les Montagnards sont radicaux",
+                    "Les Girondins sont nobles, les Montagnards sont bourgeois",
+                    "Il n'y a pas de différence significative"
+                ],
+                correct: 1,
+                explanation: "Les Girondins sont modérés et favorables à des réformes progressives, tandis que les Montagnards sont radicaux et prônent des mesures révolutionnaires immédiates."
+            },
+            {
+                question: "Quand la Déclaration des Droits de l'Homme et du Citoyen a-t-elle été adoptée ?",
+                type: "Date clé",
+                answers: ["14 juillet 1789", "26 août 1789", "21 septembre 1792", "5 mai 1789"],
+                correct: 1,
+                explanation: "La Déclaration des Droits de l'Homme et du Citoyen a été adoptée le 26 août 1789. Elle proclame les principes fondamentaux de liberté, d'égalité et de souveraineté nationale."
+            },
+            {
+                question: "Qu'est-ce que le Tiers État ?",
+                type: "Définition",
+                answers: [
+                    "Le clergé",
+                    "La noblesse",
+                    "98% de la population (paysans, bourgeois, artisans)",
+                    "L'armée révolutionnaire"
+                ],
+                correct: 2,
+                explanation: "Le Tiers État représente environ 98% de la population française (tous ceux qui ne sont ni nobles ni membres du clergé) mais n'avait qu'un tiers des voix aux États généraux."
+            },
+            {
+                question: "Quelle période correspond à la Terreur ?",
+                type: "Date clé",
+                answers: ["1789-1791", "1791-1792", "1793-1794", "1795-1799"],
+                correct: 2,
+                explanation: "La Terreur est la période de 1793 à 1794 pendant laquelle le Comité de Salut Public, dirigé notamment par Robespierre, met en place une répression violente."
+            },
+            {
+                question: "Qu'établit la Constitution de 1791 ?",
+                type: "Compréhension",
+                answers: [
+                    "Une république démocratique",
+                    "Une monarchie constitutionnelle",
+                    "Une dictature militaire",
+                    "L'abolition complète de la monarchie"
+                ],
+                correct: 1,
+                explanation: "La Constitution de 1791 établit une monarchie constitutionnelle où le roi conserve son titre mais ses pouvoirs sont limités par une constitution."
+            },
+            {
+                question: "Quand Louis XVI a-t-il été exécuté ?",
+                type: "Date clé",
+                answers: ["14 juillet 1789", "26 août 1789", "21 janvier 1793", "27 juillet 1794"],
+                correct: 2,
+                explanation: "Louis XVI a été guillotiné le 21 janvier 1793, marquant la fin définitive de la monarchie en France."
+            },
+            {
+                question: "Qui était Robespierre ?",
+                type: "Connaissance",
+                answers: [
+                    "Un roi de France",
+                    "Un leader des Montagnards et figure de la Terreur",
+                    "Un général de l'armée révolutionnaire",
+                    "Un philosophe des Lumières"
+                ],
+                correct: 1,
+                explanation: "Robespierre était l'un des principaux leaders des Montagnards et la figure centrale de la période de la Terreur (1793-1794)."
+            },
+            {
+                question: "Quel événement de la nuit du 4 août 1789 marque la fin de l'Ancien Régime ?",
+                type: "Compréhension",
+                answers: [
+                    "La prise de la Bastille",
+                    "L'abolition des privilèges",
+                    "L'exécution de Louis XVI",
+                    "La Déclaration des Droits de l'Homme"
+                ],
+                correct: 1,
+                explanation: "La nuit du 4 août 1789 marque officiellement la fin de l'Ancien Régime avec l'abolition des privilèges féodaux et de la société d'ordres."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let selectedAnswer = null;
+        let answered = false;
+        let userAnswers = [];
+
+        const questionCard = document.getElementById('questionCard');
+        const resultsScreen = document.getElementById('resultsScreen');
+        const questionNumber = document.getElementById('questionNumber');
+        const questionType = document.getElementById('questionType');
+        const questionText = document.getElementById('questionText');
+        const answersList = document.getElementById('answersList');
+        const feedback = document.getElementById('feedback');
+        const feedbackIcon = document.getElementById('feedbackIcon');
+        const feedbackTitle = document.getElementById('feedbackTitle');
+        const feedbackText = document.getElementById('feedbackText');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressFill = document.getElementById('progressFill');
+        const questionCounter = document.getElementById('questionCounter');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+
+        function loadQuestion() {
+            const q = questions[currentQuestion];
+            answered = false;
+            selectedAnswer = null;
+
+            questionNumber.textContent = `Question ${currentQuestion + 1}`;
+            questionType.textContent = q.type;
+            questionText.textContent = q.question;
+
+            answersList.innerHTML = '';
+            const letters = ['A', 'B', 'C', 'D'];
+
+            q.answers.forEach((answer, index) => {
+                const div = document.createElement('div');
+                div.className = 'answer-option';
+                div.innerHTML = `
+                    <span class="answer-letter">${letters[index]}</span>
+                    <span class="answer-text">${answer}</span>
+                    <span class="answer-icon"></span>
+                `;
+                div.addEventListener('click', () => selectAnswer(index));
+                answersList.appendChild(div);
+            });
+
+            feedback.classList.remove('show', 'correct', 'incorrect');
+            nextBtn.disabled = true;
+            nextBtn.textContent = currentQuestion < questions.length - 1 ? 'Suivant →' : 'Voir les résultats';
+
+            progressFill.style.width = ((currentQuestion + 1) / questions.length * 100) + '%';
+            questionCounter.textContent = `Question ${currentQuestion + 1}/${questions.length}`;
+            scoreDisplay.textContent = `Score: ${score}`;
+
+            // Animation
+            questionCard.style.animation = 'none';
+            questionCard.offsetHeight;
+            questionCard.style.animation = 'slideUp 0.4s ease';
+        }
+
+        function selectAnswer(index) {
+            if (answered) return;
+
+            selectedAnswer = index;
+            answered = true;
+            const q = questions[currentQuestion];
+            const options = answersList.querySelectorAll('.answer-option');
+
+            options.forEach((opt, i) => {
+                opt.classList.add('disabled');
+                if (i === q.correct) {
+                    opt.classList.add('correct');
+                    opt.querySelector('.answer-icon').textContent = '✓';
+                }
+                if (i === index && index !== q.correct) {
+                    opt.classList.add('incorrect');
+                    opt.querySelector('.answer-icon').textContent = '✗';
+                }
+            });
+
+            const isCorrect = index === q.correct;
+            userAnswers.push({ question: q.question, correct: isCorrect, userAnswer: q.answers[index], correctAnswer: q.answers[q.correct] });
+
+            if (isCorrect) {
+                score++;
+                scoreDisplay.textContent = `Score: ${score}`;
+                feedback.classList.add('correct');
+                feedbackIcon.textContent = '✓';
+                feedbackTitle.textContent = 'Correct !';
+            } else {
+                feedback.classList.add('incorrect');
+                feedbackIcon.textContent = '✗';
+                feedbackTitle.textContent = 'Incorrect';
+            }
+
+            feedbackText.textContent = q.explanation;
+            feedback.classList.add('show');
+            nextBtn.disabled = false;
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        }
+
+        function showResults() {
+            questionCard.style.display = 'none';
+            resultsScreen.classList.add('show');
+
+            const percentage = Math.round((score / questions.length) * 100);
+            const correctCount = score;
+            const incorrectCount = questions.length - score;
+
+            document.getElementById('finalScore').textContent = percentage + '%';
+            document.getElementById('correctCount').textContent = correctCount;
+            document.getElementById('incorrectCount').textContent = incorrectCount;
+
+            let icon, title, message;
+            if (percentage >= 80) {
+                icon = '🎉';
+                title = 'Excellent travail !';
+                message = 'Tu maîtrises très bien ce chapitre. Continue comme ça !';
+            } else if (percentage >= 60) {
+                icon = '👍';
+                title = 'Bon travail !';
+                message = 'Revois les fiches sur les points que tu as manqués pour atteindre l\'excellence.';
+            } else if (percentage >= 40) {
+                icon = '💪';
+                title = 'Tu progresses !';
+                message = 'Prends le temps de revoir les fiches de révision avant de refaire le quiz.';
+            } else {
+                icon = '📚';
+                title = 'Continue tes efforts !';
+                message = 'Ce chapitre nécessite plus de révision. Relis attentivement les fiches.';
+            }
+
+            document.getElementById('resultsIcon').textContent = icon;
+            document.getElementById('resultsTitle').textContent = title;
+            document.getElementById('resultsMessage').querySelector('p').textContent = message;
+
+            // Build review list
+            const reviewList = document.getElementById('reviewList');
+            reviewList.innerHTML = '';
+            userAnswers.forEach((item, i) => {
+                const div = document.createElement('div');
+                div.className = 'review-item' + (item.correct ? '' : ' wrong');
+                div.innerHTML = `
+                    <p class="review-question">${i + 1}. ${item.question}</p>
+                    <p class="review-answer ${item.correct ? 'correct' : 'wrong'}">
+                        ${item.correct ? '✓' : '✗'} Ta réponse : <span>${item.userAnswer}</span>
+                        ${!item.correct ? `<br>Réponse correcte : <span style="color: var(--success)">${item.correctAnswer}</span>` : ''}
+                    </p>
+                `;
+                reviewList.appendChild(div);
+            });
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            selectedAnswer = null;
+            answered = false;
+            userAnswers = [];
+
+            questionCard.style.display = 'block';
+            resultsScreen.classList.remove('show');
+            loadQuestion();
+        }
+
+        nextBtn.addEventListener('click', nextQuestion);
+
+        // Keyboard support
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '1' && e.key <= '4') {
+                const index = parseInt(e.key) - 1;
+                if (index < questions[currentQuestion].answers.length) {
+                    selectAnswer(index);
+                }
+            } else if (e.key === 'Enter' && !nextBtn.disabled) {
+                nextQuestion();
+            }
+        });
+
+        // Initialize
+        loadQuestion();
+    </script>
+</body>
+</html>

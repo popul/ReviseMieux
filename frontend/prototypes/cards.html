@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fiches de révision — Révise mieux</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,400;1,9..144,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --coral: #E85D4C;
+            --coral-light: #FF7A6B;
+            --coral-dark: #C94A3B;
+            --teal: #1A4D4D;
+            --teal-light: #2A6B6B;
+            --gold: #F5C542;
+            --gold-light: #FFD966;
+            --cream: #FBF8F3;
+            --cream-dark: #F5F0E8;
+            --ink: #1A1A1A;
+            --ink-light: #4A4A4A;
+            --ink-muted: #8A8A8A;
+            --success: #34A853;
+
+            --font-display: 'Fraunces', Georgia, serif;
+            --font-body: 'DM Sans', -apple-system, sans-serif;
+
+            --space-xs: 0.5rem;
+            --space-sm: 1rem;
+            --space-md: 1.5rem;
+            --space-lg: 2rem;
+            --space-xl: 3rem;
+
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --radius-full: 100px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--cream);
+            color: var(--ink);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.35;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            z-index: 1000;
+        }
+
+        /* Header */
+        .header {
+            background: white;
+            border-bottom: 1px solid var(--cream-dark);
+            padding: var(--space-md) var(--space-xl);
+            display: flex;
+            align-items: center;
+            gap: var(--space-lg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            color: var(--ink-light);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            padding: var(--space-xs) var(--space-sm);
+            border-radius: var(--radius-full);
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: var(--cream);
+            color: var(--ink);
+        }
+
+        .header-content {
+            flex: 1;
+        }
+
+        .header-title {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .header-subtitle {
+            font-size: 0.9rem;
+            color: var(--ink-muted);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: var(--space-sm);
+        }
+
+        .header-btn {
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+            padding: 0.625rem var(--space-sm);
+            border-radius: var(--radius-full);
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            font-family: var(--font-body);
+        }
+
+        .header-btn.secondary {
+            background: var(--cream);
+            color: var(--ink);
+        }
+
+        .header-btn.secondary:hover {
+            background: var(--cream-dark);
+        }
+
+        .header-btn.primary {
+            background: var(--coral);
+            color: white;
+        }
+
+        .header-btn.primary:hover {
+            background: var(--coral-dark);
+        }
+
+        /* Main layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            min-height: calc(100vh - 73px);
+        }
+
+        /* Sidebar */
+        .cards-sidebar {
+            background: white;
+            border-right: 1px solid var(--cream-dark);
+            padding: var(--space-lg);
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: var(--space-md);
+            color: var(--ink-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .cards-list {
+            list-style: none;
+        }
+
+        .card-nav-item {
+            padding: var(--space-sm);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-xs);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .card-nav-item:hover {
+            background: var(--cream);
+        }
+
+        .card-nav-item.active {
+            background: rgba(232, 93, 76, 0.08);
+            border-left-color: var(--coral);
+        }
+
+        .card-nav-title {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: var(--space-xs);
+        }
+
+        .card-nav-title .icon {
+            font-size: 1.1rem;
+        }
+
+        .card-nav-preview {
+            font-size: 0.85rem;
+            color: var(--ink-muted);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .card-nav-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-top: var(--space-xs);
+            padding: 2px 8px;
+            border-radius: var(--radius-full);
+        }
+
+        .card-nav-status.learned {
+            background: rgba(52, 168, 83, 0.1);
+            color: var(--success);
+        }
+
+        .card-nav-status.reviewing {
+            background: rgba(245, 197, 66, 0.2);
+            color: #B8860B;
+        }
+
+        /* Main content */
+        .cards-content {
+            padding: var(--space-xl);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Study mode toggle */
+        .study-mode-toggle {
+            display: flex;
+            gap: var(--space-xs);
+            background: white;
+            padding: 4px;
+            border-radius: var(--radius-full);
+            margin-bottom: var(--space-lg);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .mode-btn {
+            padding: 0.625rem var(--space-md);
+            border-radius: var(--radius-full);
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: var(--font-body);
+            color: var(--ink-light);
+        }
+
+        .mode-btn.active {
+            background: var(--ink);
+            color: white;
+        }
+
+        .mode-btn:not(.active):hover {
+            background: var(--cream);
+        }
+
+        /* Flashcard */
+        .flashcard-container {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: var(--space-lg);
+        }
+
+        .flashcard {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: var(--radius-lg);
+            padding: var(--space-xl);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+        }
+
+        .flashcard-front {
+            background: white;
+        }
+
+        .flashcard-back {
+            background: var(--teal);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: var(--space-sm);
+            opacity: 0.6;
+        }
+
+        .flashcard-front .flashcard-label {
+            color: var(--coral);
+        }
+
+        .flashcard-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .flashcard-text {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+
+        .flashcard-back .flashcard-text {
+            font-family: var(--font-body);
+            font-size: 1.1rem;
+            font-weight: 400;
+            line-height: 1.7;
+        }
+
+        .flashcard-hint {
+            text-align: center;
+            font-size: 0.85rem;
+            opacity: 0.5;
+            margin-top: var(--space-md);
+        }
+
+        /* Card controls */
+        .card-controls {
+            display: flex;
+            align-items: center;
+            gap: var(--space-md);
+        }
+
+        .control-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .control-btn.nav {
+            background: white;
+            color: var(--ink);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .control-btn.nav:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+        }
+
+        .control-btn.nav:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .control-btn.wrong {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .control-btn.wrong:hover {
+            background: #FFCDD2;
+            transform: scale(1.1);
+        }
+
+        .control-btn.right {
+            background: #E8F5E9;
+            color: var(--success);
+        }
+
+        .control-btn.right:hover {
+            background: #C8E6C9;
+            transform: scale(1.1);
+        }
+
+        .card-counter {
+            font-size: 0.95rem;
+            color: var(--ink-muted);
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* Read mode */
+        .read-mode {
+            display: none;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        .read-mode.active {
+            display: block;
+        }
+
+        .study-mode {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .study-mode.hidden {
+            display: none;
+        }
+
+        .read-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-md);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .read-card:hover {
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .read-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: var(--space-sm);
+        }
+
+        .read-card-type {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 4px 10px;
+            border-radius: var(--radius-full);
+        }
+
+        .read-card-type.definition {
+            background: rgba(232, 93, 76, 0.1);
+            color: var(--coral);
+        }
+
+        .read-card-type.date {
+            background: rgba(26, 77, 77, 0.1);
+            color: var(--teal);
+        }
+
+        .read-card-type.concept {
+            background: rgba(245, 197, 66, 0.2);
+            color: #B8860B;
+        }
+
+        .read-card-actions {
+            display: flex;
+            gap: var(--space-xs);
+        }
+
+        .read-card-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: var(--cream);
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+        }
+
+        .read-card-btn:hover {
+            background: var(--cream-dark);
+        }
+
+        .read-card-btn.bookmarked {
+            background: var(--gold-light);
+        }
+
+        .read-card-question {
+            font-family: var(--font-display);
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: var(--space-sm);
+            color: var(--ink);
+        }
+
+        .read-card-answer {
+            font-size: 1rem;
+            color: var(--ink-light);
+            line-height: 1.7;
+        }
+
+        /* Progress bar */
+        .progress-section {
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: var(--space-md);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            margin-bottom: var(--space-xs);
+        }
+
+        .progress-label {
+            color: var(--ink-muted);
+        }
+
+        .progress-value {
+            font-weight: 600;
+            color: var(--success);
+        }
+
+        .progress-track {
+            height: 6px;
+            background: var(--cream-dark);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--success);
+            border-radius: var(--radius-full);
+            transition: width 0.3s ease;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            .cards-sidebar {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: var(--space-sm) var(--space-md);
+                flex-wrap: wrap;
+            }
+            .header-actions {
+                order: 3;
+                width: 100%;
+                margin-top: var(--space-sm);
+            }
+            .cards-content {
+                padding: var(--space-md);
+            }
+            .flashcard-text {
+                font-size: 1.2rem;
+            }
+            .flashcard-back .flashcard-text {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <a href="dashboard.html" class="back-btn">← Retour</a>
+        <div class="header-content">
+            <h1 class="header-title">La Révolution française</h1>
+            <p class="header-subtitle">12 fiches • Histoire</p>
+        </div>
+        <div class="header-actions">
+            <button class="header-btn secondary">🖨️ Imprimer</button>
+            <a href="quiz.html" class="header-btn primary">🎯 Lancer un quiz</a>
+        </div>
+    </header>
+
+    <div class="main-layout">
+        <!-- Sidebar -->
+        <aside class="cards-sidebar">
+            <h2 class="sidebar-title">Fiches (12)</h2>
+            <ul class="cards-list">
+                <li class="card-nav-item active" data-index="0">
+                    <div class="card-nav-title"><span class="icon">📖</span> La Révolution française</div>
+                    <p class="card-nav-preview">Période majeure de l'histoire de France qui débute en 1789...</p>
+                    <span class="card-nav-status learned">✓ Maîtrisée</span>
+                </li>
+                <li class="card-nav-item" data-index="1">
+                    <div class="card-nav-title"><span class="icon">📅</span> 14 juillet 1789</div>
+                    <p class="card-nav-preview">Prise de la Bastille, symbole de la chute de l'absolutisme</p>
+                    <span class="card-nav-status learned">✓ Maîtrisée</span>
+                </li>
+                <li class="card-nav-item" data-index="2">
+                    <div class="card-nav-title"><span class="icon">📖</span> L'Ancien Régime</div>
+                    <p class="card-nav-preview">Système politique et social de la France avant 1789...</p>
+                    <span class="card-nav-status reviewing">À revoir</span>
+                </li>
+                <li class="card-nav-item" data-index="3">
+                    <div class="card-nav-title"><span class="icon">📅</span> 26 août 1789</div>
+                    <p class="card-nav-preview">Adoption de la Déclaration des Droits de l'Homme</p>
+                </li>
+                <li class="card-nav-item" data-index="4">
+                    <div class="card-nav-title"><span class="icon">👥</span> Les Girondins</div>
+                    <p class="card-nav-preview">Groupe politique modéré favorable à une république bourgeoise</p>
+                </li>
+                <li class="card-nav-item" data-index="5">
+                    <div class="card-nav-title"><span class="icon">👥</span> Les Montagnards</div>
+                    <p class="card-nav-preview">Groupe révolutionnaire radical mené par Robespierre</p>
+                </li>
+                <li class="card-nav-item" data-index="6">
+                    <div class="card-nav-title"><span class="icon">📅</span> 21 janvier 1793</div>
+                    <p class="card-nav-preview">Exécution de Louis XVI</p>
+                </li>
+                <li class="card-nav-item" data-index="7">
+                    <div class="card-nav-title"><span class="icon">📖</span> La Terreur</div>
+                    <p class="card-nav-preview">Période de répression violente de 1793 à 1794</p>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Main content -->
+        <main class="cards-content">
+            <!-- Study mode toggle -->
+            <div class="study-mode-toggle">
+                <button class="mode-btn active" data-mode="study">📚 Réviser</button>
+                <button class="mode-btn" data-mode="read">📄 Lire tout</button>
+            </div>
+
+            <!-- Progress -->
+            <div class="progress-section">
+                <div class="progress-header">
+                    <span class="progress-label">Progression</span>
+                    <span class="progress-value"><span id="masteredCount">2</span>/12 maîtrisées</span>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" style="width: 16.6%"></div>
+                </div>
+            </div>
+
+            <!-- Study mode (flashcards) -->
+            <div class="study-mode" id="studyMode">
+                <div class="flashcard-container">
+                    <div class="flashcard" id="flashcard">
+                        <div class="flashcard-face flashcard-front">
+                            <div class="flashcard-label">Définition</div>
+                            <div class="flashcard-content">
+                                <p class="flashcard-text" id="cardFront">Qu'est-ce que la Révolution française ?</p>
+                            </div>
+                            <p class="flashcard-hint">Clique pour retourner</p>
+                        </div>
+                        <div class="flashcard-face flashcard-back">
+                            <div class="flashcard-label">Réponse</div>
+                            <div class="flashcard-content">
+                                <p class="flashcard-text" id="cardBack">La Révolution française est une période majeure de l'histoire de France qui débute en 1789 et marque la fin de l'Ancien Régime. Elle bouleverse profondément la société française et influence l'Europe entière.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-controls">
+                    <button class="control-btn nav" id="prevBtn">←</button>
+                    <button class="control-btn wrong" title="À revoir">✗</button>
+                    <span class="card-counter"><span id="currentCard">1</span> / <span id="totalCards">12</span></span>
+                    <button class="control-btn right" title="Maîtrisée">✓</button>
+                    <button class="control-btn nav" id="nextBtn">→</button>
+                </div>
+            </div>
+
+            <!-- Read mode -->
+            <div class="read-mode" id="readMode">
+                <div class="read-card">
+                    <div class="read-card-header">
+                        <span class="read-card-type definition">Définition</span>
+                        <div class="read-card-actions">
+                            <button class="read-card-btn" title="Marquer">⭐</button>
+                        </div>
+                    </div>
+                    <h3 class="read-card-question">Qu'est-ce que la Révolution française ?</h3>
+                    <p class="read-card-answer">La Révolution française est une période majeure de l'histoire de France qui débute en 1789 et marque la fin de l'Ancien Régime. Elle bouleverse profondément la société française et influence l'Europe entière.</p>
+                </div>
+
+                <div class="read-card">
+                    <div class="read-card-header">
+                        <span class="read-card-type date">Date clé</span>
+                        <div class="read-card-actions">
+                            <button class="read-card-btn bookmarked" title="Marquer">⭐</button>
+                        </div>
+                    </div>
+                    <h3 class="read-card-question">14 juillet 1789</h3>
+                    <p class="read-card-answer">Prise de la Bastille, symbole de la chute de l'absolutisme royal. C'est aujourd'hui la fête nationale française.</p>
+                </div>
+
+                <div class="read-card">
+                    <div class="read-card-header">
+                        <span class="read-card-type definition">Définition</span>
+                        <div class="read-card-actions">
+                            <button class="read-card-btn" title="Marquer">⭐</button>
+                        </div>
+                    </div>
+                    <h3 class="read-card-question">Qu'est-ce que l'Ancien Régime ?</h3>
+                    <p class="read-card-answer">L'Ancien Régime désigne le système politique et social de la France avant 1789, caractérisé par la monarchie absolue et la société d'ordres (clergé, noblesse, tiers état).</p>
+                </div>
+
+                <div class="read-card">
+                    <div class="read-card-header">
+                        <span class="read-card-type date">Date clé</span>
+                        <div class="read-card-actions">
+                            <button class="read-card-btn" title="Marquer">⭐</button>
+                        </div>
+                    </div>
+                    <h3 class="read-card-question">26 août 1789</h3>
+                    <p class="read-card-answer">Adoption de la Déclaration des Droits de l'Homme et du Citoyen, texte fondamental qui proclame les principes de liberté, d'égalité et de souveraineté nationale.</p>
+                </div>
+
+                <div class="read-card">
+                    <div class="read-card-header">
+                        <span class="read-card-type concept">Concept</span>
+                        <div class="read-card-actions">
+                            <button class="read-card-btn" title="Marquer">⭐</button>
+                        </div>
+                    </div>
+                    <h3 class="read-card-question">Les Girondins</h3>
+                    <p class="read-card-answer">Groupe politique modéré favorable à une république bourgeoise. Ils s'opposent aux mesures radicales et sont éliminés en 1793. Ils préfèrent des réformes progressives.</p>
+                </div>
+
+                <div class="read-card">
+                    <div class="read-card-header">
+                        <span class="read-card-type concept">Concept</span>
+                        <div class="read-card-actions">
+                            <button class="read-card-btn" title="Marquer">⭐</button>
+                        </div>
+                    </div>
+                    <h3 class="read-card-question">Les Montagnards</h3>
+                    <p class="read-card-answer">Groupe révolutionnaire radical mené par Robespierre, Danton et Marat. Ils siègent en haut de l'Assemblée (d'où leur nom) et instaurent la Terreur. Ils prônent des mesures révolutionnaires immédiates.</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const flashcard = document.getElementById('flashcard');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentCardSpan = document.getElementById('currentCard');
+        const cardFront = document.getElementById('cardFront');
+        const cardBack = document.getElementById('cardBack');
+        const studyMode = document.getElementById('studyMode');
+        const readMode = document.getElementById('readMode');
+        const modeBtns = document.querySelectorAll('.mode-btn');
+        const cardNavItems = document.querySelectorAll('.card-nav-item');
+
+        const cards = [
+            { front: "Qu'est-ce que la Révolution française ?", back: "La Révolution française est une période majeure de l'histoire de France qui débute en 1789 et marque la fin de l'Ancien Régime. Elle bouleverse profondément la société française et influence l'Europe entière.", type: "Définition" },
+            { front: "14 juillet 1789", back: "Prise de la Bastille, symbole de la chute de l'absolutisme royal. C'est aujourd'hui la fête nationale française.", type: "Date clé" },
+            { front: "Qu'est-ce que l'Ancien Régime ?", back: "L'Ancien Régime désigne le système politique et social de la France avant 1789, caractérisé par la monarchie absolue et la société d'ordres (clergé, noblesse, tiers état).", type: "Définition" },
+            { front: "26 août 1789", back: "Adoption de la Déclaration des Droits de l'Homme et du Citoyen, texte fondamental qui proclame les principes de liberté, d'égalité et de souveraineté nationale.", type: "Date clé" },
+            { front: "Les Girondins", back: "Groupe politique modéré favorable à une république bourgeoise. Ils s'opposent aux mesures radicales et sont éliminés en 1793. Ils préfèrent des réformes progressives.", type: "Concept" },
+            { front: "Les Montagnards", back: "Groupe révolutionnaire radical mené par Robespierre, Danton et Marat. Ils siègent en haut de l'Assemblée (d'où leur nom) et instaurent la Terreur.", type: "Concept" },
+            { front: "21 janvier 1793", back: "Exécution de Louis XVI, marquant la fin définitive de la monarchie et le début de la République.", type: "Date clé" },
+            { front: "La Terreur (1793-1794)", back: "Période de répression violente pendant laquelle le Comité de Salut Public, dirigé par Robespierre, élimine les ennemis de la Révolution. Des milliers de personnes sont guillotinées.", type: "Définition" }
+        ];
+
+        let currentIndex = 0;
+
+        // Flip card
+        flashcard.addEventListener('click', () => {
+            flashcard.classList.toggle('flipped');
+        });
+
+        // Navigation
+        function updateCard() {
+            flashcard.classList.remove('flipped');
+            cardFront.textContent = cards[currentIndex].front;
+            cardBack.textContent = cards[currentIndex].back;
+            currentCardSpan.textContent = currentIndex + 1;
+            prevBtn.disabled = currentIndex === 0;
+            nextBtn.disabled = currentIndex === cards.length - 1;
+
+            // Update sidebar
+            cardNavItems.forEach((item, i) => {
+                item.classList.toggle('active', i === currentIndex);
+            });
+        }
+
+        prevBtn.addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateCard();
+            }
+        });
+
+        nextBtn.addEventListener('click', () => {
+            if (currentIndex < cards.length - 1) {
+                currentIndex++;
+                updateCard();
+            }
+        });
+
+        // Sidebar navigation
+        cardNavItems.forEach((item, i) => {
+            item.addEventListener('click', () => {
+                currentIndex = i;
+                updateCard();
+            });
+        });
+
+        // Mode toggle
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                modeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                const mode = btn.dataset.mode;
+                if (mode === 'study') {
+                    studyMode.classList.remove('hidden');
+                    readMode.classList.remove('active');
+                } else {
+                    studyMode.classList.add('hidden');
+                    readMode.classList.add('active');
+                }
+            });
+        });
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                flashcard.classList.toggle('flipped');
+            } else if (e.key === 'ArrowLeft') {
+                prevBtn.click();
+            } else if (e.key === 'ArrowRight') {
+                nextBtn.click();
+            }
+        });
+
+        // Initialize
+        updateCard();
+    </script>
+</body>
+</html>
