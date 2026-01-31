@@ -96,3 +96,41 @@ export async function supprimerCours(id: string): Promise<void> {
     throw new Error(`Erreur lors de la suppression: ${response.status}`)
   }
 }
+
+// Types Fiches
+export interface Fiche {
+  id: string
+  question: string
+  reponse: string
+  difficulte: 'facile' | 'moyen' | 'difficile'
+  ordre: number
+}
+
+export interface ReponseFiches {
+  succes: boolean
+  fiches: Fiche[]
+  nombreGenere: number
+  erreur?: ErreurAPI
+}
+
+// API Fiches
+export async function obtenirFichesCours(coursId: string): Promise<ReponseFiches> {
+  const response = await fetch(`${API_BASE}/cours/${coursId}/fiches`)
+  return gererReponse<ReponseFiches>(response)
+}
+
+export async function genererFiches(
+  coursId: string,
+  options?: { nombreFiches?: number; difficulte?: string }
+): Promise<ReponseFiches> {
+  const response = await fetch(`${API_BASE}/generer/fiches`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      coursId,
+      nombreFiches: options?.nombreFiches,
+      difficulte: options?.difficulte,
+    }),
+  })
+  return gererReponse<ReponseFiches>(response)
+}
