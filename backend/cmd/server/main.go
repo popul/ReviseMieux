@@ -8,6 +8,8 @@ import (
 
 	"github.com/revisemieux/backend/internal/api"
 	"github.com/revisemieux/backend/internal/config"
+	"github.com/revisemieux/backend/internal/llm"
+	"github.com/revisemieux/backend/internal/services"
 	"github.com/revisemieux/backend/internal/store"
 )
 
@@ -28,14 +30,41 @@ func main() {
 		log.Println("✓ Connexion à la base de données établie")
 	}
 
+	// Créer le gestionnaire LLM avec fallback automatique
+	var gestionnaireLLM *llm.GestionnaireLLM
+	if cfg.OpenAIAPIKey != "" || cfg.MistralAPIKey != "" {
+		gestionnaireLLM = llm.NouveauGestionnaireAvecCles(cfg.OpenAIAPIKey, cfg.MistralAPIKey)
+		if gestionnaireLLM != nil {
+			log.Printf("✓ Service LLM configuré (fournisseur: %s)", gestionnaireLLM.Nom())
+		}
+	}
+	if gestionnaireLLM == nil {
+		log.Printf("⚠️  Avertissement: aucune clé API LLM configurée (OPENAI_API_KEY ou MISTRAL_API_KEY)")
+		log.Printf("   L'OCR et la génération de contenu ne seront pas disponibles")
+	}
+
+	// Créer le service OCR
+	var serviceOCR *services.ServiceOCR
+	if gestionnaireLLM != nil {
+		serviceOCR = services.NouveauServiceOCR(gestionnaireLLM)
+		log.Println("✓ Service OCR initialisé")
+	}
+
+	// Créer le repository des cours
+	var coursRepo store.CoursRepository
+	if db != nil {
+		coursRepo = store.NouveauCoursRepo(db)
+		log.Println("✓ Repository cours initialisé")
+	}
+
 	// Créer le routeur Gin
 	r := gin.Default()
 
 	// Configurer les middleware
 	api.ConfigurerMiddleware(r)
 
-	// Créer les handlers avec le store
-	handlers := api.NouveauHandlers(db)
+	// Créer les handlers avec toutes les dépendances
+	handlers := api.NouveauHandlers(db, serviceOCR, coursRepo)
 
 	// Configurer les routes
 	api.ConfigurerRoutes(r, handlers)

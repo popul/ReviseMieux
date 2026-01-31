@@ -5,17 +5,22 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/revisemieux/backend/internal/services"
 	"github.com/revisemieux/backend/internal/store"
 )
 
 // Handlers contient les dépendances des handlers
 type Handlers struct {
-	store *store.Store
+	store       *store.Store
+	handlersOCR *HandlersOCR
 }
 
 // NouveauHandlers crée une nouvelle instance de Handlers
-func NouveauHandlers(s *store.Store) *Handlers {
-	return &Handlers{store: s}
+func NouveauHandlers(s *store.Store, serviceOCR *services.ServiceOCR, coursRepo store.CoursRepository) *Handlers {
+	return &Handlers{
+		store:       s,
+		handlersOCR: NouveauHandlersOCR(serviceOCR, coursRepo),
+	}
 }
 
 // HealthHandler retourne l'état de santé du serveur
@@ -78,8 +83,16 @@ func (h *Handlers) ObtenirCoursHandler(c *gin.Context) {
 
 // OCRHandler traite une image/PDF pour l'OCR
 func (h *Handlers) OCRHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Traitement OCR pas encore implémenté",
+	if h.handlersOCR != nil {
+		h.handlersOCR.TraiterOCRHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service OCR n'est pas configuré",
+		},
 	})
 }
 
