@@ -1,0 +1,1200 @@
+<html lang="fr"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Révise mieux - Assistant de Révision Intelligent</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .sidebar {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            height: fit-content;
+        }
+
+        .sidebar h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .workspace {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            min-height: 500px;
+        }
+
+        .upload-zone {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+
+        .upload-zone:hover {
+            background: #f0f2ff;
+            border-color: #764ba2;
+        }
+
+        .upload-zone.dragover {
+            background: #e8ebff;
+            border-color: #764ba2;
+        }
+
+        .upload-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .upload-zone h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .upload-zone p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .processing {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result-view {
+            display: none;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .result-header h2 {
+            color: #333;
+        }
+
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            border: none;
+            background: #f0f0f0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .fiche-content {
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .fiche-content h3 {
+            color: #667eea;
+            margin: 25px 0 15px;
+            font-size: 20px;
+        }
+
+        .fiche-content h4 {
+            color: #764ba2;
+            margin: 20px 0 10px;
+            font-size: 16px;
+        }
+
+        .fiche-content ul {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+
+        .fiche-content li {
+            margin-bottom: 8px;
+        }
+
+        .definition-box {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+
+        .quiz-container {
+            max-width: 700px;
+        }
+
+        .question-card {
+            background: #f8f9ff;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            color: #667eea;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .answer-option {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .answer-option:hover {
+            border-color: #667eea;
+        }
+
+        .answer-option.selected {
+            border-color: #667eea;
+            background: #f0f2ff;
+        }
+
+        .answer-option.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .answer-option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .quiz-feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .quiz-feedback.show {
+            display: block;
+        }
+
+        .quiz-feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .quiz-feedback.incorrect {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .quiz-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .quiz-score {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .quiz-score h2 {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .mindmap-container {
+            min-height: 400px;
+            position: relative;
+        }
+
+        .mindmap-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .mindmap-node {
+            position: absolute;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            font-size: 14px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            max-width: 200px;
+        }
+
+        .mindmap-node.level-1 {
+            border-color: #667eea;
+        }
+
+        .mindmap-node.level-2 {
+            border-color: #764ba2;
+            font-size: 12px;
+        }
+
+        .resources-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .resources-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .resource-card {
+            background: #f8f9ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+            align-items: start;
+        }
+
+        .resource-icon {
+            font-size: 24px;
+            min-width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .resource-content h4 {
+            color: #667eea;
+            margin-bottom: 5px;
+            font-size: 16px;
+        }
+
+        .resource-content p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+
+        .error-analysis {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .error-type {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ffe0b2;
+        }
+
+        .error-type:last-child {
+            border-bottom: none;
+        }
+
+        .copy-analysis {
+            display: none;
+        }
+
+        .recommendation-card {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+
+        .recommendation-card h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">📚 Révise mieux</div>
+            <div class="user-info">
+                <div style="text-align: right;">
+                    <div style="font-weight: 600;">John Doe</div>
+                    <div style="font-size: 12px; color: #666;">Première - Lycée Victor Hugo</div>
+                </div>
+                <div class="user-avatar">JD</div>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="coursCount">0</div>
+                <div class="stat-label">Cours scannés</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="quizCount">0</div>
+                <div class="stat-label">Quiz complétés</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgScore">0%</div>
+                <div class="stat-label">Score moyen</div>
+            </div>
+            
+        </div>
+
+        <div class="main-content">
+            <div class="sidebar">
+                <h2>Actions rapides</h2>
+                <button class="action-btn btn-primary" onclick="showUploadZone()">
+                    📸 Nouveau cours à réviser
+                </button>
+                <button class="action-btn btn-secondary" onclick="showCopyAnalysis()">
+                    📝 Analyser ma copie
+                </button>
+                <button class="action-btn btn-secondary" onclick="showDashboard()">
+                    📊 Mon tableau de bord
+                </button>
+                <button class="action-btn btn-secondary">
+                    🎯 Mes recommandations
+                </button>
+                <button class="action-btn btn-secondary">
+                    📚 Mes cours sauvegardés
+                </button>
+            </div>
+
+            <div class="workspace">
+                <div id="welcomeView">
+                    <h2 style="margin-bottom: 20px;">Bienvenue sur Révise mieux ! 👋</h2>
+                    <p style="color: #666; line-height: 1.8; margin-bottom: 20px;">
+                        Révise mieux vous aide à réviser plus efficacement en transformant vos cours en fiches de révision, quiz interactifs et cartes mentales. Commencez par scanner ou photographier votre cours pour générer automatiquement vos supports de révision.
+                    </p>
+                    <div style="background: #f8f9ff; padding: 20px; border-radius: 10px; margin-top: 30px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">Comment ça marche ?</h3>
+                        <ol style="margin-left: 20px; color: #666; line-height: 2;">
+                            <li>Photographiez ou scannez vos notes de cours</li>
+                            <li>L'IA analyse et structure le contenu</li>
+                            <li>Générez des fiches, quiz ou cartes mentales</li>
+                            <li>Révisez et suivez votre progression</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div id="uploadZone" class="upload-zone" style="display: none;">
+                    <div class="upload-icon">📸</div>
+                    <h3>Importez votre cours</h3>
+                    <p>Glissez-déposez vos photos ou cliquez pour sélectionner</p>
+                    <p style="margin-top: 10px; font-size: 12px; color: #999;">Formats acceptés : JPG, PNG, PDF - Max 10 pages</p>
+                    <input type="file" id="fileInput" class="file-input" accept="image/*,.pdf" multiple="" onchange="handleFileUpload(event)">
+                </div>
+
+                <div id="processingView" class="processing">
+                    <div class="spinner"></div>
+                    <h3>Analyse en cours...</h3>
+                    <p style="color: #666; margin-top: 10px;">Reconnaissance du texte et structuration du contenu</p>
+                    <div class="progress-bar" style="width: 300px; margin: 20px auto;">
+                        <div class="progress-fill" id="processingProgress" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div id="resultView" class="result-view">
+                    <div class="result-header">
+                        <div>
+                            <h2>Histoire - La Révolution Française</h2>
+                            <p style="color: #666; font-size: 14px; margin-top: 5px;">7 pages analysées • Généré le 31 janvier 2025</p>
+                        </div>
+                        <button class="action-btn btn-primary" style="width: auto; margin: 0;" onclick="resetApp()">
+                            ✨ Nouveau cours
+                        </button>
+                    </div>
+
+                    <div class="tab-buttons">
+                        <button class="tab-btn active" onclick="showTab('fiche')">📄 Fiche de révision</button>
+                        <button class="tab-btn" onclick="showTab('quiz')">🎯 Quiz</button>
+                        <button class="tab-btn" onclick="showTab('mindmap')">🧠 Carte mentale</button>
+                    </div>
+
+                    <div id="ficheTab" class="tab-content active">
+                        <div class="fiche-content">
+                            <h3>📚 Introduction</h3>
+                            <p>La Révolution française est une période majeure de l'histoire de France qui débute en 1789 et marque la fin de l'Ancien Régime. Elle bouleverse profondément la société française et influence l'Europe entière.</p>
+
+                            <div class="definition-box">
+                                <strong>💡 Définition clé :</strong> L'Ancien Régime désigne le système politique et social de la France avant 1789, caractérisé par la monarchie absolue et la société d'ordres.
+                            </div>
+
+                            <h3>⏰ Chronologie essentielle</h3>
+                            <h4>1789 - Le début de la Révolution</h4>
+                            <ul>
+                                <li><strong>5 mai 1789</strong> : Ouverture des États généraux à Versailles</li>
+                                <li><strong>17 juin 1789</strong> : Le Tiers État se proclame Assemblée nationale</li>
+                                <li><strong>14 juillet 1789</strong> : Prise de la Bastille, symbole de la chute de l'absolutisme</li>
+                                <li><strong>26 août 1789</strong> : Adoption de la Déclaration des Droits de l'Homme et du Citoyen</li>
+                            </ul>
+
+                            <h4>1792-1794 - La République et la Terreur</h4>
+                            <ul>
+                                <li><strong>21 septembre 1792</strong> : Proclamation de la Première République</li>
+                                <li><strong>21 janvier 1793</strong> : Exécution de Louis XVI</li>
+                                <li><strong>1793-1794</strong> : Période de la Terreur sous Robespierre</li>
+                            </ul>
+
+                            <h3>👥 Les acteurs principaux</h3>
+                            <h4>Les Girondins</h4>
+                            <p>Groupe politique modéré favorable à une république bourgeoise. Ils s'opposent aux mesures radicales et sont éliminés en 1793.</p>
+
+                            <h4>Les Montagnards</h4>
+                            <p>Groupe révolutionnaire radical mené par Robespierre, Danton et Marat. Ils siègent en haut de l'Assemblée (d'où leur nom) et instaurent la Terreur.</p>
+
+                            <div class="definition-box">
+                                <strong>💡 À retenir :</strong> La différence principale entre Girondins et Montagnards réside dans leur degré de radicalité. Les Girondins préfèrent des réformes progressives, tandis que les Montagnards optent pour des mesures révolutionnaires immédiates.
+                            </div>
+
+                            <h3>⚖️ Les grandes réformes</h3>
+                            <ul>
+                                <li><strong>Abolition des privilèges</strong> : Nuit du 4 août 1789</li>
+                                <li><strong>Constitution civile du clergé</strong> : Le clergé devient fonctionnaire de l'État</li>
+                                <li><strong>Constitution de 1791</strong> : Établit une monarchie constitutionnelle</li>
+                                <li><strong>Suffrage censitaire</strong> : Seuls les citoyens payant un certain impôt peuvent voter</li>
+                            </ul>
+
+                            <h3>🎯 Enjeux et conséquences</h3>
+                            <p>La Révolution française marque la fin de la société d'ordres et l'affirmation des principes de liberté, d'égalité et de souveraineté nationale. Elle inspire les mouvements révolutionnaires européens du XIXe siècle et établit les fondements de la démocratie moderne.</p>
+                        </div>
+
+                        <div class="resources-section">
+                            <h3>📚 Ressources complémentaires enrichies</h3>
+                            <div class="resource-card">
+                                <div class="resource-icon">🎥</div>
+                                <div class="resource-content">
+                                    <h4>Vidéo : La Révolution française en 10 minutes</h4>
+                                    <p>Résumé visuel des événements clés de 1789 à 1799 avec chronologie interactive</p>
+                                </div>
+                            </div>
+                            <div class="resource-card">
+                                <div class="resource-icon">📊</div>
+                                <div class="resource-content">
+                                    <h4>Infographie : Girondins vs Montagnards</h4>
+                                    <p>Tableau comparatif des deux principaux groupes politiques de la Révolution</p>
+                                </div>
+                            </div>
+                            <div class="resource-card">
+                                <div class="resource-icon">📖</div>
+                                <div class="resource-content">
+                                    <h4>Article : La Déclaration des Droits de l'Homme</h4>
+                                    <p>Analyse détaillée des 17 articles et leur impact sur le droit moderne</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="quizTab" class="tab-content">
+                        <div class="quiz-container">
+                            <div id="quizQuestions"></div>
+                            <div id="quizResult" style="display: none;"></div>
+                        </div>
+                    </div>
+
+                    <div id="mindmapTab" class="tab-content">
+                        <div class="mindmap-container" id="mindmapContainer">
+                            <svg width="100%" height="500" id="mindmapSvg"></svg>
+                            <div class="mindmap-center">Révolution Française<br>1789-1799</div>
+                            <div class="mindmap-node level-1" style="top: 20%; left: 10%;">
+                                <strong>Causes</strong><br>
+                                • Crise financière<br>
+                                • Inégalités sociales<br>
+                                • Idées des Lumières
+                            </div>
+                            <div class="mindmap-node level-1" style="top: 20%; right: 10%;">
+                                <strong>Événements clés</strong><br>
+                                • Prise de la Bastille<br>
+                                • Déclaration des Droits<br>
+                                • Terreur
+                            </div>
+                            <div class="mindmap-node level-1" style="bottom: 20%; left: 10%;">
+                                <strong>Acteurs</strong><br>
+                                • Louis XVI<br>
+                                • Robespierre<br>
+                                • Danton
+                            </div>
+                            <div class="mindmap-node level-1" style="bottom: 20%; right: 10%;">
+                                <strong>Conséquences</strong><br>
+                                • Fin de la monarchie<br>
+                                • République<br>
+                                • Code civil
+                            </div>
+                            <div class="mindmap-node level-2" style="top: 35%; left: 25%;">
+                                États généraux<br>
+                                Mai 1789
+                            </div>
+                            <div class="mindmap-node level-2" style="top: 50%; right: 20%;">
+                                Comité de<br>
+                                Salut Public
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="copyAnalysisView" class="copy-analysis">
+                    <h2 style="margin-bottom: 20px;">📝 Analyse de copie corrigée</h2>
+                    <p style="color: #666; margin-bottom: 30px;">Scannez votre copie corrigée pour obtenir une analyse détaillée de vos erreurs et des recommandations personnalisées.</p>
+                    
+                    <div class="upload-zone" onclick="handleCopyUpload()">
+                        <div class="upload-icon">📄</div>
+                        <h3>Importer ma copie corrigée</h3>
+                        <p>Prenez en photo votre copie avec les annotations du professeur</p>
+                    </div>
+
+                    <div id="copyResults" style="display: none; margin-top: 30px;">
+                        <div class="result-header">
+                            <div>
+                                <h2>Analyse de votre copie - Histoire</h2>
+                                <p style="color: #666; font-size: 14px; margin-top: 5px;">Contrôle du 29 janvier 2025 • Note : 15/20</p>
+                            </div>
+                        </div>
+
+                        <div class="error-analysis">
+                            <h3 style="margin-bottom: 15px;">⚠️ Répartition de vos erreurs</h3>
+                            <div class="error-type">
+                                <span>Compréhension du cours</span>
+                                <span style="font-weight: bold;">-2 points</span>
+                            </div>
+                            <div class="error-type">
+                                <span>Méthodologie</span>
+                                <span style="font-weight: bold;">-1 point</span>
+                            </div>
+                            <div class="error-type">
+                                <span>Définitions imprécises</span>
+                                <span style="font-weight: bold;">-2 points</span>
+                            </div>
+                        </div>
+
+                        <h3 style="margin-top: 30px; margin-bottom: 15px;">🎯 Recommandations personnalisées</h3>
+                        
+                        <div class="recommendation-card">
+                            <h4>📖 Revoir : Le Tiers-État</h4>
+                            <p style="color: #666; margin-bottom: 10px;">Votre définition manquait de précision. Le Tiers-État représente 98% de la population mais n'a qu'un tiers des voix aux États généraux.</p>
+                            <button class="action-btn btn-primary" style="width: auto;" onclick="generateTargetedQuiz('tiers-etat')">
+                                Générer un quiz ciblé
+                            </button>
+                        </div>
+
+                        <div class="recommendation-card">
+                            <h4>📜 Revoir : Constitution de 1791</h4>
+                            <p style="color: #666; margin-bottom: 10px;">Confusion entre monarchie constitutionnelle et république. La Constitution de 1791 maintient le roi mais limite ses pouvoirs.</p>
+                            <button class="action-btn btn-primary" style="width: auto;" onclick="generateTargetedQuiz('constitution')">
+                                Générer un quiz ciblé
+                            </button>
+                        </div>
+
+                        <div style="background: #e8f5e9; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                            <h4 style="color: #2e7d32; margin-bottom: 10px;">✅ Points forts identifiés</h4>
+                            <ul style="margin-left: 20px; color: #2e7d32; line-height: 1.8;">
+                                <li>Excellente maîtrise de la chronologie</li>
+                                <li>Bonne compréhension des Girondins vs Montagnards</li>
+                                <li>Présentation claire et structurée</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const quizQuestions = [
+            {
+                question: "Quelle est la date de la prise de la Bastille ?",
+                answers: [
+                    "14 juillet 1789",
+                    "5 mai 1789",
+                    "21 septembre 1792",
+                    "26 août 1789"
+                ],
+                correct: 0,
+                explanation: "La prise de la Bastille a eu lieu le 14 juillet 1789. C'est un événement symbolique marquant la fin de l'absolutisme royal."
+            },
+            {
+                question: "Quelle différence principale oppose les Girondins aux Montagnards ?",
+                answers: [
+                    "Les Girondins veulent la monarchie, les Montagnards la république",
+                    "Les Girondins sont modérés, les Montagnards sont radicaux",
+                    "Les Girondins sont nobles, les Montagnards sont bourgeois",
+                    "Il n'y a pas de différence significative"
+                ],
+                correct: 1,
+                explanation: "Les Girondins sont modérés et favorables à des réformes progressives, tandis que les Montagnards sont radicaux et prônent des mesures révolutionnaires immédiates."
+            },
+            {
+                question: "Qu'est-ce que le Tiers État ?",
+                answers: [
+                    "Le clergé",
+                    "La noblesse",
+                    "98% de la population (paysans, bourgeois, artisans)",
+                    "L'armée révolutionnaire"
+                ],
+                correct: 2,
+                explanation: "Le Tiers État représente environ 98% de la population française (tous ceux qui ne sont ni nobles ni membres du clergé) mais n'avait qu'un tiers des voix aux États généraux."
+            },
+            {
+                question: "Qu'établit la Constitution de 1791 ?",
+                answers: [
+                    "Une république démocratique",
+                    "Une monarchie constitutionnelle",
+                    "Une dictature militaire",
+                    "L'abolition de la monarchie"
+                ],
+                correct: 1,
+                explanation: "La Constitution de 1791 établit une monarchie constitutionnelle où le roi conserve son titre mais ses pouvoirs sont limités par une constitution."
+            },
+            {
+                question: "Quel événement marque la fin de l'Ancien Régime ?",
+                answers: [
+                    "La prise de la Bastille",
+                    "L'exécution de Louis XVI",
+                    "La nuit du 4 août 1789 (abolition des privilèges)",
+                    "La Déclaration des Droits de l'Homme"
+                ],
+                correct: 2,
+                explanation: "La nuit du 4 août 1789 marque officiellement la fin de l'Ancien Régime avec l'abolition des privilèges féodaux et de la société d'ordres."
+            },
+            {
+                question: "Qui était Robespierre ?",
+                answers: [
+                    "Un roi de France",
+                    "Un leader des Montagnards et figure de la Terreur",
+                    "Un général de l'armée révolutionnaire",
+                    "Un philosophe des Lumières"
+                ],
+                correct: 1,
+                explanation: "Robespierre était l'un des principaux leaders des Montagnards et la figure centrale de la période de la Terreur (1793-1794)."
+            },
+            {
+                question: "Que signifie 'suffrage censitaire' ?",
+                answers: [
+                    "Tout le monde peut voter",
+                    "Seuls les hommes peuvent voter",
+                    "Seuls ceux qui paient un certain impôt peuvent voter",
+                    "Seuls les nobles peuvent voter"
+                ],
+                correct: 2,
+                explanation: "Le suffrage censitaire est un système où seuls les citoyens payant un certain niveau d'impôt (le cens) ont le droit de vote, excluant ainsi les plus pauvres."
+            },
+            {
+                question: "Quelle période correspond à la Terreur ?",
+                answers: [
+                    "1789-1791",
+                    "1791-1792",
+                    "1793-1794",
+                    "1795-1799"
+                ],
+                correct: 2,
+                explanation: "La Terreur est la période de 1793 à 1794 pendant laquelle le Comité de Salut Public, dirigé notamment par Robespierre, met en place une répression violente."
+            },
+            {
+                question: "Quel texte fondamental est adopté le 26 août 1789 ?",
+                answers: [
+                    "La Constitution",
+                    "La Déclaration des Droits de l'Homme et du Citoyen",
+                    "Le Code Civil",
+                    "La Constitution civile du clergé"
+                ],
+                correct: 1,
+                explanation: "La Déclaration des Droits de l'Homme et du Citoyen est adoptée le 26 août 1789. Elle proclame les principes de liberté, d'égalité et de souveraineté nationale."
+            },
+            {
+                question: "Quand la Première République est-elle proclamée ?",
+                answers: [
+                    "14 juillet 1789",
+                    "21 septembre 1792",
+                    "21 janvier 1793",
+                    "27 juillet 1794"
+                ],
+                correct: 1,
+                explanation: "La Première République française est proclamée le 21 septembre 1792, après la chute de la monarchie et l'arrestation de Louis XVI."
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+        let answeredQuestions = 0;
+        let userAnswers = [];
+
+        let stats = {
+            coursCount: 0,
+            quizCount: 0,
+            totalScore: 0,
+            timeGain: 0
+        };
+
+        function updateStats() {
+            document.getElementById('coursCount').textContent = stats.coursCount;
+            document.getElementById('quizCount').textContent = stats.quizCount;
+            document.getElementById('avgScore').textContent = 
+                stats.quizCount > 0 ? Math.round(stats.totalScore / stats.quizCount) + '%' : '0%';
+            document.getElementById('timeGain').textContent = stats.timeGain + 'h';
+        }
+
+        function showUploadZone() {
+            document.getElementById('welcomeView').style.display = 'none';
+            document.getElementById('uploadZone').style.display = 'block';
+            document.getElementById('processingView').style.display = 'none';
+            document.getElementById('resultView').style.display = 'none';
+            document.getElementById('copyAnalysisView').style.display = 'none';
+            
+            const uploadZone = document.getElementById('uploadZone');
+            uploadZone.onclick = () => document.getElementById('fileInput').click();
+            
+            uploadZone.ondragover = (e) => {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            };
+            
+            uploadZone.ondragleave = () => {
+                uploadZone.classList.remove('dragover');
+            };
+            
+            uploadZone.ondrop = (e) => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    processFiles(files);
+                }
+            };
+        }
+
+        function handleFileUpload(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                processFiles(files);
+            }
+        }
+
+        function processFiles(files) {
+            document.getElementById('uploadZone').style.display = 'none';
+            document.getElementById('processingView').style.display = 'block';
+            
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        showResults();
+                    }, 500);
+                }
+                document.getElementById('processingProgress').style.width = progress + '%';
+            }, 200);
+        }
+
+        function showResults() {
+            document.getElementById('processingView').style.display = 'none';
+            document.getElementById('resultView').style.display = 'block';
+            stats.coursCount++;
+            stats.timeGain += 2;
+            updateStats();
+            initQuiz();
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        function initQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            answeredQuestions = 0;
+            userAnswers = [];
+            displayQuestion();
+        }
+
+        function displayQuestion() {
+            const container = document.getElementById('quizQuestions');
+            const q = quizQuestions[currentQuestion];
+            
+            let html = `
+                <div class="question-card">
+                    <div class="question-number">Question ${currentQuestion + 1}/${quizQuestions.length}</div>
+                    <div class="question-text">${q.question}</div>
+            `;
+            
+            q.answers.forEach((answer, index) => {
+                html += `
+                    <div class="answer-option" onclick="selectAnswer(${index})">
+                        <span style="font-weight: bold; margin-right: 10px;">${String.fromCharCode(65 + index)}.</span>
+                        <span>${answer}</span>
+                    </div>
+                `;
+            });
+            
+            html += `
+                    <div id="feedback" class="quiz-feedback"></div>
+                </div>
+                <div class="quiz-navigation">
+                    <button class="action-btn btn-secondary" onclick="previousQuestion()" ${currentQuestion === 0 ? 'disabled' : ''}>
+                        ← Précédent
+                    </button>
+                    <button id="nextBtn" class="action-btn btn-primary" onclick="nextQuestion()" style="display: none;">
+                        ${currentQuestion === quizQuestions.length - 1 ? 'Voir les résultats' : 'Suivant →'}
+                    </button>
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+
+        function selectAnswer(index) {
+            if (userAnswers[currentQuestion] !== undefined) return;
+            
+            const q = quizQuestions[currentQuestion];
+            const options = document.querySelectorAll('.answer-option');
+            const feedback = document.getElementById('feedback');
+            
+            userAnswers[currentQuestion] = index;
+            answeredQuestions++;
+            
+            options[index].classList.add('selected');
+            
+            if (index === q.correct) {
+                options[index].classList.add('correct');
+                feedback.className = 'quiz-feedback show correct';
+                feedback.innerHTML = `<strong>✓ Correct !</strong><br>${q.explanation}`;
+                score++;
+            } else {
+                options[index].classList.add('incorrect');
+                options[q.correct].classList.add('correct');
+                feedback.className = 'quiz-feedback show incorrect';
+                feedback.innerHTML = `<strong>✗ Incorrect.</strong><br>${q.explanation}`;
+            }
+            
+            options.forEach(opt => opt.style.pointerEvents = 'none');
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizQuestions.length - 1) {
+                currentQuestion++;
+                displayQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+                if (userAnswers[currentQuestion] !== undefined) {
+                    selectAnswer(userAnswers[currentQuestion]);
+                }
+            }
+        }
+
+        function showQuizResults() {
+            const container = document.getElementById('quizQuestions');
+            const percentage = Math.round((score / quizQuestions.length) * 100);
+            
+            stats.quizCount++;
+            stats.totalScore += percentage;
+            updateStats();
+            
+            let message = '';
+            let recommendation = '';
+            
+            if (percentage >= 80) {
+                message = 'Excellent travail ! 🎉';
+                recommendation = 'Vous maîtrisez très bien ce cours. Continuez sur cette lancée !';
+            } else if (percentage >= 60) {
+                message = 'Bon travail ! 👍';
+                recommendation = 'Quelques points à revoir. Relisez la fiche de révision sur les notions ratées.';
+            } else {
+                message = 'Il faut encore réviser 📚';
+                recommendation = 'Reprenez la fiche de révision et refaites le quiz. Vous pouvez le faire !';
+            }
+            
+            container.innerHTML = `
+                <div class="quiz-score">
+                    <h2>${score}/${quizQuestions.length}</h2>
+                    <p style="font-size: 24px; margin: 10px 0;">${message}</p>
+                    <p style="font-size: 18px;">Score : ${percentage}%</p>
+                </div>
+                <div style="margin-top: 30px; padding: 20px; background: #f8f9ff; border-radius: 10px;">
+                    <h3 style="color: #667eea; margin-bottom: 15px;">💡 Recommandation</h3>
+                    <p style="color: #333; line-height: 1.8;">${recommendation}</p>
+                </div>
+                <div style="display: flex; gap: 15px; margin-top: 20px;">
+                    <button class="action-btn btn-primary" onclick="initQuiz()">
+                        🔄 Refaire le quiz
+                    </button>
+                    <button class="action-btn btn-secondary" onclick="showTab('fiche'); document.querySelector('.tab-btn').click();">
+                        📄 Revoir la fiche
+                    </button>
+                </div>
+            `;
+        }
+
+        function showCopyAnalysis() {
+            document.getElementById('welcomeView').style.display = 'none';
+            document.getElementById('uploadZone').style.display = 'none';
+            document.getElementById('resultView').style.display = 'none';
+            document.getElementById('copyAnalysisView').style.display = 'block';
+        }
+
+        function handleCopyUpload() {
+            setTimeout(() => {
+                document.getElementById('copyResults').style.display = 'block';
+            }, 2000);
+        }
+
+        function generateTargetedQuiz(topic) {
+            alert(`Quiz ciblé sur "${topic}" en cours de génération ! Cette fonctionnalité créerait un quiz de 5 questions spécifiquement sur ce point faible.`);
+        }
+
+        function showDashboard() {
+            document.getElementById('welcomeView').style.display = 'block';
+            document.getElementById('uploadZone').style.display = 'none';
+            document.getElementById('resultView').style.display = 'none';
+            document.getElementById('copyAnalysisView').style.display = 'none';
+        }
+
+        function resetApp() {
+            showUploadZone();
+        }
+
+        window.onload = function() {
+            updateStats();
+        };
+    </script>
+
+</body></html>

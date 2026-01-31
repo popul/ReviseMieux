@@ -1,0 +1,12 @@
+{
+  "loops": [
+    {
+      "id": "savvy-cork",
+      "pid": 65262,
+      "started": "2026-01-31T19:07:30.712301Z",
+      "prompt": "Implémente le MVP selon PROMPT.md en commençant par l'étape 1",
+      "worktree_path": "/Users/paulmusso/Documents/code/autre/revisemieux/.worktrees/savvy-cork",
+      "workspace": "/Users/paulmusso/Documents/code/autre/revisemieux/.worktrees/savvy-cork"
+    }
+  ]
+}

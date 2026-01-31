@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:16-alpine
+    container_name: revisemieux-db
+    environment:
+      POSTGRES_USER: revisemieux
+      POSTGRES_PASSWORD: revisemieux
+      POSTGRES_DB: revisemieux
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U revisemieux"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Go Backend API
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: revisemieux-backend
+    environment:
+      DATABASE_URL: postgres://revisemieux:revisemieux@db:5432/revisemieux?sslmode=disable
+      PORT: "8080"
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    # For development with hot reload (using air)
+    # command: air
+
+  # Frontend (static files served by nginx in prod, or dev server)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: revisemieux-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      API_URL: http://backend:8080
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
