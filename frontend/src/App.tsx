@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AccessibiliteProvider } from './contexte/AccessibiliteContexte'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Scanner from './pages/Scanner'
@@ -19,19 +20,21 @@ function PageEnConstruction({ titre }: { titre: string }) {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Layout />}>
-          <Route index element={<Dashboard />} />
-          <Route path="scanner" element={<Scanner />} />
-          <Route path="cours" element={<PageEnConstruction titre="Mes cours" />} />
-          <Route path="fiches" element={<Fiches />} />
-          <Route path="quiz" element={<Quiz />} />
-          <Route path="mindmap" element={<Mindmap />} />
-          <Route path="analyser" element={<PageEnConstruction titre="Analyser une copie" />} />
-          <Route path="progression" element={<PageEnConstruction titre="Ma progression" />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <AccessibiliteProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Dashboard />} />
+            <Route path="scanner" element={<Scanner />} />
+            <Route path="cours" element={<PageEnConstruction titre="Mes cours" />} />
+            <Route path="fiches" element={<Fiches />} />
+            <Route path="quiz" element={<Quiz />} />
+            <Route path="mindmap" element={<Mindmap />} />
+            <Route path="analyser" element={<PageEnConstruction titre="Analyser une copie" />} />
+            <Route path="progression" element={<PageEnConstruction titre="Ma progression" />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AccessibiliteProvider>
   )
 }

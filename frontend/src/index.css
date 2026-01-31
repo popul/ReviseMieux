@@ -72,3 +72,191 @@ html {
 .animate-progress {
   animation: progress 1.5s ease-in-out infinite;
 }
+
+/* =================================
+   ACCESSIBILITE - Taille du texte
+   ================================= */
+
+/* Normal (100%) - défaut */
+html.text-scale-normal {
+  font-size: 16px;
+}
+
+/* Large (125%) */
+html.text-scale-large {
+  font-size: 20px;
+}
+
+/* Extra large (150%) */
+html.text-scale-xlarge {
+  font-size: 24px;
+}
+
+/* =================================
+   ACCESSIBILITE - Mode daltonien
+   ================================= */
+
+/* Variables de couleur de base */
+:root {
+  --color-coral: #E85D4C;
+  --color-coral-light: #FF7A6B;
+  --color-coral-dark: #C94A3B;
+  --color-teal: #1A4D4D;
+  --color-teal-light: #2A6B6B;
+  --color-gold: #F5C542;
+  --color-gold-light: #FFD966;
+  --color-success: #34A853;
+  --color-success-light: #E6F4EA;
+  --color-error: #E85D4C;
+}
+
+/* Protanopie (difficulté rouge) - remplace rouge par bleu */
+html.daltonien-protanopia {
+  --color-coral: #4A90D9;
+  --color-coral-light: #6BA9E6;
+  --color-coral-dark: #3A70B9;
+  --color-success: #2E7D32;
+  --color-error: #4A90D9;
+}
+
+/* Deuteranopie (difficulté vert) - augmente contraste, utilise bleu/orange */
+html.daltonien-deuteranopia {
+  --color-coral: #D97A4A;
+  --color-coral-light: #E69A6B;
+  --color-coral-dark: #B95A3A;
+  --color-teal: #1A3D6D;
+  --color-teal-light: #2A5D8D;
+  --color-success: #1565C0;
+  --color-success-light: #E3F2FD;
+  --color-error: #D97A4A;
+}
+
+/* Tritanopie (difficulté bleu) - remplace bleu par rose/magenta */
+html.daltonien-tritanopia {
+  --color-teal: #6D1A4D;
+  --color-teal-light: #8D2A6B;
+  --color-gold: #E8A542;
+  --color-gold-light: #F5C066;
+  --color-success: #558B2F;
+  --color-success-light: #F1F8E9;
+}
+
+/* Appliquer les variables CSS aux couleurs Tailwind via classes utilitaires */
+html[class*="daltonien-"] .bg-coral {
+  background-color: var(--color-coral) !important;
+}
+html[class*="daltonien-"] .bg-coral-light {
+  background-color: var(--color-coral-light) !important;
+}
+html[class*="daltonien-"] .text-coral {
+  color: var(--color-coral) !important;
+}
+html[class*="daltonien-"] .border-coral {
+  border-color: var(--color-coral) !important;
+}
+html[class*="daltonien-"] .bg-teal {
+  background-color: var(--color-teal) !important;
+}
+html[class*="daltonien-"] .text-teal {
+  color: var(--color-teal) !important;
+}
+html[class*="daltonien-"] .border-teal {
+  border-color: var(--color-teal) !important;
+}
+html[class*="daltonien-"] .bg-gold {
+  background-color: var(--color-gold) !important;
+}
+html[class*="daltonien-"] .text-gold {
+  color: var(--color-gold) !important;
+}
+html[class*="daltonien-"] .bg-success {
+  background-color: var(--color-success) !important;
+}
+html[class*="daltonien-"] .text-success {
+  color: var(--color-success) !important;
+}
+html[class*="daltonien-"] .bg-success-light {
+  background-color: var(--color-success-light) !important;
+}
+
+/* =================================
+   ACCESSIBILITE - Contraste eleve
+   ================================= */
+
+html.contraste-eleve {
+  /* Couleurs de base en noir et blanc */
+  --color-coral: #000000;
+  --color-coral-light: #333333;
+  --color-coral-dark: #000000;
+  --color-teal: #000000;
+  --color-teal-light: #333333;
+  --color-gold: #FFD700;
+  --color-success: #006400;
+  --color-error: #8B0000;
+}
+
+html.contraste-eleve body {
+  background-color: #FFFFFF;
+  color: #000000;
+}
+
+html.contraste-eleve .bg-cream,
+html.contraste-eleve .bg-cream-dark {
+  background-color: #FFFFFF !important;
+}
+
+html.contraste-eleve .bg-ink {
+  background-color: #000000 !important;
+}
+
+html.contraste-eleve .text-ink-light,
+html.contraste-eleve .text-ink-muted {
+  color: #000000 !important;
+}
+
+/* Bordures plus épaisses en mode contraste élevé */
+html.contraste-eleve button,
+html.contraste-eleve input,
+html.contraste-eleve select,
+html.contraste-eleve textarea,
+html.contraste-eleve [role="button"] {
+  border: 2px solid #000000 !important;
+}
+
+/* Focus encore plus visible */
+html.contraste-eleve :focus-visible {
+  outline: 4px solid #000000 !important;
+  outline-offset: 2px;
+}
+
+/* Liens soulignés */
+html.contraste-eleve a {
+  text-decoration: underline;
+}
+
+/* =================================
+   ACCESSIBILITE - Skip to content
+   ================================= */
+
+.skip-to-content {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.skip-to-content:focus {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: auto;
+  height: auto;
+  padding: 1rem 2rem;
+  background: #E85D4C;
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+}
