@@ -35,5 +35,14 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers) {
 			generer.POST("/quiz", h.GenererQuizHandler)
 			generer.POST("/mindmap", h.GenererMindmapHandler)
 		}
+
+		// Routes Quiz
+		quiz := api.Group("/quiz")
+		{
+			quiz.GET("/:id", h.ObtenirQuizHandler)
+			quiz.POST("/:id/demarrer", h.DemarrerSessionHandler)
+			quiz.POST("/:id/session/:sessionId/repondre", h.RepondreHandler)
+			quiz.POST("/:id/session/:sessionId/terminer", h.TerminerSessionHandler)
+		}
 	}
 }

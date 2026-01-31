@@ -137,8 +137,76 @@ func (h *Handlers) ObtenirFichesHandler(c *gin.Context) {
 
 // GenererQuizHandler génère un quiz
 func (h *Handlers) GenererQuizHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Génération de quiz pas encore implémentée",
+	if h.handlersGeneration != nil {
+		h.handlersGeneration.GenererQuizHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de génération n'est pas configuré",
+		},
+	})
+}
+
+// ObtenirQuizHandler récupère un quiz par son ID
+func (h *Handlers) ObtenirQuizHandler(c *gin.Context) {
+	if h.handlersGeneration != nil {
+		h.handlersGeneration.ObtenirQuizHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service n'est pas configuré",
+		},
+	})
+}
+
+// DemarrerSessionHandler démarre une session de quiz
+func (h *Handlers) DemarrerSessionHandler(c *gin.Context) {
+	if h.handlersGeneration != nil {
+		h.handlersGeneration.DemarrerSessionHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service n'est pas configuré",
+		},
+	})
+}
+
+// RepondreHandler enregistre une réponse à une question
+func (h *Handlers) RepondreHandler(c *gin.Context) {
+	if h.handlersGeneration != nil {
+		h.handlersGeneration.RepondreHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service n'est pas configuré",
+		},
+	})
+}
+
+// TerminerSessionHandler termine une session de quiz
+func (h *Handlers) TerminerSessionHandler(c *gin.Context) {
+	if h.handlersGeneration != nil {
+		h.handlersGeneration.TerminerSessionHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service n'est pas configuré",
+		},
 	})
 }
 
