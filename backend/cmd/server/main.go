@@ -50,11 +50,20 @@ func main() {
 		log.Println("✓ Service OCR initialisé")
 	}
 
-	// Créer le repository des cours
+	// Créer les repositories
 	var coursRepo store.CoursRepository
+	var fichesRepo store.FichesRepository
 	if db != nil {
 		coursRepo = store.NouveauCoursRepo(db)
-		log.Println("✓ Repository cours initialisé")
+		fichesRepo = store.NouveauFichesRepo(db)
+		log.Println("✓ Repositories initialisés (cours, fiches)")
+	}
+
+	// Créer le service de génération
+	var serviceGeneration *services.ServiceGeneration
+	if gestionnaireLLM != nil && coursRepo != nil {
+		serviceGeneration = services.NouveauServiceGeneration(gestionnaireLLM, coursRepo, fichesRepo)
+		log.Println("✓ Service génération initialisé")
 	}
 
 	// Créer le routeur Gin
@@ -64,7 +73,7 @@ func main() {
 	api.ConfigurerMiddleware(r)
 
 	// Créer les handlers avec toutes les dépendances
-	handlers := api.NouveauHandlers(db, serviceOCR, coursRepo)
+	handlers := api.NouveauHandlers(db, serviceOCR, serviceGeneration, coursRepo)
 
 	// Configurer les routes
 	api.ConfigurerRoutes(r, handlers)

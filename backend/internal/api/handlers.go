@@ -11,15 +11,22 @@ import (
 
 // Handlers contient les dépendances des handlers
 type Handlers struct {
-	store       *store.Store
-	handlersOCR *HandlersOCR
+	store              *store.Store
+	handlersOCR        *HandlersOCR
+	handlersGeneration *HandlersGeneration
 }
 
 // NouveauHandlers crée une nouvelle instance de Handlers
-func NouveauHandlers(s *store.Store, serviceOCR *services.ServiceOCR, coursRepo store.CoursRepository) *Handlers {
+func NouveauHandlers(
+	s *store.Store,
+	serviceOCR *services.ServiceOCR,
+	serviceGeneration *services.ServiceGeneration,
+	coursRepo store.CoursRepository,
+) *Handlers {
 	return &Handlers{
-		store:       s,
-		handlersOCR: NouveauHandlersOCR(serviceOCR, coursRepo),
+		store:              s,
+		handlersOCR:        NouveauHandlersOCR(serviceOCR, coursRepo),
+		handlersGeneration: NouveauHandlersGeneration(serviceGeneration),
 	}
 }
 
@@ -100,8 +107,31 @@ func (h *Handlers) OCRHandler(c *gin.Context) {
 
 // GenererFichesHandler génère des fiches de révision
 func (h *Handlers) GenererFichesHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Génération de fiches pas encore implémentée",
+	if h.handlersGeneration != nil {
+		h.handlersGeneration.GenererFichesHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de génération n'est pas configuré",
+		},
+	})
+}
+
+// ObtenirFichesHandler récupère les fiches d'un cours
+func (h *Handlers) ObtenirFichesHandler(c *gin.Context) {
+	if h.handlersGeneration != nil {
+		h.handlersGeneration.ObtenirFichesHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service n'est pas configuré",
+		},
 	})
 }
 

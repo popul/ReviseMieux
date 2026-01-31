@@ -22,6 +22,7 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers) {
 			cours.GET("", h.ListerCoursHandler)
 			cours.POST("", h.CreerCoursHandler)
 			cours.GET("/:id", h.ObtenirCoursHandler)
+			cours.GET("/:id/fiches", h.ObtenirFichesHandler)
 		}
 
 		// Routes OCR
