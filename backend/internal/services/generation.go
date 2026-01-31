@@ -51,6 +51,7 @@ type ServiceGeneration struct {
 	fichesRepo       store.FichesRepository
 	quizRepo         store.QuizRepository
 	ressourcesRepo   store.RessourcesRepository
+	mindmapRepo      store.MindmapRepository
 }
 
 // NouveauServiceGeneration crée une nouvelle instance du service de génération
@@ -60,6 +61,7 @@ func NouveauServiceGeneration(
 	fichesRepo store.FichesRepository,
 	quizRepo store.QuizRepository,
 	ressourcesRepo store.RessourcesRepository,
+	mindmapRepo store.MindmapRepository,
 ) *ServiceGeneration {
 	return &ServiceGeneration{
 		gestionnaireLLM:  gestionnaireLLM,
@@ -67,6 +69,7 @@ func NouveauServiceGeneration(
 		fichesRepo:       fichesRepo,
 		quizRepo:         quizRepo,
 		ressourcesRepo:   ressourcesRepo,
+		mindmapRepo:      mindmapRepo,
 	}
 }
 
@@ -719,4 +722,205 @@ func (s *ServiceGeneration) ObtenirRessourcesParCours(ctx context.Context, cours
 	}
 
 	return s.ressourcesRepo.ListerParCours(ctx, coursID)
+}
+
+// --- Génération de Mindmaps ---
+
+// ResultatGenerationMindmap contient le résultat de la génération de mindmap
+type ResultatGenerationMindmap struct {
+	Mindmap *store.Mindmap `json:"mindmap"`
+}
+
+// Codes d'erreur mindmap
+var (
+	ErrParsingMindmapEchoue = &ErreurGeneration{Code: "PARSING_MINDMAP_ECHOUE", Message: "Erreur lors du parsing de la mindmap générée"}
+	ErrMindmapNonTrouvee    = &ErreurGeneration{Code: "MINDMAP_NON_TROUVEE", Message: "Mindmap non trouvée"}
+)
+
+// GenererMindmap génère une carte mentale pour un cours
+func (s *ServiceGeneration) GenererMindmap(ctx context.Context, coursID string) (*ResultatGenerationMindmap, error) {
+	if s.gestionnaireLLM == nil {
+		return nil, ErrServiceNonDisponible
+	}
+
+	// Récupérer le cours
+	cours, err := s.coursRepo.ObtenirParID(ctx, coursID)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrCoursNonTrouve, err.Error())
+	}
+
+	// Vérifier que le cours a du texte
+	texte := cours.TexteCorrige
+	if texte == "" {
+		texte = cours.TexteOCR
+	}
+	if texte == "" {
+		return nil, ErrCoursVideOCR
+	}
+
+	// Construire le prompt
+	prompt := s.construirePromptMindmap(texte, cours.Titre)
+
+	// Appeler le LLM
+	llmOptions := llm.OptionsGeneration{
+		Temperature:   0.7,
+		MaxTokens:     4000,
+		FormatReponse: "json",
+		SystemPrompt:  "Tu es un professeur expert en création de cartes mentales pour lycéens. Tu structures les connaissances de manière hiérarchique et visuelle. Tu réponds uniquement en JSON valide.",
+	}
+
+	reponseJSON, err := s.gestionnaireLLM.GenererJSON(ctx, prompt, nil, llmOptions)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrGenerationLLMEchouee, err.Error())
+	}
+
+	// Parser la réponse
+	noeuds, liens, err := s.parserReponseMindmap(reponseJSON)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrParsingMindmapEchoue, err.Error())
+	}
+
+	// Créer la mindmap
+	mindmap := &store.Mindmap{
+		CoursID: coursID,
+		Noeuds:  noeuds,
+		Liens:   liens,
+	}
+
+	// Sauvegarder la mindmap en base
+	if s.mindmapRepo != nil {
+		if err := s.mindmapRepo.Creer(ctx, mindmap); err != nil {
+			return nil, fmt.Errorf("erreur sauvegarde mindmap: %w", err)
+		}
+	}
+
+	return &ResultatGenerationMindmap{
+		Mindmap: mindmap,
+	}, nil
+}
+
+// construirePromptMindmap construit le prompt pour la génération de mindmap
+func (s *ServiceGeneration) construirePromptMindmap(texte, titre string) string {
+	titreInfo := ""
+	if titre != "" {
+		titreInfo = fmt.Sprintf("Titre du cours : %s\n\n", titre)
+	}
+
+	return fmt.Sprintf(`Tu es un professeur créant une carte mentale (mindmap) pour aider un lycéen à visualiser et mémoriser un cours.
+
+%sCours :
+"""
+%s
+"""
+
+Instructions :
+1. Identifie le thème central du cours (nœud central)
+2. Identifie les 3-6 grandes branches (sous-thèmes principaux)
+3. Pour chaque branche, identifie 2-4 feuilles (concepts, détails importants)
+4. Limite le total à 20-30 nœuds maximum
+5. Utilise des labels courts et clairs (max 4-5 mots par nœud)
+6. Base-toi UNIQUEMENT sur le contenu du cours fourni
+
+Format de sortie :
+- Le nœud central a le type "central" et sera placé au centre (position 400, 300)
+- Les branches ont le type "branche" et sont disposées en cercle autour du centre
+- Les feuilles ont le type "feuille" et sont positionnées autour de leur branche parente
+
+Réponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou après :
+{
+  "noeuds": [
+    {
+      "id": "central",
+      "label": "Thème principal",
+      "type": "central",
+      "position": {"x": 400, "y": 300}
+    },
+    {
+      "id": "branche1",
+      "label": "Sous-thème 1",
+      "type": "branche",
+      "position": {"x": 200, "y": 150}
+    },
+    {
+      "id": "feuille1-1",
+      "label": "Concept 1",
+      "type": "feuille",
+      "position": {"x": 50, "y": 100}
+    }
+  ],
+  "liens": [
+    {"source": "central", "target": "branche1"},
+    {"source": "branche1", "target": "feuille1-1"}
+  ]
+}`, titreInfo, texte)
+}
+
+// reponseMindmapJSON représente la structure de réponse du LLM pour les mindmaps
+type reponseMindmapJSON struct {
+	Noeuds []struct {
+		ID       string `json:"id"`
+		Label    string `json:"label"`
+		Type     string `json:"type"`
+		Position struct {
+			X float64 `json:"x"`
+			Y float64 `json:"y"`
+		} `json:"position"`
+	} `json:"noeuds"`
+	Liens []struct {
+		Source string `json:"source"`
+		Target string `json:"target"`
+	} `json:"liens"`
+}
+
+// parserReponseMindmap parse la réponse JSON du LLM en noeuds et liens
+func (s *ServiceGeneration) parserReponseMindmap(reponseJSON []byte) ([]store.NoeudMindmap, []store.LienMindmap, error) {
+	var reponse reponseMindmapJSON
+	if err := json.Unmarshal(reponseJSON, &reponse); err != nil {
+		return nil, nil, fmt.Errorf("erreur parsing JSON: %w", err)
+	}
+
+	// Convertir les nœuds
+	noeuds := make([]store.NoeudMindmap, 0, len(reponse.Noeuds))
+	for _, n := range reponse.Noeuds {
+		// Valider le type de nœud
+		typeNoeud := store.TypeNoeud(n.Type)
+		if typeNoeud != store.TypeNoeudCentral &&
+			typeNoeud != store.TypeNoeudBranche &&
+			typeNoeud != store.TypeNoeudFeuille {
+			typeNoeud = store.TypeNoeudFeuille // valeur par défaut
+		}
+
+		noeud := store.NoeudMindmap{
+			ID:    n.ID,
+			Label: n.Label,
+			Type:  typeNoeud,
+			Position: store.Position{
+				X: n.Position.X,
+				Y: n.Position.Y,
+			},
+		}
+		noeuds = append(noeuds, noeud)
+	}
+
+	// Convertir les liens (ajouter un ID)
+	liens := make([]store.LienMindmap, 0, len(reponse.Liens))
+	for i, l := range reponse.Liens {
+		lien := store.LienMindmap{
+			ID:     fmt.Sprintf("lien%d", i+1),
+			Source: l.Source,
+			Target: l.Target,
+		}
+		liens = append(liens, lien)
+	}
+
+	return noeuds, liens, nil
+}
+
+// ObtenirMindmapParCours récupère la mindmap existante d'un cours
+func (s *ServiceGeneration) ObtenirMindmapParCours(ctx context.Context, coursID string) (*store.Mindmap, error) {
+	if s.mindmapRepo == nil {
+		return nil, ErrServiceNonDisponible
+	}
+
+	return s.mindmapRepo.ObtenirParCours(ctx, coursID)
 }

@@ -867,3 +867,239 @@ func (h *HandlersGeneration) gererErreurGeneration(c *gin.Context, err error) {
 		},
 	})
 }
+
+// --- Mindmap Handlers ---
+
+// RequeteGenererMindmap représente la requête pour générer une mindmap
+type RequeteGenererMindmap struct {
+	CoursID string `json:"coursId" binding:"required"`
+}
+
+// ReponseMindmap représente la réponse de génération de mindmap
+type ReponseMindmap struct {
+	Succes  bool            `json:"succes"`
+	Mindmap *MindmapReponse `json:"mindmap,omitempty"`
+	Erreur  *ErreurReponse  `json:"erreur,omitempty"`
+}
+
+// MindmapReponse représente une mindmap dans la réponse API
+type MindmapReponse struct {
+	ID           string               `json:"id"`
+	CoursID      string               `json:"coursId"`
+	Noeuds       []NoeudMindmapReponse `json:"noeuds"`
+	Liens        []LienMindmapReponse  `json:"liens"`
+	DateCreation string               `json:"dateCreation"`
+}
+
+// NoeudMindmapReponse représente un nœud dans la réponse API
+type NoeudMindmapReponse struct {
+	ID       string          `json:"id"`
+	Label    string          `json:"label"`
+	Type     string          `json:"type"`
+	Position PositionReponse `json:"position"`
+}
+
+// PositionReponse représente la position d'un nœud
+type PositionReponse struct {
+	X float64 `json:"x"`
+	Y float64 `json:"y"`
+}
+
+// LienMindmapReponse représente un lien dans la réponse API
+type LienMindmapReponse struct {
+	ID     string `json:"id"`
+	Source string `json:"source"`
+	Target string `json:"target"`
+}
+
+// GenererMindmapHandler génère une mindmap pour un cours
+func (h *HandlersGeneration) GenererMindmapHandler(c *gin.Context) {
+	if h.serviceGeneration == nil {
+		c.JSON(http.StatusServiceUnavailable, ReponseMindmap{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    "SERVICE_NON_DISPONIBLE",
+				Message: "Le service de génération n'est pas configuré",
+			},
+		})
+		return
+	}
+
+	var req RequeteGenererMindmap
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, ReponseMindmap{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    "REQUETE_INVALIDE",
+				Message: "Le champ coursId est requis",
+			},
+		})
+		return
+	}
+
+	resultat, err := h.serviceGeneration.GenererMindmap(c.Request.Context(), req.CoursID)
+	if err != nil {
+		h.gererErreurGenerationMindmap(c, err)
+		return
+	}
+
+	// Convertir les nœuds pour la réponse
+	noeuds := make([]NoeudMindmapReponse, 0, len(resultat.Mindmap.Noeuds))
+	for _, n := range resultat.Mindmap.Noeuds {
+		noeuds = append(noeuds, NoeudMindmapReponse{
+			ID:    n.ID,
+			Label: n.Label,
+			Type:  string(n.Type),
+			Position: PositionReponse{
+				X: n.Position.X,
+				Y: n.Position.Y,
+			},
+		})
+	}
+
+	// Convertir les liens pour la réponse
+	liens := make([]LienMindmapReponse, 0, len(resultat.Mindmap.Liens))
+	for _, l := range resultat.Mindmap.Liens {
+		liens = append(liens, LienMindmapReponse{
+			ID:     l.ID,
+			Source: l.Source,
+			Target: l.Target,
+		})
+	}
+
+	c.JSON(http.StatusOK, ReponseMindmap{
+		Succes: true,
+		Mindmap: &MindmapReponse{
+			ID:           resultat.Mindmap.ID,
+			CoursID:      resultat.Mindmap.CoursID,
+			Noeuds:       noeuds,
+			Liens:        liens,
+			DateCreation: resultat.Mindmap.DateCreation.Format("2006-01-02T15:04:05Z07:00"),
+		},
+	})
+}
+
+// ObtenirMindmapHandler récupère la mindmap existante d'un cours
+func (h *HandlersGeneration) ObtenirMindmapHandler(c *gin.Context) {
+	coursID := c.Param("id")
+	if coursID == "" {
+		c.JSON(http.StatusBadRequest, ReponseMindmap{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    "ID_MANQUANT",
+				Message: "L'ID du cours est requis",
+			},
+		})
+		return
+	}
+
+	if h.serviceGeneration == nil {
+		c.JSON(http.StatusServiceUnavailable, ReponseMindmap{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    "SERVICE_NON_DISPONIBLE",
+				Message: "Le service n'est pas configuré",
+			},
+		})
+		return
+	}
+
+	mindmap, err := h.serviceGeneration.ObtenirMindmapParCours(c.Request.Context(), coursID)
+	if err != nil {
+		h.gererErreurGenerationMindmap(c, err)
+		return
+	}
+
+	if mindmap == nil {
+		c.JSON(http.StatusNotFound, ReponseMindmap{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    "MINDMAP_NON_TROUVEE",
+				Message: "Aucune mindmap trouvée pour ce cours",
+			},
+		})
+		return
+	}
+
+	// Convertir les nœuds pour la réponse
+	noeuds := make([]NoeudMindmapReponse, 0, len(mindmap.Noeuds))
+	for _, n := range mindmap.Noeuds {
+		noeuds = append(noeuds, NoeudMindmapReponse{
+			ID:    n.ID,
+			Label: n.Label,
+			Type:  string(n.Type),
+			Position: PositionReponse{
+				X: n.Position.X,
+				Y: n.Position.Y,
+			},
+		})
+	}
+
+	// Convertir les liens pour la réponse
+	liens := make([]LienMindmapReponse, 0, len(mindmap.Liens))
+	for _, l := range mindmap.Liens {
+		liens = append(liens, LienMindmapReponse{
+			ID:     l.ID,
+			Source: l.Source,
+			Target: l.Target,
+		})
+	}
+
+	c.JSON(http.StatusOK, ReponseMindmap{
+		Succes: true,
+		Mindmap: &MindmapReponse{
+			ID:           mindmap.ID,
+			CoursID:      mindmap.CoursID,
+			Noeuds:       noeuds,
+			Liens:        liens,
+			DateCreation: mindmap.DateCreation.Format("2006-01-02T15:04:05Z07:00"),
+		},
+	})
+}
+
+// gererErreurGenerationMindmap gère les erreurs spécifiques aux mindmaps
+func (h *HandlersGeneration) gererErreurGenerationMindmap(c *gin.Context, err error) {
+	var errGen *services.ErreurGeneration
+	if errors.As(err, &errGen) {
+		statusCode := http.StatusInternalServerError
+		switch errGen.Code {
+		case "COURS_NON_TROUVE", "MINDMAP_NON_TROUVEE":
+			statusCode = http.StatusNotFound
+		case "COURS_VIDE":
+			statusCode = http.StatusBadRequest
+		case "SERVICE_NON_DISPONIBLE":
+			statusCode = http.StatusServiceUnavailable
+		}
+
+		c.JSON(statusCode, ReponseMindmap{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    errGen.Code,
+				Message: errGen.Message,
+			},
+		})
+		return
+	}
+
+	var errLLM *llm.ErreurLLM
+	if errors.As(err, &errLLM) {
+		if errLLM.RateLimited {
+			c.JSON(http.StatusTooManyRequests, ReponseMindmap{
+				Succes: false,
+				Erreur: &ErreurReponse{
+					Code:    "QUOTA_DEPASSE",
+					Message: "Limite d'appels API atteinte, réessayez plus tard",
+				},
+			})
+			return
+		}
+	}
+
+	c.JSON(http.StatusInternalServerError, ReponseMindmap{
+		Succes: false,
+		Erreur: &ErreurReponse{
+			Code:    "ERREUR_INTERNE",
+			Message: "Une erreur est survenue lors de la génération de la mindmap",
+		},
+	})
+}

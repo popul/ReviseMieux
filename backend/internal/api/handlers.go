@@ -215,8 +215,31 @@ func (h *Handlers) TerminerSessionHandler(c *gin.Context) {
 
 // GenererMindmapHandler génère une mindmap
 func (h *Handlers) GenererMindmapHandler(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"message": "Génération de mindmap pas encore implémentée",
+	if h.handlersGeneration != nil {
+		h.handlersGeneration.GenererMindmapHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de génération n'est pas configuré",
+		},
+	})
+}
+
+// ObtenirMindmapHandler récupère la mindmap d'un cours
+func (h *Handlers) ObtenirMindmapHandler(c *gin.Context) {
+	if h.handlersGeneration != nil {
+		h.handlersGeneration.ObtenirMindmapHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service n'est pas configuré",
+		},
 	})
 }
 

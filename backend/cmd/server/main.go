@@ -55,18 +55,20 @@ func main() {
 	var fichesRepo store.FichesRepository
 	var quizRepo store.QuizRepository
 	var ressourcesRepo store.RessourcesRepository
+	var mindmapRepo store.MindmapRepository
 	if db != nil {
 		coursRepo = store.NouveauCoursRepo(db)
 		fichesRepo = store.NouveauFichesRepo(db)
 		quizRepo = store.NouveauQuizRepo(db)
 		ressourcesRepo = store.NouveauRessourcesRepo(db)
-		log.Println("✓ Repositories initialisés (cours, fiches, quiz, ressources)")
+		mindmapRepo = store.NouveauMindmapRepo(db)
+		log.Println("✓ Repositories initialisés (cours, fiches, quiz, ressources, mindmaps)")
 	}
 
 	// Créer le service de génération
 	var serviceGeneration *services.ServiceGeneration
 	if gestionnaireLLM != nil && coursRepo != nil {
-		serviceGeneration = services.NouveauServiceGeneration(gestionnaireLLM, coursRepo, fichesRepo, quizRepo, ressourcesRepo)
+		serviceGeneration = services.NouveauServiceGeneration(gestionnaireLLM, coursRepo, fichesRepo, quizRepo, ressourcesRepo, mindmapRepo)
 		log.Println("✓ Service génération initialisé")
 	}
 
