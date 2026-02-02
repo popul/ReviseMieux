@@ -45,11 +45,8 @@ FROM nginx:alpine AS production
 # Copy nginx config
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Copy built files
+# Copy built files from Vite build
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# For static HTML files (current state), copy them directly
-COPY *.html /usr/share/nginx/html/
 
 EXPOSE 80
 

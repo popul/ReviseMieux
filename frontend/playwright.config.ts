@@ -58,10 +58,12 @@ export default defineConfig({
   ],
 
   // Serveur web à démarrer avant les tests
+  // Note: En local avec Docker (make dev), réutiliser le serveur existant
+  // Le serveur Docker tourne sur localhost:3000
   webServer: {
-    command: 'npm run dev',
+    command: 'npm run dev -- --port 3000',
     url: 'http://localhost:3000',
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: true, // Toujours réutiliser si Docker tourne
     timeout: 120 * 1000,
   },
 });

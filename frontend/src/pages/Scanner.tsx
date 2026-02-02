@@ -95,7 +95,7 @@ export default function Scanner() {
 
       setResultatOCR(resultat)
       setTexteEdite(resultat.texte)
-      setZonesIncertaines(resultat.zonesIncertaines)
+      setZonesIncertaines(resultat.zonesIncertaines || [])
       setEtat('resultat')
       setEtapeActive(3)
     } catch (err) {

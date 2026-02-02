@@ -131,14 +131,14 @@ export default function Layout() {
   }, [])
 
   return (
-    <div className="grid grid-cols-[280px_1fr] min-h-screen">
+    <div className="flex min-h-screen">
       {/* Skip to content link for keyboard users */}
       <a href="#main-content" className="skip-to-content">
         Aller au contenu principal
       </a>
 
       {/* Sidebar */}
-      <aside className="bg-ink p-lg flex flex-col fixed w-[280px] h-screen overflow-y-auto" role="complementary" aria-label="Navigation principale">
+      <aside className="bg-ink p-lg flex flex-col w-[280px] min-w-[280px] h-screen sticky top-0 overflow-y-auto" role="complementary" aria-label="Navigation principale">
         <a href="/" className="font-display text-2xl font-semibold text-white mb-xl" aria-label="Revise mieux - Accueil">
           Revise<span className="text-coral">mieux</span>
         </a>
@@ -168,7 +168,7 @@ export default function Layout() {
       </aside>
 
       {/* Main Content */}
-      <main id="main-content" className="ml-[280px] p-xl max-w-[1200px]" role="main" tabIndex={-1}>
+      <main id="main-content" className="flex-1 p-xl" role="main" tabIndex={-1}>
         <Outlet />
       </main>
     </div>
