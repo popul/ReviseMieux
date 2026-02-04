@@ -201,7 +201,7 @@ export default function Dashboard() {
         <section>
           <div className="flex items-center justify-between mb-md">
             <h2 className="font-display text-xl font-semibold text-ink">Tes cours récents</h2>
-            <Link to="/fiches" className="text-coral text-sm font-medium hover:underline">
+            <Link to="/cours" className="text-coral text-sm font-medium hover:underline">
               Voir tous
             </Link>
           </div>

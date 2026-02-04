@@ -3,6 +3,7 @@ import { AccessibiliteProvider } from './contexte/AccessibiliteContexte'
 import Layout from './components/Layout'
 import Dashboard from './pages/Dashboard'
 import Scanner from './pages/Scanner'
+import Cours from './pages/Cours'
 import Fiches from './pages/Fiches'
 import Quiz from './pages/Quiz'
 import Mindmap from './pages/Mindmap'
@@ -26,7 +27,7 @@ export default function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard />} />
             <Route path="scanner" element={<Scanner />} />
-            <Route path="cours" element={<PageEnConstruction titre="Mes cours" />} />
+            <Route path="cours" element={<Cours />} />
             <Route path="fiches" element={<Fiches />} />
             <Route path="quiz" element={<Quiz />} />
             <Route path="mindmap" element={<Mindmap />} />
