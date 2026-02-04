@@ -420,3 +420,142 @@ export async function obtenirProgression(): Promise<ReponseProgression> {
   const response = await fetch(`${API_BASE}/progression`)
   return gererReponse<ReponseProgression>(response)
 }
+
+// Types Copies d'examens
+export interface CopieExamen {
+  id: string
+  coursId?: string
+  titre: string
+  matiere?: string
+  noteObtenue?: number
+  noteTotale?: number
+  texteOCR: string
+  annotationsProfesseur?: string
+  confiance: number
+  zonesIncertaines: ZoneIncertaine[]
+  fichiersOriginaux: string[]
+  dateExamen?: string
+  dateCreation: string
+  dateModification: string
+}
+
+export interface ErreurAnalyse {
+  id: string
+  copieId: string
+  typeErreur: 'comprehension' | 'methode' | 'inattention'
+  texteOriginal?: string
+  correction?: string
+  explication: string
+  conseil?: string
+  severite: 'legere' | 'moderate' | 'grave'
+  positionDebut?: number
+  positionFin?: number
+  dateCreation: string
+}
+
+export interface ResultatAnalyse {
+  erreurs: ErreurAnalyse[]
+  nombreErreurs: number
+  resumeParType: Record<string, number>
+  conseilGlobal: string
+  pointsForts?: string[]
+  pointsAAmeliorer?: string[]
+}
+
+export interface ReponseCopie {
+  succes: boolean
+  copie?: CopieExamen
+  erreur?: ErreurAPI
+}
+
+export interface ReponseCopies {
+  succes: boolean
+  copies?: CopieExamen[]
+  total?: number
+  page?: number
+  limite?: number
+  erreur?: ErreurAPI
+}
+
+export interface ReponseAnalyse {
+  succes: boolean
+  resultat?: ResultatAnalyse
+  erreur?: ErreurAPI
+}
+
+export interface ReponseErreurs {
+  succes: boolean
+  erreurs?: ErreurAnalyse[]
+  nombreErreurs?: number
+  comptesParType?: Record<string, number>
+  erreur?: ErreurAPI
+}
+
+// API Copies d'examens
+export async function envoyerOCRCopie(
+  fichiers: File[],
+  options?: {
+    titre?: string
+    matiere?: string
+    coursId?: string
+    noteObtenue?: number
+    noteTotale?: number
+    annotationsProfesseur?: string
+  }
+): Promise<ReponseCopie> {
+  const formData = new FormData()
+  fichiers.forEach((fichier) => {
+    formData.append('fichiers[]', fichier)
+  })
+
+  if (options?.titre) formData.append('titre', options.titre)
+  if (options?.matiere) formData.append('matiere', options.matiere)
+  if (options?.coursId) formData.append('coursId', options.coursId)
+  if (options?.noteObtenue !== undefined) formData.append('noteObtenue', options.noteObtenue.toString())
+  if (options?.noteTotale !== undefined) formData.append('noteTotale', options.noteTotale.toString())
+  if (options?.annotationsProfesseur) formData.append('annotationsProfesseur', options.annotationsProfesseur)
+
+  const response = await fetch(`${API_BASE}/copies/ocr`, {
+    method: 'POST',
+    body: formData,
+  })
+
+  return gererReponse<ReponseCopie>(response)
+}
+
+export async function listerCopies(page = 1, limite = 20): Promise<ReponseCopies> {
+  const response = await fetch(`${API_BASE}/copies?page=${page}&limite=${limite}`)
+  return gererReponse<ReponseCopies>(response)
+}
+
+export async function obtenirCopie(id: string): Promise<ReponseCopie> {
+  const response = await fetch(`${API_BASE}/copies/${id}`)
+  return gererReponse<ReponseCopie>(response)
+}
+
+export async function supprimerCopie(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/copies/${id}`, { method: 'DELETE' })
+  if (!response.ok) {
+    throw new Error(`Erreur lors de la suppression: ${response.status}`)
+  }
+}
+
+export async function analyserCopie(
+  copieId: string,
+  options?: { inclusAnnotations?: boolean; coursId?: string }
+): Promise<ReponseAnalyse> {
+  const response = await fetch(`${API_BASE}/copies/${copieId}/analyser`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      inclusAnnotations: options?.inclusAnnotations ?? true,
+      coursId: options?.coursId,
+    }),
+  })
+  return gererReponse<ReponseAnalyse>(response)
+}
+
+export async function obtenirErreursCopie(copieId: string): Promise<ReponseErreurs> {
+  const response = await fetch(`${API_BASE}/copies/${copieId}/erreurs`)
+  return gererReponse<ReponseErreurs>(response)
+}
