@@ -18,6 +18,7 @@ type Handlers struct {
 	handlersGeneration   *HandlersGeneration
 	handlersStatistiques *HandlersStatistiques
 	handlersQuotas       *HandlersQuotas
+	handlersCopies       *HandlersCopies
 }
 
 // NouveauHandlers crée une nouvelle instance de Handlers
@@ -27,7 +28,10 @@ func NouveauHandlers(
 	serviceGeneration *services.ServiceGeneration,
 	serviceStatistiques *services.ServiceStatistiques,
 	serviceQuotas *services.ServiceQuotas,
+	serviceAnalyseErreurs *services.ServiceAnalyseErreurs,
 	coursRepo store.CoursRepository,
+	copieRepo store.CopieExamenRepository,
+	erreurRepo store.ErreurAnalyseRepository,
 ) *Handlers {
 	return &Handlers{
 		store:                s,
@@ -36,6 +40,7 @@ func NouveauHandlers(
 		handlersGeneration:   NouveauHandlersGeneration(serviceGeneration),
 		handlersStatistiques: NouveauHandlersStatistiques(serviceStatistiques),
 		handlersQuotas:       NouveauHandlersQuotas(serviceQuotas),
+		handlersCopies:       NouveauHandlersCopies(serviceOCR, serviceAnalyseErreurs, copieRepo, erreurRepo),
 	}
 }
 
@@ -547,6 +552,98 @@ func (h *Handlers) ObtenirQuotasHandler(c *gin.Context) {
 		"erreur": gin.H{
 			"code":    "SERVICE_NON_DISPONIBLE",
 			"message": "Le service de quotas n'est pas configuré",
+		},
+	})
+}
+
+// --- Handlers Copies d'Examens ---
+
+// TraiterOCRCopieHandler traite l'OCR d'une copie d'examen
+func (h *Handlers) TraiterOCRCopieHandler(c *gin.Context) {
+	if h.handlersCopies != nil {
+		h.handlersCopies.TraiterOCRCopieHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de copies n'est pas configuré",
+		},
+	})
+}
+
+// ListerCopiesHandler liste les copies d'examens
+func (h *Handlers) ListerCopiesHandler(c *gin.Context) {
+	if h.handlersCopies != nil {
+		h.handlersCopies.ListerCopiesHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de copies n'est pas configuré",
+		},
+	})
+}
+
+// ObtenirCopieHandler récupère une copie d'examen par son ID
+func (h *Handlers) ObtenirCopieHandler(c *gin.Context) {
+	if h.handlersCopies != nil {
+		h.handlersCopies.ObtenirCopieHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de copies n'est pas configuré",
+		},
+	})
+}
+
+// SupprimerCopieHandler supprime une copie d'examen
+func (h *Handlers) SupprimerCopieHandler(c *gin.Context) {
+	if h.handlersCopies != nil {
+		h.handlersCopies.SupprimerCopieHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de copies n'est pas configuré",
+		},
+	})
+}
+
+// AnalyserCopieHandler lance l'analyse des erreurs d'une copie
+func (h *Handlers) AnalyserCopieHandler(c *gin.Context) {
+	if h.handlersCopies != nil {
+		h.handlersCopies.AnalyserCopieHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service d'analyse n'est pas configuré",
+		},
+	})
+}
+
+// ObtenirErreursHandler récupère les erreurs d'analyse d'une copie
+func (h *Handlers) ObtenirErreursHandler(c *gin.Context) {
+	if h.handlersCopies != nil {
+		h.handlersCopies.ObtenirErreursHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service d'erreurs n'est pas configuré",
 		},
 	})
 }

@@ -54,5 +54,16 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers, serviceQuotas *services.Servic
 			quiz.POST("/:id/session/:sessionId/repondre", h.RepondreHandler)
 			quiz.POST("/:id/session/:sessionId/terminer", h.TerminerSessionHandler)
 		}
+
+		// Routes Copies d'examens
+		copies := api.Group("/copies")
+		{
+			copies.GET("", h.ListerCopiesHandler)
+			copies.POST("/ocr", MiddlewareVerificationQuotaOCR(serviceQuotas), h.TraiterOCRCopieHandler)
+			copies.GET("/:id", h.ObtenirCopieHandler)
+			copies.DELETE("/:id", h.SupprimerCopieHandler)
+			copies.POST("/:id/analyser", MiddlewareVerificationQuotaGeneration(serviceQuotas), h.AnalyserCopieHandler)
+			copies.GET("/:id/erreurs", h.ObtenirErreursHandler)
+		}
 	}
 }

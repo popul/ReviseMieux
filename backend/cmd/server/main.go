@@ -57,6 +57,8 @@ func main() {
 	var ressourcesRepo store.RessourcesRepository
 	var mindmapRepo store.MindmapRepository
 	var quotasRepo store.QuotasRepository
+	var copieRepo store.CopieExamenRepository
+	var erreurRepo store.ErreurAnalyseRepository
 	if db != nil {
 		coursRepo = store.NouveauCoursRepo(db)
 		fichesRepo = store.NouveauFichesRepo(db)
@@ -64,7 +66,9 @@ func main() {
 		ressourcesRepo = store.NouveauRessourcesRepo(db)
 		mindmapRepo = store.NouveauMindmapRepo(db)
 		quotasRepo = store.NouveauQuotasRepo(db)
-		log.Println("✓ Repositories initialisés (cours, fiches, quiz, ressources, mindmaps, quotas)")
+		copieRepo = store.NouveauCopieExamenRepo(db)
+		erreurRepo = store.NouveauErreurAnalyseRepo(db)
+		log.Println("✓ Repositories initialisés (cours, fiches, quiz, ressources, mindmaps, quotas, copies, erreurs)")
 	}
 
 	// Créer le service de génération
@@ -88,6 +92,13 @@ func main() {
 		log.Printf("✓ Service quotas initialisé (OCR: %d/jour, Génération: %d/jour)", cfg.QuotaOCRJour, cfg.QuotaGenerationJour)
 	}
 
+	// Créer le service d'analyse des erreurs
+	var serviceAnalyseErreurs *services.ServiceAnalyseErreurs
+	if gestionnaireLLM != nil && copieRepo != nil {
+		serviceAnalyseErreurs = services.NouveauServiceAnalyseErreurs(gestionnaireLLM, copieRepo, erreurRepo, coursRepo)
+		log.Println("✓ Service analyse d'erreurs initialisé")
+	}
+
 	// Créer le routeur Gin
 	r := gin.Default()
 
@@ -95,7 +106,7 @@ func main() {
 	api.ConfigurerMiddleware(r)
 
 	// Créer les handlers avec toutes les dépendances
-	handlers := api.NouveauHandlers(db, serviceOCR, serviceGeneration, serviceStatistiques, serviceQuotas, coursRepo)
+	handlers := api.NouveauHandlers(db, serviceOCR, serviceGeneration, serviceStatistiques, serviceQuotas, serviceAnalyseErreurs, coursRepo, copieRepo, erreurRepo)
 
 	// Configurer les routes
 	api.ConfigurerRoutes(r, handlers, serviceQuotas)
