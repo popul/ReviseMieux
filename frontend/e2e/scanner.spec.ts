@@ -1,12 +1,16 @@
 import { test, expect } from '@playwright/test';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 /**
  * Tests E2E pour la page Scanner et le flux de création de cours avec OCR
  * Ces tests utilisent le vrai backend avec l'API OpenAI
  */
 
-// Chemin relatif au répertoire racine du projet
-const TEST_IMAGE = 'frontend/e2e/fixtures/test-notes.jpg';
+// Chemin absolu vers le fichier de test
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const TEST_IMAGE = path.join(__dirname, 'fixtures/test-notes.jpg');
 
 // Timeout plus long pour les appels API réels
 test.setTimeout(120000);
@@ -118,6 +122,10 @@ test.describe('Scanner - Options de génération', () => {
 });
 
 test.describe('Scanner - Flux OCR complet (API réelle)', () => {
+  // Ces tests nécessitent un backend fonctionnel avec l'API OCR
+  // Ils sont skippés par défaut et doivent être exécutés avec le backend actif
+  test.skip(({ }) => !process.env.RUN_API_TESTS, 'Skipped: Backend API non disponible. Lancez avec RUN_API_TESTS=1 pour activer.');
+
   test('flux complet: upload → options → OCR → résultat', async ({ page }) => {
     // 1. Aller sur la page scanner
     await page.goto('/scanner');
