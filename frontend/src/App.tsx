@@ -7,6 +7,7 @@ import Cours from './pages/Cours'
 import Fiches from './pages/Fiches'
 import Quiz from './pages/Quiz'
 import Mindmap from './pages/Mindmap'
+import Progression from './pages/Progression'
 
 // Placeholder pages - a implementer dans les prochaines etapes
 function PageEnConstruction({ titre }: { titre: string }) {
@@ -32,7 +33,7 @@ export default function App() {
             <Route path="quiz" element={<Quiz />} />
             <Route path="mindmap" element={<Mindmap />} />
             <Route path="analyser" element={<PageEnConstruction titre="Analyser une copie" />} />
-            <Route path="progression" element={<PageEnConstruction titre="Ma progression" />} />
+            <Route path="progression" element={<Progression />} />
           </Route>
         </Routes>
       </BrowserRouter>

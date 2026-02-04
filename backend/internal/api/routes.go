@@ -17,6 +17,7 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers, serviceQuotas *services.Servic
 	{
 		api.GET("/statut", h.StatutHandler)
 		api.GET("/statistiques", h.ObtenirStatistiquesHandler)
+		api.GET("/progression", h.ObtenirProgressionHandler)
 		api.GET("/quotas", h.ObtenirQuotasHandler)
 
 		// Routes Cours

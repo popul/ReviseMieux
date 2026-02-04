@@ -49,6 +49,18 @@ type QuizSession struct {
 	DateFin   *time.Time       `json:"dateFin,omitempty"`
 }
 
+// SessionAvecDetails représente une session avec les infos du quiz et cours
+type SessionAvecDetails struct {
+	SessionID   string     `json:"sessionId"`
+	QuizID      string     `json:"quizId"`
+	QuizTitre   string     `json:"quizTitre"`
+	CoursID     string     `json:"coursId"`
+	CoursTitre  string     `json:"coursTitre"`
+	Matiere     string     `json:"matiere"`
+	Score       float64    `json:"score"`
+	DateFin     time.Time  `json:"dateFin"`
+}
+
 // QuizRepository définit les opérations pour les quiz
 type QuizRepository interface {
 	Creer(ctx context.Context, quiz *Quiz) error
@@ -65,6 +77,9 @@ type QuizRepository interface {
 	// Statistiques
 	CompterQuizCompletes(ctx context.Context) (int, error)
 	ScoreMoyen(ctx context.Context) (float64, error)
+
+	// Historique progression
+	ListerSessionsCompletes(ctx context.Context, limite int) ([]*SessionAvecDetails, error)
 }
 
 // QuizRepo implémente QuizRepository avec PostgreSQL
@@ -364,4 +379,56 @@ func (r *QuizRepo) ScoreMoyen(ctx context.Context) (float64, error) {
 	}
 
 	return avg, nil
+}
+
+// ListerSessionsCompletes retourne les sessions terminées avec les détails du quiz et cours
+func (r *QuizRepo) ListerSessionsCompletes(ctx context.Context, limite int) ([]*SessionAvecDetails, error) {
+	query := `
+		SELECT
+			qs.id as session_id,
+			qs.quiz_id,
+			q.titre as quiz_titre,
+			q.cours_id,
+			c.titre as cours_titre,
+			COALESCE(c.matiere, '') as matiere,
+			qs.score,
+			qs.date_fin
+		FROM quiz_sessions qs
+		JOIN quiz q ON qs.quiz_id = q.id
+		JOIN cours c ON q.cours_id = c.id
+		WHERE qs.termine = true AND qs.score IS NOT NULL AND qs.date_fin IS NOT NULL
+		ORDER BY qs.date_fin DESC
+		LIMIT $1
+	`
+
+	rows, err := r.db.QueryContext(ctx, query, limite)
+	if err != nil {
+		return nil, fmt.Errorf("erreur requête sessions complètes: %w", err)
+	}
+	defer rows.Close()
+
+	var sessions []*SessionAvecDetails
+	for rows.Next() {
+		s := &SessionAvecDetails{}
+		err := rows.Scan(
+			&s.SessionID,
+			&s.QuizID,
+			&s.QuizTitre,
+			&s.CoursID,
+			&s.CoursTitre,
+			&s.Matiere,
+			&s.Score,
+			&s.DateFin,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("erreur scan session: %w", err)
+		}
+		sessions = append(sessions, s)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("erreur itération sessions: %w", err)
+	}
+
+	return sessions, nil
 }

@@ -504,6 +504,21 @@ func (h *Handlers) ObtenirStatistiquesHandler(c *gin.Context) {
 	})
 }
 
+// ObtenirProgressionHandler retourne l'historique des quiz et stats par matière
+func (h *Handlers) ObtenirProgressionHandler(c *gin.Context) {
+	if h.handlersStatistiques != nil {
+		h.handlersStatistiques.ObtenirProgressionHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de statistiques n'est pas configuré",
+		},
+	})
+}
+
 // ObtenirCoursRecentsHandler retourne les cours récents avec leurs statistiques
 func (h *Handlers) ObtenirCoursRecentsHandler(c *gin.Context) {
 	if h.handlersStatistiques != nil {

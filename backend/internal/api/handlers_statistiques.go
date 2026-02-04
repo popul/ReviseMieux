@@ -54,6 +54,34 @@ type CoursResumeReponse struct {
 	DateModification string `json:"dateModification"`
 }
 
+// ReponseProgression représente la réponse de l'endpoint /api/progression
+type ReponseProgression struct {
+	Succes      bool                         `json:"succes"`
+	Historique  []HistoriqueQuizReponse      `json:"historique"`
+	ParMatiere  []StatsParMatiereReponse     `json:"parMatiere"`
+	Erreur      *ErreurReponse               `json:"erreur,omitempty"`
+}
+
+// HistoriqueQuizReponse représente une entrée d'historique
+type HistoriqueQuizReponse struct {
+	SessionID   string  `json:"sessionId"`
+	QuizID      string  `json:"quizId"`
+	QuizTitre   string  `json:"quizTitre"`
+	CoursID     string  `json:"coursId"`
+	CoursTitre  string  `json:"coursTitre"`
+	Matiere     string  `json:"matiere"`
+	Score       float64 `json:"score"`
+	DateFin     string  `json:"dateFin"`
+}
+
+// StatsParMatiereReponse représente les stats par matière
+type StatsParMatiereReponse struct {
+	Matiere       string  `json:"matiere"`
+	NombreQuiz    int     `json:"nombreQuiz"`
+	ScoreMoyen    float64 `json:"scoreMoyen"`
+	MeilleurScore float64 `json:"meilleurScore"`
+}
+
 // ObtenirStatistiquesHandler retourne les statistiques globales
 func (h *HandlersStatistiques) ObtenirStatistiquesHandler(c *gin.Context) {
 	// Vérifier que le service est disponible
@@ -137,5 +165,65 @@ func (h *HandlersStatistiques) ObtenirCoursRecentsHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, ReponseCoursRecents{
 		Succes: true,
 		Cours:  coursReponse,
+	})
+}
+
+// ObtenirProgressionHandler retourne l'historique des quiz et stats par matière
+func (h *HandlersStatistiques) ObtenirProgressionHandler(c *gin.Context) {
+	// Vérifier que le service est disponible
+	if h.serviceStatistiques == nil {
+		c.JSON(http.StatusServiceUnavailable, ReponseProgression{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    "SERVICE_NON_DISPONIBLE",
+				Message: "Le service de statistiques n'est pas configuré",
+			},
+		})
+		return
+	}
+
+	// Récupérer la progression (max 50 entrées)
+	progression, err := h.serviceStatistiques.ObtenirProgression(c.Request.Context(), 50)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ReponseProgression{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    "ERREUR_PROGRESSION",
+				Message: "Erreur lors de la récupération de la progression",
+			},
+		})
+		return
+	}
+
+	// Convertir l'historique
+	historique := make([]HistoriqueQuizReponse, len(progression.Historique))
+	for i, h := range progression.Historique {
+		historique[i] = HistoriqueQuizReponse{
+			SessionID:  h.SessionID,
+			QuizID:     h.QuizID,
+			QuizTitre:  h.QuizTitre,
+			CoursID:    h.CoursID,
+			CoursTitre: h.CoursTitre,
+			Matiere:    h.Matiere,
+			Score:      h.Score,
+			DateFin:    h.DateFin.Format("2006-01-02T15:04:05Z07:00"),
+		}
+	}
+
+	// Convertir les stats par matière
+	parMatiere := make([]StatsParMatiereReponse, len(progression.ParMatiere))
+	for i, s := range progression.ParMatiere {
+		parMatiere[i] = StatsParMatiereReponse{
+			Matiere:       s.Matiere,
+			NombreQuiz:    s.NombreQuiz,
+			ScoreMoyen:    s.ScoreMoyen,
+			MeilleurScore: s.MeilleurScore,
+		}
+	}
+
+	c.JSON(http.StatusOK, ReponseProgression{
+		Succes:     true,
+		Historique: historique,
+		ParMatiere: parMatiere,
 	})
 }

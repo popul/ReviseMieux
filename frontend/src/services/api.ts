@@ -388,3 +388,35 @@ export async function genererRessources(coursId: string): Promise<ReponseRessour
   })
   return gererReponse<ReponseRessources>(response)
 }
+
+// Types Progression
+export interface HistoriqueQuiz {
+  sessionId: string
+  quizId: string
+  quizTitre: string
+  coursId: string
+  coursTitre: string
+  matiere: string
+  score: number
+  dateFin: string
+}
+
+export interface StatsParMatiere {
+  matiere: string
+  nombreQuiz: number
+  scoreMoyen: number
+  meilleurScore: number
+}
+
+export interface ReponseProgression {
+  succes: boolean
+  historique: HistoriqueQuiz[]
+  parMatiere: StatsParMatiere[]
+  erreur?: ErreurAPI
+}
+
+// API Progression
+export async function obtenirProgression(): Promise<ReponseProgression> {
+  const response = await fetch(`${API_BASE}/progression`)
+  return gererReponse<ReponseProgression>(response)
+}

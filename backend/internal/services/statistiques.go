@@ -29,6 +29,32 @@ type CoursResume struct {
 	DateModification time.Time `json:"dateModification"`
 }
 
+// HistoriqueQuiz représente une entrée dans l'historique des quiz
+type HistoriqueQuiz struct {
+	SessionID   string    `json:"sessionId"`
+	QuizID      string    `json:"quizId"`
+	QuizTitre   string    `json:"quizTitre"`
+	CoursID     string    `json:"coursId"`
+	CoursTitre  string    `json:"coursTitre"`
+	Matiere     string    `json:"matiere"`
+	Score       float64   `json:"score"`
+	DateFin     time.Time `json:"dateFin"`
+}
+
+// StatistiquesParMatiere représente les stats agrégées par matière
+type StatistiquesParMatiere struct {
+	Matiere        string  `json:"matiere"`
+	NombreQuiz     int     `json:"nombreQuiz"`
+	ScoreMoyen     float64 `json:"scoreMoyen"`
+	MeilleurScore  float64 `json:"meilleurScore"`
+}
+
+// Progression contient toutes les données de progression
+type Progression struct {
+	Historique  []*HistoriqueQuiz         `json:"historique"`
+	ParMatiere  []*StatistiquesParMatiere `json:"parMatiere"`
+}
+
 // ServiceStatistiques fournit les statistiques de l'application
 type ServiceStatistiques struct {
 	coursRepo   store.CoursRepository
@@ -138,4 +164,76 @@ func (s *ServiceStatistiques) ListerCoursRecents(ctx context.Context, limite int
 	}
 
 	return resumes, nil
+}
+
+// ObtenirProgression récupère l'historique des quiz et stats par matière
+func (s *ServiceStatistiques) ObtenirProgression(ctx context.Context, limite int) (*Progression, error) {
+	progression := &Progression{
+		Historique: []*HistoriqueQuiz{},
+		ParMatiere: []*StatistiquesParMatiere{},
+	}
+
+	if s.quizRepo == nil {
+		return progression, nil
+	}
+
+	// Récupérer l'historique des sessions
+	sessions, err := s.quizRepo.ListerSessionsCompletes(ctx, limite)
+	if err != nil {
+		return nil, err
+	}
+
+	// Map pour calculer les stats par matière
+	statsParMatiere := make(map[string]*struct {
+		total        float64
+		count        int
+		meilleur     float64
+	})
+
+	for _, session := range sessions {
+		// Ajouter à l'historique
+		progression.Historique = append(progression.Historique, &HistoriqueQuiz{
+			SessionID:  session.SessionID,
+			QuizID:     session.QuizID,
+			QuizTitre:  session.QuizTitre,
+			CoursID:    session.CoursID,
+			CoursTitre: session.CoursTitre,
+			Matiere:    session.Matiere,
+			Score:      session.Score,
+			DateFin:    session.DateFin,
+		})
+
+		// Agréger par matière
+		matiere := session.Matiere
+		if matiere == "" {
+			matiere = "Non classé"
+		}
+
+		if _, ok := statsParMatiere[matiere]; !ok {
+			statsParMatiere[matiere] = &struct {
+				total    float64
+				count    int
+				meilleur float64
+			}{0, 0, 0}
+		}
+
+		stats := statsParMatiere[matiere]
+		stats.total += session.Score
+		stats.count++
+		if session.Score > stats.meilleur {
+			stats.meilleur = session.Score
+		}
+	}
+
+	// Convertir en slice
+	for matiere, stats := range statsParMatiere {
+		progression.ParMatiere = append(progression.ParMatiere, &StatistiquesParMatiere{
+			Matiere:       matiere,
+			NombreQuiz:    stats.count,
+			ScoreMoyen:    stats.total / float64(stats.count),
+			MeilleurScore: stats.meilleur,
+		})
+	}
+
+	return progression, nil
 }
