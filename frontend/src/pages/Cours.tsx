@@ -1,6 +1,14 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { listerCours, obtenirCours, supprimerCours, type Cours } from '../services/api'
+import {
+  listerCours,
+  obtenirCours,
+  supprimerCours,
+  obtenirRessourcesCours,
+  genererRessources,
+  type Cours,
+  type Ressource,
+} from '../services/api'
 import ProcessingSection from '../components/ProcessingSection'
 
 // Icônes des matières
@@ -156,11 +164,30 @@ function CoursCard({
   )
 }
 
+// Icônes des types de ressources
+const iconesTypeRessource: Record<string, string> = {
+  video: '🎬',
+  article: '📄',
+  exercice: '✏️',
+  cours: '📖',
+  autre: '🔗',
+}
+
+function getIconeTypeRessource(type: string): string {
+  return iconesTypeRessource[type] || '🔗'
+}
+
 // Vue détaillée d'un cours
 function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => void }) {
   const [cours, setCours] = useState<Cours | null>(null)
   const [chargement, setChargement] = useState(true)
   const [erreur, setErreur] = useState<string | null>(null)
+
+  // State pour les ressources
+  const [ressources, setRessources] = useState<Ressource[]>([])
+  const [chargementRessources, setChargementRessources] = useState(false)
+  const [generationRessources, setGenerationRessources] = useState(false)
+  const [erreurRessources, setErreurRessources] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -183,6 +210,51 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
       cancelled = true
     }
   }, [coursId])
+
+  // Charger les ressources existantes
+  useEffect(() => {
+    let cancelled = false
+
+    if (cours) {
+      setChargementRessources(true)
+      obtenirRessourcesCours(coursId)
+        .then((res) => {
+          if (!cancelled && res.succes) {
+            setRessources(res.ressources)
+          }
+        })
+        .catch(() => {
+          // Pas de ressources existantes, ce n'est pas une erreur
+        })
+        .finally(() => {
+          if (!cancelled) {
+            setChargementRessources(false)
+          }
+        })
+    }
+
+    return () => {
+      cancelled = true
+    }
+  }, [cours, coursId])
+
+  // Générer des ressources
+  const handleGenererRessources = async () => {
+    setGenerationRessources(true)
+    setErreurRessources(null)
+    try {
+      const res = await genererRessources(coursId)
+      if (res.succes) {
+        setRessources(res.ressources)
+      } else {
+        setErreurRessources(res.erreur?.message || 'Erreur lors de la génération')
+      }
+    } catch (err) {
+      setErreurRessources(err instanceof Error ? err.message : 'Erreur inconnue')
+    } finally {
+      setGenerationRessources(false)
+    }
+  }
 
   if (chargement) {
     return (
@@ -307,6 +379,93 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
               {cours.texteOcr || 'Aucun contenu textuel disponible.'}
             </pre>
           </div>
+        </div>
+
+        {/* Ressources complémentaires */}
+        <div className="mt-lg pt-lg border-t border-cream-dark">
+          <div className="flex items-center justify-between mb-md">
+            <h3 className="font-semibold text-ink">Ressources complémentaires</h3>
+            {ressources.length === 0 && !chargementRessources && (
+              <button
+                onClick={handleGenererRessources}
+                disabled={generationRessources}
+                className="px-md py-2 bg-teal text-white rounded-full text-sm font-medium hover:bg-teal-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {generationRessources ? 'Génération...' : 'Générer des ressources'}
+              </button>
+            )}
+          </div>
+
+          {/* Avertissement */}
+          {ressources.length > 0 && (
+            <div className="mb-md p-sm bg-gold/10 border border-gold rounded-md text-sm text-ink-muted">
+              Les liens suggérés sont générés par IA et doivent être vérifiés avant utilisation.
+            </div>
+          )}
+
+          {/* Erreur */}
+          {erreurRessources && (
+            <div className="mb-md p-sm bg-red-50 text-red-600 rounded-md text-sm">
+              {erreurRessources}
+            </div>
+          )}
+
+          {/* Chargement */}
+          {(chargementRessources || generationRessources) && (
+            <div className="flex items-center justify-center py-lg">
+              <ProcessingSection
+                message={generationRessources ? 'Recherche de ressources en cours...' : 'Chargement...'}
+              />
+            </div>
+          )}
+
+          {/* Liste des ressources */}
+          {!chargementRessources && !generationRessources && ressources.length > 0 && (
+            <div className="space-y-sm">
+              {ressources.map((ressource) => (
+                <div
+                  key={ressource.id}
+                  className="flex items-start gap-md p-md bg-cream rounded-md hover:bg-cream-dark transition-colors"
+                >
+                  <div className="w-10 h-10 rounded-md bg-white flex items-center justify-center text-xl flex-shrink-0">
+                    {getIconeTypeRessource(ressource.type)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-ink mb-xs">{ressource.titre}</h4>
+                    {ressource.description && (
+                      <p className="text-sm text-ink-light mb-xs">{ressource.description}</p>
+                    )}
+                    {ressource.url && (
+                      <a
+                        href={ressource.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-teal hover:text-teal-light transition-colors inline-flex items-center gap-1"
+                      >
+                        Ouvrir le lien
+                        <span aria-hidden="true">↗</span>
+                      </a>
+                    )}
+                  </div>
+                  <span className="text-xs text-ink-muted capitalize bg-white px-2 py-1 rounded-full">
+                    {ressource.type}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Aucune ressource */}
+          {!chargementRessources && !generationRessources && ressources.length === 0 && (
+            <div className="text-center py-lg text-ink-muted">
+              <div className="text-3xl mb-sm">🔍</div>
+              <p className="text-sm">
+                Aucune ressource complémentaire disponible.
+                <br />
+                Cliquez sur "Générer des ressources" pour en trouver.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>

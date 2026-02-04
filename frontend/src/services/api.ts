@@ -356,3 +356,35 @@ export async function obtenirQuotas(): Promise<ReponseQuotas> {
   const response = await fetch(`${API_BASE}/quotas`)
   return gererReponse<ReponseQuotas>(response)
 }
+
+// Types Ressources
+export interface Ressource {
+  id: string
+  titre: string
+  url?: string
+  type: 'video' | 'article' | 'exercice' | 'cours' | 'autre'
+  description?: string
+}
+
+export interface ReponseRessources {
+  succes: boolean
+  ressources: Ressource[]
+  nombreGenere: number
+  avertissement?: string
+  erreur?: ErreurAPI
+}
+
+// API Ressources
+export async function obtenirRessourcesCours(coursId: string): Promise<ReponseRessources> {
+  const response = await fetch(`${API_BASE}/cours/${coursId}/ressources`)
+  return gererReponse<ReponseRessources>(response)
+}
+
+export async function genererRessources(coursId: string): Promise<ReponseRessources> {
+  const response = await fetch(`${API_BASE}/generer/ressources`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ coursId }),
+  })
+  return gererReponse<ReponseRessources>(response)
+}
