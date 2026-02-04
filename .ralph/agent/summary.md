@@ -1,8 +1,8 @@
 # Loop Summary
 
 **Status:** Completed successfully
-**Iterations:** 12
-**Duration:** 47m 0s
+**Iterations:** 5
+**Duration:** 21m 46s
 
 ## Tasks
 
@@ -14,4 +14,4 @@ _No events recorded._
 
 ## Final Commit
 
-5b6b139: feat(frontend): add personalized recommendations UI to Analyser page
+ccea234: fix(backend): return empty array for fiches instead of omitting field
