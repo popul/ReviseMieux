@@ -4,6 +4,9 @@
   "version": "0.1.0",
   "description": "Révise mieux - Frontend React",
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
