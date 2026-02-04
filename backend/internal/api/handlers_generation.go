@@ -31,10 +31,10 @@ type RequeteGenererFiches struct {
 
 // ReponseFiches représente la réponse de génération de fiches
 type ReponseFiches struct {
-	Succes       bool                 `json:"succes"`
-	Fiches       []FicheReponse       `json:"fiches,omitempty"`
-	NombreGenere int                  `json:"nombreGenere,omitempty"`
-	Erreur       *ErreurReponse       `json:"erreur,omitempty"`
+	Succes       bool           `json:"succes"`
+	Fiches       []FicheReponse `json:"fiches"`
+	NombreGenere int            `json:"nombreGenere"`
+	Erreur       *ErreurReponse `json:"erreur,omitempty"`
 }
 
 // FicheReponse représente une fiche dans la réponse API
