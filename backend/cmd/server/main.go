@@ -28,6 +28,13 @@ func main() {
 	} else {
 		defer db.Fermer()
 		log.Println("✓ Connexion à la base de données établie")
+
+		// Exécuter les migrations automatiquement au démarrage
+		if err := db.Migrer("migrations"); err != nil {
+			log.Printf("⚠️  Avertissement: erreur lors des migrations: %v", err)
+		} else {
+			log.Println("✓ Migrations appliquées")
+		}
 	}
 
 	// Créer le gestionnaire LLM avec fallback automatique

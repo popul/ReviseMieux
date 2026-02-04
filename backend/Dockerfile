@@ -38,6 +38,9 @@ USER app
 # Copy binary from builder
 COPY --from=builder /app/server .
 
+# Copy migrations folder
+COPY --from=builder /app/migrations ./migrations
+
 # Expose port
 EXPOSE 8080
 
