@@ -559,3 +559,45 @@ export async function obtenirErreursCopie(copieId: string): Promise<ReponseErreu
   const response = await fetch(`${API_BASE}/copies/${copieId}/erreurs`)
   return gererReponse<ReponseErreurs>(response)
 }
+
+// Types Recommandations
+export interface Recommandation {
+  domaine: string
+  raison: string
+  severiteMax: 'grave' | 'moderate' | 'legere'
+  actionSuggerie: string
+  typeQuiz?: string
+  priorite: number
+}
+
+export interface ResultatRecommandations {
+  recommandations: Recommandation[]
+  resume: string
+  planAction: string
+  prochainQuiz?: string
+  motivation: string
+  nombreRecommandations: number
+}
+
+export interface ReponseRecommandations {
+  succes: boolean
+  recommandations?: ResultatRecommandations
+  erreur?: ErreurAPI
+}
+
+// API Recommandations
+export async function genererRecommandationsCopie(
+  copieId: string,
+  options?: { inclureQuiz?: boolean }
+): Promise<ReponseRecommandations> {
+  const params = new URLSearchParams()
+  if (options?.inclureQuiz !== undefined) {
+    params.append('inclure_quiz', String(options.inclureQuiz))
+  }
+
+  const url = `${API_BASE}/copies/${copieId}/recommandations${params.toString() ? '?' + params.toString() : ''}`
+  const response = await fetch(url, {
+    method: 'POST',
+  })
+  return gererReponse<ReponseRecommandations>(response)
+}

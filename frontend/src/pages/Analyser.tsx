@@ -10,9 +10,11 @@ import {
   obtenirErreursCopie,
   listerCopies,
   supprimerCopie,
+  genererRecommandationsCopie,
   type CopieExamen,
   type ErreurAnalyse,
   type ResultatAnalyse,
+  type ResultatRecommandations,
 } from '../services/api'
 
 const MAX_FICHIERS = 5
@@ -68,6 +70,14 @@ const SEVERITES: Record<string, { label: string; color: string }> = {
   grave: { label: 'Grave', color: 'text-coral' },
 }
 
+const PRIORITES: Record<number, { label: string; bgColor: string }> = {
+  1: { label: 'Urgent', bgColor: 'bg-coral/10' },
+  2: { label: 'Important', bgColor: 'bg-gold/10' },
+  3: { label: 'Normal', bgColor: 'bg-teal/10' },
+  4: { label: 'Secondaire', bgColor: 'bg-cream' },
+  5: { label: 'Optionnel', bgColor: 'bg-ink-muted/10' },
+}
+
 export default function Analyser() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [fichiers, setFichiers] = useState<File[]>([])
@@ -79,6 +89,8 @@ export default function Analyser() {
   const [copieSelectionnee, setCopieSelectionnee] = useState<CopieExamen | null>(null)
   const [resultatAnalyse, setResultatAnalyse] = useState<ResultatAnalyse | null>(null)
   const [erreursAnalyse, setErreursAnalyse] = useState<ErreurAnalyse[]>([])
+  const [recommandations, setRecommandations] = useState<ResultatRecommandations | null>(null)
+  const [chargementRecommandations, setChargementRecommandations] = useState(false)
   const [chargement, setChargement] = useState(false)
   const [confirmationSuppression, setConfirmationSuppression] = useState<string | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -168,6 +180,7 @@ export default function Analyser() {
     setCopieSelectionnee(null)
     setResultatAnalyse(null)
     setErreursAnalyse([])
+    setRecommandations(null)
     setSearchParams({})
     chargerCopies()
   }, [chargerCopies, setSearchParams])
@@ -245,6 +258,26 @@ export default function Analyser() {
       }
     } catch (err) {
       console.error('Erreur suppression:', err)
+    }
+  }
+
+  const genererRecommandations = async () => {
+    if (!copieSelectionnee) return
+
+    setChargementRecommandations(true)
+
+    try {
+      const resultat = await genererRecommandationsCopie(copieSelectionnee.id)
+
+      if (resultat.succes && resultat.recommandations) {
+        setRecommandations(resultat.recommandations)
+      } else {
+        console.error('Erreur generation recommandations:', resultat.erreur?.message)
+      }
+    } catch (err) {
+      console.error('Erreur generation recommandations:', err)
+    } finally {
+      setChargementRecommandations(false)
     }
   }
 
@@ -734,6 +767,135 @@ export default function Analyser() {
               </div>
             </div>
           )}
+
+          {/* Section Recommandations */}
+          <div className="bg-white rounded-lg p-lg">
+            <div className="flex items-center justify-between mb-md">
+              <h3 className="font-display text-lg font-semibold flex items-center gap-sm">
+                <span>🎯</span> Recommandations personnalisees
+              </h3>
+              {!recommandations && (
+                <button
+                  type="button"
+                  className={`
+                    inline-flex items-center gap-sm px-md py-sm rounded-full text-sm font-medium transition-all
+                    ${
+                      chargementRecommandations
+                        ? 'bg-ink-muted text-white cursor-wait'
+                        : 'bg-teal text-white hover:bg-teal-light hover:-translate-y-0.5'
+                    }
+                  `}
+                  disabled={chargementRecommandations}
+                  onClick={genererRecommandations}
+                >
+                  {chargementRecommandations ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Generation...
+                    </>
+                  ) : (
+                    <>
+                      <span>✨</span> Generer des recommandations
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+
+            {!recommandations && !chargementRecommandations && (
+              <p className="text-ink-light text-sm">
+                Basees sur l'analyse de ta copie, l'IA va te proposer un plan d'action personnalise pour progresser.
+              </p>
+            )}
+
+            {chargementRecommandations && (
+              <div className="text-center py-lg">
+                <div className="w-8 h-8 border-2 border-teal border-t-transparent rounded-full animate-spin mx-auto mb-md" />
+                <p className="text-ink-light">Analyse de tes lacunes en cours...</p>
+              </div>
+            )}
+
+            {recommandations && (
+              <div className="space-y-lg">
+                {/* Message de motivation */}
+                {recommandations.motivation && (
+                  <div className="bg-teal/5 rounded-lg p-md border border-teal/20">
+                    <p className="text-sm text-teal font-medium">{recommandations.motivation}</p>
+                  </div>
+                )}
+
+                {/* Resume */}
+                {recommandations.resume && (
+                  <div>
+                    <h4 className="font-semibold text-sm mb-xs">Resume</h4>
+                    <p className="text-sm text-ink-light">{recommandations.resume}</p>
+                  </div>
+                )}
+
+                {/* Liste des recommandations */}
+                {recommandations.recommandations.length > 0 && (
+                  <div>
+                    <h4 className="font-semibold text-sm mb-md">Domaines a reviser ({recommandations.nombreRecommandations})</h4>
+                    <div className="space-y-md">
+                      {recommandations.recommandations.map((reco, index) => {
+                        const prioriteConfig = PRIORITES[reco.priorite] || PRIORITES[3]
+                        const severiteConfig = SEVERITES[reco.severiteMax] || SEVERITES.moderate
+                        return (
+                          <div
+                            key={index}
+                            className={`rounded-lg p-md ${prioriteConfig.bgColor}`}
+                          >
+                            <div className="flex items-center gap-sm mb-sm">
+                              <span className="w-6 h-6 rounded-full bg-ink text-white text-xs font-bold flex items-center justify-center">
+                                {reco.priorite}
+                              </span>
+                              <span className="font-semibold">{reco.domaine}</span>
+                              <span className={`text-xs ${severiteConfig.color}`}>
+                                {severiteConfig.label}
+                              </span>
+                            </div>
+
+                            <p className="text-sm text-ink-light mb-sm">{reco.raison}</p>
+
+                            <div className="bg-white/60 rounded p-sm">
+                              <p className="text-sm">
+                                <strong className="text-teal">Action :</strong> {reco.actionSuggerie}
+                              </p>
+                              {reco.typeQuiz && (
+                                <p className="text-xs text-ink-light mt-xs">
+                                  Quiz suggere : {reco.typeQuiz}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Plan d'action */}
+                {recommandations.planAction && (
+                  <div className="bg-gold/10 rounded-lg p-md">
+                    <h4 className="font-semibold text-sm mb-xs flex items-center gap-sm">
+                      <span>📋</span> Plan d'action pour cette semaine
+                    </h4>
+                    <p className="text-sm">{recommandations.planAction}</p>
+                  </div>
+                )}
+
+                {/* Prochain quiz */}
+                {recommandations.prochainQuiz && (
+                  <div className="bg-teal/10 rounded-lg p-md">
+                    <h4 className="font-semibold text-sm mb-xs flex items-center gap-sm">
+                      <span>📝</span> Prochain quiz a faire
+                    </h4>
+                    <p className="text-sm">{recommandations.prochainQuiz}</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
         </section>
       )}
 
