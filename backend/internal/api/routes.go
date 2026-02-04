@@ -64,6 +64,14 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers, serviceQuotas *services.Servic
 			copies.DELETE("/:id", h.SupprimerCopieHandler)
 			copies.POST("/:id/analyser", MiddlewareVerificationQuotaGeneration(serviceQuotas), h.AnalyserCopieHandler)
 			copies.GET("/:id/erreurs", h.ObtenirErreursHandler)
+			copies.POST("/:id/recommandations", MiddlewareVerificationQuotaGeneration(serviceQuotas), h.GenererRecommandationsCopieHandler)
+		}
+
+		// Routes Recommandations
+		recommandations := api.Group("/recommandations")
+		{
+			recommandations.GET("/prioritaires", h.ObtenirRecommandationsPrioritairesHandler)
+			recommandations.GET("/par-matiere/:matiere", h.ObtenirRecommandationsParMatiereHandler)
 		}
 	}
 }

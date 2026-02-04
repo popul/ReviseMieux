@@ -99,6 +99,13 @@ func main() {
 		log.Println("✓ Service analyse d'erreurs initialisé")
 	}
 
+	// Créer le service de recommandations
+	var serviceRecommandations *services.ServiceRecommandations
+	if gestionnaireLLM != nil {
+		serviceRecommandations = services.NouveauServiceRecommandations(gestionnaireLLM, copieRepo, erreurRepo, coursRepo, quizRepo)
+		log.Println("✓ Service recommandations initialisé")
+	}
+
 	// Créer le routeur Gin
 	r := gin.Default()
 
@@ -106,7 +113,7 @@ func main() {
 	api.ConfigurerMiddleware(r)
 
 	// Créer les handlers avec toutes les dépendances
-	handlers := api.NouveauHandlers(db, serviceOCR, serviceGeneration, serviceStatistiques, serviceQuotas, serviceAnalyseErreurs, coursRepo, copieRepo, erreurRepo)
+	handlers := api.NouveauHandlers(db, serviceOCR, serviceGeneration, serviceStatistiques, serviceQuotas, serviceAnalyseErreurs, serviceRecommandations, coursRepo, copieRepo, erreurRepo)
 
 	// Configurer les routes
 	api.ConfigurerRoutes(r, handlers, serviceQuotas)

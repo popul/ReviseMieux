@@ -12,13 +12,14 @@ import (
 
 // Handlers contient les dépendances des handlers
 type Handlers struct {
-	store                *store.Store
-	coursRepo            store.CoursRepository
-	handlersOCR          *HandlersOCR
-	handlersGeneration   *HandlersGeneration
-	handlersStatistiques *HandlersStatistiques
-	handlersQuotas       *HandlersQuotas
-	handlersCopies       *HandlersCopies
+	store                   *store.Store
+	coursRepo               store.CoursRepository
+	handlersOCR             *HandlersOCR
+	handlersGeneration      *HandlersGeneration
+	handlersStatistiques    *HandlersStatistiques
+	handlersQuotas          *HandlersQuotas
+	handlersCopies          *HandlersCopies
+	handlersRecommandations *HandlersRecommandations
 }
 
 // NouveauHandlers crée une nouvelle instance de Handlers
@@ -29,18 +30,20 @@ func NouveauHandlers(
 	serviceStatistiques *services.ServiceStatistiques,
 	serviceQuotas *services.ServiceQuotas,
 	serviceAnalyseErreurs *services.ServiceAnalyseErreurs,
+	serviceRecommandations *services.ServiceRecommandations,
 	coursRepo store.CoursRepository,
 	copieRepo store.CopieExamenRepository,
 	erreurRepo store.ErreurAnalyseRepository,
 ) *Handlers {
 	return &Handlers{
-		store:                s,
-		coursRepo:            coursRepo,
-		handlersOCR:          NouveauHandlersOCR(serviceOCR, coursRepo),
-		handlersGeneration:   NouveauHandlersGeneration(serviceGeneration),
-		handlersStatistiques: NouveauHandlersStatistiques(serviceStatistiques),
-		handlersQuotas:       NouveauHandlersQuotas(serviceQuotas),
-		handlersCopies:       NouveauHandlersCopies(serviceOCR, serviceAnalyseErreurs, copieRepo, erreurRepo),
+		store:                   s,
+		coursRepo:               coursRepo,
+		handlersOCR:             NouveauHandlersOCR(serviceOCR, coursRepo),
+		handlersGeneration:      NouveauHandlersGeneration(serviceGeneration),
+		handlersStatistiques:    NouveauHandlersStatistiques(serviceStatistiques),
+		handlersQuotas:          NouveauHandlersQuotas(serviceQuotas),
+		handlersCopies:          NouveauHandlersCopies(serviceOCR, serviceAnalyseErreurs, copieRepo, erreurRepo),
+		handlersRecommandations: NouveauHandlersRecommandations(serviceRecommandations),
 	}
 }
 
@@ -644,6 +647,53 @@ func (h *Handlers) ObtenirErreursHandler(c *gin.Context) {
 		"erreur": gin.H{
 			"code":    "SERVICE_NON_DISPONIBLE",
 			"message": "Le service d'erreurs n'est pas configuré",
+		},
+	})
+}
+
+// --- Handlers Recommandations ---
+
+// GenererRecommandationsCopieHandler génère des recommandations pour une copie
+func (h *Handlers) GenererRecommandationsCopieHandler(c *gin.Context) {
+	if h.handlersRecommandations != nil {
+		h.handlersRecommandations.GenererRecommandationsCopieHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de recommandations n'est pas configuré",
+		},
+	})
+}
+
+// ObtenirRecommandationsPrioritairesHandler retourne les recommandations prioritaires
+func (h *Handlers) ObtenirRecommandationsPrioritairesHandler(c *gin.Context) {
+	if h.handlersRecommandations != nil {
+		h.handlersRecommandations.ObtenirRecommandationsPrioritairesHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de recommandations n'est pas configuré",
+		},
+	})
+}
+
+// ObtenirRecommandationsParMatiereHandler retourne les recommandations pour une matière
+func (h *Handlers) ObtenirRecommandationsParMatiereHandler(c *gin.Context) {
+	if h.handlersRecommandations != nil {
+		h.handlersRecommandations.ObtenirRecommandationsParMatiereHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de recommandations n'est pas configuré",
 		},
 	})
 }
