@@ -26,6 +26,7 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers, serviceQuotas *services.Servic
 			cours.GET("/recents", h.ObtenirCoursRecentsHandler)
 			cours.POST("", h.CreerCoursHandler)
 			cours.GET("/:id", h.ObtenirCoursHandler)
+			cours.DELETE("/:id", h.SupprimerCoursHandler)
 			cours.GET("/:id/fiches", h.ObtenirFichesHandler)
 			cours.GET("/:id/ressources", h.ObtenirRessourcesHandler)
 			cours.GET("/:id/mindmap", h.ObtenirMindmapHandler)

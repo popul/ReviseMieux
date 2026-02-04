@@ -2,6 +2,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ import (
 // Handlers contient les dépendances des handlers
 type Handlers struct {
 	store                *store.Store
+	coursRepo            store.CoursRepository
 	handlersOCR          *HandlersOCR
 	handlersGeneration   *HandlersGeneration
 	handlersStatistiques *HandlersStatistiques
@@ -29,6 +31,7 @@ func NouveauHandlers(
 ) *Handlers {
 	return &Handlers{
 		store:                s,
+		coursRepo:            coursRepo,
 		handlersOCR:          NouveauHandlersOCR(serviceOCR, coursRepo),
 		handlersGeneration:   NouveauHandlersGeneration(serviceGeneration),
 		handlersStatistiques: NouveauHandlersStatistiques(serviceStatistiques),
@@ -70,26 +73,232 @@ func (h *Handlers) StatutHandler(c *gin.Context) {
 
 // ListerCoursHandler liste tous les cours
 func (h *Handlers) ListerCoursHandler(c *gin.Context) {
+	if h.coursRepo == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "SERVICE_NON_DISPONIBLE",
+				"message": "Le service de cours n'est pas configuré",
+			},
+		})
+		return
+	}
+
+	// Pagination
+	page := 1
+	limite := 20
+	if p := c.Query("page"); p != "" {
+		if pInt, err := parseInt(p); err == nil && pInt > 0 {
+			page = pInt
+		}
+	}
+	if l := c.Query("limite"); l != "" {
+		if lInt, err := parseInt(l); err == nil && lInt > 0 && lInt <= 100 {
+			limite = lInt
+		}
+	}
+	offset := (page - 1) * limite
+
+	ctx := c.Request.Context()
+
+	// Récupérer les cours
+	cours, err := h.coursRepo.Lister(ctx, limite, offset)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "ERREUR_INTERNE",
+				"message": "Erreur lors de la récupération des cours",
+			},
+		})
+		return
+	}
+
+	// Compter le total
+	total, err := h.coursRepo.Compter(ctx)
+	if err != nil {
+		total = len(cours)
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"cours": []interface{}{},
-		"total": 0,
+		"succes": true,
+		"cours":  cours,
+		"total":  total,
+		"page":   page,
+		"limite": limite,
 	})
 }
 
 // CreerCoursHandler crée un nouveau cours
 func (h *Handlers) CreerCoursHandler(c *gin.Context) {
+	if h.coursRepo == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "SERVICE_NON_DISPONIBLE",
+				"message": "Le service de cours n'est pas configuré",
+			},
+		})
+		return
+	}
+
+	var req struct {
+		Titre   string `json:"titre" binding:"required"`
+		Matiere string `json:"matiere"`
+		Texte   string `json:"texte"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "REQUETE_INVALIDE",
+				"message": "Données de requête invalides: " + err.Error(),
+			},
+		})
+		return
+	}
+
+	cours := &store.Cours{
+		Titre:            req.Titre,
+		Matiere:          req.Matiere,
+		TexteOCR:         req.Texte,
+		Confiance:        1.0,
+		ZonesIncertaines: []store.ZoneIncertaine{},
+	}
+
+	if err := h.coursRepo.Creer(c.Request.Context(), cours); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "ERREUR_INTERNE",
+				"message": "Erreur lors de la création du cours",
+			},
+		})
+		return
+	}
+
 	c.JSON(http.StatusCreated, gin.H{
-		"message": "Création de cours pas encore implémentée",
+		"succes": true,
+		"cours":  cours,
 	})
 }
 
 // ObtenirCoursHandler retourne un cours par son ID
 func (h *Handlers) ObtenirCoursHandler(c *gin.Context) {
+	if h.coursRepo == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "SERVICE_NON_DISPONIBLE",
+				"message": "Le service de cours n'est pas configuré",
+			},
+		})
+		return
+	}
+
 	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "ID_MANQUANT",
+				"message": "L'identifiant du cours est requis",
+			},
+		})
+		return
+	}
+
+	cours, err := h.coursRepo.ObtenirParID(c.Request.Context(), id)
+	if err != nil {
+		if err.Error() == "cours non trouvé: "+id {
+			c.JSON(http.StatusNotFound, gin.H{
+				"succes": false,
+				"erreur": gin.H{
+					"code":    "COURS_NON_TROUVE",
+					"message": "Aucun cours trouvé avec cet identifiant",
+				},
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "ERREUR_INTERNE",
+				"message": "Erreur lors de la récupération du cours",
+			},
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"id":      id,
-		"message": "Récupération de cours pas encore implémentée",
+		"succes": true,
+		"cours":  cours,
 	})
+}
+
+// SupprimerCoursHandler supprime un cours par son ID
+func (h *Handlers) SupprimerCoursHandler(c *gin.Context) {
+	if h.coursRepo == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "SERVICE_NON_DISPONIBLE",
+				"message": "Le service de cours n'est pas configuré",
+			},
+		})
+		return
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "ID_MANQUANT",
+				"message": "L'identifiant du cours est requis",
+			},
+		})
+		return
+	}
+
+	if err := h.coursRepo.Supprimer(c.Request.Context(), id); err != nil {
+		if err.Error() == "cours non trouvé: "+id {
+			c.JSON(http.StatusNotFound, gin.H{
+				"succes": false,
+				"erreur": gin.H{
+					"code":    "COURS_NON_TROUVE",
+					"message": "Aucun cours trouvé avec cet identifiant",
+				},
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "ERREUR_INTERNE",
+				"message": "Erreur lors de la suppression du cours",
+			},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"succes":  true,
+		"message": "Cours supprimé avec succès",
+	})
+}
+
+// parseInt convertit une chaîne en entier
+func parseInt(s string) (int, error) {
+	var n int
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return 0, fmt.Errorf("caractère invalide")
+		}
+		n = n*10 + int(c-'0')
+	}
+	return n, nil
 }
 
 // --- Handlers OCR ---
