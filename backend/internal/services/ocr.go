@@ -4,6 +4,7 @@ package services
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -72,6 +73,8 @@ type ResultatOCRCours struct {
 	Confiance        float64              `json:"confiance"`
 	ZonesIncertaines []llm.ZoneIncertaine `json:"zones_incertaines"`
 	NombrePages      int                  `json:"nombre_pages"`
+	TitreSuggere     string               `json:"titre_suggere,omitempty"`
+	MatiereSuggeree  string               `json:"matiere_suggeree,omitempty"`
 }
 
 // ServiceOCR gère l'extraction de texte des images et PDF
@@ -148,11 +151,16 @@ func (s *ServiceOCR) TraiterFichiers(ctx context.Context, fichiers []*multipart.
 	texteCombine := strings.Join(textesExtraits, "\n\n")
 	confianceMoyenne := confianceTotale / float64(len(images))
 
+	// Extraire le titre et la matière suggérés
+	titreSuggere, matiereSuggeree := s.extraireMetadonnees(ctx, texteCombine)
+
 	return &ResultatOCRCours{
 		Texte:            texteCombine,
 		Confiance:        confianceMoyenne,
 		ZonesIncertaines: toutesZonesIncertaines,
 		NombrePages:      len(images),
+		TitreSuggere:     titreSuggere,
+		MatiereSuggeree:  matiereSuggeree,
 	}, nil
 }
 
@@ -319,4 +327,89 @@ func (s *ServiceOCR) ValiderFichiers(fichiers []*multipart.FileHeader) error {
 func EstErreurOCR(err error) bool {
 	var errOCR *ErreurOCR
 	return errors.As(err, &errOCR)
+}
+
+// MetadonneesCours représente les métadonnées extraites du texte
+type MetadonneesCours struct {
+	Titre   string `json:"titre"`
+	Matiere string `json:"matiere"`
+}
+
+// Liste des matières valides
+var matiereValides = []string{
+	"mathematiques", "francais", "histoire", "geographie", "sciences",
+	"anglais", "physique", "chimie", "svt", "ses", "philosophie",
+	"espagnol", "allemand", "italien", "economie", "informatique",
+}
+
+// extraireMetadonnees extrait le titre et la matière suggérés du texte OCR
+func (s *ServiceOCR) extraireMetadonnees(ctx context.Context, texte string) (titre, matiere string) {
+	if s.gestionnaireLLM == nil || texte == "" {
+		return "", ""
+	}
+
+	// Limiter le texte pour le prompt (les 2000 premiers caractères suffisent)
+	texteAnalyse := texte
+	if len(texteAnalyse) > 2000 {
+		texteAnalyse = texteAnalyse[:2000]
+	}
+
+	prompt := fmt.Sprintf(`Analyse ce texte extrait d'un cours scolaire et déduis:
+1. Un titre court et descriptif pour ce cours (max 50 caractères)
+2. La matière scolaire parmi: %s
+
+Texte du cours:
+---
+%s
+---
+
+Réponds uniquement au format JSON:
+{"titre": "...", "matiere": "..."}
+
+Si tu ne peux pas déterminer le titre, utilise les premiers mots significatifs.
+Si tu ne peux pas déterminer la matière, utilise une chaîne vide.`,
+		strings.Join(matiereValides, ", "), texteAnalyse)
+
+	options := llm.OptionsGeneration{
+		Temperature:   0.3, // Basse température pour des réponses cohérentes
+		MaxTokens:     100,
+		FormatReponse: "json",
+	}
+
+	// Utiliser GenererJSON serait idéal mais GenererTexte fonctionne aussi
+	reponse, err := s.gestionnaireLLM.GenererTexte(ctx, prompt, options)
+	if err != nil {
+		// En cas d'erreur, retourner des valeurs vides (pas critique)
+		return "", ""
+	}
+
+	// Parser la réponse JSON
+	var metadonnees MetadonneesCours
+	// Nettoyer la réponse (enlever les éventuels backticks markdown)
+	reponse = strings.TrimSpace(reponse)
+	reponse = strings.TrimPrefix(reponse, "```json")
+	reponse = strings.TrimPrefix(reponse, "```")
+	reponse = strings.TrimSuffix(reponse, "```")
+	reponse = strings.TrimSpace(reponse)
+
+	if err := parseJSON([]byte(reponse), &metadonnees); err != nil {
+		return "", ""
+	}
+
+	// Valider la matière
+	matiereNormalisee := strings.ToLower(strings.TrimSpace(metadonnees.Matiere))
+	matiereValide := ""
+	for _, m := range matiereValides {
+		if m == matiereNormalisee {
+			matiereValide = m
+			break
+		}
+	}
+
+	return strings.TrimSpace(metadonnees.Titre), matiereValide
+}
+
+// parseJSON est une fonction helper pour parser du JSON
+func parseJSON(data []byte, v interface{}) error {
+	return json.Unmarshal(data, v)
 }

@@ -13,15 +13,17 @@ import (
 
 // HandlersOCR contient les handlers OCR avec leurs dépendances
 type HandlersOCR struct {
-	serviceOCR *services.ServiceOCR
-	coursRepo  store.CoursRepository
+	serviceOCR     *services.ServiceOCR
+	serviceStorage *services.ServiceStorage
+	coursRepo      store.CoursRepository
 }
 
 // NouveauHandlersOCR crée une nouvelle instance des handlers OCR
-func NouveauHandlersOCR(serviceOCR *services.ServiceOCR, coursRepo store.CoursRepository) *HandlersOCR {
+func NouveauHandlersOCR(serviceOCR *services.ServiceOCR, serviceStorage *services.ServiceStorage, coursRepo store.CoursRepository) *HandlersOCR {
 	return &HandlersOCR{
-		serviceOCR: serviceOCR,
-		coursRepo:  coursRepo,
+		serviceOCR:     serviceOCR,
+		serviceStorage: serviceStorage,
+		coursRepo:      coursRepo,
 	}
 }
 
@@ -33,6 +35,8 @@ type ReponseOCR struct {
 	ZonesIncertaines []store.ZoneIncertaine `json:"zonesIncertaines,omitempty"`
 	NombrePages      int                    `json:"nombrePages,omitempty"`
 	CoursID          string                 `json:"coursId,omitempty"`
+	TitreSuggere     string                 `json:"titreSuggere,omitempty"`
+	MatiereSuggeree  string                 `json:"matiereSuggeree,omitempty"`
 	Erreur           *ErreurReponse         `json:"erreur,omitempty"`
 }
 
@@ -157,32 +161,70 @@ func (h *HandlersOCR) TraiterOCRHandler(c *gin.Context) {
 		Confiance:        resultat.Confiance,
 		ZonesIncertaines: zonesIncertaines,
 		NombrePages:      resultat.NombrePages,
+		TitreSuggere:     resultat.TitreSuggere,
+		MatiereSuggeree:  resultat.MatiereSuggeree,
 	}
 
 	// Sauvegarder le cours si demandé
 	if requete.Sauvegarder && h.coursRepo != nil {
+		// Utiliser le titre fourni, sinon le titre suggéré, sinon un titre par défaut
 		titre := requete.Titre
+		if titre == "" && resultat.TitreSuggere != "" {
+			titre = resultat.TitreSuggere
+		}
 		if titre == "" {
 			titre = "Cours sans titre"
 		}
 
+		// Utiliser la matière fournie, sinon la matière suggérée
+		matiere := requete.Matiere
+		if matiere == "" && resultat.MatiereSuggeree != "" {
+			matiere = resultat.MatiereSuggeree
+		}
+
+		// Générer un ID pour le cours avant de sauvegarder les images
+		coursID := ""
 		cours := &store.Cours{
 			Titre:             titre,
-			Matiere:           requete.Matiere,
+			Matiere:           matiere,
 			TexteOCR:          resultat.Texte,
 			Confiance:         resultat.Confiance,
 			ZonesIncertaines:  zonesIncertaines,
 			FichiersOriginaux: nomsFichiers,
+			Images:            []string{},
 		}
 
+		// Créer le cours d'abord pour obtenir l'ID
 		if err := h.coursRepo.Creer(c.Request.Context(), cours); err != nil {
 			// Log l'erreur mais ne pas faire échouer la requête
 			// Le texte OCR a été extrait avec succès
 			c.JSON(http.StatusOK, reponse)
 			return
 		}
+		coursID = cours.ID
 
-		reponse.CoursID = cours.ID
+		// Sauvegarder les images si le service de stockage est disponible
+		if h.serviceStorage != nil {
+			imagesSauvegardees := []string{}
+			for _, fichier := range fichiers {
+				// Vérifier si c'est une image (pas un PDF)
+				contentType := fichier.Header.Get("Content-Type")
+				if contentType == "image/jpeg" || contentType == "image/png" || contentType == "image/gif" || contentType == "image/webp" {
+					nomImage, err := h.serviceStorage.SauvegarderImage(coursID, fichier)
+					if err == nil {
+						imagesSauvegardees = append(imagesSauvegardees, nomImage)
+					}
+				}
+			}
+
+			// Mettre à jour le cours avec les images
+			if len(imagesSauvegardees) > 0 {
+				cours.Images = imagesSauvegardees
+				h.coursRepo.MettreAJour(c.Request.Context(), cours)
+			}
+		}
+
+		reponse.CoursID = coursID
 	}
 
 	c.JSON(http.StatusOK, reponse)

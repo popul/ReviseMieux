@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import IndicateurEtapes from '../components/IndicateurEtapes'
 import ZoneUpload from '../components/ZoneUpload'
 import PreviewFichiers from '../components/PreviewFichiers'
@@ -32,6 +32,7 @@ interface EtatErreur {
 }
 
 export default function Scanner() {
+  const navigate = useNavigate()
   const [fichiers, setFichiers] = useState<File[]>([])
   const [options, setOptions] = useState<OptionsGenerationType>(OPTIONS_DEFAUT)
   const [etapeActive, setEtapeActive] = useState(1)
@@ -124,20 +125,22 @@ export default function Scanner() {
   }, [])
 
   const gererValidation = useCallback(() => {
-    // TODO: Étape 9 - Lancer la génération des fiches/quiz/mindmap
-    console.log('Validation avec texte:', texteEdite)
-    console.log('Options:', options)
-    // Pour l'instant, afficher un message de succès
-    alert('Texte validé ! La génération des supports sera implémentée à l\'étape 9.')
-  }, [texteEdite, options])
+    // Rediriger vers la page du cours pour générer les supports
+    if (resultatOCR?.coursId) {
+      navigate(`/cours?id=${resultatOCR.coursId}`)
+    } else {
+      // Fallback vers la liste des cours si pas d'ID
+      navigate('/cours')
+    }
+  }, [resultatOCR, navigate])
 
   return (
     <>
       {/* Header avec navigation */}
-      <header className="flex items-center gap-lg mb-xl">
+      <header className="flex items-center gap-8 mb-12">
         <Link
           to="/"
-          className="flex items-center gap-xs text-ink-light px-sm py-xs rounded-full transition-colors hover:bg-cream hover:text-ink no-underline font-medium"
+          className="flex items-center gap-2 text-ink-light px-4 py-2 rounded-full transition-colors hover:bg-cream hover:text-ink no-underline font-medium"
         >
           ← Retour
         </Link>
@@ -167,8 +170,8 @@ export default function Scanner() {
       {etat === 'upload' && (
         <>
           <section className="text-center">
-            <h2 className="font-display text-3xl font-bold mb-xs">Importe tes notes de cours</h2>
-            <p className="text-ink-light text-lg mb-xl">
+            <h2 className="font-display text-3xl font-bold mb-2">Importe tes notes de cours</h2>
+            <p className="text-ink-light text-lg mb-12">
               Prends en photo ou scanne tes notes manuscrites ou imprimées
             </p>
 
@@ -191,11 +194,11 @@ export default function Scanner() {
           )}
 
           {fichiers.length > 0 && (
-            <div className="mt-xl text-center">
+            <div className="mt-12 text-center">
               <button
                 type="button"
                 className={`
-                  inline-flex items-center gap-sm py-4 px-xl rounded-full font-semibold text-lg transition-all
+                  inline-flex items-center gap-4 py-4 px-12 rounded-full font-semibold text-lg transition-all
                   ${
                     peutSoumettre
                       ? 'bg-teal text-white hover:bg-teal-light hover:-translate-y-0.5 hover:shadow-xl'
@@ -209,7 +212,7 @@ export default function Scanner() {
               </button>
 
               {!auMoinsUneOption && (
-                <p className="mt-sm text-sm text-coral">
+                <p className="mt-4 text-sm text-coral">
                   Sélectionne au moins un type de support à générer
                 </p>
               )}
@@ -225,12 +228,12 @@ export default function Scanner() {
 
       {/* État: Erreur */}
       {etat === 'erreur' && erreur && (
-        <div className="bg-white rounded-lg p-xl text-center">
-          <div className="w-16 h-16 mx-auto mb-md bg-coral/10 rounded-full flex items-center justify-center">
+        <div className="bg-white rounded-lg p-12 text-center">
+          <div className="w-16 h-16 mx-auto mb-6 bg-coral/10 rounded-full flex items-center justify-center">
             <span className="text-3xl">⚠️</span>
           </div>
 
-          <h3 className="font-display text-xl font-semibold mb-sm text-coral">
+          <h3 className="font-display text-xl font-semibold mb-4 text-coral">
             {erreur.code === 'QUOTA_DEPASSE'
               ? 'Quota dépassé'
               : erreur.code === 'SERVICE_INDISPONIBLE'
@@ -240,12 +243,12 @@ export default function Scanner() {
                   : 'Une erreur est survenue'}
           </h3>
 
-          <p className="text-ink-light mb-lg">{erreur.message}</p>
+          <p className="text-ink-light mb-8">{erreur.message}</p>
 
-          <div className="flex gap-md justify-center">
+          <div className="flex gap-6 justify-center">
             <button
               type="button"
-              className="px-lg py-sm bg-cream text-ink rounded-full font-medium hover:bg-cream/80 transition-colors"
+              className="px-8 py-4 bg-cream text-ink rounded-full font-medium hover:bg-cream/80 transition-colors"
               onClick={reinitialiser}
             >
               Recommencer
@@ -253,7 +256,7 @@ export default function Scanner() {
             {erreur.code !== 'QUOTA_DEPASSE' && (
               <button
                 type="button"
-                className="px-lg py-sm bg-teal text-white rounded-full font-medium hover:bg-teal-light transition-colors"
+                className="px-8 py-4 bg-teal text-white rounded-full font-medium hover:bg-teal-light transition-colors"
                 onClick={gererSoumission}
               >
                 Réessayer
@@ -265,22 +268,37 @@ export default function Scanner() {
 
       {/* État: Résultat */}
       {etat === 'resultat' && resultatOCR && (
-        <div className="space-y-lg">
+        <div className="space-y-8">
           {/* Résumé */}
-          <div className="bg-teal/5 rounded-lg p-md flex items-center gap-md">
+          <div className="bg-teal/5 rounded-lg p-6 flex items-center gap-6">
             <div className="w-12 h-12 bg-teal/10 rounded-full flex items-center justify-center">
               <span className="text-xl">✓</span>
             </div>
-            <div>
+            <div className="flex-1">
               <p className="font-medium text-teal">Extraction réussie</p>
               <p className="text-sm text-ink-light">
                 {resultatOCR.nombrePages} page{resultatOCR.nombrePages > 1 ? 's' : ''} traitée
                 {resultatOCR.nombrePages > 1 ? 's' : ''}
               </p>
+              {/* Afficher le titre et la matière détectés */}
+              {(resultatOCR.titreSuggere || resultatOCR.matiereSuggeree) && (
+                <div className="mt-2 flex flex-wrap gap-3">
+                  {resultatOCR.titreSuggere && (
+                    <span className="text-xs bg-teal/10 text-teal px-3 py-1 rounded-full">
+                      📝 {resultatOCR.titreSuggere}
+                    </span>
+                  )}
+                  {resultatOCR.matiereSuggeree && (
+                    <span className="text-xs bg-coral/10 text-coral px-3 py-1 rounded-full capitalize">
+                      📚 {resultatOCR.matiereSuggeree}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
             <button
               type="button"
-              className="ml-auto px-md py-xs bg-cream text-ink rounded-full text-sm font-medium hover:bg-cream/80 transition-colors"
+              className="ml-auto px-6 py-2 bg-cream text-ink rounded-full text-sm font-medium hover:bg-cream/80 transition-colors"
               onClick={reinitialiser}
             >
               Nouveau scan
@@ -297,21 +315,21 @@ export default function Scanner() {
           />
 
           {/* Récapitulatif des options choisies */}
-          <div className="bg-white rounded-lg p-md">
-            <h4 className="font-medium text-sm text-ink-light mb-sm">Supports à générer</h4>
-            <div className="flex gap-sm flex-wrap">
+          <div className="bg-white rounded-lg p-6">
+            <h4 className="font-medium text-sm text-ink-light mb-4">Supports à générer</h4>
+            <div className="flex gap-4 flex-wrap">
               {options.genererFiches && (
-                <span className="px-md py-xs bg-coral/10 text-coral rounded-full text-sm font-medium">
+                <span className="px-6 py-2 bg-coral/10 text-coral rounded-full text-sm font-medium">
                   Fiches de révision
                 </span>
               )}
               {options.genererQuiz && (
-                <span className="px-md py-xs bg-teal/10 text-teal rounded-full text-sm font-medium">
+                <span className="px-6 py-2 bg-teal/10 text-teal rounded-full text-sm font-medium">
                   Quiz interactif
                 </span>
               )}
               {options.genererMindmap && (
-                <span className="px-md py-xs bg-gold/10 text-gold rounded-full text-sm font-medium">
+                <span className="px-6 py-2 bg-gold/10 text-gold rounded-full text-sm font-medium">
                   Carte mentale
                 </span>
               )}

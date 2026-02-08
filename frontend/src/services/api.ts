@@ -13,6 +13,8 @@ export interface ReponseOCR {
   zonesIncertaines: ZoneIncertaine[]
   nombrePages: number
   coursId?: string
+  titreSuggere?: string
+  matiereSuggeree?: string
 }
 
 export interface ZoneIncertaine {
@@ -25,12 +27,14 @@ export interface ZoneIncertaine {
 export interface Cours {
   id: string
   titre: string
-  matiere: string
-  texteOcr: string
-  confianceOcr: number
+  matiere?: string
+  texteOCR: string
+  confiance: number
   zonesIncertaines: ZoneIncertaine[]
+  fichiersOriginaux?: string[]
+  images: string[]
   dateCreation: string
-  dateMiseAJour: string
+  dateModification: string
 }
 
 export interface StatutAPI {
@@ -87,7 +91,8 @@ export async function listerCours(page = 1, limite = 10): Promise<{ cours: Cours
 
 export async function obtenirCours(id: string): Promise<Cours> {
   const response = await fetch(`${API_BASE}/cours/${id}`)
-  return gererReponse<Cours>(response)
+  const data = await gererReponse<{ succes: boolean; cours: Cours }>(response)
+  return data.cours
 }
 
 export async function supprimerCours(id: string): Promise<void> {
@@ -95,6 +100,19 @@ export async function supprimerCours(id: string): Promise<void> {
   if (!response.ok) {
     throw new Error(`Erreur lors de la suppression: ${response.status}`)
   }
+}
+
+export async function mettreAJourCours(
+  id: string,
+  donnees: { titre?: string; matiere?: string; texteOCR?: string; zonesIncertaines?: ZoneIncertaine[]; images?: string[] }
+): Promise<Cours> {
+  const response = await fetch(`${API_BASE}/cours/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(donnees),
+  })
+  const data = await gererReponse<{ succes: boolean; cours: Cours }>(response)
+  return data.cours
 }
 
 // Types Fiches

@@ -13,14 +13,21 @@ interface OptionsGenerationProps {
 
 const MATIERES = [
   { value: '', label: 'Détection automatique' },
-  { value: 'histoire', label: 'Histoire' },
-  { value: 'maths', label: 'Mathématiques' },
+  { value: 'mathematiques', label: 'Mathématiques' },
   { value: 'francais', label: 'Français' },
-  { value: 'philo', label: 'Philosophie' },
-  { value: 'physique', label: 'Physique-Chimie' },
+  { value: 'histoire', label: 'Histoire' },
+  { value: 'geographie', label: 'Géographie' },
+  { value: 'physique', label: 'Physique' },
+  { value: 'chimie', label: 'Chimie' },
   { value: 'svt', label: 'SVT' },
+  { value: 'sciences', label: 'Sciences' },
   { value: 'anglais', label: 'Anglais' },
-  { value: 'autre', label: 'Autre' },
+  { value: 'espagnol', label: 'Espagnol' },
+  { value: 'allemand', label: 'Allemand' },
+  { value: 'philosophie', label: 'Philosophie' },
+  { value: 'ses', label: 'SES' },
+  { value: 'economie', label: 'Économie' },
+  { value: 'informatique', label: 'Informatique' },
 ]
 
 interface CheckboxOptionProps {
@@ -34,7 +41,7 @@ function CheckboxOption({ label, icone, cochee, onChange }: CheckboxOptionProps)
   return (
     <label
       className={`
-        flex items-center gap-xs px-sm py-xs rounded-full cursor-pointer transition-all
+        flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer transition-all
         ${cochee ? 'bg-coral text-white' : 'bg-cream hover:bg-cream-dark'}
       `}
     >
@@ -59,32 +66,35 @@ export default function OptionsGeneration({ options, onChange }: OptionsGenerati
   }
 
   return (
-    <div className="bg-white rounded-lg p-lg mt-lg">
-      <h3 className="font-display text-xl font-semibold mb-md">Personnalise ta génération</h3>
+    <div className="bg-white rounded-lg p-8 mt-8">
+      <h3 className="font-display text-xl font-semibold mb-6">Personnalise ta génération</h3>
 
       {/* Titre */}
-      <div className="mb-md">
-        <label htmlFor="titre" className="block font-medium mb-xs text-[0.95rem]">
-          Titre du cours (optionnel)
+      <div className="mb-6">
+        <label htmlFor="titre" className="block font-medium mb-2 text-[0.95rem]">
+          Titre du cours
         </label>
         <input
           id="titre"
           type="text"
-          className="w-full py-3.5 px-sm border-2 border-cream-dark rounded-md text-base transition-colors focus:outline-none focus:border-coral"
-          placeholder="Ex: La Révolution française"
+          className="w-full py-3.5 px-4 border-2 border-cream-dark rounded-md text-base transition-colors focus:outline-none focus:border-coral"
+          placeholder="Laisser vide pour détection automatique"
           value={options.titre}
           onChange={(e) => mettreAJour('titre', e.target.value)}
         />
+        <p className="text-xs text-ink-muted mt-1">
+          ✨ Le titre sera détecté automatiquement à partir du contenu
+        </p>
       </div>
 
       {/* Matière */}
-      <div className="mb-md">
-        <label htmlFor="matiere" className="block font-medium mb-xs text-[0.95rem]">
+      <div className="mb-6">
+        <label htmlFor="matiere" className="block font-medium mb-2 text-[0.95rem]">
           Matière
         </label>
         <select
           id="matiere"
-          className="w-full py-3.5 px-sm border-2 border-cream-dark rounded-md text-base transition-colors focus:outline-none focus:border-coral bg-white appearance-none cursor-pointer"
+          className="w-full py-3.5 px-4 border-2 border-cream-dark rounded-md text-base transition-colors focus:outline-none focus:border-coral bg-white appearance-none cursor-pointer"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%238A8A8A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
             backgroundRepeat: 'no-repeat',
@@ -101,12 +111,15 @@ export default function OptionsGeneration({ options, onChange }: OptionsGenerati
             </option>
           ))}
         </select>
+        <p className="text-xs text-ink-muted mt-1">
+          ✨ La matière sera détectée automatiquement si "Détection automatique" est sélectionné
+        </p>
       </div>
 
       {/* Types de génération */}
       <div>
-        <label className="block font-medium mb-xs text-[0.95rem]">Que veux-tu générer ?</label>
-        <div className="flex flex-wrap gap-sm">
+        <label className="block font-medium mb-2 text-[0.95rem]">Que veux-tu générer ?</label>
+        <div className="flex flex-wrap gap-4">
           <CheckboxOption
             label="Fiches de révision"
             icone="📄"
