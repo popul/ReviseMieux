@@ -38,6 +38,13 @@ coverage/
 *.cover
 *.out
 
+# Playwright
+playwright-report/
+test-results/
+
+# Agent state
+.ralph/
+
 # Temporary files
 tmp/
 temp/
