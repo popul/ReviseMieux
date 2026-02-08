@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useLayoutEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { obtenirFichesCours, listerCours, type Fiche, type Cours } from '../services/api'
+import { obtenirFichesCours, listerCours, genererFiches, type Fiche, type Cours } from '../services/api'
 import CarteFiche from '../components/CarteFiche'
 import ControlesFiches from '../components/ControlesFiches'
 import ListeFichesSidebar from '../components/ListeFichesSidebar'
@@ -90,7 +90,12 @@ function useChargementFiches(coursId: string | null) {
     }
   }, [coursId])
 
-  return { fiches, chargement, erreur }
+  // Fonction pour mettre à jour les fiches après génération
+  const ajouterFiches = useCallback((nouvellesFiches: Fiche[]) => {
+    setFiches(nouvellesFiches)
+  }, [])
+
+  return { fiches, chargement, erreur, ajouterFiches }
 }
 
 export default function Fiches() {
@@ -98,12 +103,37 @@ export default function Fiches() {
   const coursId = searchParams.get('cours')
 
   const { listeCours, chargement: chargementCours, erreur: erreurCours } = useChargementCours(coursId)
-  const { fiches, chargement: chargementFiches, erreur: erreurFiches } = useChargementFiches(coursId)
+  const { fiches, chargement: chargementFiches, erreur: erreurFiches, ajouterFiches } = useChargementFiches(coursId)
 
   const [indexActuel, setIndexActuel] = useState(0)
   const [modeAffichage, setModeAffichage] = useState<ModeAffichage>('reviser')
   const [filtreDifficulte, setFiltreDifficulte] = useState<Difficulte>('toutes')
   const [prevFiltre, setPrevFiltre] = useState<Difficulte>('toutes')
+
+  // État pour la génération de fiches
+  const [generationEnCours, setGenerationEnCours] = useState(false)
+  const [erreurGeneration, setErreurGeneration] = useState<string | null>(null)
+
+  // Handler pour générer les fiches
+  const handleGenererFiches = useCallback(async () => {
+    if (!coursId || generationEnCours) return
+
+    setGenerationEnCours(true)
+    setErreurGeneration(null)
+
+    try {
+      const resultat = await genererFiches(coursId)
+      if (resultat.succes && resultat.fiches) {
+        ajouterFiches(resultat.fiches)
+      } else {
+        setErreurGeneration(resultat.erreur?.message || 'Erreur lors de la génération')
+      }
+    } catch (err) {
+      setErreurGeneration(err instanceof Error ? err.message : 'Erreur lors de la génération')
+    } finally {
+      setGenerationEnCours(false)
+    }
+  }, [coursId, generationEnCours, ajouterFiches])
 
   // Reset index quand le filtre change (pattern derived state)
   if (filtreDifficulte !== prevFiltre) {
@@ -149,17 +179,17 @@ export default function Fiches() {
 
     if (erreurCours || listeCours.length === 0) {
       return (
-        <div className="text-center py-xl">
-          <div className="text-5xl mb-md">📚</div>
-          <h1 className="font-display text-2xl font-semibold text-ink mb-sm">
+        <div className="text-center py-12">
+          <div className="text-5xl mb-6">📚</div>
+          <h1 className="font-display text-2xl font-semibold text-ink mb-4">
             {erreurCours || 'Aucun cours disponible'}
           </h1>
-          <p className="text-ink-light mb-lg">
+          <p className="text-ink-light mb-8">
             Scannez d'abord un cours pour générer des fiches de révision.
           </p>
           <Link
             to="/scanner"
-            className="inline-flex items-center gap-sm px-lg py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
+            className="inline-flex items-center gap-4 px-8 py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
           >
             Scanner un cours
           </Link>
@@ -169,23 +199,23 @@ export default function Fiches() {
 
     return (
       <div>
-        <h1 className="font-display text-3xl font-semibold text-ink mb-lg">
+        <h1 className="font-display text-3xl font-semibold text-ink mb-8">
           Fiches de révision
         </h1>
-        <p className="text-ink-light mb-lg">
+        <p className="text-ink-light mb-8">
           Sélectionnez un cours pour réviser ses fiches.
         </p>
 
-        <div className="grid gap-md">
+        <div className="grid gap-6">
           {listeCours.map((c) => (
             <Link
               key={c.id}
               to={`/fiches?cours=${c.id}`}
-              className="bg-white rounded-lg p-lg shadow-sm hover:shadow-md transition-shadow border border-cream-dark"
+              className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow border border-cream-dark"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="font-display text-lg font-semibold text-ink mb-xs">
+                  <h2 className="font-display text-lg font-semibold text-ink mb-2">
                     {c.titre || 'Cours sans titre'}
                   </h2>
                   <p className="text-sm text-ink-muted">{c.matiere || 'Matière non définie'}</p>
@@ -210,15 +240,15 @@ export default function Fiches() {
 
   if (erreurFiches) {
     return (
-      <div className="text-center py-xl">
-        <div className="text-5xl mb-md">😕</div>
-        <h1 className="font-display text-2xl font-semibold text-ink mb-sm">
+      <div className="text-center py-12">
+        <div className="text-5xl mb-6">😕</div>
+        <h1 className="font-display text-2xl font-semibold text-ink mb-4">
           Erreur
         </h1>
-        <p className="text-ink-light mb-lg">{erreurFiches}</p>
+        <p className="text-ink-light mb-8">{erreurFiches}</p>
         <Link
           to="/fiches"
-          className="inline-flex items-center gap-sm px-lg py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
+          className="inline-flex items-center gap-4 px-8 py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
         >
           ← Retour aux cours
         </Link>
@@ -226,28 +256,51 @@ export default function Fiches() {
     )
   }
 
-  if (fiches.length === 0) {
+  if (fiches.length === 0 && !generationEnCours) {
     return (
-      <div className="text-center py-xl">
-        <div className="text-5xl mb-md">📄</div>
-        <h1 className="font-display text-2xl font-semibold text-ink mb-sm">
+      <div className="text-center py-12">
+        <div className="text-5xl mb-6">📄</div>
+        <h1 className="font-display text-2xl font-semibold text-ink mb-4">
           Aucune fiche disponible
         </h1>
-        <p className="text-ink-light mb-lg">
+        <p className="text-ink-light mb-8">
           Ce cours n'a pas encore de fiches de révision.
         </p>
-        <Link
-          to="/fiches"
-          className="inline-flex items-center gap-sm px-lg py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
-        >
-          ← Retour aux cours
-        </Link>
+        {erreurGeneration && (
+          <p className="text-red-600 mb-4">{erreurGeneration}</p>
+        )}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button
+            onClick={handleGenererFiches}
+            className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Générer les fiches avec l'IA
+          </button>
+          <Link
+            to="/fiches"
+            className="inline-flex items-center justify-center gap-4 px-8 py-3 border-2 border-coral text-coral rounded-full font-medium hover:bg-coral/5 transition-colors"
+          >
+            ← Retour aux cours
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
+  // Affichage pendant la génération
+  if (generationEnCours) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <ProcessingSection message="Génération des fiches en cours..." />
       </div>
     )
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-6rem)] -mx-xl -mt-xl">
+    <div className="flex min-h-[calc(100vh-6rem)] -mx-12 -mt-12">
       {/* Sidebar avec liste des fiches */}
       <ListeFichesSidebar
         fiches={fichesFiltrees}
@@ -256,19 +309,19 @@ export default function Fiches() {
       />
 
       {/* Contenu principal */}
-      <main className="flex-1 p-xl flex flex-col items-center">
+      <main className="flex-1 p-12 flex flex-col items-center">
         {/* Header avec actions */}
-        <div className="w-full max-w-[700px] flex items-center justify-between mb-lg">
+        <div className="w-full max-w-[700px] flex items-center justify-between mb-8">
           <Link
             to="/fiches"
-            className="flex items-center gap-xs text-ink-light hover:text-ink transition-colors"
+            className="flex items-center gap-2 text-ink-light hover:text-ink transition-colors"
           >
             ← Retour
           </Link>
-          <div className="flex items-center gap-sm">
+          <div className="flex items-center gap-4">
             <Link
               to={`/quiz?cours=${coursId}`}
-              className="px-md py-2.5 bg-coral text-white rounded-full text-sm font-medium hover:bg-coral-dark transition-colors"
+              className="px-6 py-2.5 bg-coral text-white rounded-full text-sm font-medium hover:bg-coral-dark transition-colors"
             >
               Lancer un quiz
             </Link>
@@ -276,10 +329,10 @@ export default function Fiches() {
         </div>
 
         {/* Toggle mode affichage */}
-        <div className="flex gap-xs bg-white p-1 rounded-full shadow-sm mb-lg">
+        <div className="flex gap-2 bg-white p-1 rounded-full shadow-sm mb-8">
           <button
             onClick={() => setModeAffichage('reviser')}
-            className={`px-md py-2.5 rounded-full text-sm font-medium transition-all ${
+            className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
               modeAffichage === 'reviser'
                 ? 'bg-ink text-white'
                 : 'text-ink-light hover:bg-cream'
@@ -289,7 +342,7 @@ export default function Fiches() {
           </button>
           <button
             onClick={() => setModeAffichage('lire')}
-            className={`px-md py-2.5 rounded-full text-sm font-medium transition-all ${
+            className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
               modeAffichage === 'lire'
                 ? 'bg-ink text-white'
                 : 'text-ink-light hover:bg-cream'
@@ -300,7 +353,7 @@ export default function Fiches() {
         </div>
 
         {/* Filtre difficulté */}
-        <div className="mb-lg">
+        <div className="mb-8">
           <FiltreDifficulte
             valeur={filtreDifficulte}
             onChange={setFiltreDifficulte}
@@ -308,8 +361,8 @@ export default function Fiches() {
         </div>
 
         {/* Progression */}
-        <div className="w-full max-w-[600px] mb-lg">
-          <div className="flex justify-between text-sm mb-xs">
+        <div className="w-full max-w-[600px] mb-8">
+          <div className="flex justify-between text-sm mb-2">
             <span className="text-ink-muted">Progression</span>
             <span className="font-semibold text-ink">
               {indexActuel + 1} / {fichesFiltrees.length}
@@ -324,7 +377,7 @@ export default function Fiches() {
         </div>
 
         {fichesFiltrees.length === 0 ? (
-          <div className="text-center py-lg">
+          <div className="text-center py-8">
             <p className="text-ink-muted">
               Aucune fiche ne correspond à ce filtre.
             </p>
@@ -333,7 +386,7 @@ export default function Fiches() {
           /* Mode révision - Flashcard */
           <>
             <CarteFiche fiche={ficheCourante} />
-            <div className="mt-lg">
+            <div className="mt-8">
               <ControlesFiches
                 indexActuel={indexActuel}
                 total={fichesFiltrees.length}
@@ -344,13 +397,13 @@ export default function Fiches() {
           </>
         ) : (
           /* Mode lecture - Liste de toutes les fiches */
-          <div className="w-full max-w-[700px] space-y-md">
+          <div className="w-full max-w-[700px] space-y-6">
             {fichesFiltrees.map((fiche, index) => (
               <div
                 key={fiche.id}
-                className="bg-white rounded-lg p-lg shadow-sm hover:shadow-md transition-shadow"
+                className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="flex items-start justify-between mb-sm">
+                <div className="flex items-start justify-between mb-4">
                   <span className={`text-xs font-semibold uppercase tracking-wide px-2 py-1 rounded-full ${
                     fiche.difficulte === 'facile' ? 'bg-green-100 text-green-700' :
                     fiche.difficulte === 'moyen' ? 'bg-gold/20 text-amber-700' :
@@ -360,7 +413,7 @@ export default function Fiches() {
                   </span>
                   <span className="text-sm text-ink-muted">#{index + 1}</span>
                 </div>
-                <h3 className="font-display text-lg font-semibold text-ink mb-sm">
+                <h3 className="font-display text-lg font-semibold text-ink mb-4">
                   {fiche.question}
                 </h3>
                 <p className="text-ink-light leading-relaxed">
