@@ -632,22 +632,16 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
 
             {/* Sélecteur d'image avec contrôles de réordonnancement */}
             {images.length > 0 && (
-              <div className="flex gap-4 mb-6 overflow-x-auto pb-4">
+              <div className="flex gap-6 mb-6 overflow-x-auto py-2">
                 {images.map((img, idx) => (
-                  <div key={idx} className="relative flex-shrink-0 group">
-                    {/* Numéro de page */}
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-10">
-                      <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                        imageSelectionnee === idx ? 'bg-coral text-white' : 'bg-ink text-white'
-                      }`}>
-                        {idx + 1}
-                      </span>
-                    </div>
+                  <div key={idx} className="relative flex-shrink-0">
                     <button
                       data-testid="image-vignette"
                       onClick={() => setImageSelectionnee(idx)}
-                      className={`w-20 h-20 rounded-md overflow-hidden border-2 transition-all ${
-                        imageSelectionnee === idx ? 'border-coral ring-2 ring-coral/30' : 'border-cream-dark hover:border-coral/50'
+                      className={`w-24 h-24 rounded-lg overflow-hidden border-3 transition-all ${
+                        imageSelectionnee === idx
+                          ? 'border-coral ring-2 ring-coral/30 shadow-lg'
+                          : 'border-cream-dark hover:border-coral/50'
                       }`}
                     >
                       <img
@@ -656,46 +650,50 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
                         className="w-full h-full object-cover"
                       />
                     </button>
+                    {/* Numéro de page en bas de la vignette */}
+                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
+                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm ${
+                        imageSelectionnee === idx ? 'bg-coral text-white' : 'bg-ink text-white'
+                      }`}>
+                        {idx + 1}
+                      </span>
+                    </div>
                     {/* Bouton supprimer - uniquement en mode édition */}
                     {modeEdition && (
-                      <div className="absolute -top-1 -right-1">
-                        <button
-                          data-testid="supprimer-image"
-                          onClick={() => supprimerImage(img)}
-                          className="w-5 h-5 bg-red-500 text-white rounded-full text-xs flex items-center justify-center hover:bg-red-600 transition-colors"
-                          title="Supprimer"
-                        >
-                          ×
-                        </button>
-                      </div>
-                    )}
-                    {/* Boutons de réordonnancement - toujours visibles s'il y a plusieurs images */}
-                    {images.length > 1 && (
-                      <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {idx > 0 && (
-                          <button
-                            data-testid="monter-image"
-                            onClick={() => deplacerImage(idx, 'haut')}
-                            className="w-6 h-6 bg-ink text-white rounded-full text-xs flex items-center justify-center hover:bg-teal transition-colors shadow-md"
-                            title="Déplacer à gauche"
-                          >
-                            ←
-                          </button>
-                        )}
-                        {idx < images.length - 1 && (
-                          <button
-                            data-testid="descendre-image"
-                            onClick={() => deplacerImage(idx, 'bas')}
-                            className="w-6 h-6 bg-ink text-white rounded-full text-xs flex items-center justify-center hover:bg-teal transition-colors shadow-md"
-                            title="Déplacer à droite"
-                          >
-                            →
-                          </button>
-                        )}
-                      </div>
+                      <button
+                        data-testid="supprimer-image"
+                        onClick={() => supprimerImage(img)}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-sm flex items-center justify-center hover:bg-red-600 transition-colors shadow-md"
+                        title="Supprimer"
+                      >
+                        ×
+                      </button>
                     )}
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Boutons de réordonnancement - sous les vignettes */}
+            {images.length > 1 && (
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <button
+                  onClick={() => deplacerImage(imageSelectionnee, 'haut')}
+                  disabled={imageSelectionnee === 0}
+                  className="flex items-center gap-2 px-4 py-2 bg-cream text-ink rounded-full text-sm font-medium hover:bg-cream-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  ← Précédent
+                </button>
+                <span className="text-sm text-ink-muted">
+                  Page {imageSelectionnee + 1} sur {images.length}
+                </span>
+                <button
+                  onClick={() => deplacerImage(imageSelectionnee, 'bas')}
+                  disabled={imageSelectionnee === images.length - 1}
+                  className="flex items-center gap-2 px-4 py-2 bg-cream text-ink rounded-full text-sm font-medium hover:bg-cream-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Suivant →
+                </button>
               </div>
             )}
 
