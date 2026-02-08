@@ -33,6 +33,10 @@ RUN apk add --no-cache ca-certificates tzdata
 
 # Create non-root user
 RUN addgroup -g 1000 app && adduser -u 1000 -G app -D app
+
+# Create storage directory with correct permissions
+RUN mkdir -p /app/storage && chown -R app:app /app/storage
+
 USER app
 
 # Copy binary from builder

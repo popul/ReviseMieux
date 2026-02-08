@@ -20,6 +20,9 @@ type Config struct {
 	// Quotas journaliers
 	QuotaOCRJour        int
 	QuotaGenerationJour int
+
+	// Stockage
+	StoragePath string
 }
 
 // Charger charge la configuration depuis les variables d'environnement
@@ -31,6 +34,7 @@ func Charger() *Config {
 		MistralAPIKey:       getEnv("MISTRAL_API_KEY", ""),
 		QuotaOCRJour:        getEnvInt("QUOTA_OCR_JOUR", 50),
 		QuotaGenerationJour: getEnvInt("QUOTA_GENERATION_JOUR", 100),
+		StoragePath:         getEnv("STORAGE_PATH", "./storage"),
 	}
 }
 

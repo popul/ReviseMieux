@@ -113,6 +113,15 @@ func main() {
 		log.Println("✓ Service recommandations initialisé")
 	}
 
+	// Créer le service de stockage
+	var serviceStorage *services.ServiceStorage
+	serviceStorage, err = services.NouveauServiceStorage(cfg.StoragePath)
+	if err != nil {
+		log.Printf("⚠️  Avertissement: erreur lors de la création du service de stockage: %v", err)
+	} else {
+		log.Printf("✓ Service stockage initialisé (chemin: %s)", cfg.StoragePath)
+	}
+
 	// Créer le routeur Gin
 	r := gin.Default()
 
@@ -120,7 +129,7 @@ func main() {
 	api.ConfigurerMiddleware(r)
 
 	// Créer les handlers avec toutes les dépendances
-	handlers := api.NouveauHandlers(db, serviceOCR, serviceGeneration, serviceStatistiques, serviceQuotas, serviceAnalyseErreurs, serviceRecommandations, coursRepo, copieRepo, erreurRepo)
+	handlers := api.NouveauHandlers(db, serviceOCR, serviceGeneration, serviceStatistiques, serviceQuotas, serviceAnalyseErreurs, serviceRecommandations, serviceStorage, coursRepo, copieRepo, erreurRepo)
 
 	// Configurer les routes
 	api.ConfigurerRoutes(r, handlers, serviceQuotas)

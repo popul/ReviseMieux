@@ -28,11 +28,14 @@ services:
       PORT: "8080"
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+      STORAGE_PATH: /app/storage
     ports:
       - "8081:8080"
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - backend_storage:/app/storage
     # NOTE: Volume mount commented out - it overwrites the compiled binary
     # Uncomment and use 'air' for hot-reload development:
     # volumes:
@@ -53,3 +56,4 @@ services:
 
 volumes:
   postgres_data:
+  backend_storage:

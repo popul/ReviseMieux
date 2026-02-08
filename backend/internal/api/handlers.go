@@ -20,6 +20,7 @@ type Handlers struct {
 	handlersQuotas          *HandlersQuotas
 	handlersCopies          *HandlersCopies
 	handlersRecommandations *HandlersRecommandations
+	handlersImages          *HandlersImages
 }
 
 // NouveauHandlers crée une nouvelle instance de Handlers
@@ -31,6 +32,7 @@ func NouveauHandlers(
 	serviceQuotas *services.ServiceQuotas,
 	serviceAnalyseErreurs *services.ServiceAnalyseErreurs,
 	serviceRecommandations *services.ServiceRecommandations,
+	serviceStorage *services.ServiceStorage,
 	coursRepo store.CoursRepository,
 	copieRepo store.CopieExamenRepository,
 	erreurRepo store.ErreurAnalyseRepository,
@@ -38,12 +40,13 @@ func NouveauHandlers(
 	return &Handlers{
 		store:                   s,
 		coursRepo:               coursRepo,
-		handlersOCR:             NouveauHandlersOCR(serviceOCR, coursRepo),
+		handlersOCR:             NouveauHandlersOCR(serviceOCR, serviceStorage, coursRepo),
 		handlersGeneration:      NouveauHandlersGeneration(serviceGeneration),
 		handlersStatistiques:    NouveauHandlersStatistiques(serviceStatistiques),
 		handlersQuotas:          NouveauHandlersQuotas(serviceQuotas),
 		handlersCopies:          NouveauHandlersCopies(serviceOCR, serviceAnalyseErreurs, copieRepo, erreurRepo),
 		handlersRecommandations: NouveauHandlersRecommandations(serviceRecommandations),
+		handlersImages:          NouveauHandlersImages(serviceStorage, coursRepo),
 	}
 }
 
@@ -234,6 +237,109 @@ func (h *Handlers) ObtenirCoursHandler(c *gin.Context) {
 			"erreur": gin.H{
 				"code":    "ERREUR_INTERNE",
 				"message": "Erreur lors de la récupération du cours",
+			},
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"succes": true,
+		"cours":  cours,
+	})
+}
+
+// MettreAJourCoursHandler met à jour un cours
+func (h *Handlers) MettreAJourCoursHandler(c *gin.Context) {
+	if h.coursRepo == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "SERVICE_NON_DISPONIBLE",
+				"message": "Le service de cours n'est pas configuré",
+			},
+		})
+		return
+	}
+
+	id := c.Param("id")
+	if id == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "ID_MANQUANT",
+				"message": "L'identifiant du cours est requis",
+			},
+		})
+		return
+	}
+
+	// Récupérer le cours existant
+	cours, err := h.coursRepo.ObtenirParID(c.Request.Context(), id)
+	if err != nil {
+		if err.Error() == "cours non trouvé: "+id {
+			c.JSON(http.StatusNotFound, gin.H{
+				"succes": false,
+				"erreur": gin.H{
+					"code":    "COURS_NON_TROUVE",
+					"message": "Aucun cours trouvé avec cet identifiant",
+				},
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "ERREUR_INTERNE",
+				"message": "Erreur lors de la récupération du cours",
+			},
+		})
+		return
+	}
+
+	// Parser les données de mise à jour
+	var req struct {
+		Titre            string                 `json:"titre"`
+		Matiere          string                 `json:"matiere"`
+		TexteOCR         string                 `json:"texteOCR"`
+		ZonesIncertaines []store.ZoneIncertaine `json:"zonesIncertaines"`
+		Images           []string               `json:"images"`
+	}
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "REQUETE_INVALIDE",
+				"message": "Données de requête invalides: " + err.Error(),
+			},
+		})
+		return
+	}
+
+	// Mettre à jour les champs si fournis
+	if req.Titre != "" {
+		cours.Titre = req.Titre
+	}
+	if req.Matiere != "" {
+		cours.Matiere = req.Matiere
+	}
+	if req.TexteOCR != "" {
+		cours.TexteOCR = req.TexteOCR
+	}
+	if req.ZonesIncertaines != nil {
+		cours.ZonesIncertaines = req.ZonesIncertaines
+	}
+	if req.Images != nil {
+		cours.Images = req.Images
+	}
+
+	// Sauvegarder les modifications
+	if err := h.coursRepo.MettreAJour(c.Request.Context(), cours); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"succes": false,
+			"erreur": gin.H{
+				"code":    "ERREUR_INTERNE",
+				"message": "Erreur lors de la mise à jour du cours",
 			},
 		})
 		return
@@ -694,6 +800,98 @@ func (h *Handlers) ObtenirRecommandationsParMatiereHandler(c *gin.Context) {
 		"erreur": gin.H{
 			"code":    "SERVICE_NON_DISPONIBLE",
 			"message": "Le service de recommandations n'est pas configuré",
+		},
+	})
+}
+
+// --- Handlers Images ---
+
+// ListerImagesHandler retourne la liste des images d'un cours
+func (h *Handlers) ListerImagesHandler(c *gin.Context) {
+	if h.handlersImages != nil {
+		h.handlersImages.ListerImagesHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service d'images n'est pas configuré",
+		},
+	})
+}
+
+// ServirImageHandler sert une image d'un cours
+func (h *Handlers) ServirImageHandler(c *gin.Context) {
+	if h.handlersImages != nil {
+		h.handlersImages.ServirImageHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service d'images n'est pas configuré",
+		},
+	})
+}
+
+// AjouterImageHandler ajoute une image à un cours
+func (h *Handlers) AjouterImageHandler(c *gin.Context) {
+	if h.handlersImages != nil {
+		h.handlersImages.AjouterImageHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service d'images n'est pas configuré",
+		},
+	})
+}
+
+// SupprimerImageHandler supprime une image d'un cours
+func (h *Handlers) SupprimerImageHandler(c *gin.Context) {
+	if h.handlersImages != nil {
+		h.handlersImages.SupprimerImageHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service d'images n'est pas configuré",
+		},
+	})
+}
+
+// ReordonnerImagesHandler réordonne les images d'un cours
+func (h *Handlers) ReordonnerImagesHandler(c *gin.Context) {
+	if h.handlersImages != nil {
+		h.handlersImages.ReordonnerImagesHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service d'images n'est pas configuré",
+		},
+	})
+}
+
+// DeplacerImageHandler déplace une image vers le haut ou vers le bas
+func (h *Handlers) DeplacerImageHandler(c *gin.Context) {
+	if h.handlersImages != nil {
+		h.handlersImages.DeplacerImageHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service d'images n'est pas configuré",
 		},
 	})
 }

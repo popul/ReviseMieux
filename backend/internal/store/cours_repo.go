@@ -21,6 +21,7 @@ type Cours struct {
 	Confiance          float64           `json:"confiance"`
 	ZonesIncertaines   []ZoneIncertaine  `json:"zonesIncertaines"`
 	FichiersOriginaux  []string          `json:"fichiersOriginaux"`
+	Images             []string          `json:"images"`
 	DateCreation       time.Time         `json:"dateCreation"`
 	DateModification   time.Time         `json:"dateModification"`
 }
@@ -76,9 +77,14 @@ func (r *CoursRepo) Creer(ctx context.Context, cours *Cours) error {
 		return fmt.Errorf("erreur sérialisation fichiers originaux: %w", err)
 	}
 
+	imagesJSON, err := json.Marshal(cours.Images)
+	if err != nil {
+		return fmt.Errorf("erreur sérialisation images: %w", err)
+	}
+
 	query := `
-		INSERT INTO cours (id, titre, matiere, texte_ocr, texte_corrige, confiance, zones_incertaines, fichiers_originaux, date_creation, date_modification)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+		INSERT INTO cours (id, titre, matiere, texte_ocr, texte_corrige, confiance, zones_incertaines, fichiers_originaux, images, date_creation, date_modification)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 	`
 
 	_, err = r.db.ExecContext(ctx, query,
@@ -90,6 +96,7 @@ func (r *CoursRepo) Creer(ctx context.Context, cours *Cours) error {
 		cours.Confiance,
 		zonesJSON,
 		fichiersJSON,
+		imagesJSON,
 		cours.DateCreation,
 		cours.DateModification,
 	)
@@ -103,14 +110,14 @@ func (r *CoursRepo) Creer(ctx context.Context, cours *Cours) error {
 // ObtenirParID récupère un cours par son identifiant
 func (r *CoursRepo) ObtenirParID(ctx context.Context, id string) (*Cours, error) {
 	query := `
-		SELECT id, titre, matiere, texte_ocr, texte_corrige, confiance, zones_incertaines, fichiers_originaux, date_creation, date_modification
+		SELECT id, titre, matiere, texte_ocr, texte_corrige, confiance, zones_incertaines, fichiers_originaux, COALESCE(images, '[]'::jsonb), date_creation, date_modification
 		FROM cours
 		WHERE id = $1
 	`
 
 	cours := &Cours{}
 	var matiere, texteCorrige sql.NullString
-	var zonesJSON, fichiersJSON []byte
+	var zonesJSON, fichiersJSON, imagesJSON []byte
 
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&cours.ID,
@@ -121,6 +128,7 @@ func (r *CoursRepo) ObtenirParID(ctx context.Context, id string) (*Cours, error)
 		&cours.Confiance,
 		&zonesJSON,
 		&fichiersJSON,
+		&imagesJSON,
 		&cours.DateCreation,
 		&cours.DateModification,
 	)
@@ -142,13 +150,17 @@ func (r *CoursRepo) ObtenirParID(ctx context.Context, id string) (*Cours, error)
 		return nil, fmt.Errorf("erreur désérialisation fichiers originaux: %w", err)
 	}
 
+	if err := json.Unmarshal(imagesJSON, &cours.Images); err != nil {
+		return nil, fmt.Errorf("erreur désérialisation images: %w", err)
+	}
+
 	return cours, nil
 }
 
 // Lister récupère une liste de cours avec pagination
 func (r *CoursRepo) Lister(ctx context.Context, limite, offset int) ([]*Cours, error) {
 	query := `
-		SELECT id, titre, matiere, texte_ocr, texte_corrige, confiance, zones_incertaines, fichiers_originaux, date_creation, date_modification
+		SELECT id, titre, matiere, texte_ocr, texte_corrige, confiance, zones_incertaines, fichiers_originaux, COALESCE(images, '[]'::jsonb), date_creation, date_modification
 		FROM cours
 		ORDER BY date_creation DESC
 		LIMIT $1 OFFSET $2
@@ -164,7 +176,7 @@ func (r *CoursRepo) Lister(ctx context.Context, limite, offset int) ([]*Cours, e
 	for rows.Next() {
 		cours := &Cours{}
 		var matiere, texteCorrige sql.NullString
-		var zonesJSON, fichiersJSON []byte
+		var zonesJSON, fichiersJSON, imagesJSON []byte
 
 		err := rows.Scan(
 			&cours.ID,
@@ -175,6 +187,7 @@ func (r *CoursRepo) Lister(ctx context.Context, limite, offset int) ([]*Cours, e
 			&cours.Confiance,
 			&zonesJSON,
 			&fichiersJSON,
+			&imagesJSON,
 			&cours.DateCreation,
 			&cours.DateModification,
 		)
@@ -191,6 +204,10 @@ func (r *CoursRepo) Lister(ctx context.Context, limite, offset int) ([]*Cours, e
 
 		if err := json.Unmarshal(fichiersJSON, &cours.FichiersOriginaux); err != nil {
 			return nil, fmt.Errorf("erreur désérialisation fichiers originaux: %w", err)
+		}
+
+		if err := json.Unmarshal(imagesJSON, &cours.Images); err != nil {
+			return nil, fmt.Errorf("erreur désérialisation images: %w", err)
 		}
 
 		coursList = append(coursList, cours)
@@ -217,9 +234,14 @@ func (r *CoursRepo) MettreAJour(ctx context.Context, cours *Cours) error {
 		return fmt.Errorf("erreur sérialisation fichiers originaux: %w", err)
 	}
 
+	imagesJSON, err := json.Marshal(cours.Images)
+	if err != nil {
+		return fmt.Errorf("erreur sérialisation images: %w", err)
+	}
+
 	query := `
 		UPDATE cours
-		SET titre = $2, matiere = $3, texte_ocr = $4, texte_corrige = $5, confiance = $6, zones_incertaines = $7, fichiers_originaux = $8, date_modification = $9
+		SET titre = $2, matiere = $3, texte_ocr = $4, texte_corrige = $5, confiance = $6, zones_incertaines = $7, fichiers_originaux = $8, images = $9, date_modification = $10
 		WHERE id = $1
 	`
 
@@ -232,6 +254,7 @@ func (r *CoursRepo) MettreAJour(ctx context.Context, cours *Cours) error {
 		cours.Confiance,
 		zonesJSON,
 		fichiersJSON,
+		imagesJSON,
 		cours.DateModification,
 	)
 	if err != nil {
