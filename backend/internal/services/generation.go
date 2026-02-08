@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/revisemieux/backend/internal/llm"
@@ -159,6 +160,8 @@ Instructions :
 - Les questions doivent favoriser le rappel actif (pas de simples définitions)
 - Varie les types : faits, concepts, relations de cause à effet
 - Les réponses doivent être concises mais complètes
+- IMPORTANT : Quand c'est pertinent (formules, concepts, règles), inclus un ou plusieurs exemples concrets dans la réponse pour illustrer le concept
+- Format des exemples : ajoute "Exemple : ..." à la fin de la réponse quand applicable
 - Attribue une difficulté à chaque fiche
 
 Réponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou après :
@@ -396,17 +399,57 @@ func (s *ServiceGeneration) parserReponseQuiz(reponseJSON []byte) ([]store.Quest
 			reponseCorrecte = 0
 		}
 
+		// Mélanger les choix et mettre à jour l'index de la bonne réponse
+		choixMelanges, nouvelIndex := melangerChoix(q.Choix, reponseCorrecte)
+
 		question := store.Question{
 			ID:              fmt.Sprintf("q%d", i+1),
 			Enonce:          q.Enonce,
-			Choix:           q.Choix,
-			ReponseCorrecte: reponseCorrecte,
+			Choix:           choixMelanges,
+			ReponseCorrecte: nouvelIndex,
 			Explication:     q.Explication,
 		}
 		questions = append(questions, question)
 	}
 
 	return questions, nil
+}
+
+// melangerChoix mélange les choix d'une question et retourne le nouvel index de la bonne réponse
+func melangerChoix(choix []string, indexCorrect int) ([]string, int) {
+	n := len(choix)
+	if n == 0 {
+		return choix, indexCorrect
+	}
+
+	// Créer une copie des choix avec leurs indices originaux
+	type choixAvecIndex struct {
+		texte         string
+		indexOriginal int
+	}
+
+	choixIndexes := make([]choixAvecIndex, n)
+	for i, c := range choix {
+		choixIndexes[i] = choixAvecIndex{texte: c, indexOriginal: i}
+	}
+
+	// Mélanger avec Fisher-Yates
+	for i := n - 1; i > 0; i-- {
+		j := rand.Intn(i + 1)
+		choixIndexes[i], choixIndexes[j] = choixIndexes[j], choixIndexes[i]
+	}
+
+	// Reconstruire les choix et trouver le nouvel index
+	resultat := make([]string, n)
+	nouvelIndex := 0
+	for i, c := range choixIndexes {
+		resultat[i] = c.texte
+		if c.indexOriginal == indexCorrect {
+			nouvelIndex = i
+		}
+	}
+
+	return resultat, nouvelIndex
 }
 
 // --- Sessions de Quiz ---
