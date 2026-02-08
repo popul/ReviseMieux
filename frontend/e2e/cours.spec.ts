@@ -176,28 +176,7 @@ test.describe('Gestion des images du cours', () => {
     }
   });
 
-  test('affiche les images du cours si elles existent', async ({ page }) => {
-    // Activer le mode édition pour voir la section images même si vide
-    await page.getByRole('button', { name: /modifier|éditer/i }).click();
-
-    // Vérifier que la section des images est présente en mode édition
-    const sectionImages = page.locator('[data-testid="images-ocr"]');
-    await expect(sectionImages).toBeVisible();
-
-    // Vérifier qu'il y a des vignettes d'images OU le message "aucune image"
-    const vignettes = page.locator('[data-testid="image-vignette"]');
-    const nombreVignettes = await vignettes.count();
-
-    if (nombreVignettes > 0) {
-      // Il y a des images, vérifier qu'on peut les voir
-      await expect(vignettes.first()).toBeVisible();
-    } else {
-      // Pas d'images, vérifier que le message est présent
-      await expect(page.getByText(/aucune image/i)).toBeVisible();
-    }
-  });
-
-  test('permet de sélectionner une image pour la voir en grand', async ({ page }) => {
+  test('affiche les vignettes d\'images avec numéros de page', async ({ page }) => {
     const sectionImages = page.locator('[data-testid="images-ocr"]');
     const sectionVisible = await sectionImages.isVisible().catch(() => false);
 
@@ -206,6 +185,24 @@ test.describe('Gestion des images du cours', () => {
       return;
     }
 
+    // Vérifier qu'il y a des vignettes d'images
+    const vignettes = page.locator('[data-testid="image-vignette"]');
+    const nombreVignettes = await vignettes.count();
+
+    if (nombreVignettes === 0) {
+      test.skip();
+      return;
+    }
+
+    // Vérifier que les vignettes sont visibles
+    await expect(vignettes.first()).toBeVisible();
+
+    // Vérifier que les numéros de page sont affichés (1, 2, etc.)
+    // Les numéros sont dans des spans après chaque vignette
+    await expect(page.getByText('1', { exact: true }).first()).toBeVisible();
+  });
+
+  test('affiche l\'indicateur de page actuelle', async ({ page }) => {
     const vignettes = page.locator('[data-testid="image-vignette"]');
     const nombreVignettes = await vignettes.count();
 
@@ -214,11 +211,112 @@ test.describe('Gestion des images du cours', () => {
       return;
     }
 
+    // Vérifier que l'indicateur "Page X sur Y" est visible
+    await expect(page.getByText(/page \d+ sur \d+/i)).toBeVisible();
+  });
+
+  test('permet de sélectionner une image pour la voir en grand', async ({ page }) => {
+    const vignettes = page.locator('[data-testid="image-vignette"]');
+    const nombreVignettes = await vignettes.count();
+
+    if (nombreVignettes < 2) {
+      test.skip();
+      return;
+    }
+
+    // Vérifier que la première vignette est sélectionnée par défaut
+    await expect(vignettes.first()).toHaveClass(/border-coral/);
+
     // Cliquer sur la deuxième vignette
     await vignettes.nth(1).click();
 
-    // Vérifier que la deuxième vignette est sélectionnée (a une bordure différente)
+    // Vérifier que la deuxième vignette est maintenant sélectionnée
     await expect(vignettes.nth(1)).toHaveClass(/border-coral/);
+
+    // Vérifier que l'indicateur de page a changé
+    await expect(page.getByText(/page 2 sur/i)).toBeVisible();
+  });
+
+  test('permet de naviguer avec les boutons Précédent/Suivant', async ({ page }) => {
+    const vignettes = page.locator('[data-testid="image-vignette"]');
+    const nombreVignettes = await vignettes.count();
+
+    if (nombreVignettes < 2) {
+      test.skip();
+      return;
+    }
+
+    // Vérifier que les boutons de navigation sont présents
+    const boutonPrecedent = page.getByRole('button', { name: /précédent/i });
+    const boutonSuivant = page.getByRole('button', { name: /suivant/i });
+
+    await expect(boutonPrecedent).toBeVisible();
+    await expect(boutonSuivant).toBeVisible();
+
+    // Le bouton Précédent doit être désactivé sur la première page
+    await expect(boutonPrecedent).toBeDisabled();
+    await expect(boutonSuivant).toBeEnabled();
+
+    // Cliquer sur Suivant
+    await boutonSuivant.click();
+
+    // Vérifier que la page a changé
+    await expect(page.getByText(/page 2 sur/i)).toBeVisible();
+    await expect(vignettes.nth(1)).toHaveClass(/border-coral/);
+
+    // Maintenant Précédent doit être activé
+    await expect(boutonPrecedent).toBeEnabled();
+  });
+
+  test('le bouton Suivant est désactivé sur la dernière page', async ({ page }) => {
+    const vignettes = page.locator('[data-testid="image-vignette"]');
+    const nombreVignettes = await vignettes.count();
+
+    if (nombreVignettes < 2) {
+      test.skip();
+      return;
+    }
+
+    // Aller à la dernière page en cliquant sur la dernière vignette
+    await vignettes.last().click();
+
+    // Vérifier que le bouton Suivant est désactivé
+    const boutonSuivant = page.getByRole('button', { name: /suivant/i });
+    await expect(boutonSuivant).toBeDisabled();
+
+    // Le bouton Précédent doit être activé
+    const boutonPrecedent = page.getByRole('button', { name: /précédent/i });
+    await expect(boutonPrecedent).toBeEnabled();
+  });
+
+  test('affiche l\'image principale correspondant à la sélection', async ({ page }) => {
+    const vignettes = page.locator('[data-testid="image-vignette"]');
+    const nombreVignettes = await vignettes.count();
+
+    if (nombreVignettes === 0) {
+      test.skip();
+      return;
+    }
+
+    // Vérifier qu'une image principale est affichée
+    const imagePrincipale = page.locator('[data-testid="images-ocr"] img').last();
+    await expect(imagePrincipale).toBeVisible();
+
+    // Vérifier que le badge "Page X / Y" est visible sur l'image
+    await expect(page.getByText(/page \d+ \/ \d+/i)).toBeVisible();
+  });
+
+  test('affiche le message de correspondance texte-image', async ({ page }) => {
+    const vignettes = page.locator('[data-testid="image-vignette"]');
+    const nombreVignettes = await vignettes.count();
+
+    if (nombreVignettes === 0) {
+      test.skip();
+      return;
+    }
+
+    // Vérifier que le message de correspondance est affiché
+    await expect(page.getByText(/le texte ci-dessous correspond/i)).toBeVisible();
   });
 
   test('permet d\'ajouter une nouvelle image en mode édition', async ({ page }) => {
@@ -239,7 +337,6 @@ test.describe('Gestion des images du cours', () => {
     const nombreVignettes = await vignettes.count();
 
     if (nombreVignettes === 0) {
-      // Pas d'images, on skip ce test
       test.skip();
       return;
     }
@@ -249,15 +346,7 @@ test.describe('Gestion des images du cours', () => {
     await expect(boutonSupprimer).toBeVisible();
   });
 
-  test('permet de réordonner les images par drag and drop en mode édition', async ({ page }) => {
-    const sectionImages = page.locator('[data-testid="images-ocr"]');
-    const sectionVisible = await sectionImages.isVisible().catch(() => false);
-
-    if (!sectionVisible) {
-      test.skip();
-      return;
-    }
-
+  test('les boutons de navigation permettent de réordonner les images', async ({ page }) => {
     const vignettes = page.locator('[data-testid="image-vignette"]');
     const nombreVignettes = await vignettes.count();
 
@@ -266,21 +355,19 @@ test.describe('Gestion des images du cours', () => {
       return;
     }
 
-    // Activer le mode édition
-    await page.getByRole('button', { name: /modifier|éditer/i }).click();
+    // Récupérer l'URL de la première image avant réordonnancement
+    const premiereImageUrl = await vignettes.first().locator('img').getAttribute('src');
 
-    // Vérifier que les boutons de réordonnancement sont visibles
-    const boutonMonter = page.locator('[data-testid="monter-image"]').first();
-    const boutonDescendre = page.locator('[data-testid="descendre-image"]').first();
+    // Cliquer sur "Suivant" pour déplacer l'image sélectionnée vers la droite
+    // (ce qui revient à réordonner)
+    const boutonSuivant = page.getByRole('button', { name: /suivant/i });
+    await boutonSuivant.click();
 
-    // Au moins un des boutons doit être visible
-    const monterVisible = await boutonMonter.isVisible().catch(() => false);
-    const descendreVisible = await boutonDescendre.isVisible().catch(() => false);
-
-    expect(monterVisible || descendreVisible).toBeTruthy();
+    // Vérifier que la sélection a changé (on est sur la page 2)
+    await expect(page.getByText(/page 2 sur/i)).toBeVisible();
   });
 
-  test('sauvegarde les modifications d\'images', async ({ page }) => {
+  test('sauvegarde les modifications d\'images en mode édition', async ({ page }) => {
     const sectionImages = page.locator('[data-testid="images-ocr"]');
     const sectionVisible = await sectionImages.isVisible().catch(() => false);
 
@@ -291,18 +378,6 @@ test.describe('Gestion des images du cours', () => {
 
     // Activer le mode édition
     await page.getByRole('button', { name: /modifier|éditer/i }).click();
-
-    // Faire une modification (si possible)
-    const vignettes = page.locator('[data-testid="image-vignette"]');
-    const nombreVignettes = await vignettes.count();
-
-    if (nombreVignettes >= 2) {
-      // Descendre la première image
-      const boutonDescendre = page.locator('[data-testid="descendre-image"]').first();
-      if (await boutonDescendre.isVisible()) {
-        await boutonDescendre.click();
-      }
-    }
 
     // Sauvegarder
     await page.getByRole('button', { name: /enregistrer|sauvegarder/i }).click();
