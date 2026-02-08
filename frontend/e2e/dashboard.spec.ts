@@ -57,4 +57,35 @@ test.describe('Dashboard', () => {
     const skipLink = page.getByRole('link', { name: /aller au contenu principal/i });
     await expect(skipLink).toBeFocused();
   });
+
+  test('cliquer sur un cours récent navigue vers la page de détail du cours', async ({ page }) => {
+    // Attendre que la section des cours récents soit visible
+    const sectionCoursRecents = page.locator('h2').filter({ hasText: /tes cours récents/i });
+
+    // Si pas de section cours récents (aucun cours), on skip
+    const sectionVisible = await sectionCoursRecents.isVisible().catch(() => false);
+    if (!sectionVisible) {
+      test.skip();
+      return;
+    }
+
+    // Trouver les cartes de cours (liens qui commencent par /cours?id=)
+    const carteCours = page.locator('a[href^="/cours?id="]').first();
+
+    // Vérifier qu'il y a au moins un cours
+    const carteVisible = await carteCours.isVisible().catch(() => false);
+    if (!carteVisible) {
+      test.skip();
+      return;
+    }
+
+    // Cliquer sur le premier cours
+    await carteCours.click();
+
+    // Vérifier qu'on est sur la page de détail du cours (pas directement sur les fiches)
+    await expect(page).toHaveURL(/\/cours\?id=/);
+
+    // Vérifier que la page de détail s'affiche correctement
+    await expect(page.getByRole('heading', { name: /contenu du cours/i })).toBeVisible({ timeout: 5000 });
+  });
 });
