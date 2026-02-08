@@ -12,10 +12,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const TEST_IMAGE = path.join(__dirname, 'fixtures/test-notes.jpg');
 
-// Timeout plus long pour les appels API réels
-test.setTimeout(120000);
-
 test.describe('Scanner - Interface', () => {
+  // Timeout plus long pour les appels API réels
+  test.describe.configure({ timeout: 120000 });
   test.beforeEach(async ({ page }) => {
     await page.goto('/scanner');
   });
@@ -89,7 +88,7 @@ test.describe('Scanner - Options de génération', () => {
   });
 
   test('permet de saisir un titre', async ({ page }) => {
-    const titreInput = page.getByPlaceholder(/Révolution française/i);
+    const titreInput = page.getByPlaceholder(/laisser vide pour détection automatique/i);
     await titreInput.fill('Mon cours de test');
     await expect(titreInput).toHaveValue('Mon cours de test');
   });
