@@ -29,8 +29,8 @@ const menuAnalyse: LienNavigation[] = [
 
 function SectionNavigation({ titre, liens }: { titre: string; liens: LienNavigation[] }) {
   return (
-    <div className="mb-lg" role="navigation" aria-label={titre}>
-      <div className="text-xs font-semibold text-ink-muted uppercase tracking-wider mb-sm px-sm">
+    <div className="mb-8" role="navigation" aria-label={titre}>
+      <div className="text-xs font-semibold text-ink-muted uppercase tracking-wider mb-4 px-4">
         {titre}
       </div>
       {liens.map((lien) => (
@@ -39,7 +39,7 @@ function SectionNavigation({ titre, liens }: { titre: string; liens: LienNavigat
           to={lien.vers}
           end={lien.vers === '/'}
           className={({ isActive }) =>
-            `flex items-center gap-sm py-3.5 px-sm rounded-md text-[0.95rem] font-medium transition-all mb-1 ${
+            `flex items-center gap-4 py-3.5 px-4 rounded-md text-[0.95rem] font-medium transition-all mb-1 ${
               isActive
                 ? 'bg-coral text-white'
                 : 'text-white/70 hover:bg-white/[0.08] hover:text-white'
@@ -67,8 +67,8 @@ function AffichageQuotas({ quotas }: { quotas: StatutQuota | null }) {
   }
 
   return (
-    <div className="mb-lg p-sm bg-white/5 rounded-md" role="region" aria-label="Quotas journaliers">
-      <div className="text-xs font-semibold text-ink-muted uppercase tracking-wider mb-sm">
+    <div className="mb-8 p-4 bg-white/5 rounded-md" role="region" aria-label="Quotas journaliers">
+      <div className="text-xs font-semibold text-ink-muted uppercase tracking-wider mb-4">
         Quotas du jour
       </div>
       <div className="space-y-2">
@@ -138,8 +138,8 @@ export default function Layout() {
       </a>
 
       {/* Sidebar */}
-      <aside className="bg-ink p-lg flex flex-col w-[280px] min-w-[280px] h-screen sticky top-0 overflow-y-auto" role="complementary" aria-label="Navigation principale">
-        <a href="/" className="font-display text-2xl font-semibold text-white mb-xl" aria-label="Revise mieux - Accueil">
+      <aside className="bg-ink p-8 flex flex-col w-[280px] min-w-[280px] h-screen sticky top-0 overflow-y-auto" role="complementary" aria-label="Navigation principale">
+        <a href="/" className="font-display text-2xl font-semibold text-white mb-12" aria-label="Revise mieux - Accueil">
           Revise<span className="text-coral">mieux</span>
         </a>
 
@@ -154,8 +154,8 @@ export default function Layout() {
         {/* Accessibility controls */}
         <AccessibiliteControles />
 
-        <div className="pt-lg border-t border-white/10 mt-lg">
-          <div className="flex items-center gap-sm p-sm rounded-md transition-colors cursor-pointer hover:bg-white/[0.08]">
+        <div className="pt-8 border-t border-white/10 mt-8">
+          <div className="flex items-center gap-4 p-4 rounded-md transition-colors cursor-pointer hover:bg-white/[0.08]">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-coral to-gold flex items-center justify-center font-semibold text-white text-sm" aria-hidden="true">
               RM
             </div>
@@ -168,7 +168,7 @@ export default function Layout() {
       </aside>
 
       {/* Main Content */}
-      <main id="main-content" className="flex-1 p-xl" role="main" tabIndex={-1}>
+      <main id="main-content" className="flex-1 p-12" role="main" tabIndex={-1}>
         <Outlet />
       </main>
     </div>

@@ -258,19 +258,19 @@ export default function Quiz() {
 
     if (erreurCours || listeCours.length === 0) {
       return (
-        <div className="text-center py-xl">
-          <div className="text-5xl mb-md">
+        <div className="text-center py-12">
+          <div className="text-5xl mb-6">
             {String.fromCodePoint(0x1f4da)}
           </div>
-          <h1 className="font-display text-2xl font-semibold text-ink mb-sm">
+          <h1 className="font-display text-2xl font-semibold text-ink mb-4">
             {erreurCours || 'Aucun cours disponible'}
           </h1>
-          <p className="text-ink-light mb-lg">
+          <p className="text-ink-light mb-8">
             Scannez d'abord un cours pour generer un quiz.
           </p>
           <Link
             to="/scanner"
-            className="inline-flex items-center gap-sm px-lg py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
+            className="inline-flex items-center gap-4 px-8 py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
           >
             Scanner un cours
           </Link>
@@ -280,23 +280,23 @@ export default function Quiz() {
 
     return (
       <div>
-        <h1 className="font-display text-3xl font-semibold text-ink mb-lg">
+        <h1 className="font-display text-3xl font-semibold text-ink mb-8">
           Quiz interactif
         </h1>
-        <p className="text-ink-light mb-lg">
+        <p className="text-ink-light mb-8">
           Selectionnez un cours pour lancer un quiz.
         </p>
 
-        <div className="grid gap-md">
+        <div className="grid gap-6">
           {listeCours.map((c) => (
             <button
               key={c.id}
               onClick={() => selectionnerCours(c.id)}
-              className="bg-white rounded-lg p-lg shadow-sm hover:shadow-md transition-shadow border border-cream-dark text-left"
+              className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow border border-cream-dark text-left"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="font-display text-lg font-semibold text-ink mb-xs">
+                  <h2 className="font-display text-lg font-semibold text-ink mb-2">
                     {c.titre || 'Cours sans titre'}
                   </h2>
                   <p className="text-sm text-ink-muted">{c.matiere || 'Matiere non definie'}</p>
@@ -313,24 +313,24 @@ export default function Quiz() {
   // Page d'erreur
   if (etat === 'erreur') {
     return (
-      <div className="text-center py-xl">
-        <div className="text-5xl mb-md">
+      <div className="text-center py-12">
+        <div className="text-5xl mb-6">
           {String.fromCodePoint(0x1f615)}
         </div>
-        <h1 className="font-display text-2xl font-semibold text-ink mb-sm">
+        <h1 className="font-display text-2xl font-semibold text-ink mb-4">
           Une erreur est survenue
         </h1>
-        <p className="text-ink-light mb-lg">{erreur}</p>
-        <div className="flex gap-md justify-center">
+        <p className="text-ink-light mb-8">{erreur}</p>
+        <div className="flex gap-6 justify-center">
           <button
             onClick={nouveauQuiz}
-            className="px-lg py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
+            className="px-8 py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
           >
             Reessayer
           </button>
           <Link
             to="/quiz"
-            className="px-lg py-3 border-2 border-coral text-coral rounded-full font-medium hover:bg-coral/5 transition-colors"
+            className="px-8 py-3 border-2 border-coral text-coral rounded-full font-medium hover:bg-coral/5 transition-colors"
           >
             Retour aux cours
           </Link>
@@ -343,16 +343,16 @@ export default function Quiz() {
   if (etat === 'configuration') {
     return (
       <div>
-        <div className="mb-lg">
+        <div className="mb-8">
           <Link
             to="/quiz"
-            className="flex items-center gap-xs text-ink-light hover:text-ink transition-colors"
+            className="flex items-center gap-2 text-ink-light hover:text-ink transition-colors"
           >
             ← Changer de cours
           </Link>
         </div>
 
-        <h1 className="font-display text-3xl font-semibold text-ink mb-lg text-center">
+        <h1 className="font-display text-3xl font-semibold text-ink mb-8 text-center">
           Preparez votre quiz
         </h1>
 
@@ -428,7 +428,7 @@ export default function Quiz() {
   if (etat === 'resultats' && quiz && session && coursId) {
     return (
       <div>
-        <h1 className="font-display text-3xl font-semibold text-ink mb-lg text-center">
+        <h1 className="font-display text-3xl font-semibold text-ink mb-8 text-center">
           Quiz termine !
         </h1>
 

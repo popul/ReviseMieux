@@ -25,14 +25,14 @@ export default function QuestionQuiz({
   }
 
   return (
-    <div className="bg-white rounded-lg p-lg shadow-sm max-w-2xl mx-auto">
+    <div className="bg-white rounded-lg p-8 shadow-sm max-w-2xl mx-auto">
       {/* Enonce */}
-      <h2 className="font-display text-xl font-semibold text-ink mb-lg leading-relaxed">
+      <h2 className="font-display text-xl font-semibold text-ink mb-8 leading-relaxed">
         {question.enonce}
       </h2>
 
       {/* Choix */}
-      <div className="space-y-sm mb-lg">
+      <div className="space-y-4 mb-8">
         {question.choix.map((choix, index) => {
           const estSelectionne = choixSelectionne === index
           const lettre = String.fromCharCode(65 + index) // A, B, C, D
@@ -43,7 +43,7 @@ export default function QuestionQuiz({
               onClick={() => !desactive && onSelectChoix(index)}
               onKeyDown={(e) => handleKeyDown(e, index)}
               disabled={desactive}
-              className={`w-full flex items-start gap-md p-md rounded-lg border-2 text-left transition-all ${
+              className={`w-full flex items-start gap-6 p-6 rounded-lg border-2 text-left transition-all ${
                 desactive
                   ? 'opacity-70 cursor-not-allowed'
                   : 'cursor-pointer hover:border-coral/50'

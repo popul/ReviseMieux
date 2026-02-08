@@ -46,7 +46,7 @@ function CarteFichier({
       </button>
 
       {/* Nom du fichier */}
-      <div className="absolute bottom-0 left-0 right-0 px-xs py-xs bg-gradient-to-t from-black/70 to-transparent">
+      <div className="absolute bottom-0 left-0 right-0 px-2 py-2 bg-gradient-to-t from-black/70 to-transparent">
         <p className="text-white text-xs truncate">{fichier.fichier.name}</p>
       </div>
     </div>
@@ -58,7 +58,7 @@ function BoutonAjouter({ onClick, desactive }: { onClick: () => void; desactive:
     <button
       type="button"
       className={`
-        flex flex-col items-center justify-center gap-xs bg-cream border-2 border-dashed border-ink-muted
+        flex flex-col items-center justify-center gap-2 bg-cream border-2 border-dashed border-ink-muted
         rounded-md aspect-[3/4] text-ink-muted font-medium transition-all
         ${desactive ? 'opacity-50 cursor-not-allowed' : 'hover:border-coral hover:text-coral cursor-pointer'}
       `}
@@ -117,8 +117,8 @@ export default function PreviewFichiers({
   const peutAjouter = fichiers.length < maxFichiers
 
   return (
-    <div className="mt-lg">
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-md">
+    <div className="mt-8">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-6">
         {fichiers.map((fichier, index) => (
           <CarteFichier
             key={`${fichier.name}-${fichier.lastModified}-${index}`}

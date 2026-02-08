@@ -12,9 +12,9 @@ export default function ProgressionQuiz({
   const progression = ((questionActuelle) / totalQuestions) * 100
 
   return (
-    <div className="mb-lg">
+    <div className="mb-8">
       {/* Header avec compteurs */}
-      <div className="flex items-center justify-between mb-sm">
+      <div className="flex items-center justify-between mb-4">
         <span className="text-sm text-ink-muted">
           Question {questionActuelle + 1} sur {totalQuestions}
         </span>
@@ -32,7 +32,7 @@ export default function ProgressionQuiz({
       </div>
 
       {/* Indicateurs de questions */}
-      <div className="flex gap-1 mt-sm justify-center">
+      <div className="flex gap-1 mt-4 justify-center">
         {Array.from({ length: totalQuestions }, (_, i) => (
           <div
             key={i}

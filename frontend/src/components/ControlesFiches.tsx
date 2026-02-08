@@ -19,7 +19,7 @@ export default function ControlesFiches({
   const estDernier = indexActuel === total - 1
 
   return (
-    <div className="flex items-center gap-md">
+    <div className="flex items-center gap-6">
       {/* Bouton précédent */}
       <button
         onClick={onPrecedent}

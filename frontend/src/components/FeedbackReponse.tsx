@@ -18,10 +18,10 @@ export default function FeedbackReponse({
   estDerniere = false,
 }: FeedbackReponseProps) {
   return (
-    <div className="bg-white rounded-lg p-lg shadow-sm max-w-2xl mx-auto">
+    <div className="bg-white rounded-lg p-8 shadow-sm max-w-2xl mx-auto">
       {/* Resultat */}
       <div
-        className={`flex items-center gap-md p-md rounded-lg mb-lg ${
+        className={`flex items-center gap-6 p-6 rounded-lg mb-8 ${
           estCorrecte ? 'bg-green-50' : 'bg-red-50'
         }`}
       >
@@ -77,11 +77,11 @@ export default function FeedbackReponse({
       </div>
 
       {/* Question et choix avec highlight */}
-      <div className="mb-lg">
-        <h3 className="font-display text-lg font-semibold text-ink mb-md">
+      <div className="mb-8">
+        <h3 className="font-display text-lg font-semibold text-ink mb-6">
           {question.enonce}
         </h3>
-        <div className="space-y-xs">
+        <div className="space-y-2">
           {question.choix.map((choix, index) => {
             const estBonneReponse = index === question.reponseCorrecte
             const estChoixUtilisateur = index === choixSelectionne
@@ -104,7 +104,7 @@ export default function FeedbackReponse({
             return (
               <div
                 key={index}
-                className={`flex items-start gap-sm p-sm rounded-lg border-2 ${bgClass} ${borderClass}`}
+                className={`flex items-start gap-4 p-4 rounded-lg border-2 ${bgClass} ${borderClass}`}
               >
                 <span
                   className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold ${
@@ -126,8 +126,8 @@ export default function FeedbackReponse({
 
       {/* Explication */}
       {explication && (
-        <div className="bg-gold/10 border-l-4 border-gold p-md rounded-r-lg mb-lg">
-          <p className="text-sm font-medium text-amber-800 mb-xs">Explication</p>
+        <div className="bg-gold/10 border-l-4 border-gold p-6 rounded-r-lg mb-8">
+          <p className="text-sm font-medium text-amber-800 mb-2">Explication</p>
           <p className="text-sm text-ink leading-relaxed">{explication}</p>
         </div>
       )}

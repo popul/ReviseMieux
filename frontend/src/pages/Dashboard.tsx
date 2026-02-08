@@ -6,7 +6,7 @@ import type { Statistiques, CoursResume } from '../services/api'
 // Skeleton pour les statistiques pendant le chargement
 function StatSkeleton() {
   return (
-    <div className="bg-white rounded-lg p-md text-center animate-pulse">
+    <div className="bg-white rounded-lg p-6 text-center animate-pulse">
       <div className="h-10 bg-cream rounded w-12 mx-auto mb-1" />
       <div className="h-4 bg-cream rounded w-20 mx-auto" />
     </div>
@@ -16,8 +16,8 @@ function StatSkeleton() {
 // Skeleton pour la liste des cours
 function CoursSkeleton() {
   return (
-    <div className="bg-white rounded-lg p-md animate-pulse">
-      <div className="flex items-center gap-md">
+    <div className="bg-white rounded-lg p-6 animate-pulse">
+      <div className="flex items-center gap-6">
         <div className="w-12 h-12 rounded-md bg-cream" />
         <div className="flex-1">
           <div className="h-5 bg-cream rounded w-3/4 mb-2" />
@@ -35,7 +35,7 @@ function CoursSkeleton() {
 // Carte de statistique
 function StatCard({ valeur, label, couleur }: { valeur: string | number; label: string; couleur: string }) {
   return (
-    <div className="bg-white rounded-lg p-md text-center">
+    <div className="bg-white rounded-lg p-6 text-center">
       <div className={`font-display text-4xl font-bold ${couleur} mb-1`}>{valeur}</div>
       <div className="text-sm text-ink-light">{label}</div>
     </div>
@@ -52,10 +52,10 @@ function CoursCard({ cours }: { cours: CoursResume }) {
 
   return (
     <Link
-      to={`/fiches?coursId=${cours.id}`}
-      className="block bg-white rounded-lg p-md hover:shadow-md transition-shadow no-underline"
+      to={`/cours?id=${cours.id}`}
+      className="block bg-white rounded-lg p-6 hover:shadow-md transition-shadow no-underline"
     >
-      <div className="flex items-center gap-md">
+      <div className="flex items-center gap-6">
         <div className="w-12 h-12 rounded-md bg-cream flex items-center justify-center text-xl flex-shrink-0">
           {cours.matiere === 'mathematiques' ? '📐' :
            cours.matiere === 'francais' ? '📖' :
@@ -122,8 +122,8 @@ export default function Dashboard() {
   return (
     <>
       {/* Header */}
-      <header className="mb-xl">
-        <h1 className="font-display text-4xl font-bold text-ink mb-xs">
+      <header className="mb-12">
+        <h1 className="font-display text-4xl font-bold text-ink mb-2">
           Bienvenue sur Révise mieux
         </h1>
         <p className="text-ink-light text-lg">
@@ -132,10 +132,10 @@ export default function Dashboard() {
       </header>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-md mb-xl">
+      <div className="grid grid-cols-2 gap-6 mb-12">
         <Link
           to="/scanner"
-          className="bg-coral text-white rounded-lg p-lg flex items-center gap-md no-underline transition-all hover:-translate-y-1 hover:shadow-xl hover:bg-coral-dark"
+          className="bg-coral text-white rounded-lg p-8 flex items-center gap-6 no-underline transition-all hover:-translate-y-1 hover:shadow-xl hover:bg-coral-dark"
         >
           <div className="w-14 h-14 rounded-md bg-white/20 flex items-center justify-center text-2xl flex-shrink-0">
             <span role="img" aria-label="Scanner">📸</span>
@@ -147,7 +147,7 @@ export default function Dashboard() {
         </Link>
         <Link
           to="/quiz"
-          className="bg-white text-ink rounded-lg p-lg flex items-center gap-md no-underline transition-all border-2 border-transparent hover:-translate-y-1 hover:shadow-xl"
+          className="bg-white text-ink rounded-lg p-8 flex items-center gap-6 no-underline transition-all border-2 border-transparent hover:-translate-y-1 hover:shadow-xl"
         >
           <div className="w-14 h-14 rounded-md bg-cream flex items-center justify-center text-2xl flex-shrink-0">
             <span role="img" aria-label="Quiz">❓</span>
@@ -161,16 +161,16 @@ export default function Dashboard() {
 
       {/* Erreur */}
       {erreur && (
-        <div className="bg-error/10 text-error rounded-lg p-md mb-xl">
+        <div className="bg-error/10 text-error rounded-lg p-6 mb-12">
           <p className="font-medium">Erreur de chargement</p>
           <p className="text-sm">{erreur}</p>
         </div>
       )}
 
       {/* Stats */}
-      <section className="mb-xl">
-        <h2 className="font-display text-xl font-semibold text-ink mb-md">Tes statistiques</h2>
-        <div className="grid grid-cols-4 gap-md">
+      <section className="mb-12">
+        <h2 className="font-display text-xl font-semibold text-ink mb-6">Tes statistiques</h2>
+        <div className="grid grid-cols-4 gap-6">
           {chargement ? (
             <>
               <StatSkeleton />
@@ -191,38 +191,38 @@ export default function Dashboard() {
 
       {/* Cours récents ou état vide */}
       {chargement ? (
-        <section className="space-y-sm">
-          <h2 className="font-display text-xl font-semibold text-ink mb-md">Tes cours récents</h2>
+        <section className="space-y-4">
+          <h2 className="font-display text-xl font-semibold text-ink mb-6">Tes cours récents</h2>
           <CoursSkeleton />
           <CoursSkeleton />
           <CoursSkeleton />
         </section>
       ) : coursRecents.length > 0 ? (
         <section>
-          <div className="flex items-center justify-between mb-md">
+          <div className="flex items-center justify-between mb-6">
             <h2 className="font-display text-xl font-semibold text-ink">Tes cours récents</h2>
             <Link to="/cours" className="text-coral text-sm font-medium hover:underline">
               Voir tous
             </Link>
           </div>
-          <div className="space-y-sm">
+          <div className="space-y-4">
             {coursRecents.slice(0, 5).map((cours) => (
               <CoursCard key={cours.id} cours={cours} />
             ))}
           </div>
         </section>
       ) : (
-        <section className="bg-white rounded-lg p-xl text-center">
-          <div className="text-5xl mb-md" role="img" aria-label="Livres">📚</div>
-          <h2 className="font-display text-xl font-semibold text-ink mb-sm">
+        <section className="bg-white rounded-lg p-12 text-center">
+          <div className="text-5xl mb-6" role="img" aria-label="Livres">📚</div>
+          <h2 className="font-display text-xl font-semibold text-ink mb-4">
             Aucun cours pour le moment
           </h2>
-          <p className="text-ink-light mb-lg max-w-md mx-auto">
+          <p className="text-ink-light mb-8 max-w-md mx-auto">
             Commence par scanner un cours pour générer des fiches de révision et des quiz interactifs.
           </p>
           <Link
             to="/scanner"
-            className="inline-flex items-center gap-2 bg-coral text-white px-lg py-3 rounded-full font-semibold no-underline transition-all hover:bg-coral-dark hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 bg-coral text-white px-8 py-3 rounded-full font-semibold no-underline transition-all hover:bg-coral-dark hover:-translate-y-0.5"
           >
             <span role="img" aria-label="Scanner">📸</span>
             Scanner mon premier cours

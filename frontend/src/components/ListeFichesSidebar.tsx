@@ -32,23 +32,23 @@ export default function ListeFichesSidebar({
   onSelectFiche,
 }: ListeFichesSidebarProps) {
   return (
-    <aside className="w-[300px] bg-white border-r border-cream-dark p-lg overflow-y-auto flex-shrink-0">
-      <h2 className="font-display text-sm font-semibold text-ink-muted uppercase tracking-wider mb-md">
+    <aside className="w-[300px] bg-white border-r border-cream-dark p-8 overflow-y-auto flex-shrink-0">
+      <h2 className="font-display text-sm font-semibold text-ink-muted uppercase tracking-wider mb-6">
         Fiches ({fiches.length})
       </h2>
 
-      <ul className="space-y-xs">
+      <ul className="space-y-2">
         {fiches.map((fiche, index) => (
           <li key={fiche.id}>
             <button
               onClick={() => onSelectFiche(index)}
-              className={`w-full text-left p-sm rounded-md transition-all border-l-[3px] ${
+              className={`w-full text-left p-4 rounded-md transition-all border-l-[3px] ${
                 index === indexActuel
                   ? 'bg-coral/10 border-coral'
                   : 'border-transparent hover:bg-cream'
               }`}
             >
-              <div className="flex items-start justify-between gap-sm mb-1">
+              <div className="flex items-start justify-between gap-4 mb-1">
                 <span className="font-semibold text-sm text-ink line-clamp-1">
                   Fiche {index + 1}
                 </span>

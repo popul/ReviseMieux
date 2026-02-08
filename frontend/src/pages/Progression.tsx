@@ -38,8 +38,8 @@ function getBgCouleurScore(score: number): string {
 // Skeleton pour les cartes
 function CardSkeleton() {
   return (
-    <div className="bg-white rounded-lg p-md animate-pulse">
-      <div className="flex items-center gap-md">
+    <div className="bg-white rounded-lg p-6 animate-pulse">
+      <div className="flex items-center gap-6">
         <div className="w-12 h-12 rounded-md bg-cream" />
         <div className="flex-1">
           <div className="h-5 bg-cream rounded w-3/4 mb-2" />
@@ -54,8 +54,8 @@ function CardSkeleton() {
 // Carte de statistique par matière
 function MatiereCard({ stats }: { stats: StatsParMatiere }) {
   return (
-    <div className="bg-white rounded-lg p-md">
-      <div className="flex items-center gap-md mb-sm">
+    <div className="bg-white rounded-lg p-6">
+      <div className="flex items-center gap-6 mb-4">
         <div className="w-10 h-10 rounded-md bg-cream flex items-center justify-center text-xl">
           {getIconeMatiere(stats.matiere)}
         </div>
@@ -91,9 +91,9 @@ function HistoriqueCard({ entry }: { entry: HistoriqueQuiz }) {
   return (
     <Link
       to={`/cours?id=${entry.coursId}`}
-      className="block bg-white rounded-lg p-md hover:shadow-md transition-shadow no-underline"
+      className="block bg-white rounded-lg p-6 hover:shadow-md transition-shadow no-underline"
     >
-      <div className="flex items-center gap-md">
+      <div className="flex items-center gap-6">
         <div className="w-12 h-12 rounded-md bg-cream flex items-center justify-center text-xl flex-shrink-0">
           {getIconeMatiere(entry.matiere)}
         </div>
@@ -157,35 +157,35 @@ export default function Progression() {
   return (
     <>
       {/* Header */}
-      <header className="mb-xl">
-        <h1 className="font-display text-4xl font-bold text-ink mb-xs">Ma progression</h1>
+      <header className="mb-12">
+        <h1 className="font-display text-4xl font-bold text-ink mb-2">Ma progression</h1>
         <p className="text-ink-light text-lg">Suis ton évolution et identifie tes points forts</p>
       </header>
 
       {/* Erreur */}
       {erreur && (
-        <div className="bg-error/10 text-error rounded-lg p-md mb-xl">
+        <div className="bg-error/10 text-error rounded-lg p-6 mb-12">
           <p className="font-medium">Erreur de chargement</p>
           <p className="text-sm">{erreur}</p>
         </div>
       )}
 
       {/* Stats globales */}
-      <section className="mb-xl">
-        <div className="grid grid-cols-3 gap-md">
-          <div className="bg-white rounded-lg p-md text-center">
+      <section className="mb-12">
+        <div className="grid grid-cols-3 gap-6">
+          <div className="bg-white rounded-lg p-6 text-center">
             <div className="font-display text-4xl font-bold text-teal mb-1">
               {chargement ? '—' : (statistiques?.quizCompletes ?? 0)}
             </div>
             <div className="text-sm text-ink-light">Quiz complétés</div>
           </div>
-          <div className="bg-white rounded-lg p-md text-center">
+          <div className="bg-white rounded-lg p-6 text-center">
             <div className={`font-display text-4xl font-bold mb-1 ${statistiques?.scoreMoyen ? getCouleurScore(statistiques.scoreMoyen) : 'text-ink'}`}>
               {chargement ? '—' : scoreMoyenFormate}
             </div>
             <div className="text-sm text-ink-light">Score moyen</div>
           </div>
-          <div className="bg-white rounded-lg p-md text-center">
+          <div className="bg-white rounded-lg p-6 text-center">
             <div className="font-display text-4xl font-bold text-coral mb-1">
               {chargement ? '—' : parMatiere.length}
             </div>
@@ -197,11 +197,11 @@ export default function Progression() {
       {chargement ? (
         <>
           {/* Skeleton stats par matière */}
-          <section className="mb-xl">
-            <h2 className="font-display text-xl font-semibold text-ink mb-md">
+          <section className="mb-12">
+            <h2 className="font-display text-xl font-semibold text-ink mb-6">
               Statistiques par matière
             </h2>
-            <div className="grid grid-cols-2 gap-md">
+            <div className="grid grid-cols-2 gap-6">
               <CardSkeleton />
               <CardSkeleton />
             </div>
@@ -209,10 +209,10 @@ export default function Progression() {
 
           {/* Skeleton historique */}
           <section>
-            <h2 className="font-display text-xl font-semibold text-ink mb-md">
+            <h2 className="font-display text-xl font-semibold text-ink mb-6">
               Historique des quiz
             </h2>
-            <div className="space-y-sm">
+            <div className="space-y-4">
               <CardSkeleton />
               <CardSkeleton />
               <CardSkeleton />
@@ -221,20 +221,20 @@ export default function Progression() {
         </>
       ) : historique.length === 0 ? (
         /* État vide */
-        <section className="bg-white rounded-lg p-xl text-center">
-          <div className="text-5xl mb-md" role="img" aria-label="Graphique">
+        <section className="bg-white rounded-lg p-12 text-center">
+          <div className="text-5xl mb-6" role="img" aria-label="Graphique">
             📊
           </div>
-          <h2 className="font-display text-xl font-semibold text-ink mb-sm">
+          <h2 className="font-display text-xl font-semibold text-ink mb-4">
             Aucun quiz complété
           </h2>
-          <p className="text-ink-light mb-lg max-w-md mx-auto">
+          <p className="text-ink-light mb-8 max-w-md mx-auto">
             Complete des quiz pour voir ta progression ici. Tes scores et statistiques
             apparaîtront automatiquement.
           </p>
           <Link
             to="/quiz"
-            className="inline-flex items-center gap-2 bg-coral text-white px-lg py-3 rounded-full font-semibold no-underline transition-all hover:bg-coral-dark hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 bg-coral text-white px-8 py-3 rounded-full font-semibold no-underline transition-all hover:bg-coral-dark hover:-translate-y-0.5"
           >
             <span role="img" aria-label="Quiz">❓</span>
             Passer un quiz
@@ -244,11 +244,11 @@ export default function Progression() {
         <>
           {/* Stats par matière */}
           {parMatiere.length > 0 && (
-            <section className="mb-xl">
-              <h2 className="font-display text-xl font-semibold text-ink mb-md">
+            <section className="mb-12">
+              <h2 className="font-display text-xl font-semibold text-ink mb-6">
                 Statistiques par matière
               </h2>
-              <div className="grid grid-cols-2 gap-md">
+              <div className="grid grid-cols-2 gap-6">
                 {parMatiere.map((stats) => (
                   <MatiereCard key={stats.matiere} stats={stats} />
                 ))}
@@ -258,10 +258,10 @@ export default function Progression() {
 
           {/* Historique */}
           <section>
-            <h2 className="font-display text-xl font-semibold text-ink mb-md">
+            <h2 className="font-display text-xl font-semibold text-ink mb-6">
               Historique des quiz
             </h2>
-            <div className="space-y-sm">
+            <div className="space-y-4">
               {historique.map((entry) => (
                 <HistoriqueCard key={entry.sessionId} entry={entry} />
               ))}

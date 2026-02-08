@@ -14,12 +14,12 @@ const OPTIONS: { valeur: Difficulte; libelle: string }[] = [
 
 export default function FiltreDifficulte({ valeur, onChange }: FiltreDifficulteProps) {
   return (
-    <div className="flex gap-xs bg-white p-1 rounded-full shadow-sm">
+    <div className="flex gap-2 bg-white p-1 rounded-full shadow-sm">
       {OPTIONS.map((option) => (
         <button
           key={option.valeur}
           onClick={() => onChange(option.valeur)}
-          className={`px-md py-2.5 rounded-full text-sm font-medium transition-all ${
+          className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all ${
             valeur === option.valeur
               ? 'bg-ink text-white'
               : 'text-ink-light hover:bg-cream'

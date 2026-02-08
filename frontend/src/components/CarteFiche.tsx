@@ -55,10 +55,10 @@ export default function CarteFiche({ fiche, onFlip }: CarteFicheProps) {
       >
         {/* Face avant - Question */}
         <div
-          className="absolute inset-0 bg-white rounded-lg p-xl flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
+          className="absolute inset-0 bg-white rounded-lg p-12 flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
           style={{ backfaceVisibility: 'hidden' }}
         >
-          <div className="text-xs font-semibold uppercase tracking-widest text-coral mb-sm opacity-60">
+          <div className="text-xs font-semibold uppercase tracking-widest text-coral mb-4 opacity-60">
             Question
           </div>
           <div className="flex-1 flex items-center justify-center text-center">
@@ -73,13 +73,13 @@ export default function CarteFiche({ fiche, onFlip }: CarteFicheProps) {
 
         {/* Face arrière - Réponse */}
         <div
-          className="absolute inset-0 bg-teal rounded-lg p-xl flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
+          className="absolute inset-0 bg-teal rounded-lg p-12 flex flex-col shadow-[0_20px_60px_rgba(0,0,0,0.12)]"
           style={{
             backfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)',
           }}
         >
-          <div className="text-xs font-semibold uppercase tracking-widest text-white/60 mb-sm">
+          <div className="text-xs font-semibold uppercase tracking-widest text-white/60 mb-4">
             Réponse
           </div>
           <div className="flex-1 flex items-center justify-center text-center">

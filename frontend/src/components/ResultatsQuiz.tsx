@@ -41,19 +41,19 @@ export default function ResultatsQuiz({
   }
 
   return (
-    <div className="bg-white rounded-lg p-xl shadow-sm max-w-md mx-auto text-center">
+    <div className="bg-white rounded-lg p-12 shadow-sm max-w-md mx-auto text-center">
       {/* Emoji et message */}
-      <div className="mb-lg">
+      <div className="mb-8">
         <span className="text-6xl" role="img" aria-label="resultat">
           {String.fromCodePoint(parseInt(emoji, 16))}
         </span>
-        <h2 className={`font-display text-2xl font-bold mt-md ${couleur}`}>
+        <h2 className={`font-display text-2xl font-bold mt-6 ${couleur}`}>
           {message}
         </h2>
       </div>
 
       {/* Score circular */}
-      <div className="relative w-40 h-40 mx-auto mb-lg">
+      <div className="relative w-40 h-40 mx-auto mb-8">
         <svg className="w-full h-full transform -rotate-90">
           {/* Cercle de fond */}
           <circle
@@ -87,8 +87,8 @@ export default function ResultatsQuiz({
       </div>
 
       {/* Details */}
-      <div className="bg-cream rounded-lg p-md mb-lg">
-        <div className="flex justify-center gap-xl">
+      <div className="bg-cream rounded-lg p-6 mb-8">
+        <div className="flex justify-center gap-12">
           <div>
             <p className="text-2xl font-bold text-teal">{bonnesReponses}</p>
             <p className="text-sm text-ink-muted">Bonnes reponses</p>
@@ -102,7 +102,7 @@ export default function ResultatsQuiz({
       </div>
 
       {/* Actions */}
-      <div className="space-y-sm">
+      <div className="space-y-4">
         <button
           onClick={onRefaire}
           className="w-full py-3 rounded-full font-semibold text-white bg-coral hover:bg-coral-dark transition-colors"

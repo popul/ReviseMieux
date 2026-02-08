@@ -23,17 +23,17 @@ export default function ConfigurateurQuiz({
   chargement = false,
 }: ConfigurateurQuizProps) {
   return (
-    <div className="bg-white rounded-lg p-lg shadow-sm max-w-md mx-auto">
-      <h2 className="font-display text-xl font-semibold text-ink mb-lg text-center">
+    <div className="bg-white rounded-lg p-8 shadow-sm max-w-md mx-auto">
+      <h2 className="font-display text-xl font-semibold text-ink mb-8 text-center">
         Configurer le quiz
       </h2>
 
       {/* Nombre de questions */}
-      <div className="mb-lg">
-        <label className="block text-sm font-medium text-ink mb-sm">
+      <div className="mb-8">
+        <label className="block text-sm font-medium text-ink mb-4">
           Nombre de questions
         </label>
-        <div className="flex gap-sm">
+        <div className="flex gap-4">
           {optionsNombre.map((nombre) => (
             <button
               key={nombre}
@@ -52,11 +52,11 @@ export default function ConfigurateurQuiz({
       </div>
 
       {/* Difficulte */}
-      <div className="mb-xl">
-        <label className="block text-sm font-medium text-ink mb-sm">
+      <div className="mb-12">
+        <label className="block text-sm font-medium text-ink mb-4">
           Difficulte
         </label>
-        <div className="flex gap-sm">
+        <div className="flex gap-4">
           {optionsDifficulte.map((option) => (
             <button
               key={option.valeur}
@@ -89,7 +89,7 @@ export default function ConfigurateurQuiz({
         }`}
       >
         {chargement ? (
-          <span className="flex items-center justify-center gap-sm">
+          <span className="flex items-center justify-center gap-4">
             <svg
               className="animate-spin h-5 w-5"
               xmlns="http://www.w3.org/2000/svg"

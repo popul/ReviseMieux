@@ -299,10 +299,10 @@ export default function Analyser() {
   return (
     <>
       {/* Header avec navigation */}
-      <header className="flex items-center gap-lg mb-xl">
+      <header className="flex items-center gap-8 mb-12">
         <Link
           to="/"
-          className="flex items-center gap-xs text-ink-light px-sm py-xs rounded-full transition-colors hover:bg-cream hover:text-ink no-underline font-medium"
+          className="flex items-center gap-2 text-ink-light px-4 py-2 rounded-full transition-colors hover:bg-cream hover:text-ink no-underline font-medium"
         >
           ← Retour
         </Link>
@@ -330,16 +330,16 @@ export default function Analyser() {
 
       {/* Etat: Liste des copies */}
       {etat === 'liste' && (
-        <section className="space-y-lg">
+        <section className="space-y-8">
           <div className="text-center">
-            <h2 className="font-display text-3xl font-bold mb-xs">Mes copies corrigees</h2>
-            <p className="text-ink-light text-lg mb-lg">
+            <h2 className="font-display text-3xl font-bold mb-2">Mes copies corrigees</h2>
+            <p className="text-ink-light text-lg mb-8">
               Scanne tes copies corrigees pour analyser tes erreurs et progresser
             </p>
 
             <button
               type="button"
-              className="inline-flex items-center gap-sm py-3 px-lg rounded-full font-semibold bg-teal text-white hover:bg-teal-light transition-all hover:-translate-y-0.5 hover:shadow-lg"
+              className="inline-flex items-center gap-4 py-3 px-8 rounded-full font-semibold bg-teal text-white hover:bg-teal-light transition-all hover:-translate-y-0.5 hover:shadow-lg"
               onClick={lancerUpload}
             >
               <span>📄</span> Scanner une nouvelle copie
@@ -347,37 +347,37 @@ export default function Analyser() {
           </div>
 
           {chargement ? (
-            <div className="text-center py-xl">
-              <div className="animate-spin w-8 h-8 border-2 border-teal border-t-transparent rounded-full mx-auto mb-md" />
+            <div className="text-center py-12">
+              <div className="animate-spin w-8 h-8 border-2 border-teal border-t-transparent rounded-full mx-auto mb-6" />
               <p className="text-ink-light">Chargement...</p>
             </div>
           ) : copies.length === 0 ? (
-            <div className="bg-white rounded-lg p-xl text-center">
-              <div className="w-16 h-16 mx-auto mb-md bg-cream rounded-full flex items-center justify-center">
+            <div className="bg-white rounded-lg p-12 text-center">
+              <div className="w-16 h-16 mx-auto mb-6 bg-cream rounded-full flex items-center justify-center">
                 <span className="text-3xl">📝</span>
               </div>
-              <h3 className="font-display text-xl font-semibold mb-sm">Aucune copie analysee</h3>
+              <h3 className="font-display text-xl font-semibold mb-4">Aucune copie analysee</h3>
               <p className="text-ink-light">
                 Scanne ta premiere copie pour decouvrir tes points forts et axes d'amelioration.
               </p>
             </div>
           ) : (
-            <div className="grid gap-md">
+            <div className="grid gap-6">
               {copies.map((copie) => (
                 <div
                   key={copie.id}
-                  className="bg-white rounded-lg p-md hover:shadow-md transition-shadow"
+                  className="bg-white rounded-lg p-6 hover:shadow-md transition-shadow"
                 >
-                  <div className="flex items-start gap-md">
+                  <div className="flex items-start gap-6">
                     <div className="w-12 h-12 bg-cream rounded-full flex items-center justify-center flex-shrink-0">
                       <span className="text-xl">📄</span>
                     </div>
 
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-lg truncate">{copie.titre}</h3>
-                      <div className="flex items-center gap-md text-sm text-ink-light mt-xs">
+                      <div className="flex items-center gap-6 text-sm text-ink-light mt-2">
                         {copie.matiere && (
-                          <span className="bg-cream px-sm py-xs rounded-full">{copie.matiere}</span>
+                          <span className="bg-cream px-4 py-2 rounded-full">{copie.matiere}</span>
                         )}
                         {copie.noteObtenue !== undefined && copie.noteTotale !== undefined && (
                           <span className={`font-semibold ${getScoreColor(copie.noteObtenue, copie.noteTotale)}`}>
@@ -393,17 +393,17 @@ export default function Analyser() {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-sm">
+                    <div className="flex items-center gap-4">
                       <button
                         type="button"
-                        className="px-md py-sm bg-teal/10 text-teal rounded-full text-sm font-medium hover:bg-teal/20 transition-colors"
+                        className="px-6 py-4 bg-teal/10 text-teal rounded-full text-sm font-medium hover:bg-teal/20 transition-colors"
                         onClick={() => voirCopie(copie)}
                       >
                         Analyser
                       </button>
                       <button
                         type="button"
-                        className="p-sm text-ink-light hover:text-coral transition-colors"
+                        className="p-4 text-ink-light hover:text-coral transition-colors"
                         onClick={() => setConfirmationSuppression(copie.id)}
                         title="Supprimer"
                       >
@@ -422,8 +422,8 @@ export default function Analyser() {
       {etat === 'upload' && (
         <>
           <section className="text-center">
-            <h2 className="font-display text-3xl font-bold mb-xs">Scanne ta copie corrigee</h2>
-            <p className="text-ink-light text-lg mb-xl">
+            <h2 className="font-display text-3xl font-bold mb-2">Scanne ta copie corrigee</h2>
+            <p className="text-ink-light text-lg mb-12">
               Prends en photo ou scanne ta copie avec les corrections du professeur
             </p>
 
@@ -442,18 +442,18 @@ export default function Analyser() {
           </section>
 
           {fichiers.length > 0 && (
-            <section className="bg-white rounded-lg p-lg mt-lg">
-              <h3 className="font-display text-lg font-semibold mb-md">Informations sur la copie</h3>
+            <section className="bg-white rounded-lg p-8 mt-8">
+              <h3 className="font-display text-lg font-semibold mb-6">Informations sur la copie</h3>
 
-              <div className="grid md:grid-cols-2 gap-md">
+              <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="titre" className="block text-sm font-medium text-ink-light mb-xs">
+                  <label htmlFor="titre" className="block text-sm font-medium text-ink-light mb-2">
                     Titre de l'examen *
                   </label>
                   <input
                     id="titre"
                     type="text"
-                    className="w-full px-md py-sm border border-ink-muted rounded-lg focus:outline-none focus:border-teal"
+                    className="w-full px-6 py-4 border border-ink-muted rounded-lg focus:outline-none focus:border-teal"
                     placeholder="Ex: Controle de Maths - Chapitre 5"
                     value={options.titre}
                     onChange={(e) => setOptions((prev) => ({ ...prev, titre: e.target.value }))}
@@ -461,12 +461,12 @@ export default function Analyser() {
                 </div>
 
                 <div>
-                  <label htmlFor="matiere" className="block text-sm font-medium text-ink-light mb-xs">
+                  <label htmlFor="matiere" className="block text-sm font-medium text-ink-light mb-2">
                     Matiere
                   </label>
                   <select
                     id="matiere"
-                    className="w-full px-md py-sm border border-ink-muted rounded-lg focus:outline-none focus:border-teal bg-white"
+                    className="w-full px-6 py-4 border border-ink-muted rounded-lg focus:outline-none focus:border-teal bg-white"
                     value={options.matiere}
                     onChange={(e) => setOptions((prev) => ({ ...prev, matiere: e.target.value }))}
                   >
@@ -480,16 +480,16 @@ export default function Analyser() {
                 </div>
 
                 <div>
-                  <label htmlFor="noteObtenue" className="block text-sm font-medium text-ink-light mb-xs">
+                  <label htmlFor="noteObtenue" className="block text-sm font-medium text-ink-light mb-2">
                     Note obtenue
                   </label>
-                  <div className="flex items-center gap-sm">
+                  <div className="flex items-center gap-4">
                     <input
                       id="noteObtenue"
                       type="number"
                       step="0.5"
                       min="0"
-                      className="w-20 px-md py-sm border border-ink-muted rounded-lg focus:outline-none focus:border-teal"
+                      className="w-20 px-6 py-4 border border-ink-muted rounded-lg focus:outline-none focus:border-teal"
                       placeholder="12"
                       value={options.noteObtenue}
                       onChange={(e) => setOptions((prev) => ({ ...prev, noteObtenue: e.target.value }))}
@@ -500,7 +500,7 @@ export default function Analyser() {
                       type="number"
                       step="1"
                       min="1"
-                      className="w-20 px-md py-sm border border-ink-muted rounded-lg focus:outline-none focus:border-teal"
+                      className="w-20 px-6 py-4 border border-ink-muted rounded-lg focus:outline-none focus:border-teal"
                       placeholder="20"
                       value={options.noteTotale}
                       onChange={(e) => setOptions((prev) => ({ ...prev, noteTotale: e.target.value }))}
@@ -509,13 +509,13 @@ export default function Analyser() {
                 </div>
               </div>
 
-              <div className="mt-md">
-                <label htmlFor="annotations" className="block text-sm font-medium text-ink-light mb-xs">
+              <div className="mt-6">
+                <label htmlFor="annotations" className="block text-sm font-medium text-ink-light mb-2">
                   Annotations du professeur (optionnel)
                 </label>
                 <textarea
                   id="annotations"
-                  className="w-full px-md py-sm border border-ink-muted rounded-lg focus:outline-none focus:border-teal resize-none"
+                  className="w-full px-6 py-4 border border-ink-muted rounded-lg focus:outline-none focus:border-teal resize-none"
                   rows={3}
                   placeholder="Recopiez ici les commentaires generaux du professeur si difficiles a lire sur la copie..."
                   value={options.annotationsProfesseur}
@@ -525,10 +525,10 @@ export default function Analyser() {
             </section>
           )}
 
-          <div className="mt-lg flex gap-md justify-center">
+          <div className="mt-8 flex gap-6 justify-center">
             <button
               type="button"
-              className="px-lg py-sm bg-cream text-ink rounded-full font-medium hover:bg-cream/80 transition-colors"
+              className="px-8 py-4 bg-cream text-ink rounded-full font-medium hover:bg-cream/80 transition-colors"
               onClick={reinitialiser}
             >
               Annuler
@@ -536,7 +536,7 @@ export default function Analyser() {
             <button
               type="button"
               className={`
-                inline-flex items-center gap-sm py-3 px-lg rounded-full font-semibold transition-all
+                inline-flex items-center gap-4 py-3 px-8 rounded-full font-semibold transition-all
                 ${
                   peutSoumettre
                     ? 'bg-teal text-white hover:bg-teal-light hover:-translate-y-0.5 hover:shadow-xl'
@@ -564,14 +564,14 @@ export default function Analyser() {
 
       {/* Etat: Detail de la copie */}
       {etat === 'copie_detail' && copieSelectionnee && (
-        <section className="space-y-lg">
-          <div className="bg-white rounded-lg p-lg">
-            <div className="flex items-start justify-between mb-md">
+        <section className="space-y-8">
+          <div className="bg-white rounded-lg p-8">
+            <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="font-display text-2xl font-bold">{copieSelectionnee.titre}</h2>
-                <div className="flex items-center gap-md text-sm text-ink-light mt-xs">
+                <div className="flex items-center gap-6 text-sm text-ink-light mt-2">
                   {copieSelectionnee.matiere && (
-                    <span className="bg-cream px-sm py-xs rounded-full">{copieSelectionnee.matiere}</span>
+                    <span className="bg-cream px-4 py-2 rounded-full">{copieSelectionnee.matiere}</span>
                   )}
                   {copieSelectionnee.noteObtenue !== undefined && copieSelectionnee.noteTotale !== undefined && (
                     <span
@@ -582,7 +582,7 @@ export default function Analyser() {
                   )}
                 </div>
               </div>
-              <div className="flex items-center gap-xs text-sm">
+              <div className="flex items-center gap-2 text-sm">
                 <span className="text-ink-light">Confiance OCR:</span>
                 <span className={`font-semibold ${copieSelectionnee.confiance >= 0.85 ? 'text-teal' : 'text-gold'}`}>
                   {Math.round(copieSelectionnee.confiance * 100)}%
@@ -590,33 +590,33 @@ export default function Analyser() {
               </div>
             </div>
 
-            <div className="bg-cream/50 rounded-lg p-md max-h-64 overflow-y-auto">
+            <div className="bg-cream/50 rounded-lg p-6 max-h-64 overflow-y-auto">
               <pre className="whitespace-pre-wrap font-sans text-sm">{copieSelectionnee.texteOCR}</pre>
             </div>
 
             {copieSelectionnee.annotationsProfesseur && (
-              <div className="mt-md p-md bg-coral/5 rounded-lg border border-coral/20">
-                <h4 className="text-sm font-semibold text-coral mb-xs">Annotations du professeur</h4>
+              <div className="mt-6 p-6 bg-coral/5 rounded-lg border border-coral/20">
+                <h4 className="text-sm font-semibold text-coral mb-2">Annotations du professeur</h4>
                 <p className="text-sm">{copieSelectionnee.annotationsProfesseur}</p>
               </div>
             )}
           </div>
 
           <div className="text-center">
-            <p className="text-ink-light mb-md">
+            <p className="text-ink-light mb-6">
               L'IA va analyser ta copie pour identifier les types d'erreurs et te donner des conseils personnalises.
             </p>
-            <div className="flex gap-md justify-center">
+            <div className="flex gap-6 justify-center">
               <button
                 type="button"
-                className="px-lg py-sm bg-cream text-ink rounded-full font-medium hover:bg-cream/80 transition-colors"
+                className="px-8 py-4 bg-cream text-ink rounded-full font-medium hover:bg-cream/80 transition-colors"
                 onClick={reinitialiser}
               >
                 Retour
               </button>
               <button
                 type="button"
-                className="inline-flex items-center gap-sm py-3 px-lg rounded-full font-semibold bg-coral text-white hover:bg-coral/90 transition-all hover:-translate-y-0.5 hover:shadow-xl"
+                className="inline-flex items-center gap-4 py-3 px-8 rounded-full font-semibold bg-coral text-white hover:bg-coral/90 transition-all hover:-translate-y-0.5 hover:shadow-xl"
                 onClick={lancerAnalyse}
               >
                 <span>🎯</span> Analyser mes erreurs
@@ -628,14 +628,14 @@ export default function Analyser() {
 
       {/* Etat: Resultats */}
       {etat === 'resultats' && resultatAnalyse && copieSelectionnee && (
-        <section className="space-y-lg">
+        <section className="space-y-8">
           {/* Resume */}
-          <div className="bg-white rounded-lg p-lg">
-            <div className="flex items-start justify-between mb-md">
+          <div className="bg-white rounded-lg p-8">
+            <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="font-display text-2xl font-bold">{copieSelectionnee.titre}</h2>
                 {copieSelectionnee.noteObtenue !== undefined && copieSelectionnee.noteTotale !== undefined && (
-                  <p className="text-ink-light mt-xs">
+                  <p className="text-ink-light mt-2">
                     Note:{' '}
                     <span
                       className={`font-semibold ${getScoreColor(copieSelectionnee.noteObtenue, copieSelectionnee.noteTotale)}`}
@@ -647,7 +647,7 @@ export default function Analyser() {
               </div>
               <button
                 type="button"
-                className="px-md py-sm bg-cream text-ink rounded-full text-sm font-medium hover:bg-cream/80 transition-colors"
+                className="px-6 py-4 bg-cream text-ink rounded-full text-sm font-medium hover:bg-cream/80 transition-colors"
                 onClick={reinitialiser}
               >
                 Nouvelle analyse
@@ -655,15 +655,15 @@ export default function Analyser() {
             </div>
 
             {/* Resume par type */}
-            <div className="grid grid-cols-3 gap-md">
+            <div className="grid grid-cols-3 gap-6">
               {Object.entries(TYPES_ERREUR).map(([type, config]) => {
                 const count = resultatAnalyse.resumeParType?.[type] || 0
                 return (
                   <div
                     key={type}
-                    className={`p-md rounded-lg bg-${config.color}/10 text-center`}
+                    className={`p-6 rounded-lg bg-${config.color}/10 text-center`}
                   >
-                    <div className="text-2xl mb-xs">{config.icon}</div>
+                    <div className="text-2xl mb-2">{config.icon}</div>
                     <div className="text-2xl font-bold">{count}</div>
                     <div className="text-sm text-ink-light">{config.label}</div>
                   </div>
@@ -674,15 +674,15 @@ export default function Analyser() {
 
           {/* Points forts et a ameliorer */}
           {(resultatAnalyse.pointsForts?.length || resultatAnalyse.pointsAAmeliorer?.length) && (
-            <div className="grid md:grid-cols-2 gap-md">
+            <div className="grid md:grid-cols-2 gap-6">
               {resultatAnalyse.pointsForts && resultatAnalyse.pointsForts.length > 0 && (
-                <div className="bg-teal/5 rounded-lg p-lg">
-                  <h3 className="font-display text-lg font-semibold text-teal mb-md flex items-center gap-sm">
+                <div className="bg-teal/5 rounded-lg p-8">
+                  <h3 className="font-display text-lg font-semibold text-teal mb-6 flex items-center gap-4">
                     <span>✓</span> Points forts
                   </h3>
-                  <ul className="space-y-sm">
+                  <ul className="space-y-4">
                     {resultatAnalyse.pointsForts.map((point, i) => (
-                      <li key={i} className="flex items-start gap-sm text-sm">
+                      <li key={i} className="flex items-start gap-4 text-sm">
                         <span className="text-teal">•</span>
                         <span>{point}</span>
                       </li>
@@ -692,13 +692,13 @@ export default function Analyser() {
               )}
 
               {resultatAnalyse.pointsAAmeliorer && resultatAnalyse.pointsAAmeliorer.length > 0 && (
-                <div className="bg-coral/5 rounded-lg p-lg">
-                  <h3 className="font-display text-lg font-semibold text-coral mb-md flex items-center gap-sm">
+                <div className="bg-coral/5 rounded-lg p-8">
+                  <h3 className="font-display text-lg font-semibold text-coral mb-6 flex items-center gap-4">
                     <span>↑</span> A ameliorer
                   </h3>
-                  <ul className="space-y-sm">
+                  <ul className="space-y-4">
                     {resultatAnalyse.pointsAAmeliorer.map((point, i) => (
-                      <li key={i} className="flex items-start gap-sm text-sm">
+                      <li key={i} className="flex items-start gap-4 text-sm">
                         <span className="text-coral">•</span>
                         <span>{point}</span>
                       </li>
@@ -711,8 +711,8 @@ export default function Analyser() {
 
           {/* Conseil global */}
           {resultatAnalyse.conseilGlobal && (
-            <div className="bg-gold/10 rounded-lg p-lg">
-              <h3 className="font-display text-lg font-semibold text-gold mb-sm flex items-center gap-sm">
+            <div className="bg-gold/10 rounded-lg p-8">
+              <h3 className="font-display text-lg font-semibold text-gold mb-4 flex items-center gap-4">
                 <span>💡</span> Conseil
               </h3>
               <p className="text-sm">{resultatAnalyse.conseilGlobal}</p>
@@ -721,41 +721,41 @@ export default function Analyser() {
 
           {/* Liste des erreurs */}
           {erreursAnalyse.length > 0 && (
-            <div className="bg-white rounded-lg p-lg">
-              <h3 className="font-display text-lg font-semibold mb-md">Detail des erreurs</h3>
-              <div className="space-y-md">
+            <div className="bg-white rounded-lg p-8">
+              <h3 className="font-display text-lg font-semibold mb-6">Detail des erreurs</h3>
+              <div className="space-y-6">
                 {erreursAnalyse.map((erreur) => {
                   const typeConfig = TYPES_ERREUR[erreur.typeErreur] || TYPES_ERREUR.inattention
                   const severiteConfig = SEVERITES[erreur.severite] || SEVERITES.moderate
                   return (
                     <div
                       key={erreur.id}
-                      className="border border-ink-muted/30 rounded-lg p-md"
+                      className="border border-ink-muted/30 rounded-lg p-6"
                     >
-                      <div className="flex items-center gap-sm mb-sm">
+                      <div className="flex items-center gap-4 mb-4">
                         <span>{typeConfig.icon}</span>
-                        <span className={`px-sm py-xs rounded-full text-xs font-medium bg-${typeConfig.color}/10`}>
+                        <span className={`px-4 py-2 rounded-full text-xs font-medium bg-${typeConfig.color}/10`}>
                           {typeConfig.label}
                         </span>
                         <span className={`text-xs ${severiteConfig.color}`}>{severiteConfig.label}</span>
                       </div>
 
                       {erreur.texteOriginal && (
-                        <div className="bg-coral/5 rounded p-sm mb-sm">
+                        <div className="bg-coral/5 rounded p-4 mb-4">
                           <p className="text-sm text-coral line-through">{erreur.texteOriginal}</p>
                         </div>
                       )}
 
                       {erreur.correction && (
-                        <div className="bg-teal/5 rounded p-sm mb-sm">
+                        <div className="bg-teal/5 rounded p-4 mb-4">
                           <p className="text-sm text-teal">{erreur.correction}</p>
                         </div>
                       )}
 
-                      <p className="text-sm text-ink-light mb-sm">{erreur.explication}</p>
+                      <p className="text-sm text-ink-light mb-4">{erreur.explication}</p>
 
                       {erreur.conseil && (
-                        <div className="bg-gold/5 rounded p-sm">
+                        <div className="bg-gold/5 rounded p-4">
                           <p className="text-xs text-gold">
                             <strong>Conseil:</strong> {erreur.conseil}
                           </p>
@@ -769,16 +769,16 @@ export default function Analyser() {
           )}
 
           {/* Section Recommandations */}
-          <div className="bg-white rounded-lg p-lg">
-            <div className="flex items-center justify-between mb-md">
-              <h3 className="font-display text-lg font-semibold flex items-center gap-sm">
+          <div className="bg-white rounded-lg p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-display text-lg font-semibold flex items-center gap-4">
                 <span>🎯</span> Recommandations personnalisees
               </h3>
               {!recommandations && (
                 <button
                   type="button"
                   className={`
-                    inline-flex items-center gap-sm px-md py-sm rounded-full text-sm font-medium transition-all
+                    inline-flex items-center gap-4 px-6 py-4 rounded-full text-sm font-medium transition-all
                     ${
                       chargementRecommandations
                         ? 'bg-ink-muted text-white cursor-wait'
@@ -809,17 +809,17 @@ export default function Analyser() {
             )}
 
             {chargementRecommandations && (
-              <div className="text-center py-lg">
-                <div className="w-8 h-8 border-2 border-teal border-t-transparent rounded-full animate-spin mx-auto mb-md" />
+              <div className="text-center py-8">
+                <div className="w-8 h-8 border-2 border-teal border-t-transparent rounded-full animate-spin mx-auto mb-6" />
                 <p className="text-ink-light">Analyse de tes lacunes en cours...</p>
               </div>
             )}
 
             {recommandations && (
-              <div className="space-y-lg">
+              <div className="space-y-8">
                 {/* Message de motivation */}
                 {recommandations.motivation && (
-                  <div className="bg-teal/5 rounded-lg p-md border border-teal/20">
+                  <div className="bg-teal/5 rounded-lg p-6 border border-teal/20">
                     <p className="text-sm text-teal font-medium">{recommandations.motivation}</p>
                   </div>
                 )}
@@ -827,7 +827,7 @@ export default function Analyser() {
                 {/* Resume */}
                 {recommandations.resume && (
                   <div>
-                    <h4 className="font-semibold text-sm mb-xs">Resume</h4>
+                    <h4 className="font-semibold text-sm mb-2">Resume</h4>
                     <p className="text-sm text-ink-light">{recommandations.resume}</p>
                   </div>
                 )}
@@ -835,17 +835,17 @@ export default function Analyser() {
                 {/* Liste des recommandations */}
                 {recommandations.recommandations.length > 0 && (
                   <div>
-                    <h4 className="font-semibold text-sm mb-md">Domaines a reviser ({recommandations.nombreRecommandations})</h4>
-                    <div className="space-y-md">
+                    <h4 className="font-semibold text-sm mb-6">Domaines a reviser ({recommandations.nombreRecommandations})</h4>
+                    <div className="space-y-6">
                       {recommandations.recommandations.map((reco, index) => {
                         const prioriteConfig = PRIORITES[reco.priorite] || PRIORITES[3]
                         const severiteConfig = SEVERITES[reco.severiteMax] || SEVERITES.moderate
                         return (
                           <div
                             key={index}
-                            className={`rounded-lg p-md ${prioriteConfig.bgColor}`}
+                            className={`rounded-lg p-6 ${prioriteConfig.bgColor}`}
                           >
-                            <div className="flex items-center gap-sm mb-sm">
+                            <div className="flex items-center gap-4 mb-4">
                               <span className="w-6 h-6 rounded-full bg-ink text-white text-xs font-bold flex items-center justify-center">
                                 {reco.priorite}
                               </span>
@@ -855,14 +855,14 @@ export default function Analyser() {
                               </span>
                             </div>
 
-                            <p className="text-sm text-ink-light mb-sm">{reco.raison}</p>
+                            <p className="text-sm text-ink-light mb-4">{reco.raison}</p>
 
-                            <div className="bg-white/60 rounded p-sm">
+                            <div className="bg-white/60 rounded p-4">
                               <p className="text-sm">
                                 <strong className="text-teal">Action :</strong> {reco.actionSuggerie}
                               </p>
                               {reco.typeQuiz && (
-                                <p className="text-xs text-ink-light mt-xs">
+                                <p className="text-xs text-ink-light mt-2">
                                   Quiz suggere : {reco.typeQuiz}
                                 </p>
                               )}
@@ -876,8 +876,8 @@ export default function Analyser() {
 
                 {/* Plan d'action */}
                 {recommandations.planAction && (
-                  <div className="bg-gold/10 rounded-lg p-md">
-                    <h4 className="font-semibold text-sm mb-xs flex items-center gap-sm">
+                  <div className="bg-gold/10 rounded-lg p-6">
+                    <h4 className="font-semibold text-sm mb-2 flex items-center gap-4">
                       <span>📋</span> Plan d'action pour cette semaine
                     </h4>
                     <p className="text-sm">{recommandations.planAction}</p>
@@ -886,8 +886,8 @@ export default function Analyser() {
 
                 {/* Prochain quiz */}
                 {recommandations.prochainQuiz && (
-                  <div className="bg-teal/10 rounded-lg p-md">
-                    <h4 className="font-semibold text-sm mb-xs flex items-center gap-sm">
+                  <div className="bg-teal/10 rounded-lg p-6">
+                    <h4 className="font-semibold text-sm mb-2 flex items-center gap-4">
                       <span>📝</span> Prochain quiz a faire
                     </h4>
                     <p className="text-sm">{recommandations.prochainQuiz}</p>
@@ -901,19 +901,19 @@ export default function Analyser() {
 
       {/* Etat: Erreur */}
       {etat === 'erreur' && erreurMessage && (
-        <div className="bg-white rounded-lg p-xl text-center">
-          <div className="w-16 h-16 mx-auto mb-md bg-coral/10 rounded-full flex items-center justify-center">
+        <div className="bg-white rounded-lg p-12 text-center">
+          <div className="w-16 h-16 mx-auto mb-6 bg-coral/10 rounded-full flex items-center justify-center">
             <span className="text-3xl">⚠️</span>
           </div>
 
-          <h3 className="font-display text-xl font-semibold mb-sm text-coral">Une erreur est survenue</h3>
+          <h3 className="font-display text-xl font-semibold mb-4 text-coral">Une erreur est survenue</h3>
 
-          <p className="text-ink-light mb-lg">{erreurMessage}</p>
+          <p className="text-ink-light mb-8">{erreurMessage}</p>
 
-          <div className="flex gap-md justify-center">
+          <div className="flex gap-6 justify-center">
             <button
               type="button"
-              className="px-lg py-sm bg-cream text-ink rounded-full font-medium hover:bg-cream/80 transition-colors"
+              className="px-8 py-4 bg-cream text-ink rounded-full font-medium hover:bg-cream/80 transition-colors"
               onClick={reinitialiser}
             >
               Recommencer
@@ -925,22 +925,22 @@ export default function Analyser() {
       {/* Modal de confirmation de suppression */}
       {confirmationSuppression && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-lg max-w-sm mx-md">
-            <h3 className="font-display text-lg font-semibold mb-sm">Supprimer cette copie ?</h3>
-            <p className="text-ink-light text-sm mb-lg">
+          <div className="bg-white rounded-lg p-8 max-w-sm mx-6">
+            <h3 className="font-display text-lg font-semibold mb-4">Supprimer cette copie ?</h3>
+            <p className="text-ink-light text-sm mb-8">
               Cette action est irreversible. L'analyse associee sera egalement supprimee.
             </p>
-            <div className="flex gap-md justify-end">
+            <div className="flex gap-6 justify-end">
               <button
                 type="button"
-                className="px-md py-sm bg-cream text-ink rounded-full text-sm font-medium hover:bg-cream/80 transition-colors"
+                className="px-6 py-4 bg-cream text-ink rounded-full text-sm font-medium hover:bg-cream/80 transition-colors"
                 onClick={() => setConfirmationSuppression(null)}
               >
                 Annuler
               </button>
               <button
                 type="button"
-                className="px-md py-sm bg-coral text-white rounded-full text-sm font-medium hover:bg-coral/90 transition-colors"
+                className="px-6 py-4 bg-coral text-white rounded-full text-sm font-medium hover:bg-coral/90 transition-colors"
                 onClick={() => gererSuppressionCopie(confirmationSuppression)}
               >
                 Supprimer

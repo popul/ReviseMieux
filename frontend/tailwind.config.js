@@ -38,13 +38,6 @@ export default {
         display: ['Fraunces', 'Georgia', 'serif'],
         body: ['DM Sans', '-apple-system', 'sans-serif'],
       },
-      spacing: {
-        'xs': '0.5rem',
-        'sm': '1rem',
-        'md': '1.5rem',
-        'lg': '2rem',
-        'xl': '3rem',
-      },
       borderRadius: {
         'sm': '8px',
         'md': '12px',

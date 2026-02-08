@@ -10,7 +10,7 @@ interface IndicateurEtapesProps {
 
 export default function IndicateurEtapes({ etapes, etapeActive }: IndicateurEtapesProps) {
   return (
-    <div className="flex items-center gap-sm">
+    <div className="flex items-center gap-4">
       {etapes.map((etape, index) => {
         const estCompletee = etape.numero < etapeActive
         const estActive = etape.numero === etapeActive
@@ -18,7 +18,7 @@ export default function IndicateurEtapes({ etapes, etapeActive }: IndicateurEtap
         return (
           <div key={etape.numero} className="flex items-center">
             {/* Dot avec numéro */}
-            <div className="flex items-center gap-xs">
+            <div className="flex items-center gap-2">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-all ${
                   estCompletee
@@ -42,7 +42,7 @@ export default function IndicateurEtapes({ etapes, etapeActive }: IndicateurEtap
             {/* Ligne de connexion */}
             {index < etapes.length - 1 && (
               <div
-                className={`w-10 h-0.5 mx-sm transition-colors ${
+                className={`w-10 h-0.5 mx-4 transition-colors ${
                   estCompletee ? 'bg-success' : 'bg-cream-dark'
                 }`}
               />

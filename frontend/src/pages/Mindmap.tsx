@@ -132,17 +132,17 @@ export default function Mindmap() {
 
     if (erreurCours || listeCours.length === 0) {
       return (
-        <div className="text-center py-xl">
-          <div className="text-5xl mb-md">🧠</div>
-          <h1 className="font-display text-2xl font-semibold text-ink mb-sm">
+        <div className="text-center py-12">
+          <div className="text-5xl mb-6">🧠</div>
+          <h1 className="font-display text-2xl font-semibold text-ink mb-4">
             {erreurCours || 'Aucun cours disponible'}
           </h1>
-          <p className="text-ink-light mb-lg">
+          <p className="text-ink-light mb-8">
             Scannez d'abord un cours pour generer une carte mentale.
           </p>
           <Link
             to="/scanner"
-            className="inline-flex items-center gap-sm px-lg py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
+            className="inline-flex items-center gap-4 px-8 py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
           >
             Scanner un cours
           </Link>
@@ -152,23 +152,23 @@ export default function Mindmap() {
 
     return (
       <div>
-        <h1 className="font-display text-3xl font-semibold text-ink mb-lg">
+        <h1 className="font-display text-3xl font-semibold text-ink mb-8">
           Cartes mentales
         </h1>
-        <p className="text-ink-light mb-lg">
+        <p className="text-ink-light mb-8">
           Selectionnez un cours pour visualiser ou generer sa carte mentale.
         </p>
 
-        <div className="grid gap-md">
+        <div className="grid gap-6">
           {listeCours.map((c) => (
             <Link
               key={c.id}
               to={`/mindmap?cours=${c.id}`}
-              className="bg-white rounded-lg p-lg shadow-sm hover:shadow-md transition-shadow border border-cream-dark"
+              className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow border border-cream-dark"
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="font-display text-lg font-semibold text-ink mb-xs">
+                  <h2 className="font-display text-lg font-semibold text-ink mb-2">
                     {c.titre || 'Cours sans titre'}
                   </h2>
                   <p className="text-sm text-ink-muted">{c.matiere || 'Matiere non definie'}</p>
@@ -196,7 +196,7 @@ export default function Mindmap() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[500px]">
         <div className="text-center max-w-md">
-          <div className="w-24 h-24 mx-auto mb-lg bg-cream rounded-full flex items-center justify-center">
+          <div className="w-24 h-24 mx-auto mb-8 bg-cream rounded-full flex items-center justify-center">
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none" className="text-teal">
               <circle cx="24" cy="24" r="8" stroke="currentColor" strokeWidth="3" />
               <line x1="24" y1="6" x2="24" y2="14" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
@@ -210,23 +210,23 @@ export default function Mindmap() {
             </svg>
           </div>
 
-          <h1 className="font-display text-2xl font-semibold text-ink mb-sm">
+          <h1 className="font-display text-2xl font-semibold text-ink mb-4">
             Pas encore de carte mentale
           </h1>
-          <p className="text-ink-light mb-lg">
+          <p className="text-ink-light mb-8">
             Generez une carte mentale pour visualiser les concepts cles de ce cours et leurs relations.
           </p>
 
           {erreurMindmap && (
-            <div className="mb-md p-md bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+            <div className="mb-6 p-6 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
               {erreurMindmap}
             </div>
           )}
 
-          <div className="flex flex-col gap-sm items-center">
+          <div className="flex flex-col gap-4 items-center">
             <button
               onClick={generer}
-              className="px-lg py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
+              className="px-8 py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
             >
               Generer la carte mentale
             </button>
@@ -255,11 +255,11 @@ export default function Mindmap() {
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-md">
-        <div className="flex items-center gap-md">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-6">
           <Link
             to="/mindmap"
-            className="flex items-center gap-xs text-ink-light hover:text-ink transition-colors"
+            className="flex items-center gap-2 text-ink-light hover:text-ink transition-colors"
           >
             ← Retour
           </Link>
@@ -268,20 +268,20 @@ export default function Mindmap() {
           </h1>
         </div>
 
-        <div className="flex items-center gap-sm">
+        <div className="flex items-center gap-4">
           <span className="text-sm text-ink-muted">
             {mindmap!.noeuds.length} concepts
           </span>
           <button
             onClick={generer}
             disabled={generation}
-            className="px-md py-2 text-sm text-coral border border-coral rounded-full hover:bg-coral hover:text-white transition-colors disabled:opacity-50"
+            className="px-6 py-2 text-sm text-coral border border-coral rounded-full hover:bg-coral hover:text-white transition-colors disabled:opacity-50"
           >
             Regenerer
           </button>
           <Link
             to={`/fiches?cours=${coursId}`}
-            className="px-md py-2 text-sm bg-coral text-white rounded-full hover:bg-coral-dark transition-colors"
+            className="px-6 py-2 text-sm bg-coral text-white rounded-full hover:bg-coral-dark transition-colors"
           >
             Voir les fiches
           </Link>

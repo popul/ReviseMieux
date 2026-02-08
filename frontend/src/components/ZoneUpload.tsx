@@ -84,7 +84,7 @@ export default function ZoneUpload({
   return (
     <div
       className={`
-        bg-white rounded-lg p-xl cursor-pointer transition-all relative overflow-hidden
+        bg-white rounded-lg p-12 cursor-pointer transition-all relative overflow-hidden
         ${
           aDejaDesFichiers
             ? 'border-2 border-solid border-success'
@@ -119,13 +119,13 @@ export default function ZoneUpload({
       />
 
       <div className="text-center">
-        <span className="text-6xl mb-md block">📸</span>
-        <p className="font-display text-xl font-semibold mb-xs">Glisse tes fichiers ici</p>
-        <p className="text-ink-muted mb-md">ou clique pour sélectionner</p>
+        <span className="text-6xl mb-6 block">📸</span>
+        <p className="font-display text-xl font-semibold mb-2">Glisse tes fichiers ici</p>
+        <p className="text-ink-muted mb-6">ou clique pour sélectionner</p>
 
         <button
           type="button"
-          className="inline-flex items-center gap-xs bg-coral text-white py-3.5 px-lg rounded-full font-semibold transition-all hover:bg-coral-dark hover:-translate-y-0.5"
+          className="inline-flex items-center gap-2 bg-coral text-white py-3.5 px-8 rounded-full font-semibold transition-all hover:bg-coral-dark hover:-translate-y-0.5"
           onClick={(e) => {
             e.stopPropagation()
             gererClic()
@@ -135,7 +135,7 @@ export default function ZoneUpload({
           <span>📁</span> Choisir des fichiers
         </button>
 
-        <p className="mt-md text-sm text-ink-muted">
+        <p className="mt-6 text-sm text-ink-muted">
           JPG, PNG ou PDF - Max {maxFichiers} pages
         </p>
       </div>
