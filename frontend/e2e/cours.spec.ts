@@ -103,7 +103,7 @@ test.describe('Détail et édition d\'un cours', () => {
     await expect(champTexte).toHaveValue('Texte modifié pour le test');
   });
 
-  test('affiche les images du cours avec le texte superposé en mode édition', async ({ page }) => {
+  test('affiche les images du cours avec l\'overlay OCR ou le mode classique', async ({ page }) => {
     // Skip si pas sur une page de détail de cours
     if (!page.url().includes('?id=')) {
       test.skip();
@@ -128,12 +128,17 @@ test.describe('Détail et édition d\'un cours', () => {
       return;
     }
 
-    // Activer le mode édition pour voir le texte superposé
-    await page.getByRole('button', { name: /modifier|éditer/i }).click();
+    // L'image est affichée soit via OverlayTexteOCR (avec zoom) soit en mode classique (avec badge page)
+    const overlayZoom = page.locator('button[title="Zoomer"]');
+    const badgePage = page.getByText(/page \d+ \/ \d+/i);
+    const messageCorrespondance = page.getByText(/le texte ci-dessous correspond/i);
 
-    // Vérifier que le texte est superposé sur l'image
-    const overlayTexte = page.locator('[data-testid="texte-overlay"]').first();
-    await expect(overlayTexte).toBeVisible({ timeout: 5000 });
+    const overlayPresent = await overlayZoom.isVisible().catch(() => false);
+    const classicPresent = await badgePage.isVisible().catch(() => false);
+    const messagePresent = await messageCorrespondance.isVisible().catch(() => false);
+
+    // L'un des modes doit être actif
+    expect(overlayPresent || classicPresent || messagePresent).toBeTruthy();
   });
 
   test('permet de corriger les zones incertaines', async ({ page }) => {
@@ -324,7 +329,7 @@ test.describe('Gestion des images du cours', () => {
     await expect(page.getByText(/page 2 sur/i)).toBeVisible();
   });
 
-  test('permet de naviguer avec les boutons Précédent/Suivant', async ({ page }) => {
+  test('permet de naviguer entre les pages en cliquant sur les vignettes', async ({ page }) => {
     const vignettes = page.locator('[data-testid="image-vignette"]');
     const nombreVignettes = await vignettes.count();
 
@@ -334,31 +339,20 @@ test.describe('Gestion des images du cours', () => {
       return;
     }
 
-    // Vérifier que les boutons de navigation sont présents
-    const boutonPrecedent = page.getByRole('button', { name: /précédent/i });
-    const boutonSuivant = page.getByRole('button', { name: /suivant/i });
+    // Vérifier que la première vignette est sélectionnée par défaut
+    await expect(vignettes.first()).toHaveClass(/border-coral/);
 
-    await expect(boutonPrecedent).toBeVisible();
-    await expect(boutonSuivant).toBeVisible();
-
-    // Le bouton Précédent doit être désactivé sur la première page
-    await expect(boutonPrecedent).toBeDisabled();
-    await expect(boutonSuivant).toBeEnabled();
-
-    // Cliquer sur Suivant
-    await boutonSuivant.click();
+    // Cliquer sur la deuxième vignette
+    await vignettes.nth(1).click();
 
     // Vérifier que la page a changé
     await expect(page.getByText(/page 2 sur/i)).toBeVisible();
 
     // Vérifier que la deuxième vignette est sélectionnée
     await expect(vignettes.nth(1)).toHaveClass(/border-coral/);
-
-    // Maintenant Précédent doit être activé
-    await expect(boutonPrecedent).toBeEnabled();
   });
 
-  test('le bouton Suivant est désactivé sur la dernière page', async ({ page }) => {
+  test('cliquer sur la dernière vignette sélectionne la dernière page', async ({ page }) => {
     const vignettes = page.locator('[data-testid="image-vignette"]');
     const nombreVignettes = await vignettes.count();
 
@@ -371,13 +365,12 @@ test.describe('Gestion des images du cours', () => {
     // Aller à la dernière page en cliquant sur la dernière vignette
     await vignettes.last().click();
 
-    // Vérifier que le bouton Suivant est désactivé
-    const boutonSuivant = page.getByRole('button', { name: /suivant/i });
-    await expect(boutonSuivant).toBeDisabled();
+    // Vérifier que la dernière vignette est sélectionnée
+    await expect(vignettes.last()).toHaveClass(/border-coral/);
 
-    // Le bouton Précédent doit être activé
-    const boutonPrecedent = page.getByRole('button', { name: /précédent/i });
-    await expect(boutonPrecedent).toBeEnabled();
+    // Vérifier l'indicateur de page
+    const regex = new RegExp(`page ${nombreVignettes} sur ${nombreVignettes}`, 'i');
+    await expect(page.getByText(regex)).toBeVisible();
   });
 
   test('affiche l\'image principale correspondant à la sélection', async ({ page }) => {
@@ -394,13 +387,20 @@ test.describe('Gestion des images du cours', () => {
     const imagePrincipale = page.locator('[data-testid="images-ocr"] img').last();
     await expect(imagePrincipale).toBeVisible();
 
-    // Si plusieurs images, vérifier le badge "Page X / Y"
+    // Si plusieurs images, vérifier l'indicateur de page
+    // Soit "Page X / Y" (mode classique) soit "Page X sur Y" (ReordonnerPages)
     if (nombreVignettes >= 2) {
-      await expect(page.getByText(/page \d+ \/ \d+/i)).toBeVisible();
+      const indicateurSlash = page.getByText(/page \d+ \/ \d+/i);
+      const indicateurSur = page.getByText(/page \d+ sur \d+/i);
+
+      const slashVisible = await indicateurSlash.isVisible().catch(() => false);
+      const surVisible = await indicateurSur.isVisible().catch(() => false);
+
+      expect(slashVisible || surVisible).toBeTruthy();
     }
   });
 
-  test('affiche le message de correspondance texte-image', async ({ page }) => {
+  test('affiche un message contextuel sous les images', async ({ page }) => {
     const vignettes = page.locator('[data-testid="image-vignette"]');
     const nombreVignettes = await vignettes.count();
 
@@ -414,8 +414,15 @@ test.describe('Gestion des images du cours', () => {
     const sectionImages = page.locator('[data-testid="images-ocr"]');
     await expect(sectionImages).toBeVisible({ timeout: 10000 });
 
-    // Vérifier que le message de correspondance est affiché
-    await expect(page.getByText(/le texte ci-dessous correspond/i)).toBeVisible();
+    // En mode overlay OCR: "Survolez les blocs..."
+    // En mode classique: "Le texte ci-dessous correspond..."
+    const messageOverlay = page.getByText(/survolez les blocs/i);
+    const messageClassique = page.getByText(/le texte ci-dessous correspond/i);
+
+    const overlayVisible = await messageOverlay.isVisible().catch(() => false);
+    const classiqueVisible = await messageClassique.isVisible().catch(() => false);
+
+    expect(overlayVisible || classiqueVisible).toBeTruthy();
   });
 
   test('permet d\'ajouter une nouvelle image en mode édition', async ({ page }) => {
@@ -462,7 +469,7 @@ test.describe('Gestion des images du cours', () => {
     await expect(boutonSupprimer).toBeVisible();
   });
 
-  test('les boutons de navigation changent la page sélectionnée', async ({ page }) => {
+  test('cliquer sur les vignettes change la page sélectionnée dans les deux sens', async ({ page }) => {
     const vignettes = page.locator('[data-testid="image-vignette"]');
     const nombreVignettes = await vignettes.count();
 
@@ -475,16 +482,14 @@ test.describe('Gestion des images du cours', () => {
     // Vérifier qu'on est sur la page 1
     await expect(page.getByText(/page 1 sur/i)).toBeVisible();
 
-    // Cliquer sur "Suivant"
-    const boutonSuivant = page.getByRole('button', { name: /suivant/i });
-    await boutonSuivant.click();
+    // Cliquer sur la deuxième vignette
+    await vignettes.nth(1).click();
 
     // Vérifier que la sélection a changé (on est sur la page 2)
     await expect(page.getByText(/page 2 sur/i)).toBeVisible();
 
-    // Cliquer sur "Précédent" pour revenir
-    const boutonPrecedent = page.getByRole('button', { name: /précédent/i });
-    await boutonPrecedent.click();
+    // Cliquer sur la première vignette pour revenir
+    await vignettes.first().click();
 
     // Vérifier qu'on est revenu à la page 1
     await expect(page.getByText(/page 1 sur/i)).toBeVisible();

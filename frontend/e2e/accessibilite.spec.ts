@@ -120,7 +120,34 @@ test.describe('Accessibilité - Modes', () => {
     expect(htmlClass).toContain('contraste-eleve');
   });
 
-  test.skip('active le mode daltonien', async () => {
-    // TODO: Implémenter - nécessite de tester le select
+  test('active le mode daltonien', async ({ page }) => {
+    await page.goto('/');
+
+    // Ouvre le panneau d'accessibilité
+    await page.getByRole('button', { name: /options d'accessibilite/i }).click();
+
+    // Vérifier que le select du mode daltonien est visible
+    const selectDaltonien = page.locator('select[aria-label="Selectionner le mode daltonien"]');
+    await expect(selectDaltonien).toBeVisible();
+
+    // Vérifier la valeur initiale (off = Desactive)
+    await expect(selectDaltonien).toHaveValue('off');
+
+    // Sélectionner le mode protanopie
+    await selectDaltonien.selectOption('protanopia');
+
+    // Vérifier que la valeur a changé
+    await expect(selectDaltonien).toHaveValue('protanopia');
+
+    // Vérifier que la classe est appliquée au HTML
+    const htmlClass = await page.locator('html').getAttribute('class');
+    expect(htmlClass).toContain('daltonien-protanopia');
+
+    // Changer pour un autre mode (deuteranopie)
+    await selectDaltonien.selectOption('deuteranopia');
+    await expect(selectDaltonien).toHaveValue('deuteranopia');
+
+    const htmlClassUpdated = await page.locator('html').getAttribute('class');
+    expect(htmlClassUpdated).toContain('daltonien-deuteranopia');
   });
 });

@@ -18,11 +18,9 @@ test.describe('Dashboard', () => {
     await expect(page.getByRole('navigation', { name: 'Menu principal' })).toBeVisible();
     await expect(page.getByRole('link', { name: /tableau de bord/i })).toBeVisible();
 
-    // Utilise le premier lien Scanner (celui dans la sidebar)
+    // Liens sidebar actuels
     await expect(page.getByRole('link', { name: 'Scanner un cours', exact: true })).toBeVisible();
-    await expect(page.getByRole('link', { name: /fiches de révision/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /^quiz$/i })).toBeVisible();
-    await expect(page.getByRole('link', { name: /cartes mentales/i })).toBeVisible();
+    await expect(page.getByRole('link', { name: /mes cours/i })).toBeVisible();
   });
 
   test('navigue vers Scanner depuis la sidebar', async ({ page }) => {
@@ -31,22 +29,6 @@ test.describe('Dashboard', () => {
 
     // Vérifie qu'on est sur la page Scanner
     await expect(page).toHaveURL(/.*scanner/);
-  });
-
-  test('navigue vers Fiches depuis le Dashboard', async ({ page }) => {
-    await page.getByRole('link', { name: /fiches de révision/i }).click();
-    await expect(page).toHaveURL(/.*fiches/);
-  });
-
-  test('navigue vers Quiz depuis le Dashboard', async ({ page }) => {
-    // Utilise le lien Quiz exact dans la sidebar
-    await page.getByRole('link', { name: /^quiz$/i }).click();
-    await expect(page).toHaveURL(/.*quiz/);
-  });
-
-  test('navigue vers Mindmap depuis le Dashboard', async ({ page }) => {
-    await page.getByRole('link', { name: /cartes mentales/i }).click();
-    await expect(page).toHaveURL(/.*mindmap/);
   });
 
   test('le skip-to-content link est accessible au clavier', async ({ page }) => {

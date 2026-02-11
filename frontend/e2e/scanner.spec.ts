@@ -122,83 +122,30 @@ test.describe('Scanner - Options de génération', () => {
 
 test.describe('Scanner - Flux OCR complet (API réelle)', () => {
   // Ces tests nécessitent un backend fonctionnel avec l'API OCR
-  // Ils sont skippés par défaut et doivent être exécutés avec le backend actif
+  test.describe.configure({ timeout: 120000 });
   test.skip(({ }) => !process.env.RUN_API_TESTS, 'Skipped: Backend API non disponible. Lancez avec RUN_API_TESTS=1 pour activer.');
 
-  test('flux complet: upload → options → OCR → résultat', async ({ page }) => {
-    // 1. Aller sur la page scanner
+  test('flux complet: upload → options → OCR → redirection vers le cours', async ({ page }) => {
     await page.goto('/scanner');
 
-    // 2. Upload d'un fichier
+    // Upload d'un fichier
     const fileInput = page.locator('input[type="file"]').first();
     await fileInput.setInputFiles(TEST_IMAGE);
 
-    // 3. Remplir les options
-    const titreInput = page.getByPlaceholder(/Révolution française/i);
+    // Remplir les options
+    const titreInput = page.getByPlaceholder(/laisser vide pour détection automatique/i);
     await titreInput.fill('Test OCR E2E');
 
     const matiereSelect = page.getByRole('combobox');
     await matiereSelect.selectOption('histoire');
 
-    // 4. Soumettre
-    const submitButton = page.getByRole('button', { name: /Générer mes supports/i });
-    await submitButton.click();
-
-    // 5. Vérifier le résultat (timeout long pour l'API réelle)
-    await expect(page.getByText('Extraction réussie')).toBeVisible({ timeout: 60000 });
-
-    // 7. Vérifier qu'on a des informations sur les pages
-    await expect(page.getByText(/page.*traitée/i)).toBeVisible();
-
-    // 8. Vérifier les badges des supports sélectionnés
-    const mainContent = page.locator('#main-content');
-    await expect(mainContent.getByText('Fiches de révision')).toBeVisible();
-    await expect(mainContent.getByText('Quiz interactif')).toBeVisible();
-  });
-
-  test('affiche le score de confiance après OCR', async ({ page }) => {
-    await page.goto('/scanner');
-    const fileInput = page.locator('input[type="file"]').first();
-    await fileInput.setInputFiles(TEST_IMAGE);
-
+    // Soumettre
     await page.getByRole('button', { name: /Générer mes supports/i }).click();
-    await expect(page.getByText('Extraction réussie')).toBeVisible({ timeout: 60000 });
 
-    // Vérifier qu'un pourcentage de confiance est affiché
-    await expect(page.getByText(/%/)).toBeVisible();
-  });
+    // Le scanner redirige vers la page du cours cree
+    await expect(page).toHaveURL(/\/cours\?id=/, { timeout: 90000 });
 
-  test('permet d\'éditer le texte OCR', async ({ page }) => {
-    await page.goto('/scanner');
-    const fileInput = page.locator('input[type="file"]').first();
-    await fileInput.setInputFiles(TEST_IMAGE);
-
-    await page.getByRole('button', { name: /Générer mes supports/i }).click();
-    await expect(page.getByText('Extraction réussie')).toBeVisible({ timeout: 60000 });
-
-    // Cliquer sur le bouton d'édition si visible
-    const editButton = page.getByRole('button', { name: /Modifier/i });
-    if (await editButton.isVisible()) {
-      await editButton.click();
-
-      // Vérifier qu'on peut éditer
-      const textarea = page.getByRole('textbox');
-      await expect(textarea).toBeVisible();
-    }
-  });
-
-  test('le bouton "Nouveau scan" réinitialise la page', async ({ page }) => {
-    await page.goto('/scanner');
-    const fileInput = page.locator('input[type="file"]').first();
-    await fileInput.setInputFiles(TEST_IMAGE);
-
-    await page.getByRole('button', { name: /Générer mes supports/i }).click();
-    await expect(page.getByText('Extraction réussie')).toBeVisible({ timeout: 60000 });
-
-    // Cliquer sur "Nouveau scan"
-    await page.getByRole('button', { name: /Nouveau scan/i }).click();
-
-    // Vérifier qu'on est revenu à l'état initial
-    await expect(page.getByText('Glisse tes fichiers ici')).toBeVisible();
+    // La page du cours doit afficher le contenu
+    await expect(page.getByRole('heading', { name: /contenu du cours/i })).toBeVisible({ timeout: 10000 });
   });
 });
