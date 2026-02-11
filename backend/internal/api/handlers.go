@@ -6,14 +6,21 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/revisemieux/backend/internal/config"
 	"github.com/revisemieux/backend/internal/services"
 	"github.com/revisemieux/backend/internal/store"
 )
+
+// ConfigFrontend contient la configuration exposée au frontend
+type ConfigFrontend struct {
+	NombreMaxPages int `json:"nombreMaxPages"`
+}
 
 // Handlers contient les dépendances des handlers
 type Handlers struct {
 	store                   *store.Store
 	coursRepo               store.CoursRepository
+	configFrontend          *ConfigFrontend
 	handlersOCR             *HandlersOCR
 	handlersGeneration      *HandlersGeneration
 	handlersStatistiques    *HandlersStatistiques
@@ -21,10 +28,15 @@ type Handlers struct {
 	handlersCopies          *HandlersCopies
 	handlersRecommandations *HandlersRecommandations
 	handlersImages          *HandlersImages
+	handlersConcepts        *HandlersConcepts
+	handlersExamen          *HandlersExamen
+	handlersLexique         *HandlersLexique
+	handlersPlans           *HandlersPlans
 }
 
 // NouveauHandlers crée une nouvelle instance de Handlers
 func NouveauHandlers(
+	cfg *config.Config,
 	s *store.Store,
 	serviceOCR *services.ServiceOCR,
 	serviceGeneration *services.ServiceGeneration,
@@ -36,17 +48,26 @@ func NouveauHandlers(
 	coursRepo store.CoursRepository,
 	copieRepo store.CopieExamenRepository,
 	erreurRepo store.ErreurAnalyseRepository,
+	serviceConcepts *services.ServiceConcepts,
+	serviceExamen *services.ServiceExamen,
+	serviceLexique *services.ServiceLexique,
+	servicePlans *services.ServicePlans,
 ) *Handlers {
 	return &Handlers{
 		store:                   s,
 		coursRepo:               coursRepo,
-		handlersOCR:             NouveauHandlersOCR(serviceOCR, serviceStorage, coursRepo),
+		configFrontend:          &ConfigFrontend{NombreMaxPages: cfg.NombreMaxPages},
+		handlersOCR:             NouveauHandlersOCR(serviceOCR, serviceStorage, coursRepo, serviceGeneration, serviceConcepts),
 		handlersGeneration:      NouveauHandlersGeneration(serviceGeneration),
 		handlersStatistiques:    NouveauHandlersStatistiques(serviceStatistiques),
 		handlersQuotas:          NouveauHandlersQuotas(serviceQuotas),
 		handlersCopies:          NouveauHandlersCopies(serviceOCR, serviceAnalyseErreurs, copieRepo, erreurRepo),
 		handlersRecommandations: NouveauHandlersRecommandations(serviceRecommandations),
 		handlersImages:          NouveauHandlersImages(serviceStorage, coursRepo),
+		handlersConcepts:        NouveauHandlersConcepts(serviceConcepts),
+		handlersExamen:          NouveauHandlersExamen(serviceExamen),
+		handlersLexique:         NouveauHandlersLexique(serviceLexique),
+		handlersPlans:           NouveauHandlersPlans(servicePlans),
 	}
 }
 
@@ -77,6 +98,14 @@ func (h *Handlers) StatutHandler(c *gin.Context) {
 		"statut":        "ok",
 		"baseDeDonnees": statutDB,
 		"version":       "0.1.0",
+	})
+}
+
+// ConfigFrontendHandler retourne la configuration pour le frontend
+func (h *Handlers) ConfigFrontendHandler(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"succes": true,
+		"config": h.configFrontend,
 	})
 }
 
@@ -420,7 +449,7 @@ func parseInt(s string) (int, error) {
 // OCRHandler traite une image/PDF pour l'OCR
 func (h *Handlers) OCRHandler(c *gin.Context) {
 	if h.handlersOCR != nil {
-		h.handlersOCR.TraiterOCRHandler(c)
+		h.handlersOCR.TraiterOCRStreamHandler(c)
 		return
 	}
 	c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -569,12 +598,10 @@ func (h *Handlers) ObtenirMindmapHandler(c *gin.Context) {
 	})
 }
 
-// --- Handlers Ressources ---
-
-// GenererRessourcesHandler génère des ressources complémentaires
-func (h *Handlers) GenererRessourcesHandler(c *gin.Context) {
+// GenererResumeHandler génère un résumé pour un cours
+func (h *Handlers) GenererResumeHandler(c *gin.Context) {
 	if h.handlersGeneration != nil {
-		h.handlersGeneration.GenererRessourcesHandler(c)
+		h.handlersGeneration.GenererResumeHandler(c)
 		return
 	}
 	c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -586,17 +613,17 @@ func (h *Handlers) GenererRessourcesHandler(c *gin.Context) {
 	})
 }
 
-// ObtenirRessourcesHandler récupère les ressources d'un cours
-func (h *Handlers) ObtenirRessourcesHandler(c *gin.Context) {
-	if h.handlersGeneration != nil {
-		h.handlersGeneration.ObtenirRessourcesHandler(c)
+// RetraiterOCRCoursHandler relance l'OCR sur un cours existant
+func (h *Handlers) RetraiterOCRCoursHandler(c *gin.Context) {
+	if h.handlersOCR != nil {
+		h.handlersOCR.RetraiterOCRCoursHandler(c)
 		return
 	}
 	c.JSON(http.StatusServiceUnavailable, gin.H{
 		"succes": false,
 		"erreur": gin.H{
 			"code":    "SERVICE_NON_DISPONIBLE",
-			"message": "Le service n'est pas configuré",
+			"message": "Le service OCR n'est pas configuré",
 		},
 	})
 }
@@ -892,6 +919,359 @@ func (h *Handlers) DeplacerImageHandler(c *gin.Context) {
 		"erreur": gin.H{
 			"code":    "SERVICE_NON_DISPONIBLE",
 			"message": "Le service d'images n'est pas configuré",
+		},
+	})
+}
+
+// --- Handlers Concepts ---
+
+// ExtraireConceptsHandler extrait les concepts d'un cours
+func (h *Handlers) ExtraireConceptsHandler(c *gin.Context) {
+	if h.handlersConcepts != nil {
+		h.handlersConcepts.ExtraireConceptsHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de concepts n'est pas configuré",
+		},
+	})
+}
+
+// ListerConceptsHandler récupère les concepts d'un cours
+func (h *Handlers) ListerConceptsHandler(c *gin.Context) {
+	if h.handlersConcepts != nil {
+		h.handlersConcepts.ListerConceptsHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de concepts n'est pas configuré",
+		},
+	})
+}
+
+// MettreAJourConceptHandler met à jour un concept
+func (h *Handlers) MettreAJourConceptHandler(c *gin.Context) {
+	if h.handlersConcepts != nil {
+		h.handlersConcepts.MettreAJourConceptHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de concepts n'est pas configuré",
+		},
+	})
+}
+
+// SupprimerConceptHandler supprime un concept
+func (h *Handlers) SupprimerConceptHandler(c *gin.Context) {
+	if h.handlersConcepts != nil {
+		h.handlersConcepts.SupprimerConceptHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de concepts n'est pas configuré",
+		},
+	})
+}
+
+// --- Handlers Lexique ---
+
+// ExtraireTermesLexiqueHandler extrait les termes d un cours
+func (h *Handlers) ExtraireTermesLexiqueHandler(c *gin.Context) {
+	if h.handlersLexique != nil {
+		h.handlersLexique.ExtraireTermesHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de lexique n est pas configure",
+		},
+	})
+}
+
+// ListerTermesLexiqueHandler recupere les termes d un cours
+func (h *Handlers) ListerTermesLexiqueHandler(c *gin.Context) {
+	if h.handlersLexique != nil {
+		h.handlersLexique.ListerTermesHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de lexique n est pas configure",
+		},
+	})
+}
+
+// MettreAJourMaitriseHandler met a jour la maitrise d un terme
+func (h *Handlers) MettreAJourMaitriseHandler(c *gin.Context) {
+	if h.handlersLexique != nil {
+		h.handlersLexique.MettreAJourMaitriseHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de lexique n est pas configure",
+		},
+	})
+}
+
+// GenererQuizVocabulaireHandler genere un quiz de vocabulaire
+func (h *Handlers) GenererQuizVocabulaireHandler(c *gin.Context) {
+	if h.handlersLexique != nil {
+		h.handlersLexique.GenererQuizVocabulaireHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de lexique n est pas configure",
+		},
+	})
+}
+
+// --- Handlers Examen Blanc ---
+
+// GenererExamenHandler genere un examen blanc pour un cours
+func (h *Handlers) GenererExamenHandler(c *gin.Context) {
+	if h.handlersExamen != nil {
+		h.handlersExamen.GenererExamenHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service d'examen n'est pas configure",
+		},
+	})
+}
+
+// ObtenirExamenHandler recupere un examen par son ID
+func (h *Handlers) ObtenirExamenHandler(c *gin.Context) {
+	if h.handlersExamen != nil {
+		h.handlersExamen.ObtenirExamenHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service d'examen n'est pas configure",
+		},
+	})
+}
+
+// DemarrerSessionExamenHandler demarre une session d'examen
+func (h *Handlers) DemarrerSessionExamenHandler(c *gin.Context) {
+	if h.handlersExamen != nil {
+		h.handlersExamen.DemarrerSessionExamenHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service d'examen n'est pas configure",
+		},
+	})
+}
+
+// ObtenirSessionExamenHandler recupere une session d'examen
+func (h *Handlers) ObtenirSessionExamenHandler(c *gin.Context) {
+	if h.handlersExamen != nil {
+		h.handlersExamen.ObtenirSessionExamenHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service d'examen n'est pas configure",
+		},
+	})
+}
+
+// DemanderIndiceHandler retourne un indice pour une question
+func (h *Handlers) DemanderIndiceHandler(c *gin.Context) {
+	if h.handlersExamen != nil {
+		h.handlersExamen.DemanderIndiceHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service d'examen n'est pas configure",
+		},
+	})
+}
+
+// CorrigerExamenHandler corrige un examen
+func (h *Handlers) CorrigerExamenHandler(c *gin.Context) {
+	if h.handlersExamen != nil {
+		h.handlersExamen.CorrigerExamenHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service d'examen n'est pas configure",
+		},
+	})
+}
+
+// --- Handlers Plans de Révision ---
+
+// ListerPlansHandler liste les plans de révision
+func (h *Handlers) ListerPlansHandler(c *gin.Context) {
+	if h.handlersPlans != nil {
+		h.handlersPlans.ListerPlansHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de plans n'est pas configuré",
+		},
+	})
+}
+
+// CreerPlanHandler crée un nouveau plan de révision
+func (h *Handlers) CreerPlanHandler(c *gin.Context) {
+	if h.handlersPlans != nil {
+		h.handlersPlans.CreerPlanHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de plans n'est pas configuré",
+		},
+	})
+}
+
+// ObtenirPlanHandler récupère un plan par son ID
+func (h *Handlers) ObtenirPlanHandler(c *gin.Context) {
+	if h.handlersPlans != nil {
+		h.handlersPlans.ObtenirPlanHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de plans n'est pas configuré",
+		},
+	})
+}
+
+// ObtenirPlanCompletHandler récupère un plan avec ses cours et artefacts
+func (h *Handlers) ObtenirPlanCompletHandler(c *gin.Context) {
+	if h.handlersPlans != nil {
+		h.handlersPlans.ObtenirPlanCompletHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de plans n'est pas configuré",
+		},
+	})
+}
+
+// MettreAJourPlanHandler met à jour un plan
+func (h *Handlers) MettreAJourPlanHandler(c *gin.Context) {
+	if h.handlersPlans != nil {
+		h.handlersPlans.MettreAJourPlanHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de plans n'est pas configuré",
+		},
+	})
+}
+
+// SupprimerPlanHandler supprime un plan
+func (h *Handlers) SupprimerPlanHandler(c *gin.Context) {
+	if h.handlersPlans != nil {
+		h.handlersPlans.SupprimerPlanHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de plans n'est pas configuré",
+		},
+	})
+}
+
+// AjouterCoursAuPlanHandler ajoute un cours à un plan
+func (h *Handlers) AjouterCoursAuPlanHandler(c *gin.Context) {
+	if h.handlersPlans != nil {
+		h.handlersPlans.AjouterCoursHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de plans n'est pas configuré",
+		},
+	})
+}
+
+// RetirerCoursDuPlanHandler retire un cours d'un plan
+func (h *Handlers) RetirerCoursDuPlanHandler(c *gin.Context) {
+	if h.handlersPlans != nil {
+		h.handlersPlans.RetirerCoursHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de plans n'est pas configuré",
+		},
+	})
+}
+
+// ListerPlansParCoursHandler liste les plans contenant un cours
+func (h *Handlers) ListerPlansParCoursHandler(c *gin.Context) {
+	if h.handlersPlans != nil {
+		h.handlersPlans.ListerPlansParCoursHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service de plans n'est pas configuré",
 		},
 	})
 }

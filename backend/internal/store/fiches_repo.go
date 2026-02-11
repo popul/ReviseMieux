@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 // Fiche représente une fiche de révision question/réponse
@@ -18,6 +19,7 @@ type Fiche struct {
 	Reponse      string    `json:"reponse"`
 	Difficulte   string    `json:"difficulte"` // "facile", "moyen", "difficile"
 	Ordre        int       `json:"ordre"`
+	ConceptIDs   []string  `json:"conceptIds"`
 	DateCreation time.Time `json:"dateCreation"`
 }
 
@@ -57,8 +59,8 @@ func (r *FichesRepo) CreerPlusieurs(ctx context.Context, fiches []*Fiche) error 
 	defer tx.Rollback()
 
 	query := `
-		INSERT INTO fiches (id, cours_id, question, reponse, difficulte, ordre, date_creation)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO fiches (id, cours_id, question, reponse, difficulte, ordre, date_creation, concept_ids)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	`
 
 	stmt, err := tx.PrepareContext(ctx, query)
@@ -77,6 +79,10 @@ func (r *FichesRepo) CreerPlusieurs(ctx context.Context, fiches []*Fiche) error 
 			fiche.Ordre = i + 1
 		}
 
+		if fiche.ConceptIDs == nil {
+			fiche.ConceptIDs = []string{}
+		}
+
 		_, err := stmt.ExecContext(ctx,
 			fiche.ID,
 			fiche.CoursID,
@@ -85,6 +91,7 @@ func (r *FichesRepo) CreerPlusieurs(ctx context.Context, fiches []*Fiche) error 
 			fiche.Difficulte,
 			fiche.Ordre,
 			fiche.DateCreation,
+			pq.Array(fiche.ConceptIDs),
 		)
 		if err != nil {
 			return fmt.Errorf("erreur insertion fiche %d: %w", i, err)
@@ -101,7 +108,7 @@ func (r *FichesRepo) CreerPlusieurs(ctx context.Context, fiches []*Fiche) error 
 // ListerParCours récupère toutes les fiches d'un cours
 func (r *FichesRepo) ListerParCours(ctx context.Context, coursID string) ([]*Fiche, error) {
 	query := `
-		SELECT id, cours_id, question, reponse, difficulte, ordre, date_creation
+		SELECT id, cours_id, question, reponse, difficulte, ordre, date_creation, concept_ids
 		FROM fiches
 		WHERE cours_id = $1
 		ORDER BY ordre ASC
@@ -124,6 +131,7 @@ func (r *FichesRepo) ListerParCours(ctx context.Context, coursID string) ([]*Fic
 			&fiche.Difficulte,
 			&fiche.Ordre,
 			&fiche.DateCreation,
+			pq.Array(&fiche.ConceptIDs),
 		)
 		if err != nil {
 			return nil, fmt.Errorf("erreur scan fiche: %w", err)

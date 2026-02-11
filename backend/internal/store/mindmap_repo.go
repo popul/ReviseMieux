@@ -27,10 +27,11 @@ type Position struct {
 
 // NoeudMindmap représente un nœud dans une mindmap
 type NoeudMindmap struct {
-	ID       string    `json:"id"`
-	Label    string    `json:"label"`
-	Type     TypeNoeud `json:"type"`
-	Position Position  `json:"position"`
+	ID        string    `json:"id"`
+	Label     string    `json:"label"`
+	Type      TypeNoeud `json:"type"`
+	Position  Position  `json:"position"`
+	ConceptID string    `json:"conceptId,omitempty"`
 }
 
 // LienMindmap représente un lien entre deux nœuds

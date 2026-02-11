@@ -15,6 +15,7 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers, serviceQuotas *services.Servic
 	// Groupe API
 	api := r.Group("/api")
 	{
+		api.GET("/config", h.ConfigFrontendHandler)
 		api.GET("/statut", h.StatutHandler)
 		api.GET("/statistiques", h.ObtenirStatistiquesHandler)
 		api.GET("/progression", h.ObtenirProgressionHandler)
@@ -30,8 +31,28 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers, serviceQuotas *services.Servic
 			cours.PUT("/:id", h.MettreAJourCoursHandler)
 			cours.DELETE("/:id", h.SupprimerCoursHandler)
 			cours.GET("/:id/fiches", h.ObtenirFichesHandler)
-			cours.GET("/:id/ressources", h.ObtenirRessourcesHandler)
 			cours.GET("/:id/mindmap", h.ObtenirMindmapHandler)
+
+			// Routes Résumé
+			cours.POST("/:id/resume/generer", MiddlewareVerificationQuotaGeneration(serviceQuotas), h.GenererResumeHandler)
+
+			// Routes Re-OCR
+			cours.POST("/:id/reocr", MiddlewareVerificationQuotaOCR(serviceQuotas), h.RetraiterOCRCoursHandler)
+
+			// Routes Concepts
+			cours.POST("/:id/concepts/extraire", MiddlewareVerificationQuotaGeneration(serviceQuotas), h.ExtraireConceptsHandler)
+			cours.GET("/:id/concepts", h.ListerConceptsHandler)
+
+			// Routes Lexique
+			cours.POST("/:id/lexique/extraire", MiddlewareVerificationQuotaGeneration(serviceQuotas), h.ExtraireTermesLexiqueHandler)
+			cours.GET("/:id/lexique", h.ListerTermesLexiqueHandler)
+			cours.POST("/:id/lexique/quiz", h.GenererQuizVocabulaireHandler)
+
+			// Routes Examen Blanc
+			cours.POST("/:id/examen/generer", MiddlewareVerificationQuotaGeneration(serviceQuotas), h.GenererExamenHandler)
+
+			// Routes Plans par cours
+			cours.GET("/:id/plans", h.ListerPlansParCoursHandler)
 
 			// Routes Images
 			cours.GET("/:id/images", h.ListerImagesHandler)
@@ -52,7 +73,6 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers, serviceQuotas *services.Servic
 			generer.POST("/fiches", h.GenererFichesHandler)
 			generer.POST("/quiz", h.GenererQuizHandler)
 			generer.POST("/mindmap", h.GenererMindmapHandler)
-			generer.POST("/ressources", h.GenererRessourcesHandler)
 		}
 
 		// Routes Quiz
@@ -62,6 +82,35 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers, serviceQuotas *services.Servic
 			quiz.POST("/:id/demarrer", h.DemarrerSessionHandler)
 			quiz.POST("/:id/session/:sessionId/repondre", h.RepondreHandler)
 			quiz.POST("/:id/session/:sessionId/terminer", h.TerminerSessionHandler)
+		}
+
+		// Routes Concepts (modification/suppression)
+		concepts := api.Group("/concepts")
+		{
+			concepts.PUT("/:id", h.MettreAJourConceptHandler)
+			concepts.DELETE("/:id", h.SupprimerConceptHandler)
+		}
+
+		// Routes Lexique (modification maitrise)
+		lexique := api.Group("/lexique")
+		{
+			lexique.PUT("/:id/maitrise", h.MettreAJourMaitriseHandler)
+		}
+
+
+		// Routes Examens Blancs
+		examens := api.Group("/examens")
+		{
+			examens.GET("/:id", h.ObtenirExamenHandler)
+			examens.POST("/:id/sessions", h.DemarrerSessionExamenHandler)
+		}
+
+		// Routes Sessions Examen
+		sessionsExamen := api.Group("/sessions-examen")
+		{
+			sessionsExamen.GET("/:id", h.ObtenirSessionExamenHandler)
+			sessionsExamen.POST("/:id/indice", h.DemanderIndiceHandler)
+			sessionsExamen.POST("/:id/corriger", MiddlewareVerificationQuotaGeneration(serviceQuotas), h.CorrigerExamenHandler)
 		}
 
 		// Routes Copies d'examens
@@ -74,6 +123,19 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers, serviceQuotas *services.Servic
 			copies.POST("/:id/analyser", MiddlewareVerificationQuotaGeneration(serviceQuotas), h.AnalyserCopieHandler)
 			copies.GET("/:id/erreurs", h.ObtenirErreursHandler)
 			copies.POST("/:id/recommandations", MiddlewareVerificationQuotaGeneration(serviceQuotas), h.GenererRecommandationsCopieHandler)
+		}
+
+		// Routes Plans de Révision
+		plans := api.Group("/plans")
+		{
+			plans.GET("", h.ListerPlansHandler)
+			plans.POST("", h.CreerPlanHandler)
+			plans.GET("/:id", h.ObtenirPlanHandler)
+			plans.GET("/:id/complet", h.ObtenirPlanCompletHandler)
+			plans.PUT("/:id", h.MettreAJourPlanHandler)
+			plans.DELETE("/:id", h.SupprimerPlanHandler)
+			plans.POST("/:id/cours", h.AjouterCoursAuPlanHandler)
+			plans.DELETE("/:id/cours/:coursId", h.RetirerCoursDuPlanHandler)
 		}
 
 		// Routes Recommandations

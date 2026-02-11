@@ -8,19 +8,20 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"mime/multipart"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/revisemieux/backend/internal/llm"
+	"github.com/revisemieux/backend/internal/ocr"
 )
 
 // Constantes de configuration OCR
 const (
 	// TailleMaxFichier est la taille maximale d'un fichier (10MB)
 	TailleMaxFichier = 10 * 1024 * 1024
-	// NombreMaxPages est le nombre maximum de pages/images par upload
-	NombreMaxPages = 10
 )
 
 // Types MIME acceptés pour l'OCR
@@ -54,7 +55,6 @@ func (e *ErreurOCR) Error() string {
 var (
 	ErrTypeFichierInvalide   = &ErreurOCR{Code: "TYPE_INVALIDE", Message: "Type de fichier non supporté"}
 	ErrFichierTropGrand      = &ErreurOCR{Code: "FICHIER_TROP_GRAND", Message: "Fichier trop volumineux (max 10MB)"}
-	ErrTropDePages           = &ErreurOCR{Code: "TROP_DE_PAGES", Message: "Trop de pages (max 10)"}
 	ErrFichierVide           = &ErreurOCR{Code: "FICHIER_VIDE", Message: "Fichier vide"}
 	ErrLLMNonDisponible      = &ErreurOCR{Code: "LLM_NON_DISPONIBLE", Message: "Service LLM non disponible"}
 	ErrExtractionPDFEchouee  = &ErreurOCR{Code: "EXTRACTION_PDF_ECHOUEE", Message: "Échec de l'extraction des pages PDF"}
@@ -67,6 +67,12 @@ type FichierUpload struct {
 	TypeMIME string
 }
 
+// BlocTexteParPage regroupe les blocs de texte d'une page avec un index de page
+type BlocTexteParPage struct {
+	Page       int             `json:"page"`
+	BlocsTexte []llm.BlocTexte `json:"blocs_texte"`
+}
+
 // ResultatOCRCours contient le résultat complet de l'OCR d'un cours
 type ResultatOCRCours struct {
 	Texte            string               `json:"texte"`
@@ -75,18 +81,47 @@ type ResultatOCRCours struct {
 	NombrePages      int                  `json:"nombre_pages"`
 	TitreSuggere     string               `json:"titre_suggere,omitempty"`
 	MatiereSuggeree  string               `json:"matiere_suggeree,omitempty"`
+	BlocsTexte       []BlocTexteParPage   `json:"blocs_texte,omitempty"`
 }
 
 // ServiceOCR gère l'extraction de texte des images et PDF
 type ServiceOCR struct {
 	gestionnaireLLM *llm.GestionnaireLLM
+	tesseractActif  bool
+	tesseractLang   string
+	nombreMaxPages  int
 }
 
 // NouveauServiceOCR crée une nouvelle instance du service OCR
-func NouveauServiceOCR(gestionnaireLLM *llm.GestionnaireLLM) *ServiceOCR {
+func NouveauServiceOCR(gestionnaireLLM *llm.GestionnaireLLM, tesseractEnabled bool, nombreMaxPages int) *ServiceOCR {
+	tesseractActif := tesseractEnabled && ocr.TesseractDisponible()
+	if nombreMaxPages <= 0 {
+		nombreMaxPages = 30
+	}
 	return &ServiceOCR{
 		gestionnaireLLM: gestionnaireLLM,
+		tesseractActif:  tesseractActif,
+		tesseractLang:   "fra",
+		nombreMaxPages:  nombreMaxPages,
 	}
+}
+
+// NombreMaxPages retourne la limite configurée de pages par upload
+func (s *ServiceOCR) NombreMaxPages() int {
+	return s.nombreMaxPages
+}
+
+// erreurTropDePages retourne une erreur avec le nombre max dynamique
+func (s *ServiceOCR) erreurTropDePages() *ErreurOCR {
+	return &ErreurOCR{
+		Code:    "TROP_DE_PAGES",
+		Message: fmt.Sprintf("Trop de pages (max %d)", s.nombreMaxPages),
+	}
+}
+
+// TesseractActif retourne true si Tesseract est activé et disponible
+func (s *ServiceOCR) TesseractActif() bool {
+	return s.tesseractActif
 }
 
 // TraiterFichiers traite plusieurs fichiers uploadés et retourne le texte OCR combiné
@@ -106,8 +141,8 @@ func (s *ServiceOCR) TraiterFichiers(ctx context.Context, fichiers []*multipart.
 	}
 
 	// Vérifier le nombre total de pages
-	if len(images) > NombreMaxPages {
-		return nil, ErrTropDePages
+	if len(images) > s.nombreMaxPages {
+		return nil, s.erreurTropDePages()
 	}
 
 	if len(images) == 0 {
@@ -117,13 +152,14 @@ func (s *ServiceOCR) TraiterFichiers(ctx context.Context, fichiers []*multipart.
 	// Traiter chaque image et combiner les résultats
 	var textesExtraits []string
 	var toutesZonesIncertaines []llm.ZoneIncertaine
+	var tousBlocsTexte []BlocTexteParPage
 	var confianceTotale float64
 	offsetTexte := 0
 
 	options := llm.OptionsOCRDefaut()
 
-	for _, img := range images {
-		resultat, err := s.gestionnaireLLM.ExtraireTexteImage(ctx, img, options)
+	for i, img := range images {
+		resultat, err := s.traiterImageHybride(ctx, img, options)
 		if err != nil {
 			return nil, fmt.Errorf("erreur OCR: %w", err)
 		}
@@ -140,6 +176,14 @@ func (s *ServiceOCR) TraiterFichiers(ctx context.Context, fichiers []*multipart.
 				Raison: zone.Raison,
 			}
 			toutesZonesIncertaines = append(toutesZonesIncertaines, zoneAjustee)
+		}
+
+		// Collecter les blocs de texte avec positions pour cette page
+		if len(resultat.BlocsTexte) > 0 {
+			tousBlocsTexte = append(tousBlocsTexte, BlocTexteParPage{
+				Page:       i,
+				BlocsTexte: resultat.BlocsTexte,
+			})
 		}
 
 		// Mettre à jour l'offset pour la prochaine page
@@ -161,7 +205,163 @@ func (s *ServiceOCR) TraiterFichiers(ctx context.Context, fichiers []*multipart.
 		NombrePages:      len(images),
 		TitreSuggere:     titreSuggere,
 		MatiereSuggeree:  matiereSuggeree,
+		BlocsTexte:       tousBlocsTexte,
 	}, nil
+}
+
+// CallbackProgression est appelé après chaque page traitée avec succès.
+// Si le callback retourne une erreur, le traitement s'arrête.
+type CallbackProgression func(page, total int) error
+
+// TraiterFichiersAvecProgression traite les fichiers en envoyant un callback de progression après chaque page.
+func (s *ServiceOCR) TraiterFichiersAvecProgression(ctx context.Context, fichiers []*multipart.FileHeader, onProgression CallbackProgression) (*ResultatOCRCours, error) {
+	if s.gestionnaireLLM == nil {
+		return nil, ErrLLMNonDisponible
+	}
+
+	// Collecter toutes les images à traiter
+	var images [][]byte
+	for _, fh := range fichiers {
+		imgs, err := s.extraireImages(fh)
+		if err != nil {
+			return nil, err
+		}
+		images = append(images, imgs...)
+	}
+
+	if len(images) > s.nombreMaxPages {
+		return nil, s.erreurTropDePages()
+	}
+	if len(images) == 0 {
+		return nil, ErrFichierVide
+	}
+
+	total := len(images)
+	var textesExtraits []string
+	var toutesZonesIncertaines []llm.ZoneIncertaine
+	var tousBlocsTexte []BlocTexteParPage
+	var confianceTotale float64
+	offsetTexte := 0
+
+	options := llm.OptionsOCRDefaut()
+
+	for i, img := range images {
+		resultat, err := s.traiterImageHybride(ctx, img, options)
+		if err != nil {
+			return nil, fmt.Errorf("erreur OCR page %d: %w", i+1, err)
+		}
+
+		textesExtraits = append(textesExtraits, resultat.Texte)
+		confianceTotale += resultat.Confiance
+
+		for _, zone := range resultat.ZonesIncertaines {
+			zoneAjustee := llm.ZoneIncertaine{
+				Debut:  zone.Debut + offsetTexte,
+				Fin:    zone.Fin + offsetTexte,
+				Texte:  zone.Texte,
+				Raison: zone.Raison,
+			}
+			toutesZonesIncertaines = append(toutesZonesIncertaines, zoneAjustee)
+		}
+
+		if len(resultat.BlocsTexte) > 0 {
+			tousBlocsTexte = append(tousBlocsTexte, BlocTexteParPage{
+				Page:       i,
+				BlocsTexte: resultat.BlocsTexte,
+			})
+		}
+
+		offsetTexte += len(resultat.Texte) + 2
+
+		// Notifier la progression
+		if onProgression != nil {
+			if err := onProgression(i+1, total); err != nil {
+				return nil, fmt.Errorf("client déconnecté: %w", err)
+			}
+		}
+	}
+
+	texteCombine := strings.Join(textesExtraits, "\n\n")
+	confianceMoyenne := confianceTotale / float64(total)
+
+	titreSuggere, matiereSuggeree := s.extraireMetadonnees(ctx, texteCombine)
+
+	return &ResultatOCRCours{
+		Texte:            texteCombine,
+		Confiance:        confianceMoyenne,
+		ZonesIncertaines: toutesZonesIncertaines,
+		NombrePages:      total,
+		TitreSuggere:     titreSuggere,
+		MatiereSuggeree:  matiereSuggeree,
+		BlocsTexte:       tousBlocsTexte,
+	}, nil
+}
+
+// traiterImageHybride traite une image avec LLM + Tesseract en parallèle.
+// Si Tesseract a une confiance suffisante → positions Tesseract (pixel-perfect) + texte LLM.
+// Si Tesseract échoue ou est indisponible → fallback sur les blocs LLM (positions approximatives).
+func (s *ServiceOCR) traiterImageHybride(ctx context.Context, img []byte, options llm.OptionsOCR) (*llm.ResultatOCR, error) {
+	if !s.tesseractActif {
+		// Sans Tesseract : LLM avec ses positions approximatives
+		return s.gestionnaireLLM.ExtraireTexteImage(ctx, img, options)
+	}
+
+	type resultatLLM struct {
+		resultat *llm.ResultatOCR
+		err      error
+	}
+	type resultatTess struct {
+		blocs   []ocr.BlocTesseract
+		largeur int
+		hauteur int
+		err     error
+	}
+
+	var wg sync.WaitGroup
+	chLLM := make(chan resultatLLM, 1)
+	chTess := make(chan resultatTess, 1)
+
+	// Lancer LLM en parallèle
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		res, err := s.gestionnaireLLM.ExtraireTexteImage(ctx, img, options)
+		chLLM <- resultatLLM{resultat: res, err: err}
+	}()
+
+	// Lancer Tesseract en parallèle
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		blocs, largeur, hauteur, err := ocr.ExtraireBlocsTesseract(img, s.tesseractLang)
+		chTess <- resultatTess{blocs: blocs, largeur: largeur, hauteur: hauteur, err: err}
+	}()
+
+	// Attendre les résultats
+	resLLM := <-chLLM
+	resTess := <-chTess
+	wg.Wait()
+
+	// Si le LLM a échoué, on ne peut rien faire
+	if resLLM.err != nil {
+		return nil, resLLM.err
+	}
+
+	// Si Tesseract a échoué, fallback sur les blocs LLM (positions approximatives)
+	if resTess.err != nil {
+		log.Printf("⚠️ Tesseract échoué, fallback sur positions LLM: %v", resTess.err)
+		return resLLM.resultat, nil
+	}
+
+	// Fusionner : positions Tesseract (si confiance OK) ou fallback LLM
+	resLLM.resultat.BlocsTexte = ocr.FusionnerBlocsHybride(
+		resLLM.resultat.BlocsTexte,
+		resTess.blocs,
+		resTess.largeur,
+		resTess.hauteur,
+	)
+
+	return resLLM.resultat, nil
 }
 
 // extraireImages extrait les images d'un fichier uploadé
@@ -310,8 +510,8 @@ func (s *ServiceOCR) ValiderFichiers(fichiers []*multipart.FileHeader) error {
 		return ErrFichierVide
 	}
 
-	if len(fichiers) > NombreMaxPages {
-		return ErrTropDePages
+	if len(fichiers) > s.nombreMaxPages {
+		return s.erreurTropDePages()
 	}
 
 	for _, fh := range fichiers {
@@ -412,4 +612,65 @@ Si tu ne peux pas déterminer la matière, utilise une chaîne vide.`,
 // parseJSON est une fonction helper pour parser du JSON
 func parseJSON(data []byte, v interface{}) error {
 	return json.Unmarshal(data, v)
+}
+
+// RetraiterOCRImages re-traite des images brutes pour re-générer les blocs de texte OCR
+func (s *ServiceOCR) RetraiterOCRImages(ctx context.Context, images [][]byte) (*ResultatOCRCours, error) {
+	if s.gestionnaireLLM == nil {
+		return nil, ErrLLMNonDisponible
+	}
+	if len(images) == 0 {
+		return nil, ErrFichierVide
+	}
+	if len(images) > s.nombreMaxPages {
+		return nil, s.erreurTropDePages()
+	}
+
+	// Même logique que TraiterFichiers mais avec des bytes bruts au lieu de FileHeaders
+	var textesExtraits []string
+	var toutesZonesIncertaines []llm.ZoneIncertaine
+	var tousBlocsTexte []BlocTexteParPage
+	var confianceTotale float64
+	offsetTexte := 0
+
+	options := llm.OptionsOCRDefaut()
+
+	for i, img := range images {
+		resultat, err := s.traiterImageHybride(ctx, img, options)
+		if err != nil {
+			return nil, fmt.Errorf("erreur OCR page %d: %w", i, err)
+		}
+		textesExtraits = append(textesExtraits, resultat.Texte)
+		confianceTotale += resultat.Confiance
+		for _, zone := range resultat.ZonesIncertaines {
+			zoneAjustee := llm.ZoneIncertaine{
+				Debut:  zone.Debut + offsetTexte,
+				Fin:    zone.Fin + offsetTexte,
+				Texte:  zone.Texte,
+				Raison: zone.Raison,
+			}
+			toutesZonesIncertaines = append(toutesZonesIncertaines, zoneAjustee)
+		}
+		if len(resultat.BlocsTexte) > 0 {
+			tousBlocsTexte = append(tousBlocsTexte, BlocTexteParPage{
+				Page:       i,
+				BlocsTexte: resultat.BlocsTexte,
+			})
+		}
+		offsetTexte += len(resultat.Texte) + 2
+	}
+
+	texteCombine := strings.Join(textesExtraits, "\n\n")
+	confianceMoyenne := confianceTotale / float64(len(images))
+	titreSuggere, matiereSuggeree := s.extraireMetadonnees(ctx, texteCombine)
+
+	return &ResultatOCRCours{
+		Texte:            texteCombine,
+		Confiance:        confianceMoyenne,
+		ZonesIncertaines: toutesZonesIncertaines,
+		NombrePages:      len(images),
+		TitreSuggere:     titreSuggere,
+		MatiereSuggeree:  matiereSuggeree,
+		BlocsTexte:       tousBlocsTexte,
+	}, nil
 }
