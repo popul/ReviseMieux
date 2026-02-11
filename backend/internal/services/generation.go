@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/rand"
+	"strings"
 	"time"
 
 	"github.com/revisemieux/backend/internal/llm"
@@ -45,14 +46,14 @@ var (
 	ErrServiceNonDisponible  = &ErreurGeneration{Code: "SERVICE_NON_DISPONIBLE", Message: "Le service de génération n'est pas disponible"}
 )
 
-// ServiceGeneration gère la génération de contenu (fiches, quiz, mindmaps, ressources)
+// ServiceGeneration gère la génération de contenu (fiches, quiz, mindmaps)
 type ServiceGeneration struct {
 	gestionnaireLLM  *llm.GestionnaireLLM
 	coursRepo        store.CoursRepository
 	fichesRepo       store.FichesRepository
 	quizRepo         store.QuizRepository
-	ressourcesRepo   store.RessourcesRepository
 	mindmapRepo      store.MindmapRepository
+	conceptsRepo     store.ConceptsRepository
 }
 
 // NouveauServiceGeneration crée une nouvelle instance du service de génération
@@ -61,16 +62,16 @@ func NouveauServiceGeneration(
 	coursRepo store.CoursRepository,
 	fichesRepo store.FichesRepository,
 	quizRepo store.QuizRepository,
-	ressourcesRepo store.RessourcesRepository,
 	mindmapRepo store.MindmapRepository,
+	conceptsRepo store.ConceptsRepository,
 ) *ServiceGeneration {
 	return &ServiceGeneration{
 		gestionnaireLLM:  gestionnaireLLM,
 		coursRepo:        coursRepo,
 		fichesRepo:       fichesRepo,
 		quizRepo:         quizRepo,
-		ressourcesRepo:   ressourcesRepo,
 		mindmapRepo:      mindmapRepo,
+		conceptsRepo:     conceptsRepo,
 	}
 }
 
@@ -95,8 +96,14 @@ func (s *ServiceGeneration) GenererFiches(ctx context.Context, coursID string, o
 		return nil, ErrCoursVideOCR
 	}
 
+	// Fetch existing concepts for this course
+	var concepts []*store.Concept
+	if s.conceptsRepo != nil {
+		concepts, _ = s.conceptsRepo.ListerParCours(ctx, coursID)
+	}
+
 	// Construire le prompt
-	prompt := s.construirePromptFiches(texte, options)
+	prompt := s.construirePromptFiches(texte, options, concepts)
 
 	// Appeler le LLM
 	llmOptions := llm.OptionsGeneration{
@@ -112,7 +119,7 @@ func (s *ServiceGeneration) GenererFiches(ctx context.Context, coursID string, o
 	}
 
 	// Parser la réponse
-	fiches, err := s.parserReponseFiches(reponseJSON, coursID)
+	fiches, err := s.parserReponseFiches(reponseJSON, coursID, concepts)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrParsingFichesEchoue, err.Error())
 	}
@@ -131,7 +138,7 @@ func (s *ServiceGeneration) GenererFiches(ctx context.Context, coursID string, o
 }
 
 // construirePromptFiches construit le prompt pour la génération de fiches
-func (s *ServiceGeneration) construirePromptFiches(texte string, options *OptionsGenerationFiches) string {
+func (s *ServiceGeneration) construirePromptFiches(texte string, options *OptionsGenerationFiches, concepts []*store.Concept) string {
 	nombreFiches := ""
 	if options != nil && options.NombreFiches > 0 {
 		nombreFiches = fmt.Sprintf("- Génère exactement %d fiches\n", options.NombreFiches)
@@ -146,6 +153,21 @@ func (s *ServiceGeneration) construirePromptFiches(texte string, options *Option
 		difficulte = "- Varie la difficulté (facile, moyen, difficile) de manière équilibrée\n"
 	}
 
+	conceptsSection := ""
+	if len(concepts) > 0 {
+		conceptsSection = "\nConcepts clés identifiés dans ce cours:\n"
+		for _, c := range concepts {
+			conceptsSection += fmt.Sprintf("- %s (%s): %s\n", c.Nom, c.Importance, c.Definition)
+		}
+		conceptsSection += "\nPour chaque fiche, indique le(s) concept(s) associé(s) parmi cette liste dans le champ \"concepts\".\n"
+	}
+
+	conceptsField := ""
+	if len(concepts) > 0 {
+		conceptsField = `,
+      "concepts": ["Nom du concept"]`
+	}
+
 	return fmt.Sprintf(`Tu es un professeur expert en création de supports de révision pour lycéens.
 
 À partir du cours suivant, génère des fiches de révision efficaces.
@@ -154,7 +176,7 @@ Cours :
 """
 %s
 """
-
+%s
 Instructions :
 %s%s- Crée des fiches question/réponse basées UNIQUEMENT sur le contenu fourni
 - Les questions doivent favoriser le rappel actif (pas de simples définitions)
@@ -170,26 +192,33 @@ Réponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou a
     {
       "question": "...",
       "reponse": "...",
-      "difficulte": "facile|moyen|difficile"
+      "difficulte": "facile|moyen|difficile"%s
     }
   ]
-}`, texte, nombreFiches, difficulte)
+}`, texte, conceptsSection, nombreFiches, difficulte, conceptsField)
 }
 
 // reponseFichesJSON représente la structure de réponse du LLM
 type reponseFichesJSON struct {
 	Fiches []struct {
-		Question   string `json:"question"`
-		Reponse    string `json:"reponse"`
-		Difficulte string `json:"difficulte"`
+		Question   string   `json:"question"`
+		Reponse    string   `json:"reponse"`
+		Difficulte string   `json:"difficulte"`
+		Concepts   []string `json:"concepts"`
 	} `json:"fiches"`
 }
 
 // parserReponseFiches parse la réponse JSON du LLM en fiches
-func (s *ServiceGeneration) parserReponseFiches(reponseJSON []byte, coursID string) ([]*store.Fiche, error) {
+func (s *ServiceGeneration) parserReponseFiches(reponseJSON []byte, coursID string, concepts []*store.Concept) ([]*store.Fiche, error) {
 	var reponse reponseFichesJSON
 	if err := json.Unmarshal(reponseJSON, &reponse); err != nil {
 		return nil, fmt.Errorf("erreur parsing JSON: %w", err)
+	}
+
+	// Build a name-to-ID map for concept matching
+	conceptNameToID := make(map[string]string)
+	for _, c := range concepts {
+		conceptNameToID[strings.ToLower(c.Nom)] = c.ID
 	}
 
 	fiches := make([]*store.Fiche, 0, len(reponse.Fiches))
@@ -200,12 +229,21 @@ func (s *ServiceGeneration) parserReponseFiches(reponseJSON []byte, coursID stri
 			difficulte = "moyen" // valeur par défaut
 		}
 
+		// Map concept names to IDs
+		var conceptIDs []string
+		for _, nomConcept := range f.Concepts {
+			if id, ok := conceptNameToID[strings.ToLower(nomConcept)]; ok {
+				conceptIDs = append(conceptIDs, id)
+			}
+		}
+
 		fiche := &store.Fiche{
 			CoursID:    coursID,
 			Question:   f.Question,
 			Reponse:    f.Reponse,
 			Difficulte: difficulte,
 			Ordre:      i + 1,
+			ConceptIDs: conceptIDs,
 		}
 		fiches = append(fiches, fiche)
 	}
@@ -602,171 +640,6 @@ func (s *ServiceGeneration) ListerQuizParCours(ctx context.Context, coursID stri
 	return s.quizRepo.ListerParCours(ctx, coursID)
 }
 
-// --- Génération de Ressources ---
-
-// ResultatGenerationRessources contient le résultat de la génération de ressources
-type ResultatGenerationRessources struct {
-	Ressources    []*store.Ressource `json:"ressources"`
-	NombreGenere  int                `json:"nombreGenere"`
-	Avertissement string             `json:"avertissement"`
-}
-
-// Codes d'erreur ressources
-var (
-	ErrParsingRessourcesEchoue = &ErreurGeneration{Code: "PARSING_RESSOURCES_ECHOUE", Message: "Erreur lors du parsing des ressources générées"}
-)
-
-// GenererRessources génère des suggestions de ressources pour un cours
-func (s *ServiceGeneration) GenererRessources(ctx context.Context, coursID string) (*ResultatGenerationRessources, error) {
-	if s.gestionnaireLLM == nil {
-		return nil, ErrServiceNonDisponible
-	}
-
-	// Récupérer le cours
-	cours, err := s.coursRepo.ObtenirParID(ctx, coursID)
-	if err != nil {
-		return nil, fmt.Errorf("%w: %s", ErrCoursNonTrouve, err.Error())
-	}
-
-	// Vérifier que le cours a du texte
-	texte := cours.TexteCorrige
-	if texte == "" {
-		texte = cours.TexteOCR
-	}
-	if texte == "" {
-		return nil, ErrCoursVideOCR
-	}
-
-	// Construire le prompt
-	prompt := s.construirePromptRessources(texte, cours.Titre, cours.Matiere)
-
-	// Appeler le LLM
-	llmOptions := llm.OptionsGeneration{
-		Temperature:   0.7,
-		MaxTokens:     2000,
-		FormatReponse: "json",
-		SystemPrompt:  "Tu es un assistant pédagogique expert en recherche de ressources éducatives pour lycéens. Tu réponds uniquement en JSON valide.",
-	}
-
-	reponseJSON, err := s.gestionnaireLLM.GenererJSON(ctx, prompt, nil, llmOptions)
-	if err != nil {
-		return nil, fmt.Errorf("%w: %s", ErrGenerationLLMEchouee, err.Error())
-	}
-
-	// Parser la réponse
-	ressources, err := s.parserReponseRessources(reponseJSON, coursID)
-	if err != nil {
-		return nil, fmt.Errorf("%w: %s", ErrParsingRessourcesEchoue, err.Error())
-	}
-
-	// Sauvegarder les ressources en base
-	if s.ressourcesRepo != nil {
-		if err := s.ressourcesRepo.CreerPlusieurs(ctx, ressources); err != nil {
-			return nil, fmt.Errorf("erreur sauvegarde ressources: %w", err)
-		}
-	}
-
-	return &ResultatGenerationRessources{
-		Ressources:    ressources,
-		NombreGenere:  len(ressources),
-		Avertissement: "Les liens suggérés sont générés par IA et doivent être vérifiés avant utilisation.",
-	}, nil
-}
-
-// construirePromptRessources construit le prompt pour la génération de ressources
-func (s *ServiceGeneration) construirePromptRessources(texte, titre, matiere string) string {
-	matiereInfo := ""
-	if matiere != "" {
-		matiereInfo = fmt.Sprintf("Matière : %s\n", matiere)
-	}
-	titreInfo := ""
-	if titre != "" {
-		titreInfo = fmt.Sprintf("Titre du cours : %s\n", titre)
-	}
-
-	return fmt.Sprintf(`Tu es un assistant pédagogique qui suggère des ressources complémentaires pour aider un lycéen à approfondir un cours.
-
-%s%sCours :
-"""
-%s
-"""
-
-Instructions :
-1. Suggère entre 5 et 10 ressources pertinentes et éducatives
-2. Varie les types : vidéos YouTube éducatives, articles de référence, sites pédagogiques
-3. Privilégie les ressources en français quand possible
-4. Choisis des sources fiables : Khan Academy, Les Bons Profs, Lumni, Wikipedia, sites .edu/.gouv
-5. Décris brièvement chaque ressource (1-2 phrases)
-6. Pour les vidéos YouTube, suggère des chaînes éducatives reconnues
-7. Les URLs doivent être plausibles mais n'ont pas besoin d'être vérifiées (l'utilisateur sera averti)
-
-Types de ressources à inclure :
-- video : vidéos YouTube ou cours en ligne
-- article : articles Wikipedia, encyclopédies, blogs éducatifs
-- site : sites web éducatifs, plateformes d'apprentissage
-
-Réponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou après :
-{
-  "ressources": [
-    {
-      "titre": "Nom de la ressource",
-      "url": "https://...",
-      "type": "video|article|site",
-      "description": "Brève description de la ressource"
-    }
-  ]
-}`, titreInfo, matiereInfo, texte)
-}
-
-// reponseRessourcesJSON représente la structure de réponse du LLM pour les ressources
-type reponseRessourcesJSON struct {
-	Ressources []struct {
-		Titre       string `json:"titre"`
-		URL         string `json:"url"`
-		Type        string `json:"type"`
-		Description string `json:"description"`
-	} `json:"ressources"`
-}
-
-// parserReponseRessources parse la réponse JSON du LLM en ressources
-func (s *ServiceGeneration) parserReponseRessources(reponseJSON []byte, coursID string) ([]*store.Ressource, error) {
-	var reponse reponseRessourcesJSON
-	if err := json.Unmarshal(reponseJSON, &reponse); err != nil {
-		return nil, fmt.Errorf("erreur parsing JSON: %w", err)
-	}
-
-	ressources := make([]*store.Ressource, 0, len(reponse.Ressources))
-	for _, r := range reponse.Ressources {
-		// Valider le type de ressource
-		typeRessource := store.TypeRessource(r.Type)
-		if typeRessource != store.TypeRessourceVideo &&
-			typeRessource != store.TypeRessourceArticle &&
-			typeRessource != store.TypeRessourceSite {
-			typeRessource = store.TypeRessourceSite // valeur par défaut
-		}
-
-		ressource := &store.Ressource{
-			CoursID:     coursID,
-			Titre:       r.Titre,
-			URL:         r.URL,
-			Type:        typeRessource,
-			Description: r.Description,
-		}
-		ressources = append(ressources, ressource)
-	}
-
-	return ressources, nil
-}
-
-// ObtenirRessourcesParCours récupère les ressources existantes d'un cours
-func (s *ServiceGeneration) ObtenirRessourcesParCours(ctx context.Context, coursID string) ([]*store.Ressource, error) {
-	if s.ressourcesRepo == nil {
-		return nil, ErrServiceNonDisponible
-	}
-
-	return s.ressourcesRepo.ListerParCours(ctx, coursID)
-}
-
 // --- Génération de Mindmaps ---
 
 // ResultatGenerationMindmap contient le résultat de la génération de mindmap
@@ -801,8 +674,14 @@ func (s *ServiceGeneration) GenererMindmap(ctx context.Context, coursID string) 
 		return nil, ErrCoursVideOCR
 	}
 
+	// Récupérer les concepts existants pour ce cours
+	var concepts []*store.Concept
+	if s.conceptsRepo != nil {
+		concepts, _ = s.conceptsRepo.ListerParCours(ctx, coursID)
+	}
+
 	// Construire le prompt
-	prompt := s.construirePromptMindmap(texte, cours.Titre)
+	prompt := s.construirePromptMindmap(texte, cours.Titre, concepts)
 
 	// Appeler le LLM
 	llmOptions := llm.OptionsGeneration{
@@ -843,10 +722,19 @@ func (s *ServiceGeneration) GenererMindmap(ctx context.Context, coursID string) 
 }
 
 // construirePromptMindmap construit le prompt pour la génération de mindmap
-func (s *ServiceGeneration) construirePromptMindmap(texte, titre string) string {
+func (s *ServiceGeneration) construirePromptMindmap(texte, titre string, concepts []*store.Concept) string {
 	titreInfo := ""
 	if titre != "" {
 		titreInfo = fmt.Sprintf("Titre du cours : %s\n\n", titre)
+	}
+
+	conceptsSection := ""
+	if len(concepts) > 0 {
+		conceptsSection = "\nConcepts clés identifiés dans ce cours (avec leurs IDs):\n"
+		for _, c := range concepts {
+			conceptsSection += fmt.Sprintf("- %s (ID: %s, %s)\n", c.Nom, c.ID, c.Importance)
+		}
+		conceptsSection += "\nPour chaque noeud de type \"branche\" ou \"feuille\", associe un \"concept_id\" correspondant si le noeud correspond à un des concepts ci-dessus. Utilise l'ID exact du concept. Si aucun concept ne correspond, laisse concept_id vide.\n"
 	}
 
 	return fmt.Sprintf(`Tu es un professeur créant une carte mentale (mindmap) pour aider un lycéen à visualiser et mémoriser un cours.
@@ -855,7 +743,7 @@ func (s *ServiceGeneration) construirePromptMindmap(texte, titre string) string 
 """
 %s
 """
-
+%s
 Instructions :
 1. Identifie le thème central du cours (nœud central)
 2. Identifie les 3-6 grandes branches (sous-thèmes principaux)
@@ -876,26 +764,29 @@ Réponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou a
       "id": "central",
       "label": "Thème principal",
       "type": "central",
-      "position": {"x": 400, "y": 300}
+      "position": {"x": 400, "y": 300},
+      "concept_id": ""
     },
     {
       "id": "branche1",
       "label": "Sous-thème 1",
       "type": "branche",
-      "position": {"x": 200, "y": 150}
+      "position": {"x": 200, "y": 150},
+      "concept_id": ""
     },
     {
       "id": "feuille1-1",
       "label": "Concept 1",
       "type": "feuille",
-      "position": {"x": 50, "y": 100}
+      "position": {"x": 50, "y": 100},
+      "concept_id": ""
     }
   ],
   "liens": [
     {"source": "central", "target": "branche1"},
     {"source": "branche1", "target": "feuille1-1"}
   ]
-}`, titreInfo, texte)
+}`, titreInfo, texte, conceptsSection)
 }
 
 // reponseMindmapJSON représente la structure de réponse du LLM pour les mindmaps
@@ -908,6 +799,7 @@ type reponseMindmapJSON struct {
 			X float64 `json:"x"`
 			Y float64 `json:"y"`
 		} `json:"position"`
+		ConceptID string `json:"concept_id"`
 	} `json:"noeuds"`
 	Liens []struct {
 		Source string `json:"source"`
@@ -941,6 +833,7 @@ func (s *ServiceGeneration) parserReponseMindmap(reponseJSON []byte) ([]store.No
 				X: n.Position.X,
 				Y: n.Position.Y,
 			},
+			ConceptID: n.ConceptID,
 		}
 		noeuds = append(noeuds, noeud)
 	}
@@ -966,4 +859,130 @@ func (s *ServiceGeneration) ObtenirMindmapParCours(ctx context.Context, coursID 
 	}
 
 	return s.mindmapRepo.ObtenirParCours(ctx, coursID)
+}
+
+// --- Génération de Résumé ---
+
+// SectionResume représente une section du résumé structuré
+type SectionResume struct {
+	Titre   string `json:"titre"`
+	Contenu string `json:"contenu"`
+}
+
+// ResultatResume contient le résultat de la génération du résumé
+type ResultatResume struct {
+	PointsCles []string        `json:"pointsCles"`
+	Structure  []SectionResume `json:"structure"`
+	Paragraphe string          `json:"paragraphe"`
+}
+
+// Codes d'erreur résumé
+var (
+	ErrParsingResumeEchoue = &ErreurGeneration{Code: "PARSING_RESUME_ECHOUE", Message: "Erreur lors du parsing du résumé généré"}
+	ErrResumeNonTrouve     = &ErreurGeneration{Code: "RESUME_NON_TROUVE", Message: "Aucun résumé trouvé pour ce cours"}
+)
+
+// GenererResume génère un résumé pour un cours
+func (s *ServiceGeneration) GenererResume(ctx context.Context, coursID string) (*ResultatResume, error) {
+	if s.gestionnaireLLM == nil {
+		return nil, ErrServiceNonDisponible
+	}
+
+	// Récupérer le cours
+	cours, err := s.coursRepo.ObtenirParID(ctx, coursID)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrCoursNonTrouve, err.Error())
+	}
+
+	// Vérifier que le cours a du texte
+	texte := cours.TexteCorrige
+	if texte == "" {
+		texte = cours.TexteOCR
+	}
+	if texte == "" {
+		return nil, ErrCoursVideOCR
+	}
+
+	// Construire le prompt
+	prompt := s.construirePromptResume(texte)
+
+	// Appeler le LLM
+	llmOptions := llm.OptionsGeneration{
+		Temperature:   0.7,
+		MaxTokens:     4000,
+		FormatReponse: "json",
+		SystemPrompt:  "Tu es un professeur expert en synthèse de cours pour lycéens et collégiens. Tu réponds uniquement en JSON valide.",
+	}
+
+	reponseJSON, err := s.gestionnaireLLM.GenererJSON(ctx, prompt, nil, llmOptions)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrGenerationLLMEchouee, err.Error())
+	}
+
+	// Parser la réponse
+	var resultat ResultatResume
+	if err := json.Unmarshal(reponseJSON, &resultat); err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrParsingResumeEchoue, err.Error())
+	}
+
+	// Sauvegarder en base
+	resumeJSON, err := json.Marshal(resultat)
+	if err != nil {
+		return nil, fmt.Errorf("erreur sérialisation résumé: %w", err)
+	}
+	cours.Resume = json.RawMessage(resumeJSON)
+	if err := s.coursRepo.MettreAJour(ctx, cours); err != nil {
+		return nil, fmt.Errorf("erreur sauvegarde résumé: %w", err)
+	}
+
+	return &resultat, nil
+}
+
+// construirePromptResume construit le prompt pour la génération de résumé
+func (s *ServiceGeneration) construirePromptResume(texte string) string {
+	return fmt.Sprintf(`Tu es un professeur expert en synthèse de cours pour lycéens et collégiens.
+
+À partir du cours suivant, génère un résumé complet et structuré.
+
+Cours :
+"""
+%s
+"""
+
+Instructions :
+- Identifie les points clés du cours (5 à 10 points maximum)
+- Structure le résumé en sections avec titre et contenu
+- Rédige un paragraphe de synthèse global (3 à 5 phrases)
+- Base-toi UNIQUEMENT sur le contenu fourni
+- Utilise un langage clair et accessible pour un élève
+
+Réponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou après :
+{
+  "pointsCles": ["Point clé 1", "Point clé 2", "..."],
+  "structure": [
+    {"titre": "Section 1", "contenu": "Contenu détaillé de la section..."},
+    {"titre": "Section 2", "contenu": "Contenu détaillé de la section..."}
+  ],
+  "paragraphe": "Paragraphe de synthèse global du cours..."
+}`, texte)
+}
+
+// ObtenirResume récupère le résumé existant d'un cours
+func (s *ServiceGeneration) ObtenirResume(ctx context.Context, coursID string) (*ResultatResume, error) {
+	// Récupérer le cours
+	cours, err := s.coursRepo.ObtenirParID(ctx, coursID)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrCoursNonTrouve, err.Error())
+	}
+
+	if cours.Resume == nil || len(cours.Resume) == 0 || string(cours.Resume) == "null" {
+		return nil, ErrResumeNonTrouve
+	}
+
+	var resultat ResultatResume
+	if err := json.Unmarshal(cours.Resume, &resultat); err != nil {
+		return nil, fmt.Errorf("%w: %s", ErrParsingResumeEchoue, err.Error())
+	}
+
+	return &resultat, nil
 }

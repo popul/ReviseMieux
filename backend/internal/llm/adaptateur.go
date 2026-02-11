@@ -60,6 +60,36 @@ type ResultatOCR struct {
 
 	// ZonesIncertaines liste les zones où le texte est incertain
 	ZonesIncertaines []ZoneIncertaine `json:"zones_incertaines"`
+
+	// BlocsTexte contient les blocs de texte avec leurs positions approximatives dans l'image
+	BlocsTexte []BlocTexte `json:"blocs_texte,omitempty"`
+}
+
+// BlocTexte représente un bloc de texte avec sa position dans l'image
+type BlocTexte struct {
+	// Texte est le contenu textuel du bloc
+	Texte string `json:"texte"`
+
+	// Position est la position approximative du bloc dans l'image (en pourcentages 0-100)
+	Position PositionBloc `json:"position"`
+
+	// Confiance est le score de confiance pour ce bloc spécifique (0.0 à 1.0)
+	Confiance float64 `json:"confiance"`
+}
+
+// PositionBloc représente la position d'un bloc de texte en pourcentages de l'image
+type PositionBloc struct {
+	// X est la position horizontale du coin supérieur gauche (0-100)
+	X float64 `json:"x"`
+
+	// Y est la position verticale du coin supérieur gauche (0-100)
+	Y float64 `json:"y"`
+
+	// Largeur est la largeur du bloc (0-100)
+	Largeur float64 `json:"largeur"`
+
+	// Hauteur est la hauteur du bloc (0-100)
+	Hauteur float64 `json:"hauteur"`
 }
 
 // ZoneIncertaine représente une zone de texte où l'OCR est incertain

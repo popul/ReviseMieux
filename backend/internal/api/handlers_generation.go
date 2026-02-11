@@ -39,11 +39,12 @@ type ReponseFiches struct {
 
 // FicheReponse représente une fiche dans la réponse API
 type FicheReponse struct {
-	ID         string `json:"id"`
-	Question   string `json:"question"`
-	Reponse    string `json:"reponse"`
-	Difficulte string `json:"difficulte"`
-	Ordre      int    `json:"ordre"`
+	ID         string   `json:"id"`
+	Question   string   `json:"question"`
+	Reponse    string   `json:"reponse"`
+	Difficulte string   `json:"difficulte"`
+	Ordre      int      `json:"ordre"`
+	ConceptIDs []string `json:"conceptIds"`
 }
 
 // GenererFichesHandler génère des fiches de révision pour un cours
@@ -101,12 +102,17 @@ func (h *HandlersGeneration) GenererFichesHandler(c *gin.Context) {
 	// Convertir les fiches pour la réponse
 	fichesReponse := make([]FicheReponse, 0, len(resultat.Fiches))
 	for _, f := range resultat.Fiches {
+		conceptIDs := f.ConceptIDs
+		if conceptIDs == nil {
+			conceptIDs = []string{}
+		}
 		fichesReponse = append(fichesReponse, FicheReponse{
 			ID:         f.ID,
 			Question:   f.Question,
 			Reponse:    f.Reponse,
 			Difficulte: f.Difficulte,
 			Ordre:      f.Ordre,
+			ConceptIDs: conceptIDs,
 		})
 	}
 
@@ -151,12 +157,17 @@ func (h *HandlersGeneration) ObtenirFichesHandler(c *gin.Context) {
 	// Convertir les fiches pour la réponse
 	fichesReponse := make([]FicheReponse, 0, len(fiches))
 	for _, f := range fiches {
+		conceptIDs := f.ConceptIDs
+		if conceptIDs == nil {
+			conceptIDs = []string{}
+		}
 		fichesReponse = append(fichesReponse, FicheReponse{
 			ID:         f.ID,
 			Question:   f.Question,
 			Reponse:    f.Reponse,
 			Difficulte: f.Difficulte,
 			Ordre:      f.Ordre,
+			ConceptIDs: conceptIDs,
 		})
 	}
 
@@ -644,180 +655,6 @@ func (h *HandlersGeneration) gererErreurGenerationSession(c *gin.Context, err er
 	})
 }
 
-// --- Ressources Handlers ---
-
-// RequeteGenererRessources représente la requête pour générer des ressources
-type RequeteGenererRessources struct {
-	CoursID string `json:"coursId" binding:"required"`
-}
-
-// ReponseRessources représente la réponse de génération de ressources
-type ReponseRessources struct {
-	Succes        bool               `json:"succes"`
-	Ressources    []RessourceReponse `json:"ressources,omitempty"`
-	NombreGenere  int                `json:"nombreGenere,omitempty"`
-	Avertissement string             `json:"avertissement,omitempty"`
-	Erreur        *ErreurReponse     `json:"erreur,omitempty"`
-}
-
-// RessourceReponse représente une ressource dans la réponse API
-type RessourceReponse struct {
-	ID          string `json:"id"`
-	Titre       string `json:"titre"`
-	URL         string `json:"url,omitempty"`
-	Type        string `json:"type"`
-	Description string `json:"description,omitempty"`
-}
-
-// GenererRessourcesHandler génère des ressources complémentaires pour un cours
-func (h *HandlersGeneration) GenererRessourcesHandler(c *gin.Context) {
-	if h.serviceGeneration == nil {
-		c.JSON(http.StatusServiceUnavailable, ReponseRessources{
-			Succes: false,
-			Erreur: &ErreurReponse{
-				Code:    "SERVICE_NON_DISPONIBLE",
-				Message: "Le service de génération n'est pas configuré",
-			},
-		})
-		return
-	}
-
-	var req RequeteGenererRessources
-	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, ReponseRessources{
-			Succes: false,
-			Erreur: &ErreurReponse{
-				Code:    "REQUETE_INVALIDE",
-				Message: "Le champ coursId est requis",
-			},
-		})
-		return
-	}
-
-	resultat, err := h.serviceGeneration.GenererRessources(c.Request.Context(), req.CoursID)
-	if err != nil {
-		h.gererErreurGenerationRessources(c, err)
-		return
-	}
-
-	// Convertir les ressources pour la réponse
-	ressourcesReponse := make([]RessourceReponse, 0, len(resultat.Ressources))
-	for _, r := range resultat.Ressources {
-		ressourcesReponse = append(ressourcesReponse, RessourceReponse{
-			ID:          r.ID,
-			Titre:       r.Titre,
-			URL:         r.URL,
-			Type:        string(r.Type),
-			Description: r.Description,
-		})
-	}
-
-	c.JSON(http.StatusOK, ReponseRessources{
-		Succes:        true,
-		Ressources:    ressourcesReponse,
-		NombreGenere:  resultat.NombreGenere,
-		Avertissement: resultat.Avertissement,
-	})
-}
-
-// ObtenirRessourcesHandler récupère les ressources existantes d'un cours
-func (h *HandlersGeneration) ObtenirRessourcesHandler(c *gin.Context) {
-	coursID := c.Param("id")
-	if coursID == "" {
-		c.JSON(http.StatusBadRequest, ReponseRessources{
-			Succes: false,
-			Erreur: &ErreurReponse{
-				Code:    "ID_MANQUANT",
-				Message: "L'ID du cours est requis",
-			},
-		})
-		return
-	}
-
-	if h.serviceGeneration == nil {
-		c.JSON(http.StatusServiceUnavailable, ReponseRessources{
-			Succes: false,
-			Erreur: &ErreurReponse{
-				Code:    "SERVICE_NON_DISPONIBLE",
-				Message: "Le service n'est pas configuré",
-			},
-		})
-		return
-	}
-
-	ressources, err := h.serviceGeneration.ObtenirRessourcesParCours(c.Request.Context(), coursID)
-	if err != nil {
-		h.gererErreurGenerationRessources(c, err)
-		return
-	}
-
-	// Convertir les ressources pour la réponse
-	ressourcesReponse := make([]RessourceReponse, 0, len(ressources))
-	for _, r := range ressources {
-		ressourcesReponse = append(ressourcesReponse, RessourceReponse{
-			ID:          r.ID,
-			Titre:       r.Titre,
-			URL:         r.URL,
-			Type:        string(r.Type),
-			Description: r.Description,
-		})
-	}
-
-	c.JSON(http.StatusOK, ReponseRessources{
-		Succes:        true,
-		Ressources:    ressourcesReponse,
-		NombreGenere:  len(ressourcesReponse),
-		Avertissement: "Les liens suggérés sont générés par IA et doivent être vérifiés avant utilisation.",
-	})
-}
-
-// gererErreurGenerationRessources gère les erreurs spécifiques aux ressources
-func (h *HandlersGeneration) gererErreurGenerationRessources(c *gin.Context, err error) {
-	var errGen *services.ErreurGeneration
-	if errors.As(err, &errGen) {
-		statusCode := http.StatusInternalServerError
-		switch errGen.Code {
-		case "COURS_NON_TROUVE":
-			statusCode = http.StatusNotFound
-		case "COURS_VIDE":
-			statusCode = http.StatusBadRequest
-		case "SERVICE_NON_DISPONIBLE":
-			statusCode = http.StatusServiceUnavailable
-		}
-
-		c.JSON(statusCode, ReponseRessources{
-			Succes: false,
-			Erreur: &ErreurReponse{
-				Code:    errGen.Code,
-				Message: errGen.Message,
-			},
-		})
-		return
-	}
-
-	var errLLM *llm.ErreurLLM
-	if errors.As(err, &errLLM) {
-		if errLLM.RateLimited {
-			c.JSON(http.StatusTooManyRequests, ReponseRessources{
-				Succes: false,
-				Erreur: &ErreurReponse{
-					Code:    "QUOTA_DEPASSE",
-					Message: "Limite d'appels API atteinte, réessayez plus tard",
-				},
-			})
-			return
-		}
-	}
-
-	c.JSON(http.StatusInternalServerError, ReponseRessources{
-		Succes: false,
-		Erreur: &ErreurReponse{
-			Code:    "ERREUR_INTERNE",
-			Message: "Une erreur est survenue lors de la génération des ressources",
-		},
-	})
-}
-
 // gererErreurGeneration gère les erreurs du service de génération
 func (h *HandlersGeneration) gererErreurGeneration(c *gin.Context, err error) {
 	// Vérifier si c'est une erreur LLM
@@ -1100,6 +937,136 @@ func (h *HandlersGeneration) gererErreurGenerationMindmap(c *gin.Context, err er
 		Erreur: &ErreurReponse{
 			Code:    "ERREUR_INTERNE",
 			Message: "Une erreur est survenue lors de la génération de la mindmap",
+		},
+	})
+}
+
+// --- Résumé Handlers ---
+
+// ReponseResume représente la réponse de génération de résumé
+type ReponseResume struct {
+	Succes  bool                      `json:"succes"`
+	Resume  *services.ResultatResume  `json:"resume,omitempty"`
+	Erreur  *ErreurReponse            `json:"erreur,omitempty"`
+}
+
+// GenererResumeHandler génère un résumé pour un cours
+func (h *HandlersGeneration) GenererResumeHandler(c *gin.Context) {
+	if h.serviceGeneration == nil {
+		c.JSON(http.StatusServiceUnavailable, ReponseResume{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    "SERVICE_NON_DISPONIBLE",
+				Message: "Le service de génération n'est pas configuré",
+			},
+		})
+		return
+	}
+
+	coursID := c.Param("id")
+	if coursID == "" {
+		c.JSON(http.StatusBadRequest, ReponseResume{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    "ID_MANQUANT",
+				Message: "L'ID du cours est requis",
+			},
+		})
+		return
+	}
+
+	resultat, err := h.serviceGeneration.GenererResume(c.Request.Context(), coursID)
+	if err != nil {
+		h.gererErreurGenerationResume(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, ReponseResume{
+		Succes: true,
+		Resume: resultat,
+	})
+}
+
+// ObtenirResumeHandler récupère le résumé existant d'un cours
+func (h *HandlersGeneration) ObtenirResumeHandler(c *gin.Context) {
+	coursID := c.Param("id")
+	if coursID == "" {
+		c.JSON(http.StatusBadRequest, ReponseResume{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    "ID_MANQUANT",
+				Message: "L'ID du cours est requis",
+			},
+		})
+		return
+	}
+
+	if h.serviceGeneration == nil {
+		c.JSON(http.StatusServiceUnavailable, ReponseResume{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    "SERVICE_NON_DISPONIBLE",
+				Message: "Le service n'est pas configuré",
+			},
+		})
+		return
+	}
+
+	resultat, err := h.serviceGeneration.ObtenirResume(c.Request.Context(), coursID)
+	if err != nil {
+		h.gererErreurGenerationResume(c, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, ReponseResume{
+		Succes: true,
+		Resume: resultat,
+	})
+}
+
+// gererErreurGenerationResume gère les erreurs spécifiques aux résumés
+func (h *HandlersGeneration) gererErreurGenerationResume(c *gin.Context, err error) {
+	var errGen *services.ErreurGeneration
+	if errors.As(err, &errGen) {
+		statusCode := http.StatusInternalServerError
+		switch errGen.Code {
+		case "COURS_NON_TROUVE", "RESUME_NON_TROUVE":
+			statusCode = http.StatusNotFound
+		case "COURS_VIDE":
+			statusCode = http.StatusBadRequest
+		case "SERVICE_NON_DISPONIBLE":
+			statusCode = http.StatusServiceUnavailable
+		}
+
+		c.JSON(statusCode, ReponseResume{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    errGen.Code,
+				Message: errGen.Message,
+			},
+		})
+		return
+	}
+
+	var errLLM *llm.ErreurLLM
+	if errors.As(err, &errLLM) {
+		if errLLM.RateLimited {
+			c.JSON(http.StatusTooManyRequests, ReponseResume{
+				Succes: false,
+				Erreur: &ErreurReponse{
+					Code:    "QUOTA_DEPASSE",
+					Message: "Limite d'appels API atteinte, réessayez plus tard",
+				},
+			})
+			return
+		}
+	}
+
+	c.JSON(http.StatusInternalServerError, ReponseResume{
+		Succes: false,
+		Erreur: &ErreurReponse{
+			Code:    "ERREUR_INTERNE",
+			Message: "Une erreur est survenue lors de la génération du résumé",
 		},
 	})
 }

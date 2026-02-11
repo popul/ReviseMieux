@@ -185,7 +185,7 @@ func (c *ClientOpenAI) ExtraireTexteImage(ctx context.Context, image []byte, opt
 			},
 		},
 		Temperature:    0.1, // Basse température pour l'OCR (plus déterministe)
-		MaxTokens:      4000,
+		MaxTokens:      8000,
 		ResponseFormat: &formatReponse{Type: "json_object"},
 	}
 
@@ -482,6 +482,10 @@ func construirePromptOCR(options OptionsOCR) string {
 Analyse cette image qui contient du texte %s en %s.
 
 Extrais tout le texte visible dans l'image en respectant la mise en page originale autant que possible.
+
+Identifie les blocs de texte distincts (paragraphes, titres, lignes séparées) et retourne-les
+dans le champ "blocs_texte". Pour chaque bloc, estime sa position dans l'image en pourcentages (0-100)
+avec x, y pour le coin supérieur gauche et largeur, hauteur pour les dimensions.
 `, typeDoc, langue)
 
 	if options.DetailConfiance {
@@ -500,12 +504,21 @@ Réponds uniquement en JSON avec ce format exact:
       "texte": "mot probable",
       "raison": "écriture peu lisible"
     }
+  ],
+  "blocs_texte": [
+    {
+      "texte": "Contenu du bloc",
+      "position": {"x": 5, "y": 10, "largeur": 90, "hauteur": 8},
+      "confiance": 0.95
+    }
   ]
 }
 
 - "confiance" est un score entre 0 et 1 représentant ta confiance globale dans l'extraction
 - "debut" et "fin" sont les indices de caractères dans le texte extrait
 - Si tout est clair, retourne une liste vide pour "zones_incertaines"
+- "blocs_texte" contient chaque bloc de texte distinct avec sa position estimée et sa confiance
+- "position": x, y = coin supérieur gauche en % de l'image (0-100), largeur et hauteur en %
 `
 	} else {
 		promptBase += `
@@ -513,10 +526,19 @@ Réponds uniquement en JSON avec ce format exact:
 {
   "texte": "Le texte extrait complet",
   "confiance": 0.95,
-  "zones_incertaines": []
+  "zones_incertaines": [],
+  "blocs_texte": [
+    {
+      "texte": "Contenu du bloc",
+      "position": {"x": 5, "y": 10, "largeur": 90, "hauteur": 8},
+      "confiance": 0.95
+    }
+  ]
 }
 
 - "confiance" est un score entre 0 et 1 représentant ta confiance globale dans l'extraction
+- "blocs_texte" contient chaque bloc de texte distinct avec sa position estimée et sa confiance
+- "position": x, y = coin supérieur gauche en % de l'image (0-100), largeur et hauteur en %
 `
 	}
 
