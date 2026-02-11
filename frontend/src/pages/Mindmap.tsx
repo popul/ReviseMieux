@@ -1,5 +1,5 @@
 import { useState, useLayoutEffect } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
+import { useSearchParams, Link, useNavigate } from 'react-router-dom'
 import {
   listerCours,
   obtenirMindmap,
@@ -24,7 +24,7 @@ function useChargementCours(coursId: string | null) {
     listerCours(1, 50)
       .then((res) => {
         if (!cancelled) {
-          setListeCours(res.cours)
+          setListeCours(res.cours || [])
           setChargement(false)
         }
       })
@@ -116,6 +116,7 @@ function useMindmap(coursId: string | null) {
 export default function Mindmap() {
   const [searchParams] = useSearchParams()
   const coursId = searchParams.get('cours')
+  const navigate = useNavigate()
 
   const { listeCours, chargement: chargementCours, erreur: erreurCours } = useChargementCours(coursId)
   const { mindmap, chargement: chargementMindmap, generation, erreur: erreurMindmap, generer } = useMindmap(coursId)
@@ -152,7 +153,7 @@ export default function Mindmap() {
 
     return (
       <div>
-        <h1 className="font-display text-3xl font-semibold text-ink mb-8">
+        <h1 className="font-display text-xl md:text-3xl font-semibold text-ink mb-8">
           Cartes mentales
         </h1>
         <p className="text-ink-light mb-8">
@@ -255,20 +256,20 @@ export default function Mindmap() {
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)]">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-4 md:gap-6">
           <Link
             to="/mindmap"
             className="flex items-center gap-2 text-ink-light hover:text-ink transition-colors"
           >
             ← Retour
           </Link>
-          <h1 className="font-display text-xl font-semibold text-ink">
+          <h1 className="font-display text-lg md:text-xl font-semibold text-ink">
             Carte mentale
           </h1>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           <span className="text-sm text-ink-muted">
             {mindmap!.noeuds.length} concepts
           </span>
@@ -290,7 +291,14 @@ export default function Mindmap() {
 
       {/* Mindmap View */}
       <div className="flex-1 bg-white rounded-xl shadow-sm overflow-hidden">
-        <MindmapView mindmap={mindmap!} />
+        <MindmapView
+          mindmap={mindmap!}
+          onNoeudClick={(noeud) => {
+            if (noeud.conceptId && coursId) {
+              navigate(`/cours?id=${coursId}&concept=${noeud.conceptId}`)
+            }
+          }}
+        />
       </div>
     </div>
   )

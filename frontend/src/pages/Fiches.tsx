@@ -1,6 +1,6 @@
-import { useState, useMemo, useCallback, useLayoutEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback, useLayoutEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { obtenirFichesCours, listerCours, genererFiches, type Fiche, type Cours } from '../services/api'
+import { obtenirFichesCours, listerCours, genererFiches, getConceptsByCours, type Fiche, type Cours, type Concept } from '../services/api'
 import CarteFiche from '../components/CarteFiche'
 import ControlesFiches from '../components/ControlesFiches'
 import ListeFichesSidebar from '../components/ListeFichesSidebar'
@@ -24,7 +24,7 @@ function useChargementCours(coursId: string | null) {
     listerCours(1, 50)
       .then((res) => {
         if (!cancelled) {
-          setListeCours(res.cours)
+          setListeCours(res.cours || [])
           setChargement(false)
         }
       })
@@ -109,6 +109,22 @@ export default function Fiches() {
   const [modeAffichage, setModeAffichage] = useState<ModeAffichage>('reviser')
   const [filtreDifficulte, setFiltreDifficulte] = useState<Difficulte>('toutes')
   const [prevFiltre, setPrevFiltre] = useState<Difficulte>('toutes')
+
+  // État pour les concepts
+  const [concepts, setConcepts] = useState<Concept[]>([])
+
+  useEffect(() => {
+    if (!coursId) return
+    getConceptsByCours(coursId)
+      .then(res => setConcepts(res.concepts || []))
+      .catch(() => setConcepts([]))
+  }, [coursId])
+
+  const conceptMap = useMemo(() => {
+    const map = new Map<string, Concept>()
+    concepts.forEach(c => map.set(c.id, c))
+    return map
+  }, [concepts])
 
   // État pour la génération de fiches
   const [generationEnCours, setGenerationEnCours] = useState(false)
@@ -199,7 +215,7 @@ export default function Fiches() {
 
     return (
       <div>
-        <h1 className="font-display text-3xl font-semibold text-ink mb-8">
+        <h1 className="font-display text-xl md:text-3xl font-semibold text-ink mb-8">
           Fiches de révision
         </h1>
         <p className="text-ink-light mb-8">
@@ -300,16 +316,18 @@ export default function Fiches() {
   }
 
   return (
-    <div className="flex min-h-[calc(100vh-6rem)] -mx-12 -mt-12">
-      {/* Sidebar avec liste des fiches */}
-      <ListeFichesSidebar
-        fiches={fichesFiltrees}
-        indexActuel={indexActuel}
-        onSelectFiche={setIndexActuel}
-      />
+    <div className="flex min-h-[calc(100vh-6rem)] -mx-4 -mt-4 md:-mx-12 md:-mt-12">
+      {/* Sidebar avec liste des fiches - masquee sur mobile */}
+      <div className="hidden md:block">
+        <ListeFichesSidebar
+          fiches={fichesFiltrees}
+          indexActuel={indexActuel}
+          onSelectFiche={setIndexActuel}
+        />
+      </div>
 
       {/* Contenu principal */}
-      <main className="flex-1 p-12 flex flex-col items-center">
+      <main className="flex-1 p-4 md:p-12 flex flex-col items-center">
         {/* Header avec actions */}
         <div className="w-full max-w-[700px] flex items-center justify-between mb-8">
           <Link
@@ -386,6 +404,26 @@ export default function Fiches() {
           /* Mode révision - Flashcard */
           <>
             <CarteFiche fiche={ficheCourante} />
+            {ficheCourante.conceptIds && ficheCourante.conceptIds.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-4 justify-center">
+                {ficheCourante.conceptIds.map(id => {
+                  const concept = conceptMap.get(id)
+                  if (!concept) return null
+                  const couleur = concept.importance === 'essentiel' ? 'bg-[#E85D4C] text-white' :
+                                  concept.importance === 'important' ? 'bg-[#1A4D4D] text-white' :
+                                  'bg-[#F5C542] text-[#1A4D4D]'
+                  return (
+                    <Link
+                      key={id}
+                      to={`/cours?id=${coursId}&concept=${id}`}
+                      className={`text-xs px-2 py-0.5 rounded-full font-medium ${couleur} hover:opacity-80 transition-opacity`}
+                    >
+                      {concept.nom}
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
             <div className="mt-8">
               <ControlesFiches
                 indexActuel={indexActuel}
@@ -419,6 +457,26 @@ export default function Fiches() {
                 <p className="text-ink-light leading-relaxed">
                   {fiche.reponse}
                 </p>
+                {fiche.conceptIds && fiche.conceptIds.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-2">
+                    {fiche.conceptIds.map(id => {
+                      const concept = conceptMap.get(id)
+                      if (!concept) return null
+                      const couleur = concept.importance === 'essentiel' ? 'bg-[#E85D4C] text-white' :
+                                      concept.importance === 'important' ? 'bg-[#1A4D4D] text-white' :
+                                      'bg-[#F5C542] text-[#1A4D4D]'
+                      return (
+                        <Link
+                          key={id}
+                          to={`/cours?id=${coursId}&concept=${id}`}
+                          className={`text-xs px-2 py-0.5 rounded-full font-medium ${couleur} hover:opacity-80 transition-opacity`}
+                        >
+                          {concept.nom}
+                        </Link>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             ))}
           </div>

@@ -15,6 +15,7 @@ export interface ReponseOCR {
   coursId?: string
   titreSuggere?: string
   matiereSuggeree?: string
+  blocsTexte?: BlocTexteParPage[]
 }
 
 export interface ZoneIncertaine {
@@ -22,6 +23,36 @@ export interface ZoneIncertaine {
   fin: number
   texte: string
   raison: string
+}
+
+export interface PositionBlocOCR {
+  x: number
+  y: number
+  largeur: number
+  hauteur: number
+}
+
+export interface BlocTexteOCR {
+  texte: string
+  position: PositionBlocOCR
+  confiance: number
+}
+
+export interface BlocTexteParPage {
+  page: number
+  blocs_texte: BlocTexteOCR[]
+}
+
+// Types Résumé
+export interface SectionResume {
+  titre: string
+  contenu: string
+}
+
+export interface ResumeCours {
+  pointsCles: string[]
+  structure: SectionResume[]
+  paragraphe: string
 }
 
 export interface Cours {
@@ -33,6 +64,8 @@ export interface Cours {
   zonesIncertaines: ZoneIncertaine[]
   fichiersOriginaux?: string[]
   images: string[]
+  blocsTexte?: BlocTexteParPage[]
+  resume?: ResumeCours
   dateCreation: string
   dateModification: string
 }
@@ -53,6 +86,22 @@ async function gererReponse<T>(response: Response): Promise<T> {
     throw new Error(erreur.message || `Erreur HTTP ${response.status}`)
   }
   return response.json()
+}
+
+// Types Config
+export interface ConfigFrontend {
+  nombreMaxPages: number
+}
+
+// API Config
+export async function obtenirConfig(): Promise<ConfigFrontend> {
+  try {
+    const response = await fetch(`${API_BASE}/config`)
+    const data = await gererReponse<{ succes: boolean; config: ConfigFrontend }>(response)
+    return data.config
+  } catch {
+    return { nombreMaxPages: 30 }
+  }
 }
 
 // API Statut
@@ -83,6 +132,88 @@ export async function envoyerOCR(
   return gererReponse<ReponseOCR>(response)
 }
 
+// API OCR avec streaming SSE (progression page par page)
+export async function envoyerOCRStream(
+  fichiers: File[],
+  onProgression: (page: number, total: number) => void,
+  options?: { titre?: string; matiere?: string; sauvegarder?: boolean },
+  signal?: AbortSignal
+): Promise<ReponseOCR> {
+  const formData = new FormData()
+  fichiers.forEach((fichier) => {
+    formData.append('fichiers[]', fichier)
+  })
+
+  if (options?.titre) formData.append('titre', options.titre)
+  if (options?.matiere) formData.append('matiere', options.matiere)
+  if (options?.sauvegarder) formData.append('sauvegarder', 'true')
+
+  const response = await fetch(`${API_BASE}/ocr`, {
+    method: 'POST',
+    body: formData,
+    signal,
+  })
+
+  // Erreurs de validation (avant le SSE) : JSON classique
+  if (!response.ok) {
+    const erreur = await response.json().catch(() => ({
+      erreur: { code: 'ERREUR_INCONNUE', message: `Erreur HTTP ${response.status}` },
+    }))
+    const err = new Error(erreur.erreur?.message || `Erreur HTTP ${response.status}`) as Error & { status?: number; code?: string }
+    err.status = response.status
+    err.code = erreur.erreur?.code
+    throw err
+  }
+
+  // Lire le flux SSE
+  const reader = response.body!.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+
+    buffer += decoder.decode(value, { stream: true })
+
+    // Séparer les événements SSE (délimiteur : double saut de ligne)
+    const parties = buffer.split('\n\n')
+    buffer = parties.pop()! // garder le fragment incomplet
+
+    for (const partie of parties) {
+      if (!partie.trim()) continue
+
+      let eventType = ''
+      let eventData = ''
+
+      for (const ligne of partie.split('\n')) {
+        if (ligne.startsWith('event: ')) eventType = ligne.slice(7)
+        else if (ligne.startsWith('data: ')) eventData = ligne.slice(6)
+      }
+
+      if (!eventData) continue
+
+      try {
+        const parsed = JSON.parse(eventData)
+        switch (eventType) {
+          case 'progress':
+            onProgression(parsed.page, parsed.total)
+            break
+          case 'complete':
+            return parsed as ReponseOCR
+          case 'error':
+            throw new Error(parsed.message || 'Erreur OCR')
+        }
+      } catch (e) {
+        if (e instanceof Error && e.message !== 'Erreur OCR' && !e.message.startsWith('Erreur')) continue
+        throw e
+      }
+    }
+  }
+
+  throw new Error('La connexion avec le serveur a été interrompue')
+}
+
 // API Cours
 export async function listerCours(page = 1, limite = 10): Promise<{ cours: Cours[]; total: number }> {
   const response = await fetch(`${API_BASE}/cours?page=${page}&limite=${limite}`)
@@ -104,7 +235,7 @@ export async function supprimerCours(id: string): Promise<void> {
 
 export async function mettreAJourCours(
   id: string,
-  donnees: { titre?: string; matiere?: string; texteOCR?: string; zonesIncertaines?: ZoneIncertaine[]; images?: string[] }
+  donnees: { titre?: string; matiere?: string; texteOCR?: string; zonesIncertaines?: ZoneIncertaine[]; images?: string[]; blocsTexte?: BlocTexteParPage[] }
 ): Promise<Cours> {
   const response = await fetch(`${API_BASE}/cours/${id}`, {
     method: 'PUT',
@@ -122,6 +253,7 @@ export interface Fiche {
   reponse: string
   difficulte: 'facile' | 'moyen' | 'difficile'
   ordre: number
+  conceptIds?: string[]
 }
 
 export interface ReponseFiches {
@@ -316,6 +448,7 @@ export interface NoeudMindmap {
   label: string
   type: 'central' | 'branche' | 'feuille'
   position: Position
+  conceptId?: string
 }
 
 export interface LienMindmap {
@@ -373,38 +506,6 @@ export interface ReponseQuotas {
 export async function obtenirQuotas(): Promise<ReponseQuotas> {
   const response = await fetch(`${API_BASE}/quotas`)
   return gererReponse<ReponseQuotas>(response)
-}
-
-// Types Ressources
-export interface Ressource {
-  id: string
-  titre: string
-  url?: string
-  type: 'video' | 'article' | 'exercice' | 'cours' | 'autre'
-  description?: string
-}
-
-export interface ReponseRessources {
-  succes: boolean
-  ressources: Ressource[]
-  nombreGenere: number
-  avertissement?: string
-  erreur?: ErreurAPI
-}
-
-// API Ressources
-export async function obtenirRessourcesCours(coursId: string): Promise<ReponseRessources> {
-  const response = await fetch(`${API_BASE}/cours/${coursId}/ressources`)
-  return gererReponse<ReponseRessources>(response)
-}
-
-export async function genererRessources(coursId: string): Promise<ReponseRessources> {
-  const response = await fetch(`${API_BASE}/generer/ressources`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ coursId }),
-  })
-  return gererReponse<ReponseRessources>(response)
 }
 
 // Types Progression
@@ -578,6 +679,224 @@ export async function obtenirErreursCopie(copieId: string): Promise<ReponseErreu
   return gererReponse<ReponseErreurs>(response)
 }
 
+
+// Types Concepts
+export interface PositionDansCours {
+  debut: number
+  fin: number
+}
+
+export interface Concept {
+  id: string
+  coursId: string
+  nom: string
+  definition: string
+  importance: 'essentiel' | 'important' | 'secondaire'
+  positionDansCours?: PositionDansCours
+  createdAt: string
+  updatedAt: string
+}
+
+export interface ReponseConcepts {
+  succes: boolean
+  concepts: Concept[]
+  nombreExtraits: number
+  erreur?: ErreurAPI
+}
+
+export interface ReponseConceptUnique {
+  succes: boolean
+  concept?: Concept
+  erreur?: ErreurAPI
+}
+
+// API Concepts
+export async function extraireConcepts(coursId: string): Promise<ReponseConcepts> {
+  const response = await fetch(`${API_BASE}/cours/${coursId}/concepts/extraire`, {
+    method: 'POST',
+  })
+  return gererReponse<ReponseConcepts>(response)
+}
+
+export async function getConceptsByCours(coursId: string): Promise<ReponseConcepts> {
+  const response = await fetch(`${API_BASE}/cours/${coursId}/concepts`)
+  return gererReponse<ReponseConcepts>(response)
+}
+
+export async function updateConcept(
+  id: string,
+  data: Partial<Pick<Concept, 'nom' | 'definition' | 'importance' | 'positionDansCours'>>
+): Promise<ReponseConceptUnique> {
+  const response = await fetch(`${API_BASE}/concepts/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return gererReponse<ReponseConceptUnique>(response)
+}
+
+export async function deleteConcept(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/concepts/${id}`, { method: 'DELETE' })
+  if (!response.ok) {
+    throw new Error(`Erreur lors de la suppression: ${response.status}`)
+  }
+}
+// Types Examen Blanc
+export interface IndiceExamen {
+  niveau: number
+  texte: string
+}
+
+export interface QuestionExamen {
+  numero: number
+  type: 'definition' | 'comprehension' | 'application' | 'synthese'
+  difficulte: 'facile' | 'moyen' | 'difficile'
+  enonce: string
+  bareme: number
+  reponseAttendue: string
+  indices: IndiceExamen[]
+}
+
+export interface ExamenBlanc {
+  id: string
+  coursId: string
+  questions: QuestionExamen[]
+  dureeMinutes: number
+  dateCreation: string
+}
+
+export interface ReponseExamenBlanc {
+  succes: boolean
+  examen?: ExamenBlanc
+  erreur?: ErreurAPI
+}
+
+export interface ReponseExamenDetail {
+  questionNumero: number
+  texte: string
+}
+
+export interface IndiceUtilise {
+  questionNumero: number
+  niveauIndice: number
+}
+
+export interface PointFort {
+  concept: string
+  commentaire: string
+}
+
+export interface PointFaible {
+  concept: string
+  commentaire: string
+}
+
+export interface EtapePlanRevision {
+  priorite: number
+  action: string
+  concept: string
+  ressource?: string
+}
+
+export interface SessionExamenBlanc {
+  id: string
+  examenId: string
+  reponses: ReponseExamenDetail[]
+  indicesUtilises: IndiceUtilise[]
+  noteEstimee?: number
+  pointsForts?: PointFort[]
+  pointsFaibles?: PointFaible[]
+  planRevision?: EtapePlanRevision[]
+  termine: boolean
+  dateDebut: string
+  dateFin?: string
+}
+
+export interface ReponseSessionExamen {
+  succes: boolean
+  session?: SessionExamenBlanc
+  erreur?: ErreurAPI
+}
+
+export interface ReponseIndice {
+  succes: boolean
+  indice?: IndiceExamen
+  erreur?: ErreurAPI
+}
+
+export interface DetailCorrection {
+  questionNumero: number
+  reponseEleve: string
+  reponseAttendue: string
+  noteQuestion: number
+  bareme: number
+  commentaire: string
+}
+
+export interface ResultatCorrection {
+  noteEstimee: number
+  pointsForts: PointFort[]
+  pointsFaibles: PointFaible[]
+  planRevision: EtapePlanRevision[]
+  details: DetailCorrection[]
+}
+
+export interface ReponseCorrectionExamen {
+  succes: boolean
+  resultat?: ResultatCorrection
+  erreur?: ErreurAPI
+}
+
+// API Examen Blanc
+export async function genererExamen(coursId: string): Promise<ReponseExamenBlanc> {
+  const response = await fetch(API_BASE + '/cours/' + coursId + '/examen/generer', {
+    method: 'POST',
+  })
+  return gererReponse<ReponseExamenBlanc>(response)
+}
+
+export async function obtenirExamen(examenId: string): Promise<ReponseExamenBlanc> {
+  const response = await fetch(API_BASE + '/examens/' + examenId)
+  return gererReponse<ReponseExamenBlanc>(response)
+}
+
+export async function demarrerSessionExamen(examenId: string): Promise<ReponseSessionExamen> {
+  const response = await fetch(API_BASE + '/examens/' + examenId + '/sessions', {
+    method: 'POST',
+  })
+  return gererReponse<ReponseSessionExamen>(response)
+}
+
+export async function obtenirSessionExamen(sessionId: string): Promise<ReponseSessionExamen> {
+  const response = await fetch(API_BASE + '/sessions-examen/' + sessionId)
+  return gererReponse<ReponseSessionExamen>(response)
+}
+
+export async function demanderIndice(
+  sessionId: string,
+  questionNumero: number,
+  niveauIndice: number
+): Promise<ReponseIndice> {
+  const response = await fetch(API_BASE + '/sessions-examen/' + sessionId + '/indice', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ questionNumero, niveauIndice }),
+  })
+  return gererReponse<ReponseIndice>(response)
+}
+
+export async function corrigerExamen(
+  sessionId: string,
+  reponses: ReponseExamenDetail[]
+): Promise<ReponseCorrectionExamen> {
+  const response = await fetch(API_BASE + '/sessions-examen/' + sessionId + '/corriger', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ reponses }),
+  })
+  return gererReponse<ReponseCorrectionExamen>(response)
+}
+
 // Types Recommandations
 export interface Recommandation {
   domaine: string
@@ -618,4 +937,219 @@ export async function genererRecommandationsCopie(
     method: 'POST',
   })
   return gererReponse<ReponseRecommandations>(response)
+}
+
+
+// Types Lexique
+export interface TermeLexique {
+  id: string
+  coursId: string
+  terme: string
+  definition: string
+  contexte?: string
+  exemple?: string
+  categorie?: string
+  maitrise: number
+  createdAt: string
+  updatedAt: string
+}
+
+export interface QuestionVocabulaire {
+  id: string
+  question: string
+  reponseAttendue: string
+  indices: string[]
+  terme: string
+}
+
+export interface QuizVocabulaire {
+  mode: string
+  questions: QuestionVocabulaire[]
+}
+
+export interface ReponseLexique {
+  succes: boolean
+  termes: TermeLexique[]
+  nombreExtraits: number
+  erreur?: ErreurAPI
+}
+
+export interface ReponseQuizVocabulaire {
+  succes: boolean
+  quiz?: QuizVocabulaire
+  erreur?: ErreurAPI
+}
+
+// API Lexique
+export async function extraireTermesLexique(coursId: string): Promise<ReponseLexique> {
+  const response = await fetch(`${API_BASE}/cours/${coursId}/lexique/extraire`, {
+    method: 'POST',
+  })
+  return gererReponse<ReponseLexique>(response)
+}
+
+export async function getTermesLexique(coursId: string): Promise<ReponseLexique> {
+  const response = await fetch(`${API_BASE}/cours/${coursId}/lexique`)
+  return gererReponse<ReponseLexique>(response)
+}
+
+export async function mettreAJourMaitrise(termeId: string, maitrise: number): Promise<{ succes: boolean; maitrise: number }> {
+  const response = await fetch(`${API_BASE}/lexique/${termeId}/maitrise`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ maitrise }),
+  })
+  return gererReponse(response)
+}
+
+export async function genererQuizVocabulaire(
+  coursId: string,
+  mode: 'terme_vers_definition' | 'definition_vers_terme'
+): Promise<ReponseQuizVocabulaire> {
+  const response = await fetch(`${API_BASE}/cours/${coursId}/lexique/quiz`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ mode }),
+  })
+  return gererReponse<ReponseQuizVocabulaire>(response)
+}
+
+// API Résumé
+export async function genererResume(coursId: string): Promise<{ succes: boolean; resume: ResumeCours }> {
+  const response = await fetch(`${API_BASE}/cours/${coursId}/resume/generer`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  return gererReponse(response)
+}
+
+// API Re-OCR
+export async function retraiterOCRCours(coursId: string): Promise<ReponseOCR> {
+  const response = await fetch(`${API_BASE}/cours/${coursId}/reocr`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  return gererReponse(response)
+}
+
+// ============================================================
+// Plans de révision
+// ============================================================
+
+export interface PlanRevisionResume {
+  id: string
+  titre: string
+  iconeMatiere: string
+  nombreCours: number
+  progression: number
+  dateEcheance?: string
+}
+
+export interface PlanRevision {
+  id: string
+  titre: string
+  description?: string
+  matiere?: string
+  iconeMatiere: string
+  dateEcheance?: string
+  dateCreation: string
+  dateModification: string
+}
+
+export interface CoursAvecArtifacts {
+  cours: Cours
+  nombreFiches: number
+  nombreQuiz: number
+  aMindmap: boolean
+  aResume: boolean
+}
+
+export interface ReponsePlanComplet {
+  succes: boolean
+  plan?: PlanRevision
+  cours?: CoursAvecArtifacts[]
+  erreur?: ErreurAPI
+}
+
+export async function listerPlansRevision(): Promise<PlanRevisionResume[]> {
+  try {
+    const response = await fetch(`${API_BASE}/plans?resume=true`)
+    if (response.status === 404) return []
+    const data = await gererReponse<{ plans: PlanRevisionResume[] }>(response)
+    return data.plans || []
+  } catch {
+    return []
+  }
+}
+
+export async function creerPlanRevision(donnees: {
+  titre: string
+  description?: string
+  matiere?: string
+  iconeMatiere?: string
+  dateEcheance?: string
+  coursIds?: string[]
+}): Promise<{ succes: boolean; plan?: PlanRevision; erreur?: ErreurAPI }> {
+  const response = await fetch(`${API_BASE}/plans`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(donnees),
+  })
+  return gererReponse(response)
+}
+
+export async function obtenirPlanComplet(id: string): Promise<ReponsePlanComplet> {
+  const response = await fetch(`${API_BASE}/plans/${id}/complet`)
+  return gererReponse<ReponsePlanComplet>(response)
+}
+
+export async function mettreAJourPlanRevision(
+  id: string,
+  donnees: {
+    titre?: string
+    description?: string
+    matiere?: string
+    iconeMatiere?: string
+    dateEcheance?: string
+  }
+): Promise<{ succes: boolean; plan?: PlanRevision; erreur?: ErreurAPI }> {
+  const response = await fetch(`${API_BASE}/plans/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(donnees),
+  })
+  return gererReponse(response)
+}
+
+export async function supprimerPlanRevision(id: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/plans/${id}`, { method: 'DELETE' })
+  if (!response.ok) {
+    throw new Error(`Erreur lors de la suppression: ${response.status}`)
+  }
+}
+
+export async function ajouterCoursAuPlan(planId: string, coursId: string): Promise<{ succes: boolean }> {
+  const response = await fetch(`${API_BASE}/plans/${planId}/cours`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ coursId }),
+  })
+  return gererReponse(response)
+}
+
+export async function retirerCoursDuPlan(planId: string, coursId: string): Promise<{ succes: boolean }> {
+  const response = await fetch(`${API_BASE}/plans/${planId}/cours/${coursId}`, {
+    method: 'DELETE',
+  })
+  return gererReponse(response)
+}
+
+export async function listerPlansParCours(coursId: string): Promise<PlanRevisionResume[]> {
+  try {
+    const response = await fetch(`${API_BASE}/cours/${coursId}/plans`)
+    const data = await gererReponse<{ plans: PlanRevisionResume[] }>(response)
+    return data.plans || []
+  } catch {
+    return []
+  }
 }

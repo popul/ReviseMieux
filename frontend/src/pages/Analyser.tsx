@@ -299,7 +299,7 @@ export default function Analyser() {
   return (
     <>
       {/* Header avec navigation */}
-      <header className="flex items-center gap-8 mb-12">
+      <header className="flex items-center gap-4 mb-8 md:gap-8 md:mb-12">
         <Link
           to="/"
           className="flex items-center gap-2 text-ink-light px-4 py-2 rounded-full transition-colors hover:bg-cream hover:text-ink no-underline font-medium"
@@ -332,7 +332,7 @@ export default function Analyser() {
       {etat === 'liste' && (
         <section className="space-y-8">
           <div className="text-center">
-            <h2 className="font-display text-3xl font-bold mb-2">Mes copies corrigees</h2>
+            <h2 className="font-display text-xl md:text-3xl font-bold mb-2">Mes copies corrigees</h2>
             <p className="text-ink-light text-lg mb-8">
               Scanne tes copies corrigees pour analyser tes erreurs et progresser
             </p>
@@ -422,7 +422,7 @@ export default function Analyser() {
       {etat === 'upload' && (
         <>
           <section className="text-center">
-            <h2 className="font-display text-3xl font-bold mb-2">Scanne ta copie corrigee</h2>
+            <h2 className="font-display text-xl md:text-3xl font-bold mb-2">Scanne ta copie corrigee</h2>
             <p className="text-ink-light text-lg mb-12">
               Prends en photo ou scanne ta copie avec les corrections du professeur
             </p>
@@ -655,7 +655,7 @@ export default function Analyser() {
             </div>
 
             {/* Resume par type */}
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
               {Object.entries(TYPES_ERREUR).map(([type, config]) => {
                 const count = resultatAnalyse.resumeParType?.[type] || 0
                 return (

@@ -45,7 +45,7 @@ function useChargementCours(coursId: string | null) {
     listerCours(1, 50)
       .then((res) => {
         if (!cancelled) {
-          setListeCours(res.cours)
+          setListeCours(res.cours || [])
           setChargement(false)
         }
       })
@@ -280,7 +280,7 @@ export default function Quiz() {
 
     return (
       <div>
-        <h1 className="font-display text-3xl font-semibold text-ink mb-8">
+        <h1 className="font-display text-xl md:text-3xl font-semibold text-ink mb-8">
           Quiz interactif
         </h1>
         <p className="text-ink-light mb-8">
@@ -321,16 +321,16 @@ export default function Quiz() {
           Une erreur est survenue
         </h1>
         <p className="text-ink-light mb-8">{erreur}</p>
-        <div className="flex gap-6 justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onClick={nouveauQuiz}
-            className="px-8 py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
+            className="px-6 py-2.5 md:px-8 md:py-3 bg-coral text-white rounded-full font-medium hover:bg-coral-dark transition-colors"
           >
             Reessayer
           </button>
           <Link
             to="/quiz"
-            className="px-8 py-3 border-2 border-coral text-coral rounded-full font-medium hover:bg-coral/5 transition-colors"
+            className="px-6 py-2.5 md:px-8 md:py-3 border-2 border-coral text-coral rounded-full font-medium hover:bg-coral/5 transition-colors text-center"
           >
             Retour aux cours
           </Link>
@@ -352,7 +352,7 @@ export default function Quiz() {
           </Link>
         </div>
 
-        <h1 className="font-display text-3xl font-semibold text-ink mb-8 text-center">
+        <h1 className="font-display text-xl md:text-3xl font-semibold text-ink mb-8 text-center">
           Preparez votre quiz
         </h1>
 
@@ -428,7 +428,7 @@ export default function Quiz() {
   if (etat === 'resultats' && quiz && session && coursId) {
     return (
       <div>
-        <h1 className="font-display text-3xl font-semibold text-ink mb-8 text-center">
+        <h1 className="font-display text-xl md:text-3xl font-semibold text-ink mb-8 text-center">
           Quiz termine !
         </h1>
 

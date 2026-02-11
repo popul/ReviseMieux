@@ -1,17 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { obtenirStatistiques, obtenirCoursRecents } from '../services/api'
-import type { Statistiques, CoursResume } from '../services/api'
-
-// Skeleton pour les statistiques pendant le chargement
-function StatSkeleton() {
-  return (
-    <div className="bg-white rounded-lg p-6 text-center animate-pulse">
-      <div className="h-10 bg-cream rounded w-12 mx-auto mb-1" />
-      <div className="h-4 bg-cream rounded w-20 mx-auto" />
-    </div>
-  )
-}
+import { obtenirCoursRecents, listerPlansRevision } from '../services/api'
+import type { CoursResume, PlanRevisionResume } from '../services/api'
 
 // Skeleton pour la liste des cours
 function CoursSkeleton() {
@@ -28,16 +18,6 @@ function CoursSkeleton() {
           <div className="h-3 bg-cream rounded w-12" />
         </div>
       </div>
-    </div>
-  )
-}
-
-// Carte de statistique
-function StatCard({ valeur, label, couleur }: { valeur: string | number; label: string; couleur: string }) {
-  return (
-    <div className="bg-white rounded-lg p-6 text-center">
-      <div className={`font-display text-4xl font-bold ${couleur} mb-1`}>{valeur}</div>
-      <div className="text-sm text-ink-light">{label}</div>
     </div>
   )
 }
@@ -80,9 +60,52 @@ function CoursCard({ cours }: { cours: CoursResume }) {
   )
 }
 
+// Carte d'un plan de revision
+function PlanCard({ plan }: { plan: PlanRevisionResume }) {
+  const joursRestants = plan.dateEcheance
+    ? Math.ceil((new Date(plan.dateEcheance).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+    : null
+
+  return (
+    <Link
+      to={`/plans/${plan.id}`}
+      className="block bg-white rounded-lg p-6 hover:shadow-md transition-shadow no-underline border border-cream-dark"
+    >
+      <div className="flex items-start gap-4">
+        <span className="text-2xl">{plan.iconeMatiere || '📋'}</span>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-ink truncate">{plan.titre}</h3>
+          <div className="flex items-center gap-3 mt-2">
+            <span className="text-xs text-ink-muted">{plan.nombreCours} cours</span>
+            {joursRestants !== null && joursRestants >= 0 && (
+              <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
+                joursRestants <= 3 ? 'bg-coral/20 text-coral' :
+                joursRestants <= 7 ? 'bg-gold/20 text-gold' :
+                'bg-teal/20 text-teal'
+              }`}>
+                J-{joursRestants}
+              </span>
+            )}
+          </div>
+          {/* Barre de progression */}
+          <div className="flex items-center gap-2 mt-3">
+            <div className="flex-1 h-1.5 bg-cream rounded-full overflow-hidden">
+              <div
+                className="h-full bg-teal rounded-full transition-all"
+                style={{ width: `${plan.progression}%` }}
+              />
+            </div>
+            <span className="text-xs text-ink-muted">{plan.progression}%</span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
 export default function Dashboard() {
-  const [statistiques, setStatistiques] = useState<Statistiques | null>(null)
   const [coursRecents, setCoursRecents] = useState<CoursResume[]>([])
+  const [plans, setPlans] = useState<PlanRevisionResume[]>([])
   const [chargement, setChargement] = useState(true)
   const [erreur, setErreur] = useState<string | null>(null)
 
@@ -92,19 +115,16 @@ export default function Dashboard() {
         setChargement(true)
         setErreur(null)
 
-        // Charger les statistiques et les cours en parallèle
-        const [statsReponse, coursReponse] = await Promise.all([
-          obtenirStatistiques(),
+        const [coursReponse, plansReponse] = await Promise.all([
           obtenirCoursRecents(),
+          listerPlansRevision(),
         ])
 
-        if (statsReponse.succes && statsReponse.statistiques) {
-          setStatistiques(statsReponse.statistiques)
+        if (coursReponse.succes) {
+          setCoursRecents(coursReponse.cours || [])
         }
 
-        if (coursReponse.succes) {
-          setCoursRecents(coursReponse.cours)
-        }
+        setPlans(plansReponse || [])
       } catch (err) {
         setErreur(err instanceof Error ? err.message : 'Erreur inconnue')
       } finally {
@@ -115,15 +135,11 @@ export default function Dashboard() {
     chargerDonnees()
   }, [])
 
-  const scoreMoyenFormate = statistiques?.scoreMoyen
-    ? `${Math.round(statistiques.scoreMoyen)}%`
-    : '—'
-
   return (
     <>
       {/* Header */}
-      <header className="mb-12">
-        <h1 className="font-display text-4xl font-bold text-ink mb-2">
+      <header className="mb-8 md:mb-12">
+        <h1 className="font-display text-2xl md:text-4xl font-bold text-ink mb-2">
           Bienvenue sur Révise mieux
         </h1>
         <p className="text-ink-light text-lg">
@@ -132,10 +148,10 @@ export default function Dashboard() {
       </header>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-6 mb-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-12">
         <Link
           to="/scanner"
-          className="bg-coral text-white rounded-lg p-8 flex items-center gap-6 no-underline transition-all hover:-translate-y-1 hover:shadow-xl hover:bg-coral-dark"
+          className="bg-coral text-white rounded-lg p-5 md:p-8 flex items-center gap-4 md:gap-6 no-underline transition-all hover:-translate-y-1 hover:shadow-xl hover:bg-coral-dark"
         >
           <div className="w-14 h-14 rounded-md bg-white/20 flex items-center justify-center text-2xl flex-shrink-0">
             <span role="img" aria-label="Scanner">📸</span>
@@ -146,18 +162,35 @@ export default function Dashboard() {
           </div>
         </Link>
         <Link
-          to="/quiz"
-          className="bg-white text-ink rounded-lg p-8 flex items-center gap-6 no-underline transition-all border-2 border-transparent hover:-translate-y-1 hover:shadow-xl"
+          to="/plans/nouveau"
+          className="bg-teal text-white rounded-lg p-5 md:p-8 flex items-center gap-4 md:gap-6 no-underline transition-all hover:-translate-y-1 hover:shadow-xl hover:bg-teal-light"
         >
-          <div className="w-14 h-14 rounded-md bg-cream flex items-center justify-center text-2xl flex-shrink-0">
-            <span role="img" aria-label="Quiz">❓</span>
+          <div className="w-14 h-14 rounded-md bg-white/20 flex items-center justify-center text-2xl flex-shrink-0">
+            <span role="img" aria-label="Plan">📋</span>
           </div>
           <div>
-            <h3 className="font-display text-lg font-semibold mb-1">Passer un quiz</h3>
-            <p className="text-sm text-ink-light">Teste tes connaissances</p>
+            <h3 className="font-display text-lg font-semibold mb-1">Creer un plan</h3>
+            <p className="text-sm opacity-80">Organise tes revisions</p>
           </div>
         </Link>
       </div>
+
+      {/* Plans de revision */}
+      {!chargement && plans.length > 0 && (
+        <section className="mb-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-display text-xl font-semibold text-ink">Tes plans de revision</h2>
+            <Link to="/plans/nouveau" className="text-teal text-sm font-medium hover:underline">
+              + Nouveau plan
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {plans.map((plan) => (
+              <PlanCard key={plan.id} plan={plan} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Erreur */}
       {erreur && (
@@ -166,28 +199,6 @@ export default function Dashboard() {
           <p className="text-sm">{erreur}</p>
         </div>
       )}
-
-      {/* Stats */}
-      <section className="mb-12">
-        <h2 className="font-display text-xl font-semibold text-ink mb-6">Tes statistiques</h2>
-        <div className="grid grid-cols-4 gap-6">
-          {chargement ? (
-            <>
-              <StatSkeleton />
-              <StatSkeleton />
-              <StatSkeleton />
-              <StatSkeleton />
-            </>
-          ) : (
-            <>
-              <StatCard valeur={statistiques?.nombreCours ?? 0} label="Cours scannés" couleur="text-coral" />
-              <StatCard valeur={statistiques?.quizCompletes ?? 0} label="Quiz complétés" couleur="text-teal" />
-              <StatCard valeur={statistiques?.nombreFiches ?? 0} label="Fiches créées" couleur="text-gold" />
-              <StatCard valeur={scoreMoyenFormate} label="Score moyen" couleur="text-success" />
-            </>
-          )}
-        </div>
-      </section>
 
       {/* Cours récents ou état vide */}
       {chargement ? (
@@ -212,7 +223,7 @@ export default function Dashboard() {
           </div>
         </section>
       ) : (
-        <section className="bg-white rounded-lg p-12 text-center">
+        <section className="bg-white rounded-lg p-8 md:p-12 text-center">
           <div className="text-5xl mb-6" role="img" aria-label="Livres">📚</div>
           <h2 className="font-display text-xl font-semibold text-ink mb-4">
             Aucun cours pour le moment

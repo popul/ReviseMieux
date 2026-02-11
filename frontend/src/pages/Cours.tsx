@@ -5,17 +5,27 @@ import {
   obtenirCours,
   supprimerCours,
   mettreAJourCours,
-  obtenirRessourcesCours,
-  genererRessources,
   obtenirFichesCours,
   genererFiches,
   genererQuiz,
+  getConceptsByCours,
+  retraiterOCRCours,
+  listerPlansRevision,
+  listerPlansParCours,
+  ajouterCoursAuPlan,
   type Cours,
-  type Ressource,
   type ZoneIncertaine,
   type Fiche,
+  type BlocTexteOCR,
+  type BlocTexteParPage,
+  type Concept,
+  type ResumeCours,
+  type PlanRevisionResume,
 } from '../services/api'
 import ProcessingSection from '../components/ProcessingSection'
+import OverlayTexteOCR from '../components/OverlayTexteOCR'
+import ReordonnerPages from '../components/ReordonnerPages'
+import ConceptCard from '../components/ConceptCard'
 
 // Icônes des matières
 const iconesMatiere: Record<string, string> = {
@@ -120,7 +130,8 @@ function CoursCard({
             )}
           </div>
         </div>
-        <div className="flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
+        {/* Boutons desktop (colonne) */}
+        <div className="hidden md:flex flex-col gap-2" onClick={(e) => e.stopPropagation()}>
           <Link
             to={`/fiches?cours=${cours.id}`}
             className="px-6 py-2 bg-coral text-white rounded-full text-sm font-medium hover:bg-coral-dark transition-colors text-center"
@@ -139,7 +150,21 @@ function CoursCard({
           >
             Mindmap
           </Link>
+          <Link
+            to={`/examen-blanc?cours=${cours.id}`}
+            className="px-6 py-2 bg-ink text-white rounded-full text-sm font-medium hover:bg-ink/80 transition-colors text-center"
+          >
+            Examen
+          </Link>
         </div>
+      </div>
+
+      {/* Boutons mobile (ligne) */}
+      <div className="flex md:hidden flex-wrap gap-2 mt-4" onClick={(e) => e.stopPropagation()}>
+        <Link to={`/fiches?cours=${cours.id}`} className="px-4 py-1.5 bg-coral text-white rounded-full text-xs font-medium hover:bg-coral-dark transition-colors">Fiches</Link>
+        <Link to={`/quiz?cours=${cours.id}`} className="px-4 py-1.5 bg-teal text-white rounded-full text-xs font-medium hover:bg-teal-light transition-colors">Quiz</Link>
+        <Link to={`/mindmap?cours=${cours.id}`} className="px-4 py-1.5 bg-white text-ink border border-ink rounded-full text-xs font-medium hover:bg-cream transition-colors">Mindmap</Link>
+        <Link to={`/examen-blanc?cours=${cours.id}`} className="px-4 py-1.5 bg-ink text-white rounded-full text-xs font-medium hover:bg-ink/80 transition-colors">Examen</Link>
       </div>
 
       {/* Aperçu du texte OCR */}
@@ -183,19 +208,6 @@ function CoursCard({
   )
 }
 
-// Icônes des types de ressources
-const iconesTypeRessource: Record<string, string> = {
-  video: '🎬',
-  article: '📄',
-  exercice: '✏️',
-  cours: '📖',
-  autre: '🔗',
-}
-
-function getIconeTypeRessource(type: string): string {
-  return iconesTypeRessource[type] || '🔗'
-}
-
 // Vue détaillée d'un cours avec mode édition
 function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => void }) {
   const [cours, setCours] = useState<Cours | null>(null)
@@ -206,14 +218,9 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
   const [modeEdition, setModeEdition] = useState(false)
   const [texteEdite, setTexteEdite] = useState('')
   const [zonesIncertainesEditees, setZonesIncertainesEditees] = useState<ZoneIncertaine[]>([])
+  const [blocsTexteEdites, setBlocsTexteEdites] = useState<BlocTexteParPage[]>([])
   const [sauvegarde, setSauvegarde] = useState(false)
   const [imageSelectionnee, setImageSelectionnee] = useState(0)
-
-  // State pour les ressources
-  const [ressources, setRessources] = useState<Ressource[]>([])
-  const [chargementRessources, setChargementRessources] = useState(false)
-  const [generationRessources, setGenerationRessources] = useState(false)
-  const [erreurRessources, setErreurRessources] = useState<string | null>(null)
 
   // State pour les fiches
   const [fiches, setFiches] = useState<Fiche[]>([])
@@ -225,6 +232,53 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
   const [generationQuiz, setGenerationQuiz] = useState(false)
   const [erreurQuiz, setErreurQuiz] = useState<string | null>(null)
 
+  // Concepts state
+  const [concepts, setConcepts] = useState<Concept[]>([])
+  const [chargementConcepts, setChargementConcepts] = useState(false)
+  const [conceptSelectionne, setConceptSelectionne] = useState<Concept | null>(null)
+
+  // Resume state
+  const [resume, setResume] = useState<ResumeCours | null>(null)
+
+  // Overlay édition directe
+  const [overlayModifie, setOverlayModifie] = useState(false)
+
+  // Re-OCR state
+  const [reOCREnCours, setReOCREnCours] = useState(false)
+
+  // Plans state
+  const [plansMenuOuvert, setPlansMenuOuvert] = useState(false)
+  const [tousLesPlans, setTousLesPlans] = useState<PlanRevisionResume[]>([])
+  const [plansDuCours, setPlansDuCours] = useState<PlanRevisionResume[]>([])
+
+  const handleOuvrirMenuPlans = async () => {
+    if (plansMenuOuvert) {
+      setPlansMenuOuvert(false)
+      return
+    }
+    setPlansMenuOuvert(true)
+    try {
+      const [tous, duCours] = await Promise.all([
+        listerPlansRevision(),
+        listerPlansParCours(coursId),
+      ])
+      setTousLesPlans(tous)
+      setPlansDuCours(duCours)
+    } catch {
+      // Ignorer
+    }
+  }
+
+  const handleAjouterAuPlan = async (planId: string) => {
+    try {
+      await ajouterCoursAuPlan(planId, coursId)
+      setPlansDuCours(prev => [...prev, tousLesPlans.find(p => p.id === planId)!])
+    } catch {
+      // Ignorer
+    }
+    setPlansMenuOuvert(false)
+  }
+
   useEffect(() => {
     let cancelled = false
 
@@ -234,6 +288,7 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
           setCours(c)
           setTexteEdite(c.texteOCR || '')
           setZonesIncertainesEditees(c.zonesIncertaines || [])
+          setBlocsTexteEdites(c.blocsTexte || [])
           setChargement(false)
         }
       })
@@ -249,38 +304,12 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
     }
   }, [coursId])
 
-  // Charger les ressources existantes
-  useEffect(() => {
-    let cancelled = false
-
-    if (cours) {
-      setChargementRessources(true)
-      obtenirRessourcesCours(coursId)
-        .then((res) => {
-          if (!cancelled && res.succes) {
-            setRessources(res.ressources || [])
-          }
-        })
-        .catch(() => {
-          // Pas de ressources existantes, ce n'est pas une erreur
-        })
-        .finally(() => {
-          if (!cancelled) {
-            setChargementRessources(false)
-          }
-        })
-    }
-
-    return () => {
-      cancelled = true
-    }
-  }, [cours, coursId])
-
   // Activer le mode édition
   const activerEdition = () => {
     if (cours) {
       setTexteEdite(cours.texteOCR || '')
       setZonesIncertainesEditees(cours.zonesIncertaines || [])
+      setBlocsTexteEdites(cours.blocsTexte || [])
       setModeEdition(true)
     }
   }
@@ -290,6 +319,7 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
     if (cours) {
       setTexteEdite(cours.texteOCR || '')
       setZonesIncertainesEditees(cours.zonesIncertaines || [])
+      setBlocsTexteEdites(cours.blocsTexte || [])
     }
     setModeEdition(false)
   }
@@ -303,6 +333,7 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
       const coursModifie = await mettreAJourCours(coursId, {
         texteOCR: texteEdite,
         zonesIncertaines: zonesIncertainesEditees,
+        blocsTexte: blocsTexteEdites.length > 0 ? blocsTexteEdites : undefined,
       })
       setCours(coursModifie)
       setModeEdition(false)
@@ -352,6 +383,82 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
     }
   }, [cours, coursId])
 
+  // Charger les concepts du cours
+  useEffect(() => {
+    if (!coursId) return
+    setChargementConcepts(true)
+    getConceptsByCours(coursId)
+      .then(res => setConcepts(res.concepts || []))
+      .catch(() => setConcepts([]))
+      .finally(() => setChargementConcepts(false))
+  }, [coursId])
+
+  // Parser le résumé depuis les données du cours
+  useEffect(() => {
+    if (cours?.resume) {
+      setResume(cours.resume as unknown as ResumeCours)
+    } else {
+      setResume(null)
+    }
+  }, [cours])
+
+  // Polling pour récupérer le résumé et les concepts générés automatiquement
+  useEffect(() => {
+    if (!cours?.texteOCR) return
+    const resumeManquant = !resume
+    const conceptsManquants = concepts.length === 0
+    if (!resumeManquant && !conceptsManquants) return
+
+    let tentatives = 0
+    const maxTentatives = 6
+    const timer = setInterval(async () => {
+      tentatives++
+      if (tentatives > maxTentatives) {
+        clearInterval(timer)
+        return
+      }
+      try {
+        const coursMAJ = await obtenirCours(coursId)
+        setCours(coursMAJ)
+        if (coursMAJ.resume) {
+          setResume(coursMAJ.resume as unknown as ResumeCours)
+        }
+        const resConcepts = await getConceptsByCours(coursId)
+        if (resConcepts.concepts && resConcepts.concepts.length > 0) {
+          setConcepts(resConcepts.concepts)
+        }
+        // Arrêter si les deux sont arrivés
+        const aResume = !!coursMAJ.resume
+        const aConcepts = resConcepts.concepts && resConcepts.concepts.length > 0
+        if (aResume && aConcepts) {
+          clearInterval(timer)
+        }
+      } catch {
+        // Ignorer les erreurs de polling
+      }
+    }, 5000)
+
+    return () => clearInterval(timer)
+  }, [cours?.texteOCR, coursId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Lire le paramètre concept dans l'URL pour deep-linking
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const conceptId = params.get('concept')
+    if (conceptId && concepts.length > 0) {
+      const found = concepts.find(c => c.id === conceptId)
+      if (found) setConceptSelectionne(found)
+    }
+  }, [concepts])
+
+  // Scroll vers le concept surligné
+  useEffect(() => {
+    if (conceptSelectionne) {
+      const el = document.getElementById('concept-highlight')
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [conceptSelectionne])
+
   // Générer des fiches
   const handleGenererFiches = async () => {
     setGenerationFiches(true)
@@ -389,27 +496,82 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
     }
   }
 
-  // Générer des ressources
-  const handleGenererRessources = async () => {
-    setGenerationRessources(true)
-    setErreurRessources(null)
+  const handleReOCR = async () => {
+    if (!coursId) return
+    setReOCREnCours(true)
     try {
-      const res = await genererRessources(coursId)
-      if (res.succes) {
-        setRessources(res.ressources)
-      } else {
-        setErreurRessources(res.erreur?.message || 'Erreur lors de la génération')
+      const res = await retraiterOCRCours(coursId)
+      if (res.succes && cours) {
+        // Refresh course data
+        const coursMAJ = await obtenirCours(coursId)
+        setCours(coursMAJ)
       }
     } catch (err) {
-      setErreurRessources(err instanceof Error ? err.message : 'Erreur inconnue')
+      console.error('Erreur re-OCR:', err)
     } finally {
-      setGenerationRessources(false)
+      setReOCREnCours(false)
+    }
+  }
+
+  const handleConceptClick = (concept: Concept) => {
+    setConceptSelectionne(prev => prev?.id === concept.id ? null : concept)
+  }
+
+  // Modifier un bloc de texte OCR
+  const modifierBlocTexte = (pageIndex: number, blocIndex: number, nouveauTexte: string) => {
+    const nouveauxBlocs = [...blocsTexteEdites]
+    if (nouveauxBlocs[pageIndex]) {
+      const blocsPage = [...nouveauxBlocs[pageIndex].blocs_texte]
+      blocsPage[blocIndex] = { ...blocsPage[blocIndex], texte: nouveauTexte }
+      nouveauxBlocs[pageIndex] = { ...nouveauxBlocs[pageIndex], blocs_texte: blocsPage }
+      setBlocsTexteEdites(nouveauxBlocs)
+      // Mettre a jour le texte OCR global (concatenation de tous les blocs)
+      const texteComplet = nouveauxBlocs
+        .flatMap((page) => page.blocs_texte.map((b) => b.texte))
+        .join('\n')
+      setTexteEdite(texteComplet)
+      setOverlayModifie(true)
+    }
+  }
+
+  // Obtenir les blocs de la page courante
+  const getBlocsPageCourante = (): BlocTexteOCR[] => {
+    const pageData = blocsTexteEdites.find((p) => p.page === imageSelectionnee)
+    return pageData?.blocs_texte || []
+  }
+
+  // Reordonner les images via drag and drop
+  const reordonnerImages = async (nouvelOrdre: string[]) => {
+    if (!cours) return
+    try {
+      const coursModifie = await mettreAJourCours(coursId, { images: nouvelOrdre })
+      setCours(coursModifie)
+    } catch (err) {
+      console.error('Erreur lors du reordonnancement:', err)
     }
   }
 
   // Générer l'URL de l'image
   const getImageUrl = (nomFichier: string) => {
     return `/api/cours/${coursId}/images/${encodeURIComponent(nomFichier)}`
+  }
+
+  // Helper pour surligner le texte du concept sélectionné
+  const renderTexteAvecSurlignage = (texte: string, concept: Concept | null): React.ReactNode => {
+    if (!concept?.positionDansCours || concept.positionDansCours.debut === undefined) {
+      return texte
+    }
+    const { debut, fin } = concept.positionDansCours
+    if (debut >= texte.length || fin > texte.length || debut >= fin) {
+      return texte
+    }
+    return (
+      <>
+        {texte.slice(0, debut)}
+        <mark className="bg-yellow-200 px-0.5 rounded" id="concept-highlight">{texte.slice(debut, fin)}</mark>
+        {texte.slice(fin)}
+      </>
+    )
   }
 
   if (chargement) {
@@ -440,33 +602,6 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
 
   // Utiliser les images sauvegardées (pas les noms de fichiers originaux)
   const images = cours.images || []
-
-  // Déplacer une image vers le haut ou le bas
-  const deplacerImage = async (index: number, direction: 'haut' | 'bas') => {
-    if (!cours) return
-    const nouvellesImages = [...images]
-    const newIndex = direction === 'haut' ? index - 1 : index + 1
-    if (newIndex < 0 || newIndex >= nouvellesImages.length) return
-
-    // Échanger les positions
-    ;[nouvellesImages[index], nouvellesImages[newIndex]] = [
-      nouvellesImages[newIndex],
-      nouvellesImages[index],
-    ]
-
-    try {
-      const coursModifie = await mettreAJourCours(coursId, { images: nouvellesImages })
-      setCours(coursModifie)
-      // Mettre à jour l'image sélectionnée si nécessaire
-      if (imageSelectionnee === index) {
-        setImageSelectionnee(newIndex)
-      } else if (imageSelectionnee === newIndex) {
-        setImageSelectionnee(index)
-      }
-    } catch (err) {
-      console.error('Erreur lors du déplacement:', err)
-    }
-  }
 
   // Supprimer une image
   const supprimerImage = async (nomFichier: string) => {
@@ -518,14 +653,14 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <button
           onClick={onRetour}
           className="flex items-center gap-2 text-ink-light hover:text-ink transition-colors"
         >
           ← Retour aux cours
         </button>
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-2">
           {modeEdition ? (
             <>
               <button
@@ -563,13 +698,65 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
               >
                 Lancer un quiz
               </Link>
+              <Link
+                to={`/examen-blanc?cours=${cours.id}`}
+                className="px-6 py-2 bg-ink text-white rounded-full text-sm font-medium hover:bg-ink/80 transition-colors"
+              >
+                Examen blanc
+              </Link>
+              {/* Ajouter a un plan */}
+              <div className="relative">
+                <button
+                  onClick={handleOuvrirMenuPlans}
+                  className="px-6 py-2 bg-white text-teal border border-teal rounded-full text-sm font-medium hover:bg-teal/10 transition-colors"
+                >
+                  + Plan
+                </button>
+                {plansMenuOuvert && (
+                  <div className="absolute right-0 top-full mt-2 w-64 max-w-[calc(100vw-2rem)] bg-white rounded-lg shadow-xl border border-cream-dark z-50">
+                    <div className="p-2">
+                      {tousLesPlans.length === 0 ? (
+                        <div className="px-3 py-2 text-sm text-ink-muted">Aucun plan</div>
+                      ) : (
+                        tousLesPlans.map(plan => {
+                          const dejaPresent = plansDuCours.some(p => p.id === plan.id)
+                          return (
+                            <button
+                              key={plan.id}
+                              onClick={() => !dejaPresent && handleAjouterAuPlan(plan.id)}
+                              disabled={dejaPresent}
+                              className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
+                                dejaPresent
+                                  ? 'text-ink-muted bg-cream cursor-default'
+                                  : 'hover:bg-cream text-ink'
+                              }`}
+                            >
+                              <span className="mr-2">{plan.iconeMatiere}</span>
+                              {plan.titre}
+                              {dejaPresent && <span className="ml-2 text-xs text-success">✓</span>}
+                            </button>
+                          )
+                        })
+                      )}
+                      <div className="border-t border-cream mt-1 pt-1">
+                        <Link
+                          to="/plans/nouveau"
+                          className="block px-3 py-2 rounded text-sm text-teal hover:bg-cream transition-colors"
+                        >
+                          + Creer un nouveau plan
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
       </div>
 
       {/* Contenu */}
-      <div className="bg-white rounded-lg p-12 shadow-sm">
+      <div className="bg-white rounded-lg p-4 md:p-8 lg:p-12 shadow-sm">
         <div className="flex items-start gap-8 mb-8">
           <div className="w-20 h-20 rounded-lg bg-cream flex items-center justify-center text-4xl flex-shrink-0">
             {getIconeMatiere(cours.matiere)}
@@ -609,7 +796,95 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
           </div>
         )}
 
-        {/* Images avec texte superposé */}
+        {/* Section Resume */}
+        {!modeEdition && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-[#1A4D4D]">Résumé du cours</h3>
+            </div>
+            {!resume && cours.texteOCR && (
+              <div className="flex items-center gap-3 text-gray-500">
+                <div className="animate-spin h-5 w-5 border-2 border-[#E85D4C] border-t-transparent rounded-full" />
+                <span>Résumé en cours de génération...</span>
+              </div>
+            )}
+            {resume && (
+              <div className="space-y-4">
+                {resume.paragraphe && (
+                  <p className="text-gray-700 leading-relaxed bg-[#FBF8F3] p-4 rounded-lg">{resume.paragraphe}</p>
+                )}
+                {resume.pointsCles && resume.pointsCles.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-[#1A4D4D] mb-2">Points clés</h4>
+                    <ul className="space-y-1">
+                      {resume.pointsCles.map((point, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                          <span className="text-[#E85D4C] mt-0.5">&bull;</span>
+                          <span>{point}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {resume.structure && resume.structure.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-semibold text-[#1A4D4D] mb-2">Structure du cours</h4>
+                    <div className="space-y-2">
+                      {resume.structure.map((section, i) => (
+                        <details key={i} className="border border-gray-200 rounded-lg">
+                          <summary className="px-4 py-2 cursor-pointer font-medium text-sm text-[#1A4D4D] hover:bg-gray-50">
+                            {section.titre}
+                          </summary>
+                          <p className="px-4 py-3 text-sm text-gray-600 border-t border-gray-100">{section.contenu}</p>
+                        </details>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Section Concepts clés */}
+        {!modeEdition && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-[#1A4D4D]">
+                Concepts clés
+                {concepts.length > 0 && (
+                  <span className="ml-2 text-sm font-normal text-gray-400">({concepts.length})</span>
+                )}
+              </h3>
+            </div>
+            {concepts.length === 0 && !chargementConcepts && cours.texteOCR && (
+              <div className="flex items-center gap-3 text-gray-500">
+                <div className="animate-spin h-5 w-5 border-2 border-[#1A4D4D] border-t-transparent rounded-full" />
+                <span>Extraction des concepts en cours...</span>
+              </div>
+            )}
+            {chargementConcepts && (
+              <div className="flex items-center gap-3 text-gray-500">
+                <div className="animate-spin h-5 w-5 border-2 border-[#1A4D4D] border-t-transparent rounded-full" />
+                <span>Chargement...</span>
+              </div>
+            )}
+            {concepts.length > 0 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {concepts.map(concept => (
+                  <ConceptCard
+                    key={concept.id}
+                    concept={concept}
+                    onClick={handleConceptClick}
+                    isSelected={conceptSelectionne?.id === concept.id}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Images avec texte superpose */}
         {(images.length > 0 || modeEdition) && (
           <div className="mb-8" data-testid="images-ocr">
             <div className="flex items-center justify-between mb-4">
@@ -630,103 +905,82 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
               )}
             </div>
 
-            {/* Sélecteur d'image avec contrôles de réordonnancement */}
+            {/* Selecteur d'images avec drag and drop */}
             {images.length > 0 && (
-              <div className="flex gap-6 mb-6 overflow-x-auto py-2">
-                {images.map((img, idx) => (
-                  <div key={idx} className="relative flex-shrink-0">
-                    <button
-                      data-testid="image-vignette"
-                      onClick={() => setImageSelectionnee(idx)}
-                      className={`w-24 h-24 rounded-lg overflow-hidden border-3 transition-all ${
-                        imageSelectionnee === idx
-                          ? 'border-coral ring-2 ring-coral/30 shadow-lg'
-                          : 'border-cream-dark hover:border-coral/50'
-                      }`}
-                    >
-                      <img
-                        src={getImageUrl(img)}
-                        alt={`Page ${idx + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                    {/* Numéro de page en bas de la vignette */}
-                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
-                      <span className={`text-xs font-semibold px-2.5 py-1 rounded-full shadow-sm ${
-                        imageSelectionnee === idx ? 'bg-coral text-white' : 'bg-ink text-white'
-                      }`}>
-                        {idx + 1}
+              <div className="mb-6">
+                <ReordonnerPages
+                  images={images}
+                  getImageUrl={getImageUrl}
+                  imageSelectionnee={imageSelectionnee}
+                  onSelectionner={setImageSelectionnee}
+                  onReordonner={reordonnerImages}
+                  modeEdition={modeEdition}
+                  onSupprimer={modeEdition ? supprimerImage : undefined}
+                />
+              </div>
+            )}
+
+            {/* Image principale avec overlay OCR */}
+            {images.length > 0 && (
+              <div>
+                {getBlocsPageCourante().length > 0 ? (
+                  <OverlayTexteOCR
+                    imageUrl={getImageUrl(images[imageSelectionnee])}
+                    blocs={getBlocsPageCourante()}
+                    onBlocModifie={(blocIndex, nouveauTexte) => {
+                      const pageDataIndex = blocsTexteEdites.findIndex(
+                        (p) => p.page === imageSelectionnee
+                      )
+                      if (pageDataIndex !== -1) {
+                        modifierBlocTexte(pageDataIndex, blocIndex, nouveauTexte)
+                      }
+                    }}
+                  />
+                ) : (
+                  <div className="relative rounded-lg overflow-hidden bg-ink-lighter">
+                    <div className="absolute top-4 left-4 z-10">
+                      <span className="bg-coral text-white text-sm font-semibold px-3 py-1.5 rounded-full shadow-lg">
+                        Page {imageSelectionnee + 1} / {images.length}
                       </span>
                     </div>
-                    {/* Bouton supprimer - uniquement en mode édition */}
-                    {modeEdition && (
-                      <button
-                        data-testid="supprimer-image"
-                        onClick={() => supprimerImage(img)}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-sm flex items-center justify-center hover:bg-red-600 transition-colors shadow-md"
-                        title="Supprimer"
-                      >
-                        ×
-                      </button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Boutons de réordonnancement - sous les vignettes */}
-            {images.length > 1 && (
-              <div className="flex items-center justify-center gap-4 mb-6">
-                <button
-                  onClick={() => deplacerImage(imageSelectionnee, 'haut')}
-                  disabled={imageSelectionnee === 0}
-                  className="flex items-center gap-2 px-4 py-2 bg-cream text-ink rounded-full text-sm font-medium hover:bg-cream-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  ← Précédent
-                </button>
-                <span className="text-sm text-ink-muted">
-                  Page {imageSelectionnee + 1} sur {images.length}
-                </span>
-                <button
-                  onClick={() => deplacerImage(imageSelectionnee, 'bas')}
-                  disabled={imageSelectionnee === images.length - 1}
-                  className="flex items-center gap-2 px-4 py-2 bg-cream text-ink rounded-full text-sm font-medium hover:bg-cream-dark transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  Suivant →
-                </button>
-              </div>
-            )}
-
-            {/* Image principale avec indicateur de page */}
-            {images.length > 0 && (
-              <div className="relative rounded-lg overflow-hidden bg-ink-lighter">
-                {/* Badge de page en haut à gauche */}
-                <div className="absolute top-4 left-4 z-10">
-                  <span className="bg-coral text-white text-sm font-semibold px-3 py-1.5 rounded-full shadow-lg">
-                    Page {imageSelectionnee + 1} / {images.length}
-                  </span>
-                </div>
-                <img
-                  src={getImageUrl(images[imageSelectionnee])}
-                  alt={`Page ${imageSelectionnee + 1}`}
-                  className="w-full"
-                />
-                {modeEdition && (
-                  <div
-                    data-testid="texte-overlay"
-                    className="absolute inset-0 bg-white/80 p-6 overflow-y-auto"
-                  >
-                    <p className="text-xs text-ink-muted mb-2">
-                      Texte superposé - Modifiez ci-dessous pour corriger les erreurs OCR
-                    </p>
+                    <img
+                      src={getImageUrl(images[imageSelectionnee])}
+                      alt={`Page ${imageSelectionnee + 1}`}
+                      className="w-full"
+                    />
+                    <div className="absolute bottom-4 left-4 right-4 z-10">
+                      <div className="bg-ink/80 backdrop-blur-sm text-white text-xs px-4 py-2 rounded-lg">
+                        Le texte ci-dessous correspond a l'ensemble des {images.length} page{images.length > 1 ? 's' : ''} scannee{images.length > 1 ? 's' : ''}
+                      </div>
+                    </div>
                   </div>
                 )}
-                {/* Indicateur de correspondance texte-image */}
-                <div className="absolute bottom-4 left-4 right-4 z-10">
-                  <div className="bg-ink/80 backdrop-blur-sm text-white text-xs px-4 py-2 rounded-lg">
-                    💡 Le texte ci-dessous correspond à l'ensemble des {images.length} page{images.length > 1 ? 's' : ''} scannée{images.length > 1 ? 's' : ''}
+              </div>
+            )}
+
+            {/* Bouton Re-OCR si blocsTexte manquant */}
+            {images.length > 0 &&
+             (!cours.blocsTexte || cours.blocsTexte.length === 0) && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 mt-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-amber-800">Overlay OCR non disponible</p>
+                    <p className="text-xs text-amber-600 mt-1">Ce cours a ete scanne avant la mise a jour. Relancez l'OCR pour activer la superposition du texte.</p>
                   </div>
+                  <button
+                    onClick={handleReOCR}
+                    disabled={reOCREnCours}
+                    className="px-4 py-2 bg-[#F5C542] text-[#1A4D4D] rounded-lg text-sm font-medium hover:bg-[#e0b23a] disabled:opacity-50 transition-colors whitespace-nowrap ml-4"
+                  >
+                    {reOCREnCours ? 'Re-OCR en cours...' : 'Relancer l\'OCR'}
+                  </button>
                 </div>
+                {reOCREnCours && (
+                  <div className="flex items-center gap-2 mt-3 text-amber-700">
+                    <div className="animate-spin h-4 w-4 border-2 border-amber-600 border-t-transparent rounded-full" />
+                    <span className="text-xs">Traitement des images en cours, cela peut prendre quelques secondes...</span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -802,8 +1056,26 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
           ) : (
             <div className="p-6 bg-cream rounded-md max-h-[400px] overflow-y-auto">
               <pre className="whitespace-pre-wrap text-sm text-ink-light font-body">
-                {cours.texteOCR || 'Aucun contenu textuel disponible.'}
+                {(overlayModifie ? texteEdite : cours.texteOCR)
+                  ? renderTexteAvecSurlignage(overlayModifie ? texteEdite : cours.texteOCR, conceptSelectionne)
+                  : 'Aucun contenu textuel disponible.'}
               </pre>
+            </div>
+          )}
+
+          {/* Bouton flottant de sauvegarde overlay */}
+          {overlayModifie && !modeEdition && (
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={async () => {
+                  await sauvegarderModifications()
+                  setOverlayModifie(false)
+                }}
+                disabled={sauvegarde}
+                className="px-6 py-2 bg-success text-white rounded-full text-sm font-medium hover:bg-success/90 transition-colors disabled:opacity-50 shadow-lg"
+              >
+                {sauvegarde ? 'Sauvegarde...' : 'Sauvegarder les modifications'}
+              </button>
             </div>
           )}
         </div>
@@ -915,94 +1187,6 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
           </div>
         )}
 
-        {/* Ressources complémentaires */}
-        {!modeEdition && (
-          <div className="mt-8 pt-8 border-t border-cream-dark">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-semibold text-ink">Ressources complémentaires</h3>
-              {ressources.length === 0 && !chargementRessources && (
-                <button
-                  onClick={handleGenererRessources}
-                  disabled={generationRessources}
-                  className="px-6 py-2 bg-teal text-white rounded-full text-sm font-medium hover:bg-teal-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {generationRessources ? 'Génération...' : 'Générer des ressources'}
-                </button>
-              )}
-            </div>
-
-            {/* Avertissement */}
-            {ressources.length > 0 && (
-              <div className="mb-6 p-4 bg-gold/10 border border-gold rounded-md text-sm text-ink-muted">
-                Les liens suggérés sont générés par IA et doivent être vérifiés avant utilisation.
-              </div>
-            )}
-
-            {/* Erreur */}
-            {erreurRessources && (
-              <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-md text-sm">
-                {erreurRessources}
-              </div>
-            )}
-
-            {/* Chargement */}
-            {(chargementRessources || generationRessources) && (
-              <div className="flex items-center justify-center py-8">
-                <ProcessingSection
-                  message={generationRessources ? 'Recherche de ressources en cours...' : 'Chargement...'}
-                />
-              </div>
-            )}
-
-            {/* Liste des ressources */}
-            {!chargementRessources && !generationRessources && ressources.length > 0 && (
-              <div className="space-y-4">
-                {ressources.map((ressource) => (
-                  <div
-                    key={ressource.id}
-                    className="flex items-start gap-6 p-6 bg-cream rounded-md hover:bg-cream-dark transition-colors"
-                  >
-                    <div className="w-10 h-10 rounded-md bg-white flex items-center justify-center text-xl flex-shrink-0">
-                      {getIconeTypeRessource(ressource.type)}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium text-ink mb-2">{ressource.titre}</h4>
-                      {ressource.description && (
-                        <p className="text-sm text-ink-light mb-2">{ressource.description}</p>
-                      )}
-                      {ressource.url && (
-                        <a
-                          href={ressource.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-teal hover:text-teal-light transition-colors inline-flex items-center gap-1"
-                        >
-                          Ouvrir le lien
-                          <span aria-hidden="true">↗</span>
-                        </a>
-                      )}
-                    </div>
-                    <span className="text-xs text-ink-muted capitalize bg-white px-2 py-1 rounded-full">
-                      {ressource.type}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Aucune ressource */}
-            {!chargementRessources && !generationRessources && ressources.length === 0 && (
-              <div className="text-center py-8 text-ink-muted">
-                <div className="text-3xl mb-4">🔍</div>
-                <p className="text-sm">
-                  Aucune ressource complémentaire disponible.
-                  <br />
-                  Cliquez sur "Générer des ressources" pour en trouver.
-                </p>
-              </div>
-            )}
-          </div>
-        )}
       </div>
     </div>
   )
@@ -1026,8 +1210,8 @@ export default function CoursPage() {
       setChargement(true)
       setErreur(null)
       const res = await listerCours(page, limite)
-      setCours(res.cours)
-      setTotal(res.total)
+      setCours(res.cours || [])
+      setTotal(res.total || 0)
     } catch (err) {
       setErreur(err instanceof Error ? err.message : 'Erreur inconnue')
     } finally {
@@ -1066,9 +1250,9 @@ export default function CoursPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
         <div>
-          <h1 className="font-display text-3xl font-bold text-ink mb-2">
+          <h1 className="font-display text-xl md:text-3xl font-bold text-ink mb-2">
             Mes cours
           </h1>
           <p className="text-ink-light">
@@ -1077,7 +1261,7 @@ export default function CoursPage() {
         </div>
         <Link
           to="/scanner"
-          className="inline-flex items-center gap-4 px-8 py-3 bg-coral text-white rounded-full font-semibold hover:bg-coral-dark transition-colors"
+          className="inline-flex items-center gap-4 px-6 py-2.5 md:px-8 md:py-3 bg-coral text-white rounded-full font-semibold hover:bg-coral-dark transition-colors self-start sm:self-auto"
         >
           <span role="img" aria-label="Scanner">📸</span>
           Scanner un cours
@@ -1100,7 +1284,7 @@ export default function CoursPage() {
           <CoursSkeleton />
         </div>
       ) : cours.length === 0 ? (
-        <div className="bg-white rounded-lg p-12 text-center">
+        <div className="bg-white rounded-lg p-8 md:p-12 text-center">
           <div className="text-5xl mb-6" role="img" aria-label="Livres">📚</div>
           <h2 className="font-display text-xl font-semibold text-ink mb-4">
             Aucun cours enregistré

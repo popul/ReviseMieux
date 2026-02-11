@@ -1,8 +1,16 @@
 interface ProcessingSectionProps {
   message?: string
+  progression?: { page: number; total: number } | null
 }
 
-export default function ProcessingSection({ message = 'Traitement en cours...' }: ProcessingSectionProps) {
+export default function ProcessingSection({
+  message = 'Traitement en cours...',
+  progression,
+}: ProcessingSectionProps) {
+  const pourcentage = progression
+    ? Math.round((progression.page / progression.total) * 100)
+    : null
+
   return (
     <div className="bg-white rounded-lg p-12 text-center">
       {/* Spinner animé */}
@@ -18,14 +26,27 @@ export default function ProcessingSection({ message = 'Traitement en cours...' }
       </div>
 
       {/* Message */}
-      <p className="text-lg font-medium text-ink mb-4">{message}</p>
+      <p className="text-lg font-medium text-ink mb-4">
+        {progression
+          ? `Page ${progression.page} sur ${progression.total} traitée`
+          : message}
+      </p>
       <p className="text-ink-light text-sm">
-        L'extraction du texte peut prendre quelques secondes...
+        {progression
+          ? `${pourcentage}% terminé`
+          : "L'extraction du texte peut prendre quelques secondes..."}
       </p>
 
-      {/* Barre de progression indéterminée */}
+      {/* Barre de progression */}
       <div className="mt-8 mx-auto max-w-xs h-1.5 bg-cream rounded-full overflow-hidden">
-        <div className="h-full bg-gradient-to-r from-coral to-gold rounded-full animate-progress" />
+        {pourcentage !== null ? (
+          <div
+            className="h-full bg-gradient-to-r from-coral to-gold rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${pourcentage}%` }}
+          />
+        ) : (
+          <div className="h-full bg-gradient-to-r from-coral to-gold rounded-full animate-progress" />
+        )}
       </div>
     </div>
   )

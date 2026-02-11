@@ -1,19 +1,15 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import IndicateurEtapes from '../components/IndicateurEtapes'
 import ZoneUpload from '../components/ZoneUpload'
 import PreviewFichiers from '../components/PreviewFichiers'
 import OptionsGeneration, { type OptionsGenerationType } from '../components/OptionsGeneration'
 import ProcessingSection from '../components/ProcessingSection'
-import EditeurTexteOCR from '../components/EditeurTexteOCR'
-import { envoyerOCR, type ReponseOCR, type ZoneIncertaine } from '../services/api'
-
-const MAX_FICHIERS = 10
+import { envoyerOCRStream, obtenirConfig } from '../services/api'
 
 const ETAPES = [
   { numero: 1, libelle: 'Import' },
   { numero: 2, libelle: 'Options' },
-  { numero: 3, libelle: 'Résultat' },
 ]
 
 const OPTIONS_DEFAUT: OptionsGenerationType = {
@@ -24,7 +20,7 @@ const OPTIONS_DEFAUT: OptionsGenerationType = {
   genererMindmap: false,
 }
 
-type EtatPage = 'upload' | 'processing' | 'resultat' | 'erreur'
+type EtatPage = 'upload' | 'processing' | 'erreur'
 
 interface EtatErreur {
   code: string
@@ -38,18 +34,22 @@ export default function Scanner() {
   const [etapeActive, setEtapeActive] = useState(1)
   const [etat, setEtat] = useState<EtatPage>('upload')
   const [erreur, setErreur] = useState<EtatErreur | null>(null)
-  const [resultatOCR, setResultatOCR] = useState<ReponseOCR | null>(null)
-  const [texteEdite, setTexteEdite] = useState('')
-  const [zonesIncertaines, setZonesIncertaines] = useState<ZoneIncertaine[]>([])
+  const [progression, setProgression] = useState<{ page: number; total: number } | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
+  const [maxFichiers, setMaxFichiers] = useState(30)
+
+  useEffect(() => {
+    obtenirConfig().then((cfg) => setMaxFichiers(cfg.nombreMaxPages))
+  }, [])
 
   const ajouterFichiers = useCallback((nouveauxFichiers: File[]) => {
     setFichiers((prev) => {
       const total = [...prev, ...nouveauxFichiers]
-      return total.slice(0, MAX_FICHIERS)
+      return total.slice(0, maxFichiers)
     })
     setEtapeActive(2)
-  }, [])
+  }, [maxFichiers])
 
   const supprimerFichier = useCallback((index: number) => {
     setFichiers((prev) => {
@@ -66,14 +66,13 @@ export default function Scanner() {
   }, [])
 
   const reinitialiser = useCallback(() => {
+    abortControllerRef.current?.abort()
     setFichiers([])
     setOptions(OPTIONS_DEFAUT)
     setEtapeActive(1)
     setEtat('upload')
     setErreur(null)
-    setResultatOCR(null)
-    setTexteEdite('')
-    setZonesIncertaines([])
+    setProgression(null)
   }, [])
 
   const auMoinsUneOption =
@@ -86,29 +85,41 @@ export default function Scanner() {
 
     setEtat('processing')
     setErreur(null)
+    setProgression(null)
+
+    const abortController = new AbortController()
+    abortControllerRef.current = abortController
 
     try {
-      const resultat = await envoyerOCR(fichiers, {
-        titre: options.titre || undefined,
-        matiere: options.matiere || undefined,
-        sauvegarder: true,
-      })
+      const resultat = await envoyerOCRStream(
+        fichiers,
+        (page, total) => setProgression({ page, total }),
+        {
+          titre: options.titre || undefined,
+          matiere: options.matiere || undefined,
+          sauvegarder: true,
+        },
+        abortController.signal
+      )
 
-      setResultatOCR(resultat)
-      setTexteEdite(resultat.texte)
-      setZonesIncertaines(resultat.zonesIncertaines || [])
-      setEtat('resultat')
-      setEtapeActive(3)
+      if (resultat.coursId) {
+        navigate(`/cours?id=${resultat.coursId}`)
+      } else {
+        navigate('/cours')
+      }
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Une erreur inattendue est survenue'
+      if ((err as Error).name === 'AbortError') return
 
-      // Déterminer le code d'erreur
-      let code = 'ERREUR_INCONNUE'
-      if (message.includes('429') || message.toLowerCase().includes('rate limit')) {
+      const message = err instanceof Error ? err.message : 'Une erreur inattendue est survenue'
+      const status = (err as Error & { status?: number }).status
+      const serverCode = (err as Error & { code?: string }).code
+
+      let code = serverCode || 'ERREUR_INCONNUE'
+      if (status === 429 || message.toLowerCase().includes('rate limit')) {
         code = 'QUOTA_DEPASSE'
-      } else if (message.includes('503') || message.toLowerCase().includes('indisponible')) {
+      } else if (status === 503 || message.toLowerCase().includes('indisponible')) {
         code = 'SERVICE_INDISPONIBLE'
-      } else if (message.includes('400')) {
+      } else if (status === 400) {
         code = 'FICHIER_INVALIDE'
       }
 
@@ -117,27 +128,10 @@ export default function Scanner() {
     }
   }
 
-  const gererChangementTexte = useCallback((nouveauTexte: string) => {
-    setTexteEdite(nouveauTexte)
-    // Recalculer les zones incertaines (les invalider si le texte a changé significativement)
-    // Pour simplifier, on garde les zones existantes mais on pourrait les recalculer
-    setZonesIncertaines([])
-  }, [])
-
-  const gererValidation = useCallback(() => {
-    // Rediriger vers la page du cours pour générer les supports
-    if (resultatOCR?.coursId) {
-      navigate(`/cours?id=${resultatOCR.coursId}`)
-    } else {
-      // Fallback vers la liste des cours si pas d'ID
-      navigate('/cours')
-    }
-  }, [resultatOCR, navigate])
-
   return (
     <>
       {/* Header avec navigation */}
-      <header className="flex items-center gap-8 mb-12">
+      <header className="flex items-center gap-4 mb-8 md:gap-8 md:mb-12">
         <Link
           to="/"
           className="flex items-center gap-2 text-ink-light px-4 py-2 rounded-full transition-colors hover:bg-cream hover:text-ink no-underline font-medium"
@@ -170,14 +164,14 @@ export default function Scanner() {
       {etat === 'upload' && (
         <>
           <section className="text-center">
-            <h2 className="font-display text-3xl font-bold mb-2">Importe tes notes de cours</h2>
-            <p className="text-ink-light text-lg mb-12">
+            <h2 className="font-display text-xl md:text-3xl font-bold mb-2">Importe tes notes de cours</h2>
+            <p className="text-ink-light text-lg mb-8 md:mb-12">
               Prends en photo ou scanne tes notes manuscrites ou imprimées
             </p>
 
             <ZoneUpload
               onFichiersSelectionnes={ajouterFichiers}
-              maxFichiers={MAX_FICHIERS}
+              maxFichiers={maxFichiers}
               fichiersCourants={fichiers.length}
             />
 
@@ -185,7 +179,7 @@ export default function Scanner() {
               fichiers={fichiers}
               onSupprimer={supprimerFichier}
               onAjouter={ouvrirSelecteur}
-              maxFichiers={MAX_FICHIERS}
+              maxFichiers={maxFichiers}
             />
           </section>
 
@@ -198,7 +192,7 @@ export default function Scanner() {
               <button
                 type="button"
                 className={`
-                  inline-flex items-center gap-4 py-4 px-12 rounded-full font-semibold text-lg transition-all
+                  inline-flex items-center gap-4 py-3 px-8 md:py-4 md:px-12 rounded-full font-semibold text-lg transition-all
                   ${
                     peutSoumettre
                       ? 'bg-teal text-white hover:bg-teal-light hover:-translate-y-0.5 hover:shadow-xl'
@@ -223,12 +217,12 @@ export default function Scanner() {
 
       {/* État: Processing */}
       {etat === 'processing' && (
-        <ProcessingSection message="Extraction du texte en cours..." />
+        <ProcessingSection message="Extraction du texte en cours..." progression={progression} />
       )}
 
       {/* État: Erreur */}
       {etat === 'erreur' && erreur && (
-        <div className="bg-white rounded-lg p-12 text-center">
+        <div className="bg-white rounded-lg p-6 md:p-12 text-center">
           <div className="w-16 h-16 mx-auto mb-6 bg-coral/10 rounded-full flex items-center justify-center">
             <span className="text-3xl">⚠️</span>
           </div>
@@ -245,10 +239,10 @@ export default function Scanner() {
 
           <p className="text-ink-light mb-8">{erreur.message}</p>
 
-          <div className="flex gap-6 justify-center">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
               type="button"
-              className="px-8 py-4 bg-cream text-ink rounded-full font-medium hover:bg-cream/80 transition-colors"
+              className="px-6 py-3 md:px-8 md:py-4 bg-cream text-ink rounded-full font-medium hover:bg-cream/80 transition-colors"
               onClick={reinitialiser}
             >
               Recommencer
@@ -256,7 +250,7 @@ export default function Scanner() {
             {erreur.code !== 'QUOTA_DEPASSE' && (
               <button
                 type="button"
-                className="px-8 py-4 bg-teal text-white rounded-full font-medium hover:bg-teal-light transition-colors"
+                className="px-6 py-3 md:px-8 md:py-4 bg-teal text-white rounded-full font-medium hover:bg-teal-light transition-colors"
                 onClick={gererSoumission}
               >
                 Réessayer
@@ -266,77 +260,6 @@ export default function Scanner() {
         </div>
       )}
 
-      {/* État: Résultat */}
-      {etat === 'resultat' && resultatOCR && (
-        <div className="space-y-8">
-          {/* Résumé */}
-          <div className="bg-teal/5 rounded-lg p-6 flex items-center gap-6">
-            <div className="w-12 h-12 bg-teal/10 rounded-full flex items-center justify-center">
-              <span className="text-xl">✓</span>
-            </div>
-            <div className="flex-1">
-              <p className="font-medium text-teal">Extraction réussie</p>
-              <p className="text-sm text-ink-light">
-                {resultatOCR.nombrePages} page{resultatOCR.nombrePages > 1 ? 's' : ''} traitée
-                {resultatOCR.nombrePages > 1 ? 's' : ''}
-              </p>
-              {/* Afficher le titre et la matière détectés */}
-              {(resultatOCR.titreSuggere || resultatOCR.matiereSuggeree) && (
-                <div className="mt-2 flex flex-wrap gap-3">
-                  {resultatOCR.titreSuggere && (
-                    <span className="text-xs bg-teal/10 text-teal px-3 py-1 rounded-full">
-                      📝 {resultatOCR.titreSuggere}
-                    </span>
-                  )}
-                  {resultatOCR.matiereSuggeree && (
-                    <span className="text-xs bg-coral/10 text-coral px-3 py-1 rounded-full capitalize">
-                      📚 {resultatOCR.matiereSuggeree}
-                    </span>
-                  )}
-                </div>
-              )}
-            </div>
-            <button
-              type="button"
-              className="ml-auto px-6 py-2 bg-cream text-ink rounded-full text-sm font-medium hover:bg-cream/80 transition-colors"
-              onClick={reinitialiser}
-            >
-              Nouveau scan
-            </button>
-          </div>
-
-          {/* Éditeur de texte OCR */}
-          <EditeurTexteOCR
-            texte={texteEdite}
-            zonesIncertaines={zonesIncertaines}
-            confiance={resultatOCR.confiance}
-            onTexteChange={gererChangementTexte}
-            onValider={gererValidation}
-          />
-
-          {/* Récapitulatif des options choisies */}
-          <div className="bg-white rounded-lg p-6">
-            <h4 className="font-medium text-sm text-ink-light mb-4">Supports à générer</h4>
-            <div className="flex gap-4 flex-wrap">
-              {options.genererFiches && (
-                <span className="px-6 py-2 bg-coral/10 text-coral rounded-full text-sm font-medium">
-                  Fiches de révision
-                </span>
-              )}
-              {options.genererQuiz && (
-                <span className="px-6 py-2 bg-teal/10 text-teal rounded-full text-sm font-medium">
-                  Quiz interactif
-                </span>
-              )}
-              {options.genererMindmap && (
-                <span className="px-6 py-2 bg-gold/10 text-gold rounded-full text-sm font-medium">
-                  Carte mentale
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </>
   )
 }
