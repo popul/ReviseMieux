@@ -1,13 +1,13 @@
-# One-pager: PrepaSmart - Assistant de Révision Intelligent
+# One-pager : Révise mieux - Assistant de Révision Intelligent
 
 ## 1. TL;DR
 
-PrepaSmart est un service de préparation aux interrogations écrites pour les collégiens et lycéens. À partir d'un cours photographié, l'outil génère automatiquement des fiches de révision, des quiz interactifs et des cartes mentales enrichis par des ressources en ligne. Après le contrôle, l'élève peut également scanner sa copie corrigée pour obtenir une analyse personnalisée de ses erreurs. L'objectif : réviser plus efficacement, en moins de temps, et obtenir de meilleures notes.
+Révise mieux est un service de préparation aux interrogations écrites pour les collégiens et lycéens. À partir d'un cours photographié, l'outil génère automatiquement des fiches de révision, des quiz interactifs et des cartes mentales enrichis par des ressources en ligne. Après le contrôle, l'élève peut également scanner sa copie corrigée pour obtenir une analyse personnalisée de ses erreurs. L'objectif : réviser plus efficacement, en moins de temps, et obtenir de meilleures notes.
 
 ## 2. Goals
 
 ### Business Goals
-* Établir PrepaSmart comme la référence en révision intelligente pour les collégiens et lycéens
+* Établir Révise mieux comme la référence en révision intelligente pour les collégiens et lycéens
 * Atteindre 50 000 utilisateurs actifs mensuels dans les 12 premiers mois
 * Obtenir un taux de satisfaction utilisateur supérieur à 85%
 * Générer un taux de conversion freemium-premium de 8-12%
@@ -47,11 +47,11 @@ PrepaSmart est un service de préparation aux interrogations écrites pour les c
 ## 4. Functional requirements
 
 ### Priorité P0 (MVP - Must have)
+* **Plan de révision (concept central)** : l'élève crée un plan pour préparer un examen ou contrôle, y regroupe ses cours avec une date cible. Architecture d'information : **Plan → Cours → Artefacts** (fiches, quiz, mindmap, résumé, concepts, lexique, examen blanc). Le plan offre une vue d'ensemble de la progression et un accès direct à tous les artefacts.
 * **OCR de cours** : scan ou photo des notes manuscrites ou imprimées avec reconnaissance de texte
-* **Génération de fiches de révision** : synthèse automatique structurée du cours (titres, points clés, définitions)
-* **Quiz adaptatifs** : QCM de 10-15 questions basées sur le contenu du cours
-* **Enrichissement de contenu** : recherche automatique de ressources complémentaires pertinentes en ligne
-* **Tableau de bord simple** : vue d'ensemble des cours scannés et des quiz passés
+* **Génération de fiches de révision** : synthèse automatique structurée du cours, accessible via le plan de révision
+* **Quiz adaptatifs** : QCM de 10-15 questions basées sur le contenu du cours, accessible via le plan de révision
+* **Tableau de bord** : vue d'ensemble des plans de révision, cours scannés et quiz passés
 
 ### Priorité P1 (Post-MVP - Should have)
 * **Génération de mindmaps** : cartes mentales visuelles et interactives du cours
@@ -70,13 +70,12 @@ PrepaSmart est un service de préparation aux interrogations écrites pour les c
 ## 5. User experience
 
 ### Parcours principal - Préparation à une interrogation
-* L'élève ouvre l'app et sélectionne "Nouveau cours à réviser"
-* Il photographie son cours (1 à 10 pages) ou importe depuis la galerie
+* L'élève crée un **plan de révision** (titre, matière, date de l'examen)
+* Il scanne ses cours et les ajoute au plan
 * L'OCR traite le document en 15-30 secondes avec indicateur de progression
-* Une page de confirmation affiche le contenu reconnu (possibilité de correction manuelle)
-* L'élève choisit : "Générer fiche", "Créer quiz" ou "Créer mindmap"
-* La fiche/quiz/mindmap s'affiche en 10-20 secondes
-* L'élève peut sauvegarder, modifier ou régénérer avec des paramètres différents
+* Depuis le plan, l'élève accède à chaque cours avec ses artefacts (fiches, quiz, mindmap, résumé, lexique)
+* L'élève choisit : "Générer fiche", "Créer quiz" ou "Créer mindmap" pour chaque cours
+* La barre de progression du plan se met à jour au fur et à mesure de la génération des artefacts
 * Pour le quiz : feedback immédiat après chaque réponse avec explication
 * Score final affiché avec suggestion de révision si < 70%
 
@@ -102,7 +101,7 @@ PrepaSmart est un service de préparation aux interrogations écrites pour les c
 
 Demain, interrogation surprise sur la Révolution française annoncée il y a une semaine. Elle a trois heures de sport ce soir et une dissertation de philo à terminer. Pas le temps de réécrire des fiches pendant deux heures comme d'habitude.
 
-Dans le bus, elle ouvre PrepaSmart et photographie ses sept pages de notes. En trente secondes, l'application a tout lu, même son écriture de médecin. Elle appuie sur "Générer fiche" et reçoit une synthèse parfaite : chronologie, acteurs clés, enjeux, citations importantes. L'app a même ajouté deux vidéos courtes et un schéma qu'elle n'avait pas dans son cours.
+Dans le bus, elle ouvre Révise mieux et photographie ses sept pages de notes. En trente secondes, l'application a tout lu, même son écriture de médecin. Elle appuie sur "Générer fiche" et reçoit une synthèse parfaite : chronologie, acteurs clés, enjeux, citations importantes. L'app a même ajouté deux vidéos courtes et un schéma qu'elle n'avait pas dans son cours.
 
 Elle lance ensuite un quiz de quinze questions. Première question ratée sur les Girondins. L'application lui explique immédiatement la différence avec les Montagnards, avec un petit tableau comparatif. Mathilde continue : 12/15, pas mal. Le système lui suggère de revoir la section "Terreur et Comité de Salut Public" avant demain.
 
@@ -110,13 +109,16 @@ Le soir, après le sport, vingt minutes de mindmap interactive sur son télépho
 
 **Mercredi, copie rendue : 15/20.**
 
-Mathilde scanne sa copie corrigée. PrepaSmart analyse : "Bonne maîtrise chronologique, mais définitions imprécises sur le Tiers-État et confusion sur la Constitution de 1791". L'appli génère un mini-quiz de rattrapage sur ces deux points précis. Cinq minutes plus tard, c'est clair dans sa tête.
+Mathilde scanne sa copie corrigée. Révise mieux analyse : "Bonne maîtrise chronologique, mais définitions imprécises sur le Tiers-État et confusion sur la Constitution de 1791". L'appli génère un mini-quiz de rattrapage sur ces deux points précis. Cinq minutes plus tard, c'est clair dans sa tête.
 
 Pour la prochaine interro, elle sait exactement quoi réviser.
 
 ## 7. Success metrics
 
 ### Métriques d'engagement
+* Nombre de plans créés par utilisateur (objectif : 2-3 par trimestre)
+* Nombre de cours par plan moyen (objectif : 3-5)
+* Taux de complétion des plans (% d'artefacts générés) (objectif : > 60%)
 * Nombre de cours scannés par utilisateur actif par semaine (objectif : 2-3)
 * Taux de complétion des quiz générés (objectif : > 70%)
 * Temps moyen passé sur l'application par session de révision (objectif : 15-25 min)
