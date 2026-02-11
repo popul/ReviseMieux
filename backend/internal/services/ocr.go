@@ -7,12 +7,17 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"image"
+	"image/jpeg"
+	"image/png"
 	"io"
 	"log"
 	"mime/multipart"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"golang.org/x/image/draw"
 
 	"github.com/revisemieux/backend/internal/llm"
 	"github.com/revisemieux/backend/internal/ocr"
@@ -22,6 +27,14 @@ import (
 const (
 	// TailleMaxFichier est la taille maximale d'un fichier (10MB)
 	TailleMaxFichier = 10 * 1024 * 1024
+
+	// dimensionMaxImage est la dimension maximale (largeur ou hauteur) pour les images
+	// envoyées au LLM. OpenAI redimensionne en interne à 2048px max, donc envoyer
+	// plus grand ne fait que gaspiller de la bande passante.
+	dimensionMaxImage = 2048
+
+	// qualiteJPEG est la qualité de compression JPEG pour les images redimensionnées
+	qualiteJPEG = 85
 )
 
 // Types MIME acceptés pour l'OCR
@@ -414,8 +427,67 @@ func (s *ServiceOCR) extraireImages(fh *multipart.FileHeader) ([][]byte, error) 
 		return s.extrairePagesPDF(contenu)
 	}
 
-	// Sinon, retourner l'image telle quelle
-	return [][]byte{contenu}, nil
+	// Redimensionner si nécessaire (économise bande passante, pas de perte de qualité OCR)
+	contenuRedim, err := redimensionnerImage(contenu, typeMIME)
+	if err != nil {
+		log.Printf("Redimensionnement échoué, utilisation de l'image originale: %v", err)
+		return [][]byte{contenu}, nil
+	}
+
+	return [][]byte{contenuRedim}, nil
+}
+
+// redimensionnerImage redimensionne une image si elle dépasse dimensionMaxImage pixels
+// sur son plus grand côté. Retourne l'image originale si déjà assez petite.
+func redimensionnerImage(data []byte, typeMIME string) ([]byte, error) {
+	// Décoder l'image pour obtenir les dimensions
+	reader := bytes.NewReader(data)
+	cfg, _, err := image.DecodeConfig(reader)
+	if err != nil {
+		return data, nil // format non reconnu, on garde l'original
+	}
+
+	// Pas besoin de redimensionner si déjà assez petit
+	if cfg.Width <= dimensionMaxImage && cfg.Height <= dimensionMaxImage {
+		return data, nil
+	}
+
+	// Calculer les nouvelles dimensions en gardant le ratio
+	newW, newH := cfg.Width, cfg.Height
+	if newW > newH {
+		newH = newH * dimensionMaxImage / newW
+		newW = dimensionMaxImage
+	} else {
+		newW = newW * dimensionMaxImage / newH
+		newH = dimensionMaxImage
+	}
+
+	// Décoder l'image complète
+	reader.Reset(data)
+	src, _, err := image.Decode(reader)
+	if err != nil {
+		return data, nil
+	}
+
+	// Redimensionner avec interpolation de qualité (CatmullRom)
+	dst := image.NewRGBA(image.Rect(0, 0, newW, newH))
+	draw.CatmullRom.Scale(dst, dst.Bounds(), src, src.Bounds(), draw.Over, nil)
+
+	// Ré-encoder en JPEG (meilleur ratio taille/qualité pour l'OCR)
+	var buf bytes.Buffer
+	if typeMIME == "image/png" {
+		err = png.Encode(&buf, dst)
+	} else {
+		err = jpeg.Encode(&buf, dst, &jpeg.Options{Quality: qualiteJPEG})
+	}
+	if err != nil {
+		return data, nil
+	}
+
+	log.Printf("Image redimensionnée: %dx%d → %dx%d (%d Ko → %d Ko)",
+		cfg.Width, cfg.Height, newW, newH, len(data)/1024, buf.Len()/1024)
+
+	return buf.Bytes(), nil
 }
 
 // extrairePagesPDF extrait les pages d'un PDF sous forme d'images
