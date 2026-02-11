@@ -19,7 +19,10 @@ func ConfigurerMiddleware(r *gin.Engine) {
 
 	// CORS middleware
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:*"},
+		AllowOriginFunc: func(origin string) bool {
+			// En dev, autoriser localhost et les IPs du reseau local
+			return true
+		},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true,

@@ -3,7 +3,15 @@ package config
 
 import (
 	"os"
+	"strings"
+
+	"gopkg.in/yaml.v3"
 )
+
+// ConfigYAML représente la structure du fichier config.yaml
+type ConfigYAML struct {
+	NombreMaxPages int `yaml:"nombre_max_pages"`
+}
 
 // Config contient toute la configuration de l'application
 type Config struct {
@@ -23,10 +31,38 @@ type Config struct {
 
 	// Stockage
 	StoragePath string
+
+	// Tesseract OCR
+	TesseractEnabled bool
+
+	// Limite de pages
+	NombreMaxPages int
 }
 
-// Charger charge la configuration depuis les variables d'environnement
+// Charger charge la configuration depuis le fichier YAML et les variables d'environnement
 func Charger() *Config {
+	return ChargerAvecFichier("config.yaml")
+}
+
+// ChargerAvecFichier charge la configuration depuis un fichier YAML puis applique les env vars
+func ChargerAvecFichier(chemin string) *Config {
+	// 1. Lire le fichier YAML (ignoré si absent ou invalide)
+	var configYAML ConfigYAML
+	if data, err := os.ReadFile(chemin); err == nil {
+		_ = yaml.Unmarshal(data, &configYAML)
+	}
+
+	// 2. Construire la config avec les env vars en priorité
+	nombreMaxPages := configYAML.NombreMaxPages
+	if v := getEnvInt("NOMBRE_MAX_PAGES", 0); v > 0 {
+		nombreMaxPages = v
+	}
+
+	// 3. Appliquer le défaut si valeur <= 0
+	if nombreMaxPages <= 0 {
+		nombreMaxPages = 30
+	}
+
 	return &Config{
 		Port:                getEnv("PORT", "8080"),
 		DatabaseURL:         getEnv("DATABASE_URL", "postgres://revisemieux:revisemieux@localhost:5432/revisemieux?sslmode=disable"),
@@ -35,6 +71,8 @@ func Charger() *Config {
 		QuotaOCRJour:        getEnvInt("QUOTA_OCR_JOUR", 50),
 		QuotaGenerationJour: getEnvInt("QUOTA_GENERATION_JOUR", 100),
 		StoragePath:         getEnv("STORAGE_PATH", "./storage"),
+		TesseractEnabled:    getEnvBool("TESSERACT_ENABLED", true),
+		NombreMaxPages:      nombreMaxPages,
 	}
 }
 
@@ -44,6 +82,22 @@ func getEnv(cle, defaut string) string {
 		return valeur
 	}
 	return defaut
+}
+
+// getEnvBool retourne la valeur booléenne de la variable d'environnement ou la valeur par défaut
+func getEnvBool(cle string, defaut bool) bool {
+	valeur := os.Getenv(cle)
+	if valeur == "" {
+		return defaut
+	}
+	switch strings.ToLower(valeur) {
+	case "true", "1", "yes":
+		return true
+	case "false", "0", "no":
+		return false
+	default:
+		return defaut
+	}
 }
 
 // getEnvInt retourne la valeur entière de la variable d'environnement ou la valeur par défaut

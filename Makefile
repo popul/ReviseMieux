@@ -3,7 +3,7 @@
 
 .PHONY: help install build test lint clean \
         docker-build docker-up docker-down docker-logs docker-clean \
-        dev dev-backend dev-frontend db-up db-down db-reset \
+        dev dev-backend dev-frontend db-up db-down db-reset db-truncate \
         db-migrate db-migrate-down db-migrate-status
 
 # Default target
@@ -33,7 +33,8 @@ help:
 	@echo "  Database:"
 	@echo "    make db-up              Start database only"
 	@echo "    make db-down            Stop database"
-	@echo "    make db-reset           Reset database (delete all data)"
+	@echo "    make db-reset           Reset database (delete all data + schema)"
+	@echo "    make db-truncate        Vider toutes les tables (garder le schema)"
 	@echo "    make db-migrate         Apply all pending migrations"
 	@echo "    make db-migrate-down    Rollback last migration"
 	@echo "    make db-migrate-status  Show migration status"
@@ -75,6 +76,13 @@ db-reset:
 	docker compose down -v db
 	docker compose up -d db
 	@echo "Database reset complete."
+
+# Vider toutes les donnees mais garder le schema et les migrations
+db-truncate:
+	@echo "Vidage de toutes les tables..."
+	docker compose exec db psql -U revisemieux -d revisemieux -c \
+		"TRUNCATE cours, fiches, quiz, quiz_sessions, mindmaps, concepts, copies_examens, erreurs_analyse, examens_blancs, sessions_examen, termes_lexique, activites, quotas_journaliers, plans_revision, plans_revision_cours CASCADE;"
+	@echo "Toutes les tables ont ete videes (migrations conservees)."
 
 # Run database migrations
 db-migrate:

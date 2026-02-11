@@ -10,6 +10,7 @@ bin/
 *.dll
 *.so
 *.dylib
+backend/server
 
 # IDE
 .idea/
