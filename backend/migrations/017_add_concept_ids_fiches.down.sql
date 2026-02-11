@@ -1,0 +1,1 @@
+ALTER TABLE fiches DROP COLUMN IF EXISTS concept_ids;

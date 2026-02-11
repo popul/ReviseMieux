@@ -1,0 +1,1 @@
+ALTER TABLE fiches ADD COLUMN IF NOT EXISTS concept_ids TEXT[] DEFAULT '{}';

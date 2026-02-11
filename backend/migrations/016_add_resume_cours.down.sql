@@ -1,0 +1,1 @@
+ALTER TABLE cours DROP COLUMN IF EXISTS resume;
