@@ -132,6 +132,63 @@ export async function envoyerOCR(
   return gererReponse<ReponseOCR>(response)
 }
 
+// Dimension max pour les images envoyées au LLM (OpenAI resize en interne à 2048px)
+const DIMENSION_MAX_IMAGE = 2048
+const QUALITE_JPEG = 0.85
+
+// Redimensionne une image côté client via Canvas si elle dépasse DIMENSION_MAX_IMAGE
+async function redimensionnerImage(fichier: File): Promise<File> {
+  // Ne pas toucher aux PDF
+  if (fichier.type === 'application/pdf') return fichier
+
+  // Charger l'image pour obtenir ses dimensions
+  const url = URL.createObjectURL(fichier)
+  const img = new Image()
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve()
+    img.onerror = () => reject(new Error('Impossible de charger l\'image'))
+    img.src = url
+  })
+  URL.revokeObjectURL(url)
+
+  // Pas besoin de redimensionner si déjà assez petit
+  if (img.width <= DIMENSION_MAX_IMAGE && img.height <= DIMENSION_MAX_IMAGE) {
+    return fichier
+  }
+
+  // Calculer les nouvelles dimensions en gardant le ratio
+  let newW = img.width
+  let newH = img.height
+  if (newW > newH) {
+    newH = Math.round(newH * DIMENSION_MAX_IMAGE / newW)
+    newW = DIMENSION_MAX_IMAGE
+  } else {
+    newW = Math.round(newW * DIMENSION_MAX_IMAGE / newH)
+    newH = DIMENSION_MAX_IMAGE
+  }
+
+  // Dessiner sur un canvas redimensionné
+  const canvas = document.createElement('canvas')
+  canvas.width = newW
+  canvas.height = newH
+  const ctx = canvas.getContext('2d')!
+  ctx.drawImage(img, 0, 0, newW, newH)
+
+  // Exporter en JPEG (meilleur ratio taille/qualité)
+  const blob = await new Promise<Blob>((resolve) => {
+    canvas.toBlob((b) => resolve(b!), 'image/jpeg', QUALITE_JPEG)
+  })
+
+  // Garder le même nom mais avec extension .jpg
+  const nom = fichier.name.replace(/\.[^.]+$/, '.jpg')
+  return new File([blob], nom, { type: 'image/jpeg' })
+}
+
+// Redimensionne toutes les images en parallèle
+async function redimensionnerImages(fichiers: File[]): Promise<File[]> {
+  return Promise.all(fichiers.map(redimensionnerImage))
+}
+
 // API OCR avec streaming SSE (progression page par page)
 export async function envoyerOCRStream(
   fichiers: File[],
@@ -139,8 +196,11 @@ export async function envoyerOCRStream(
   options?: { titre?: string; matiere?: string; sauvegarder?: boolean },
   signal?: AbortSignal
 ): Promise<ReponseOCR> {
+  // Redimensionner les images côté client avant upload
+  const fichiersRedim = await redimensionnerImages(fichiers)
+
   const formData = new FormData()
-  fichiers.forEach((fichier) => {
+  fichiersRedim.forEach((fichier) => {
     formData.append('fichiers[]', fichier)
   })
 
