@@ -1,12 +1,12 @@
-# Acceptance Criteria — Révise Mieux v1.0
+# Acceptance Criteria — Révise Mieux v1.1
 
-> **Annexe PRD v1.3 · Zones à risque vibe coding**
+> **Annexe PRD v1.4 · Zones à risque vibe coding**
 >
 > | | |
 > |---|---|
-> | **Version** | 1.0 |
-> | **Date** | 5 mars 2026 |
-> | **Périmètre** | 5 zones critiques identifiées — 51 AC en format Given/When/Then |
+> | **Version** | 1.1 |
+> | **Date** | 6 mars 2026 |
+> | **Périmètre** | 6 zones critiques identifiées — 65 AC en format Given/When/Then |
 > | **Usage** | À intégrer comme contexte système avant chaque session de vibe coding, et à transformer en tests unitaires |
 
 ---
@@ -20,7 +20,8 @@
 | Z3 | Validation HITL — Skip / Ignore behavior | Élevé | 9 |
 | Z4 | Lazy generation — Concurrence & cache | Élevé | 10 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 8 |
-| | **Total** | | **51** |
+| Z6 | Emploi du temps, Notifications & Révision proactive | Élevé | 14 |
+| | **Total** | | **65** |
 
 ---
 
@@ -98,7 +99,7 @@
 
 | | |
 |---|---|
-| **GIVEN** | Un item dont `next_due_at` vient d'être calculé par les règles Z1-AC01 à Z1-AC07. Une date de contrôle (`exam_date`) est définie sur le chapitre. Le temps restant `T = exam_date − now` (en jours). |
+| **GIVEN** | Un item dont `next_due_at` vient d'être calculé par les règles Z1-AC01 à Z1-AC07. Au moins un `Exam` actif (non expiré) référence le chapitre de cet item via `chapter_ids[]`. Le temps restant `T = min(exam.exam_date) − now` (en jours), calculé sur l'exam le plus proche parmi tous les Exams liés au chapitre. |
 | **WHEN** | `next_due_at` est recalculé (après réponse ou lors de la composition de session). |
 | **THEN** | L'intervalle standard est remplacé par un intervalle proportionnel au temps restant : |
 
@@ -110,11 +111,13 @@
 | SOLID | J+7 | J + max(2, ⌊T/2⌋) |
 | Régression SOLID→OK | J+2 | J + max(1, ⌊T/4⌋) |
 
-**Cap absolu :** `next_due_at ≤ exam_date − 1 jour`. L'item reste visible dans les sessions pré-contrôle même s'il est SOLID.
+**Cap absolu :** `next_due_at ≤ exam_date − 1 jour` (sur l'exam le plus proche). L'item reste visible dans les sessions pré-contrôle même s'il est SOLID.
 
-> **NOTE :** Les contrôles sont typiquement annoncés à +7 jours. Exemples avec T=7 : OK → J+2, SOLID → J+3, régression → J+1. Avec T=3 : OK → J+1, SOLID → J+2, régression → J+1. Sans `exam_date`, les intervalles standard s'appliquent (cf. Z1-AC01 à Z1-AC07).
+> **NOTE :** Les contrôles sont typiquement annoncés à +7 jours. Exemples avec T=7 : OK → J+2, SOLID → J+3, régression → J+1. Avec T=3 : OK → J+1, SOLID → J+2, régression → J+1. Sans aucun `Exam` lié, les intervalles standard s'appliquent (cf. Z1-AC01 à Z1-AC07).
 
-> **Edge case T ≤ 0 :** Si `exam_date` est passé (`T ≤ 0`), le resserrement ne s'applique plus — les intervalles standard reprennent. L'`exam_date` expiré est ignoré (équivalent à « pas de contrôle posé »). Le système ne doit jamais produire un `next_due_at` dans le passé.
+> **Multi-exam :** Si un chapitre est lié à plusieurs Exams (ex : interro chapitre 3 le 15/03 + contrôle séquence chapitres 1-3 le 20/03), c'est l'`exam_date` **le plus proche** qui pilote T. Le resserrement est donc maximal — l'élève est préparé pour l'échéance imminente.
+
+> **Edge case T ≤ 0 :** Si tous les `exam_date` liés au chapitre sont passés (`T ≤ 0` pour chaque), le resserrement ne s'applique plus — les intervalles standard reprennent. Les Exams expirés sont ignorés (équivalent à « pas de contrôle posé »). Le système ne doit jamais produire un `next_due_at` dans le passé.
 
 ### Z1-AC09 — Indépendance des Mastery states entre items
 
@@ -518,6 +521,126 @@
 
 ---
 
-> Ces 51 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+## Z6 — Emploi du temps, Notifications & Révision proactive
 
-*Fin du document — Révise Mieux AC v1.0 · 5 mars 2026*
+> ScheduleSlot · Notifications · Session evening_first · Session pre_class · Exam multi-chapitres · Mode dégradé
+>
+> L'emploi du temps est le socle de toute la couche proactive. Une notification mal ciblée fatigue l'élève. Une session evening_first ou pre_class mal composée dilue la valeur du rappel. Un exam multi-chapitres mal borné explose le temps de session.
+
+### Z6-AC01 — CRUD ScheduleSlot
+
+| | |
+|---|---|
+| **GIVEN** | L'élève est en onboarding ou dans ses paramètres. |
+| **WHEN** | Il saisit un créneau : matière = 'Physique-Chimie', jour = mardi, période = matin. |
+| **THEN** | Un `ScheduleSlot` est créé avec `user_id`, `subject`, `day_of_week = 2`, `period = 'morning'`. La modification et la suppression sont possibles à tout moment. Un doublon exact `(user_id, subject, day_of_week, period)` est rejeté (contrainte d'unicité). |
+
+### Z6-AC02 — Notification capture_reminder déclenchée par emploi du temps
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a un `ScheduleSlot` mardi matin pour Physique-Chimie. Il est mardi 18h30 (heure de notification par défaut). Aucun chapitre Physique-Chimie n'a été saisi aujourd'hui. |
+| **WHEN** | Le scheduler de notifications s'exécute. |
+| **THEN** | Une notification `capture_reminder` est envoyée : 'Tu as eu Physique-Chimie aujourd'hui — saisis ton cours pour réviser ce soir !' L'heure d'envoi est `user.notification_hour` (défaut 18h30). La notification est loggée avec `scheduled_at`, `sent_at`. |
+
+### Z6-AC03 — Notification review_reminder si chapitre déjà saisi
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a un `ScheduleSlot` mardi matin pour Physique-Chimie. Il est mardi 18h30. Un chapitre Physique-Chimie a été saisi aujourd'hui (ou un chapitre existant a des items FRAGILE/OK dues). |
+| **WHEN** | Le scheduler de notifications s'exécute. |
+| **THEN** | Une notification `review_reminder` est envoyée : 'Révise tes points fragiles en Physique-Chimie — 10 min ce soir'. La notification `capture_reminder` n'est PAS envoyée (le chapitre est déjà saisi). |
+
+### Z6-AC04 — Max 2 notifications par soir
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a 4 matières le mardi : Physique-Chimie, Maths, SVT, Français. 3 cours n'ont pas été saisis. 1 chapitre a des items FRAGILE. |
+| **WHEN** | Le scheduler prépare les notifications du mardi soir. |
+| **THEN** | Seules **2 notifications** sont envoyées. La priorité est : (1) matière avec Exam le plus proche, (2) matière avec le plus d'items FRAGILE/UNKNOWN. Les 2 notifications restantes sont supprimées (pas reportées). L'élève ne reçoit jamais plus de 2 notifications par soir. |
+
+### Z6-AC05 — Session evening_first déclenchée après upload
+
+| | |
+|---|---|
+| **GIVEN** | L'élève uploade un nouveau chapitre de Physique-Chimie. Le pipeline J0 produit 12 items. |
+| **WHEN** | Le pipeline J0 se termine avec ≥ 1 item valide. |
+| **THEN** | Une session de type `evening_first` est automatiquement proposée (pas lancée de force). `trigger = 'scheduled'`. Durée cible : 5–10 min. La session est proposée **immédiatement**, quelle que soit l'heure. Si l'élève ne la fait pas, elle reste disponible 72h (TTL session standard). |
+
+### Z6-AC06 — evening_first : contenu 100% UNKNOWN, gabarits difficulté 1
+
+| | |
+|---|---|
+| **GIVEN** | Une session `evening_first` est composée pour un chapitre fraîchement uploadé avec 12 items UNKNOWN. |
+| **WHEN** | Le moteur de composition sélectionne les questions. |
+| **THEN** | 100% des items sont issus du chapitre uploadé. Tous sont en état UNKNOWN. Seuls les gabarits de difficulté 1 sont éligibles : `GEN.KNOW.FLASH_MCQ`, `GEN.KNOW.DEF_SHORT`, `GEN.KNOW.CLOZE_KEYWORDS`. Aucun gabarit NUMERIC, RUBRIC, ou de rédaction n'est inclus. Le nombre de questions est calibré pour 5–10 min (typiquement 6–10 questions). |
+
+### Z6-AC07 — Session pre_class la veille de chaque cours
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a un `ScheduleSlot` mercredi matin pour Histoire-Géo. Il est mardi soir. L'élève a 3 chapitres actifs en Histoire-Géo avec des items aux états variés (UNKNOWN, FRAGILE, OK, SOLID). |
+| **WHEN** | Le scheduler de sessions évalue les sessions à proposer pour mardi soir. |
+| **THEN** | Une session `pre_class` est proposée. Durée cible : 5 min. La justification affichée est : 'Tu as Histoire-Géo demain — prépare-toi en cas d'interro surprise'. `trigger = 'scheduled'`. |
+
+### Z6-AC08 — Fusion pre_class dans daily si session daily prévue le même soir
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a mardi soir : une session `daily` prévue (items dues de Maths + Physique) ET une session `pre_class` pour Histoire-Géo (cours mercredi matin). |
+| **WHEN** | Le moteur de composition prépare les sessions du mardi soir. |
+| **THEN** | Les items `pre_class` d'Histoire-Géo sont **injectés en priorité** dans la session `daily`. L'élève ne voit qu'une seule session. Les items pre_class apparaissent dans les premières questions. Le type de la session reste `daily`. L'attribut `includes_pre_class = true` est positionné pour le tracking. |
+
+### Z6-AC09 — pre_class : scope multi-chapitres de la matière
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a 3 chapitres actifs en Histoire-Géo : 'Inégalités' (8 items, 3 FRAGILE), 'Mondialisation' (6 items, 1 UNKNOWN), 'Urbanisation' (10 items, 2 OK dues). |
+| **WHEN** | La session `pre_class` est composée. |
+| **THEN** | La sélection puise dans **tous les chapitres actifs** de la matière. Priorité : (1) items FRAGILE/OK dont `next_due_at ≤ now`, (2) items UNKNOWN jamais vus. Gabarits : difficulté 1–2 uniquement (rappel rapide, pas de problèmes longs). Durée cible : 5 min (typiquement 4–6 questions). |
+
+### Z6-AC10 — Exam multi-chapitres : mock_exam couvre tous les chapitres liés
+
+| | |
+|---|---|
+| **GIVEN** | Un `Exam` 'Contrôle séquence 1' avec `chapter_ids = [ch1, ch2, ch3]`. ch1 a 10 items, ch2 a 15 items, ch3 a 8 items. |
+| **WHEN** | L'élève lance un contrôle blanc (`mock_exam`) pour cet Exam. |
+| **THEN** | La session `mock_exam` inclut des items des **3 chapitres**. La sélection est proportionnelle au nombre d'items par chapitre (≈ 30% ch1, 45% ch2, 25% ch3). Tous les niveaux de difficulté sont éligibles. La durée est cappée à **30 min maximum**. Si le pool total dépasse 30 min, un échantillon représentatif est sélectionné. |
+
+### Z6-AC11 — Exam multi-chapitres : création et liaison
+
+| | |
+|---|---|
+| **GIVEN** | L'élève crée un Exam 'Interro chapitre 3' avec `exam_date = 2026-03-15` et sélectionne le chapitre 'Inégalités'. |
+| **WHEN** | L'Exam est sauvegardé. |
+| **THEN** | L'entité `Exam` est créée avec `chapter_ids = ['ch_inegalites']`. Le chapitre 'Inégalités' référence cet Exam. Le resserrement Z1-AC08 s'active pour tous les items du chapitre lié. Un Exam peut être modifié (ajout/retrait de chapitres, changement de date) à tout moment. |
+
+### Z6-AC12 — Mode dégradé sans emploi du temps
+
+| | |
+|---|---|
+| **GIVEN** | L'élève n'a saisi aucun `ScheduleSlot`. |
+| **WHEN** | Le système évalue les sessions et notifications à planifier. |
+| **THEN** | Aucune notification `capture_reminder` ou `pre_class` n'est envoyée. Aucune session `pre_class` n'est planifiée. Les sessions `daily`, `diagnostic`, `mock_exam`, et `evening_first` fonctionnent normalement. La révision espacée standard s'applique sans modification. Un nudge 'Saisis ton emploi du temps pour des révisions plus ciblées' est affiché à J+3 puis au début de chaque trimestre. |
+
+### Z6-AC13 — Notifications désactivables sans impact sessions
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a un emploi du temps saisi mais désactive les notifications dans ses paramètres. |
+| **WHEN** | Le scheduler de notifications s'exécute. |
+| **THEN** | Aucune notification n'est envoyée. Les sessions `pre_class` et `evening_first` restent **disponibles** (composées normalement) — l'élève peut les lancer manuellement. Seul le push notification est supprimé, pas la logique de composition. |
+
+### Z6-AC14 — Pas de session pre_class si aucun chapitre actif dans la matière
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a un `ScheduleSlot` mercredi matin pour SVT. Aucun chapitre SVT n'a été créé (ou tous sont archivés). |
+| **WHEN** | Le scheduler évalue les sessions pre_class pour mardi soir. |
+| **THEN** | Aucune session `pre_class` n'est créée pour SVT. Aucune notification `pre_class` n'est envoyée. Le système n'affiche pas d'erreur. |
+
+---
+
+> Ces 65 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+
+*Fin du document — Révise Mieux AC v1.1 · 6 mars 2026*
