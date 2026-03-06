@@ -58,7 +58,7 @@
 |---|---|
 | **GIVEN** | Un item en état **OK** avec `consecutive_successes ≥ 2` et `last_review_at` = hier ou avant (≥ 24h écoulées). |
 | **WHEN** | L'élève répond correctement à une question liée à cet item. |
-| **THEN** | L'état passe à **SOLID**. `consecutive_successes += 1`. `next_due_at = now + 7 jours` (ou `+ 3 jours` si contrôle dans < 7 jours). |
+| **THEN** | L'état passe à **SOLID**. `consecutive_successes += 1`. `next_due_at = now + 7 jours` (ajusté par Z1-AC08 si contrôle posé). |
 
 ### Z1-AC04 — Blocage OK → SOLID sans espacement
 
@@ -94,13 +94,25 @@
 | **WHEN** | L'élève répond incorrectement à une question liée à cet item. |
 | **THEN** | L'état reste **FRAGILE**. `consecutive_successes = 0`. `next_due_at = now + 1 jour`. Pas de retour à UNKNOWN. |
 
-### Z1-AC08 — Resserrement next_due_at si contrôle proche
+### Z1-AC08 — Resserrement proportionnel si contrôle posé
 
 | | |
 |---|---|
-| **GIVEN** | Un item en état **SOLID**. La date de contrôle du chapitre est dans ≤ 7 jours. |
-| **WHEN** | La session est composée ou que `next_due_at` est recalculé. |
-| **THEN** | `next_due_at` est plafonné à `max(now + 1 jour, exam_date - 1 jour)`. L'item reste visible dans les sessions pré-contrôle même s'il est SOLID. |
+| **GIVEN** | Un item dont `next_due_at` vient d'être calculé par les règles Z1-AC01 à Z1-AC07. Une date de contrôle (`exam_date`) est définie sur le chapitre. Le temps restant `T = exam_date − now` (en jours). |
+| **WHEN** | `next_due_at` est recalculé (après réponse ou lors de la composition de session). |
+| **THEN** | L'intervalle standard est remplacé par un intervalle proportionnel au temps restant : |
+
+| État | Intervalle standard | Intervalle si contrôle dans T jours |
+|---|---|---|
+| UNKNOWN | J+1 | J+1 (incompressible) |
+| FRAGILE | J+1 | J+1 (incompressible) |
+| OK | J+3 | J + max(1, ⌊T/3⌋) |
+| SOLID | J+7 | J + max(2, ⌊T/2⌋) |
+| Régression SOLID→OK | J+2 | J + max(1, ⌊T/4⌋) |
+
+**Cap absolu :** `next_due_at ≤ exam_date − 1 jour`. L'item reste visible dans les sessions pré-contrôle même s'il est SOLID.
+
+> **NOTE :** Les contrôles sont typiquement annoncés à +7 jours. Exemples avec T=7 : OK → J+2, SOLID → J+3, régression → J+1. Avec T=3 : OK → J+1, SOLID → J+2, régression → J+1. Sans `exam_date`, les intervalles standard s'appliquent (cf. Z1-AC01 à Z1-AC07).
 
 ### Z1-AC09 — Indépendance des Mastery states entre items
 

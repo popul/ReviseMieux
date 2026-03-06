@@ -548,12 +548,27 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 
 ### 17.2 Spaced repetition (règles simples)
 
-| État | next_due_at (standard) | next_due_at (contrôle < 7j) |
+**Sans contrôle (horizon fixe 14 jours) :**
+
+| État | next_due_at |
+|---|---|
+| UNKNOWN | J+1 |
+| FRAGILE | J+1 |
+| OK | J+3 |
+| SOLID | J+7 |
+
+**Avec contrôle posé — intervalles proportionnels au temps restant T :**
+
+Les intervalles se compriment proportionnellement au temps restant avant le contrôle (`T = exam_date − now`, en jours). Les contrôles sont typiquement annoncés à +7 jours.
+
+| État | Intervalle si contrôle dans T jours | Minimum |
 |---|---|---|
-| UNKNOWN | J+1 | J+1 |
-| FRAGILE | J+1 à J+2 | J+1 |
-| OK | J+3 à J+7 | J+2 à J+3 |
-| SOLID | J+7 à J+14 | J+3 à J+5 |
+| UNKNOWN | J+1 (incompressible) | 1j |
+| FRAGILE | J+1 (incompressible) | 1j |
+| OK | J + max(1, ⌊T/3⌋) | 1j |
+| SOLID | J + max(2, ⌊T/2⌋) | 2j |
+
+**Cap absolu :** `next_due_at ≤ exam_date − 1 jour`.
 
 ### 17.3 Correction
 
