@@ -130,6 +130,16 @@
 
 > **NOTE :** Ce AC formalise la règle PRD « Faux négatif si unité absente même si valeur correcte ». Il s'applique à tous les états de mastery, pas seulement FRAGILE — l'exemple FRAGILE est donné car c'est le cas le plus courant. La même logique vaut pour OK et SOLID (régression selon Z1-AC05 / Z1-AC06).
 
+### Z1-AC12 — Score partiel KEYWORDS et progression mastery
+
+| | |
+|---|---|
+| **GIVEN** | Un item en état **FRAGILE** lié à une question KEYWORDS exigeant N mots-clés. |
+| **WHEN** | L'élève fournit N-1 mots-clés corrects sur N (score partiel). |
+| **THEN** | Le score N-1 est considéré comme une **réussite**. `consecutive_successes` est incrémenté. La progression mastery s'applique normalement. Le feedback indique le mot-clé manquant à titre informatif. |
+
+> **NOTE :** Le seuil de réussite KEYWORDS est ≥ N-1 (tolérance d'un mot-clé manquant), conformément au PRD §17.3 « Score partiel si N-1 ». En dessous de N-1 (ex. N-2 ou moins), c'est un échec. Cette tolérance compense les variations de formulation naturelles en français. Ce AC complète Z1-AC10 (RUBRIC) et Z1-AC11 (NUMERIC) pour couvrir tous les types de scoring.
+
 ---
 
 ## Z2 — Pipeline J0 — Error paths & timeouts
@@ -476,6 +486,6 @@
 
 ---
 
-> Ces 48 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 49 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
 *Fin du document — Révise Mieux AC v1.0 · 5 mars 2026*
