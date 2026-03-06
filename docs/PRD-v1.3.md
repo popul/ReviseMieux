@@ -1,0 +1,645 @@
+# Révise Mieux — PRD v1.3
+
+> **Product Requirements Document — MVP Collège**
+>
+> | | |
+> |---|---|
+> | **Version** | 1.3 |
+> | **Date** | 5 mars 2026 |
+> | **Statut** | Draft — Review interne |
+> | **Évolutions v1.3 vs v1.2** | Pipeline J0 détaillé · SLA par étape · Lazy generation · Stratégie cache LLM · Retry/fallback OCR · Versioning chapitre |
+
+---
+
+## Table des matières
+
+1. [Résumé produit](#1-résumé-produit)
+2. [Objectifs, promesse, principes](#2-objectifs-promesse-principes)
+3. [Périmètre MVP](#3-périmètre-mvp)
+4. [Personas](#4-personas)
+5. [Parcours utilisateurs](#5-parcours-utilisateurs)
+6. [Tags — Spécification complète](#6-tags--spécification-complète)
+7. [Gabarits — Bibliothèque générique + Packs](#7-gabarits--bibliothèque-générique--packs)
+8. [Bibliothèque de gabarits (27 templates)](#8-bibliothèque-de-gabarits-27-templates-mvp)
+9. [Packs matière](#9-packs-matière)
+10. [Pipeline J0 — Flux de données détaillé](#10-pipeline-j0--flux-de-données-détaillé)
+11. [SLA & contraintes de performance](#11-sla--contraintes-de-performance)
+12. [Stratégie cache & génération lazy](#12-stratégie-cache--génération-lazy)
+13. [Retry / Fallback OCR](#13-retry--fallback-ocr)
+14. [Architecture cible](#14-architecture-cible-mvp)
+15. [Fonctionnalités et exigences (Epics)](#15-fonctionnalités-et-exigences-epics)
+16. [Modèle de données](#16-modèle-de-données-mvp)
+17. [Algorithmes MVP](#17-algorithmes-mvp)
+18. [Exigences non fonctionnelles](#18-exigences-non-fonctionnelles)
+19. [KPIs](#19-kpis-mvp)
+20. [Questions §16 tranchées](#20-questions-16-tranchées-v13)
+21. [Risques & mitigations](#21-risques--mitigations)
+
+---
+
+## 1. Résumé produit
+
+Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schémas, documents) en un assistant de révision personnalisé pour collégiens. À partir d'un upload de cours, le produit génère une carte de leçon structurée, des entraînements adaptatifs (rappel actif, analyse documentaire, méthodes de calcul), des contrôles blancs, et met les parents dans la boucle via un reporting rassurant basé sur des preuves de maîtrise réelles.
+
+### Chapitres pilotes MVP
+
+| Matière | Chapitres pilotes | Pack |
+|---|---|---|
+| Histoire-Géographie | Les inégalités dans le monde | HG-INEG |
+| Histoire-Géographie | La société féodale | HG-FEOD |
+| SVT | La photosynthèse | SVT-PHOTO |
+| Physique-Chimie | Masse, volume et densité | PC-MVD |
+
+---
+
+## 2. Objectifs, promesse, principes
+
+### 2.1 Objectifs utilisateur
+
+| Persona | Besoin principal | Succès mesuré par |
+|---|---|---|
+| Élève (11–15 ans) | Réviser efficacement 10–20 min/jour, savoir quoi faire aujourd'hui, réduire les angles morts | Transitions FRAGILE→SOLID, score contrôle blanc |
+| Parent | Signal fiable sur la maîtrise sans micro-manager, alerté seulement si risque réel | Taux ouverture digest, taux opt-out alertes < 5% |
+| Admin produit | Gérer packs, lexiques, gabarits, superviser qualité de génération | Taux réussite par template_id, temps moyen/item |
+
+### 2.2 Objectifs business (MVP)
+
+- Valider l'adoption sur des cycles réels *contrôle dans 1–3 semaines*.
+- Prouver la valeur : plan d'action quotidien + maîtrise mesurable + contrôles blancs.
+- Mesurer la rétention sur au moins 2 chapitres consécutifs pour un même élève.
+
+### 2.3 Promesse produit
+
+> **Ne pas promettre « meilleure note garantie ».** Promesse : maximiser les chances de réussite par entraînement ciblé, maîtrise mesurée et préparation au format du contrôle.
+
+### 2.4 Principes pédagogiques (non négociables)
+
+- **Rappel actif > relecture.** Toute session génère des questions, jamais de simple re-lecture de carte.
+- **Répétition espacée.** État SOLID uniquement après 2 réussites espacées d'au moins 24h.
+- **Analyse documentaire standardisée :** décrire → prélever → expliquer → conclure.
+- **Human-in-the-loop :** validation rapide des zones incertaines critiques, plutôt que faux sentiment de certitude.
+- **First value rapide :** l'élève doit pouvoir faire un premier exercice en moins de 5 min après upload. La qualité s'affine ensuite.
+
+---
+
+## 3. Périmètre MVP
+
+| ✅ Inclus | ❌ Exclu |
+|---|---|
+| Création chapitre + upload multi-photos (1–30 photos, mobile/web). | Couverture toutes matières / tous chapitres. |
+| Segmentation page en blocs typés (TEXT, PHOTO, SCHEMA, MAP, GRAPH, TABLE…). | Notation IA parfaite de longues rédactions (rubriques simples uniquement). |
+| OCR + structuration (plan hiérarchique) + génération d'Items pédagogiques. | Mode enseignant/classe. |
+| Auto-tagging + enrichissement contrôlé par pack. | OCR offline complet sur device. |
+| Détection d'incertitudes → file de validation (max 8/chapter). | Apprentissage progressif des synonymes (admin uniquement en MVP). |
+| Diagnostic initial 5–10 min → carte de maîtrise initiale. | Imports depuis ENT ou manuels numériques. |
+| Sessions quotidiennes adaptatives (spaced repetition, 70/20/10). | |
+| Questions générées via gabarits génériques + packs (lazy generation). | |
+| Contrôles blancs (≥1 par chapitre) avec correction guidée. | |
+| Dashboard élève + reporting parent passif (digest hebdo + veille contrôle). | |
+| Alertes parent actif (opt-in) sur risques détectés. | |
+| Admin : CRUD packs, lexiques, gabarits, analytics template. | |
+| Versioning chapitre (re-upload de pages → nouvelle révision). | |
+
+---
+
+## 4. Personas
+
+### Élève collège (11–15 ans)
+- Motivation variable selon la proximité du contrôle
+- Besoin de guidance et de micro-objectifs clairs
+- Temps court : 10–20 min/jour réalistes
+- Sensible au feedback positif et aux indicateurs de progression
+
+### Parent
+- Veut un signal fiable, lisible en < 30 s
+- Peu intrusif par défaut, actionnable si sollicité
+- Ne veut pas corriger lui-même les exercices
+- Déclenche une intervention uniquement sur alerte rouge
+
+### Admin produit
+- Gère packs, lexiques, gabarits en backoffice
+- Surveille la qualité des items générés
+- Ajuste les paramètres par matière et par niveau
+- Analyse les analytics par template_id et par tag
+
+---
+
+## 5. Parcours utilisateurs
+
+### 5.1 Parcours élève (standard)
+
+> **Principe first value rapide :** dès la fin de l'upload, l'élève peut accéder à une version préliminaire de la carte de leçon et lancer un premier exercice de reconnaissance (QCM flash) pendant que l'OCR complète son traitement en arrière-plan.
+
+| Étape | Description |
+|---|---|
+| **J0 — Création** | Création chapitre : matière, classe, nom, date contrôle (fortement encouragée). Parcours < 60 s. Si date présente, plan calibré automatiquement. |
+| **J0 — Upload** | Upload 1–30 photos. Segmentation immédiate (blocs typés). Carte de leçon préliminaire affichée dès la première page traitée (streaming). |
+| **J0 — Validation** | 0 à 8 validations critiques proposées par ordre d'impact estimé sur la note. Le reste est marqué UNCERTAIN et non bloquant. |
+| **J0 — Diagnostic** | Diagnostic initial 5–10 min → carte de maîtrise → plan personnalisé. Questions pré-générées (lazy) disponibles immédiatement après validation. |
+| **J+1..J-3** | Micro-sessions quotidiennes adaptatives (70% dû/fragile, 20% consolidation, 10% découverte). Feedback immédiat + explication « pourquoi cet exercice ». |
+| **J-3** | Contrôle blanc n°1 : format proche du vrai contrôle, incluant doc + exercice méthode. Correction guidée avec rubriques. |
+| **J-1** | Contrôle blanc n°2 (si date connue). Synthèse : points solides / fragiles / recommandations d'urgence. |
+
+### 5.2 Parcours parent passif (défaut)
+
+- **Digest hebdo :** couverture du chapitre, maîtrise globale, risques identifiés, prochaine action recommandée. Lisible en < 30 s.
+- **Veille contrôle :** alerte 5 jours avant si maîtrise insuffisante sur des items critiques (définis par pack).
+- **Score contrôle blanc :** résumé envoyé automatiquement après chaque contrôle blanc complété.
+
+### 5.3 Parcours parent actif (opt-in)
+
+- **Validations critiques :** le parent peut confirmer/corriger 1–3 items bloquants avec contexte visuel (photo du cahier + suggestion IA). UI simplifiée, jamais plus de 3 actions/semaine.
+- **Script 3 minutes :** 2–3 questions à poser à l'enfant pour tester à l'oral les points les plus fragiles.
+- **Alerte rouge :** déclenchée seulement si maîtrise < seuil critique à J-3 et progression stagnante depuis 5 jours.
+
+---
+
+## 6. Tags — Spécification complète
+
+Un tag est une étiquette attachée à un Item (et optionnellement à un Document) servant de signal pour le matching des gabarits, la sélection des exercices en session, le paramétrage de la correction et le reporting.
+
+### 6.1 Taxonomie (vocabulaire limité, ≤ 60 tags MVP)
+
+| Famille | Tags | Rôle |
+|---|---|---|
+| **Skill** (génériques) | `definition` · `methode` · `document` · `redaction` · `calcul` · `unites` · `vocabulaire` · `piege` | Matching gabarits, paramétrage correction |
+| **Doc** (génériques) | `map` · `graph` · `table` · `schema` · `photo` · `text` · `experiment` · `circuit` | Matching gabarits typés document |
+| **Chapter** (par pack) | `inegalites` · `feodalite` · `photosynthese` · `densite` | Filtrage scope leçon |
+| **Concept** (par pack) | `idh` · `pib_hab` · `pma` · `vassal` · `suzerain` · `chloroplaste` · `chlorophylle` · `co2` · `o2` · `rho` · `masse` · `volume` … | Enrichissement pack, analytics confusion |
+
+### 6.2 Attribution des tags
+
+- **Auto-tagging (principal) :** marqueurs de structure (« Définition : », « Méthode : »), type de bloc (map/graph/table…), lexique pack.
+- **Pack enrichment (déterministe) :** mapping de termes prioritaires (ex. `idh`, `rho`).
+- **Validation humaine (admin) :** ajustements en backoffice pour cas limites. Pas de tags libres côté élève en MVP.
+
+### 6.3 Exploitation runtime
+
+| Usage | Règle |
+|---|---|
+| Matching Template ↔ Item | `required_tags_any`, `required_tags_all`, `excluded_tags` |
+| Sélection session | HG : ≥1 exercice document si disponible · PC : push `unites` si erreurs récurrentes |
+| Correction `unites` | Unité obligatoire dans la réponse numérique |
+| Correction `document` | Checklist documentaire (décrire→prélever→expliquer→conclure) |
+| Correction `redaction` | Rubrique 4 critères max |
+| Correction `piege` | QCM misconception avec distractor justifié |
+
+---
+
+## 7. Gabarits — Bibliothèque générique + Packs
+
+Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant de la leçon). Les packs décrivent **sur quoi** appliquer les gabarits (tags, paramètres, seuils). Cette séparation garantit l'extensibilité à de nouveaux chapitres sans dupliquer la logique.
+
+### 7.1 Modèle Template (schéma JSON simplifié)
+
+```json
+{
+  "template_id": "GEN.KNOW.DEF_SHORT",
+  "name": "Définition — réponse courte",
+  "version": 1,
+  "question_type": "SHORT_ANSWER",
+  "difficulty": 1,
+  "eligibility": {
+    "item_types": ["KNOWLEDGE"],
+    "required_tags_any": ["definition"],
+    "min_item_confidence": 0.6,
+    "requires_validation_resolved": false
+  },
+  "variables": [
+    {"key": "TERM", "source": "item.term", "required": true},
+    {"key": "KEYWORDS", "source": "item.keywords", "required": true}
+  ],
+  "prompt_template": "Définis {TERM}.",
+  "expected_answer": {
+    "kind": "KEYWORDS",
+    "min_keywords_required": 2,
+    "synonyms": {}
+  },
+  "grading": {"mode": "AUTO", "max_points": 1}
+}
+```
+
+### 7.2 Moteur d'exploitation (lazy generation)
+
+> **Changement v1.3 — Lazy generation :** les Questions ne sont plus pré-générées en masse après ingestion. Elles sont instanciées à la demande lors de la composition de session (ou du contrôle blanc). Un pool de candidats est mis en cache par chapitre avec TTL 24h. Cela réduit le coût LLM d'un facteur 5–10x et simplifie le pipeline J0.
+
+1. **Matching :** filtre des templates éligibles via type + tags + confiance + état validation.
+2. **Composition session :** sélection selon politique 70/20/10 + contraintes pack (1 doc max, 1 rédaction max).
+3. **Instanciation :** remplissage des variables → création Question → stockage en cache session.
+4. **Correction :** AUTO (QCM/keywords/numeric) ou RUBRIC (doc/rédaction).
+5. **Maîtrise :** UNKNOWN → FRAGILE → OK → SOLID (SOLID = 2 réussites espacées ≥ 24h).
+
+---
+
+## 8. Bibliothèque de gabarits (27 templates MVP)
+
+### Core — toutes matières
+
+| template_id | Type | Diff. | Tags requis |
+|---|---|---|---|
+| `GEN.KNOW.DEF_SHORT` | SHORT_ANSWER | 1 | `definition` |
+| `GEN.KNOW.FLASH_MCQ` | MCQ | 1 | — |
+| `GEN.KNOW.ASSOC_TERM_DEF` | MATCHING | 2 | `definition`, `vocabulaire` |
+| `GEN.KNOW.CLOZE_KEYWORDS` | FILL_BLANK | 2 | — |
+| `GEN.MISCONCEPTION.MCQ` | MCQ | 2 | `piege` |
+
+### Documents — transversal
+
+| template_id | Type | Diff. | Tags requis |
+|---|---|---|---|
+| `GEN.DOC.PRESENT` | CHECKLIST | 2 | `document` |
+| `GEN.DOC.DESCRIBE` | SHORT_ANSWER | 1 | `document` |
+| `GEN.DOC.EXTRACT_EVIDENCE` | SHORT_ANSWER | 2 | `document` |
+| `GEN.DOC.INTERPRET_WITH_CONCEPT` | SHORT_ANSWER | 3 | `document` |
+| `GEN.DOC.CONCLUDE` | SHORT_ANSWER | 3 | `document` |
+
+### Documents typés
+
+| template_id | Type | Diff. | Tags requis |
+|---|---|---|---|
+| `GEN.DOC.MAP.READ_ZONES` | SHORT_ANSWER | 2 | `map` |
+| `GEN.DOC.GRAPH.READ_AXES` | SHORT_ANSWER | 1 | `graph` |
+| `GEN.DOC.GRAPH.READ_VALUE` | SHORT_ANSWER | 2 | `graph` |
+| `GEN.DOC.TABLE.READ_VALUE` | SHORT_ANSWER | 2 | `table` |
+| `GEN.DOC.IMAGE.DESCRIBE_INTERPRET` | SHORT_ANSWER | 2 | `photo`, `schema` |
+
+### Méthodes & rédaction
+
+| template_id | Type | Diff. | Tags requis |
+|---|---|---|---|
+| `GEN.PROC.STEPS.ORDER` | ORDERING | 2 | `methode` |
+| `GEN.PROC.STEPS.MISSING` | FILL_BLANK | 2 | `methode` |
+| `GEN.WRITE.PARAGRAPH_GUIDED` | RUBRIC | 3 | `redaction` |
+| `GEN.WRITE.BILAN_GUIDED` | RUBRIC | 3 | `redaction` |
+
+### PC — Calcul (génériques discipline)
+
+| template_id | Type | Diff. | Tags requis |
+|---|---|---|---|
+| `PC.UNITS.CONVERT` | NUMERIC | 2 | `unites`, `calcul` |
+| `PC.FORMULA.APPLY` | NUMERIC | 2 | `calcul` |
+| `PC.FORMULA.ISOLATE` | NUMERIC | 3 | `calcul` |
+| `PC.MEASURE.DISPLACEMENT_VOLUME` | NUMERIC | 2 | `calcul` |
+| `PC.TABLE.ID_MATERIAL` | MCQ | 2 | `document` |
+| `PC.REASON.FLOAT_SINK` | SHORT_ANSWER | 2 | `calcul` |
+| `PC.ERROR.UNITS_MCQ` | MCQ | 2 | `piege`, `unites` |
+| `PC.PROBLEM.SOLUTION_RUBRIC` | RUBRIC | 3 | `redaction`, `calcul` |
+
+---
+
+## 9. Packs matière
+
+### Pack HG-INEG — HG — Inégalités dans le monde
+
+| | |
+|---|---|
+| **chapter_tag** | `inegalites` |
+| **concept_tags** | `idh` · `pib_hab` · `pma` · `developpement` · `inegalites` |
+| **templates activés** | `GEN.KNOW.DEF_SHORT` · `GEN.KNOW.FLASH_MCQ` · `GEN.KNOW.CLOZE_KEYWORDS` · `GEN.DOC.PRESENT` · `GEN.DOC.MAP.READ_ZONES` · `GEN.DOC.GRAPH.READ_AXES` · `GEN.DOC.GRAPH.READ_VALUE` · `GEN.DOC.TABLE.READ_VALUE` · `GEN.DOC.EXTRACT_EVIDENCE` · `GEN.DOC.INTERPRET_WITH_CONCEPT` · `GEN.DOC.CONCLUDE` · `GEN.WRITE.PARAGRAPH_GUIDED` · `GEN.MISCONCEPTION.MCQ` |
+| **paramètres** | `min_evidence_required = 2` · `max_writing_per_session = 1` · `min_keywords_def = 2` · `session_must_include_doc = true` |
+
+### Pack HG-FEOD — HG — Société féodale
+
+| | |
+|---|---|
+| **chapter_tag** | `feodalite` |
+| **concept_tags** | `suzerain` · `vassal` · `fief` · `hommage` · `feodalite` · `seigneurie` |
+| **templates activés** | `GEN.KNOW.DEF_SHORT` · `GEN.KNOW.ASSOC_TERM_DEF` · `GEN.KNOW.FLASH_MCQ` · `GEN.DOC.PRESENT` · `GEN.DOC.IMAGE.DESCRIBE_INTERPRET` · `GEN.DOC.EXTRACT_EVIDENCE` · `GEN.DOC.CONCLUDE` · `GEN.WRITE.PARAGRAPH_GUIDED` · `GEN.MISCONCEPTION.MCQ` |
+| **paramètres** | `min_evidence_required = 2` · `max_writing_per_session = 1` |
+
+### Pack SVT-PHOTO — SVT — Photosynthèse
+
+| | |
+|---|---|
+| **chapter_tag** | `photosynthese` |
+| **concept_tags** | `chloroplaste` · `chlorophylle` · `co2` · `eau` · `lumiere` · `o2` · `matiere_organique` · `facteurs_limitants` |
+| **templates activés** | `GEN.KNOW.DEF_SHORT` · `GEN.KNOW.ASSOC_TERM_DEF` · `GEN.KNOW.CLOZE_KEYWORDS` · `GEN.DOC.IMAGE.DESCRIBE_INTERPRET` · `GEN.DOC.GRAPH.READ_AXES` · `GEN.DOC.GRAPH.READ_VALUE` · `GEN.DOC.EXTRACT_EVIDENCE` · `GEN.DOC.INTERPRET_WITH_CONCEPT` · `GEN.DOC.CONCLUDE` · `GEN.WRITE.BILAN_GUIDED` · `GEN.MISCONCEPTION.MCQ` |
+| **paramètres** | `min_keywords_def = 3` · `doc_checklist_requires_concept = true` |
+
+### Pack PC-MVD — PC — Masse, volume et densité
+
+| | |
+|---|---|
+| **chapter_tag** | `densite` |
+| **concept_tags** | `masse` · `volume` · `rho` · `unites` · `deplacement_eau` · `materiaux` |
+| **templates activés** | `GEN.KNOW.DEF_SHORT` · `PC.UNITS.CONVERT` · `PC.FORMULA.APPLY` · `PC.FORMULA.ISOLATE` · `PC.MEASURE.DISPLACEMENT_VOLUME` · `PC.TABLE.ID_MATERIAL` · `PC.REASON.FLOAT_SINK` · `PC.ERROR.UNITS_MCQ` · `PC.PROBLEM.SOLUTION_RUBRIC` |
+| **paramètres** | `numeric_tolerance_percent = 2` · `unit_required = true` · `max_long_problem_per_session = 1` · `intermediate_rounding_allowed = true` (arrondi à 2 décimales) |
+
+---
+
+## 10. Pipeline J0 — Flux de données détaillé
+
+> **Nouveau en v1.3.** Ce pipeline explicite les étapes, la parallélisation possible, les points de latence critiques et les dépendances bloquantes vs non-bloquantes.
+
+| Étape | Entrée | Sortie | Bloquant ? | SLA cible |
+|---|---|---|---|---|
+| 1. Upload & validation | Photos (JPEG/PNG/HEIC) | URLs stockage, métadonnées | Oui | < 3 s/photo |
+| 2. Segmentation blocs | Photo | Crops + type + confidence | Non | < 1 s/page |
+| 3. OCR parallèle | Blocs TEXT/SCHEMA | Texte brut + confidence | Non | < 2 s/bloc |
+| 4. Reconstruction plan | Texte OCR | Plan hiérarchique JSON | Non | < 500 ms |
+| 5. Génération Items | Plan + blocs | Items KNOWLEDGE/PROC/DOC | Non | < 3 s/page |
+| 6. Auto-tagging | Items + lexique pack | Items taggés | Non | < 200 ms |
+| 7. Détection incertains | Items + confidence | File validation (max 8) | Oui (si critiques) | < 500 ms |
+| 8. Carte leçon (draft) | Items sans validation | Carte navigable | Non (streaming) | Dès page 1 prête |
+| 9. Validation HITL | File validation | Items validés/corrigés | Partiel | Élève, asynchrone |
+| 10. Diagnostic initial | Items validés | Questions instanciées (lazy) | Oui | < 1 s |
+
+**Parallélisation :** les étapes 2, 3, 4, 5, 6 peuvent être exécutées en parallèle par page (worker pool). La carte de leçon est affichée en streaming dès qu'une page est traitée. L'élève peut commencer un QCM flash pendant que les pages suivantes s'analysent.
+
+---
+
+## 11. SLA & contraintes de performance
+
+| Métrique | Cible MVP | Seuil d'alerte |
+|---|---|---|
+| Carte leçon + items (10 pages) | < 2 min (objectif < 90 s) | > 3 min |
+| First exercise after upload | < 5 min | > 8 min |
+| Composition session (lazy) | < 1 s | > 3 s |
+| Contrôle blanc (génération) | < 10 s | > 30 s |
+| OCR confidence moyenne | > 0.85 | < 0.70 |
+| Taux items confidence >= 0.6 | > 80% | < 60% |
+| Disponibilité pipeline J0 | > 99% (hors maintenance) | < 98% |
+
+---
+
+## 12. Stratégie cache & génération lazy
+
+### 12.1 Niveaux de cache
+
+| Niveau | Clé | TTL | Contenu |
+|---|---|---|---|
+| OCR results | `hash(photo_id + model_version)` | Permanent | Texte brut + confidence blocs |
+| Item pool | `chapter_id + pack_version` | 24h | Liste items taggés instanciés |
+| Question candidates | `chapter_id + session_type` | 24h | Pool questions éligibles |
+| Session courante | `session_id` | 72h | Questions sélectionnées + état |
+| Mastery state | `user_id + item_id` | Permanent | État UNKNOWN/FRAGILE/OK/SOLID |
+
+### 12.2 Invalidation du cache
+
+- **Re-upload de page** → invalide OCR results + Item pool + Question candidates du chapter concerné.
+- **Validation HITL d'un item** → invalide uniquement les Question candidates liées à cet item.
+- **Mise à jour de pack_version** → invalide Item pool + Question candidates de tous les chapters du pack.
+- **Changement de mastery state** → pas d'invalidation (in-place update).
+
+---
+
+## 13. Retry / Fallback OCR
+
+> **Nouveau en v1.3.** L'OCR manuscrit est le point de fragilité principal du pipeline. Une stratégie explicite de retry et de fallback est nécessaire pour éviter des items incorrects qui contaminent la maîtrise de l'élève.
+
+| Condition | Action | Impact utilisateur |
+|---|---|---|
+| confidence < 0.4 sur un bloc TEXT | Marquer bloc UNCERTAIN, ajouter à file validation si item critique | Badge jaune sur la carte leçon |
+| confidence < 0.6 sur définition/formule/chiffre | `validation_required = true` sur l'Item | Validation demandée (max 8) |
+| OCR timeout (> 10 s par bloc) | Retry x2 avec back-off 2 s, puis fallback modèle secondaire | Transparent (indicateur de chargement) |
+| Bloc illisible après 3 tentatives | Item créé avec `content = null`, `flagged = true` | Message 'Zone illisible — à vérifier' |
+| Page entière confidence < 0.3 | Notifier l'élève : 'Photo floue — reprendre si possible' | Suggestion retake, non-bloquant |
+| confidence bloc SCHEMA/MAP < 0.5 | Conserver l'image brute comme `Document.source`, ne pas OCRiser | Document exploitable via gabarit image |
+
+---
+
+## 14. Architecture cible (MVP)
+
+### 14.1 Vue d'ensemble des composants
+
+| Composant | Techno suggérée | Rôle |
+|---|---|---|
+| API Gateway / BFF | Node.js / Go | Auth, routing, rate-limit, streaming SSE pour pipeline J0 |
+| OCR Service | Async worker (Python) | Segmentation + OCR parallèle par page (worker pool) |
+| LLM Service | Anthropic API (claude-sonnet) | Génération items, tagging, instanciation questions (lazy) |
+| Cache Layer | Redis | OCR results, item pool, question candidates, sessions |
+| Queue | BullMQ / SQS | Pipeline J0 asynchrone, retry/dead-letter |
+| Base de données | PostgreSQL | Users, Chapters, Items, Mastery, Attempts |
+| Storage | S3 / Object storage | Photos originales (opt-in), crops indexés |
+| Frontend | React / React Native | Mobile-first, SSE pour affichage streaming carte leçon |
+| Admin backoffice | React + API | CRUD packs, lexiques, analytics template_id/tag |
+
+### 14.2 Versioning des chapitres
+
+> **Nouveau en v1.3.** Un élève peut re-uploader des pages (correction d'une photo floue, ajout de pages manquantes). Chaque re-upload crée une **ChapterRevision** immutable. La révision courante est la dernière validée. Les Mastery states sont préservés entre révisions.
+
+- **ChapterRevision** : `chapter_id` + `revision_number` + `created_at` + `pages[]`.
+- Les Items créés dans une révision antérieure sont **archivés** (non supprimés) pour préserver l'historique de maîtrise.
+- Un Item identique (même term + même pack) retrouvé dans une nouvelle révision hérite du Mastery state existant.
+- En cas de conflit (OCR différent sur même bloc), l'item est re-soumis à validation HITL.
+
+---
+
+## 15. Fonctionnalités et exigences (Epics)
+
+### Epic 1 — Onboarding & chapitres
+
+Création chapitre : matière, classe, nom, date contrôle.
+
+**Critères d'acceptation :**
+- Parcours création < 60 s.
+- Date présente → plan calibré automatiquement.
+- Sans date → nudge UI répété à J+3 si toujours absente.
+
+### Epic 2 — Upload & segmentation
+
+Upload 1–30 photos mobile/web. Segmentation en blocs typés (TEXT, PHOTO, SCHEMA, MAP, GRAPH, TABLE, CIRCUIT…). Streaming de la carte dès la première page.
+
+**Critères d'acceptation :**
+- Crops avec type + confidence + coordonnées.
+- Indicateur de progression temps réel.
+- Suggestion retake si page floue (confidence < 0.3).
+
+### Epic 3 — OCR & structuration
+
+OCR manuscrit. Reconstruction plan hiérarchique. Stratégie retry/fallback (voir §13).
+
+**Critères d'acceptation :**
+- Carte de leçon navigable générée.
+- Confidence par bloc + par item.
+- Blocs illisibles flaggés clairement.
+
+### Epic 4 — Items + tags
+
+Génération Items KNOWLEDGE/PROCEDURE/DOCUMENT/WRITING. Auto-tagging + enrichissement pack.
+
+**Critères d'acceptation :**
+- Chaque item a `skill_tag` + `doc_tag` + `chapter_tag` + `concept_tag` si reconnu.
+- Taux auto-tagging correct > 85% sur chapitres pilotes.
+
+### Epic 5 — Validation HITL
+
+Détection incertains critiques. File de validation : Confirmer / Corriger / Ignorer / Je ne sais pas. Max 8/chapter triés par impact estimé sur la note.
+
+**Critères d'acceptation :**
+- Régénération ciblée des questions liées à l'item modifié.
+- UX < 2 min pour valider les 8 items.
+- Parent peut valider (mode actif) avec contexte visuel photo.
+
+### Epic 6 — Diagnostic & maîtrise
+
+Diagnostic 5–10 min. Carte de maîtrise par item. États UNKNOWN/FRAGILE/OK/SOLID.
+
+**Critères d'acceptation :**
+- Historique tentatives consultable.
+- Explicabilité : 2 lignes max — « pourquoi cet exercice ».
+- SOLID = 2 réussites espacées ≥ 24h.
+
+### Epic 7 — Génération & sessions
+
+Lazy generation questions. Composition session 70/20/10. Contraintes pack : 1 doc/1 rédaction max.
+
+**Critères d'acceptation :**
+- Session 10–20 min. Reprise après interruption.
+- Couverture tag document garantie si items disponibles (HG).
+- Indicateur de couverture du chapitre visible.
+
+### Epic 8 — Contrôles blancs
+
+≥1 contrôle blanc par chapitre. Format proche du vrai contrôle. Correction guidée + rubriques.
+
+**Critères d'acceptation :**
+- Inclut doc + exercice méthode obligatoirement.
+- Restitution : points solides / fragiles / recommandations.
+- Score archivé pour comparaison J-3 vs J-1.
+
+### Epic 9 — Parents
+
+Mode passif : digest hebdo + veille contrôle. Mode actif opt-in : validations + alertes rares. Script 3 minutes.
+
+**Critères d'acceptation :**
+- Digest lisible < 30 s.
+- Alertes actionnables (max 1/semaine en mode passif).
+- UX validation parent simplifiée (≤3 clics).
+
+### Epic 10 — Admin & qualité
+
+CRUD packs (templates activés, lexiques tags, paramètres). Analytics par template_id + par tag.
+
+**Critères d'acceptation :**
+- Taux réussite / temps moyen / partial par template.
+- Zones de confusion identifiées par tag (ex. `unites`, `document`).
+- Export CSV des métriques qualité.
+
+---
+
+## 16. Modèle de données (MVP)
+
+| Entité | Champs |
+|---|---|
+| **User** | `id` · `role (student\|parent)` · `consent_parent_at` · `linked_student_id?` |
+| **Chapter** | `id` · `subject` · `class_level` · `name` · `exam_date?` · `pack_id` · `current_revision_id` |
+| **ChapterRevision** | `id` · `chapter_id` · `revision_number` · `created_at` · `pages[]` · `status` |
+| **Page** | `id` · `revision_id` · `photo_url` · `order` · `ocr_status` |
+| **Block** | `id` · `page_id` · `type (TEXT\|PHOTO\|SCHEMA\|MAP\|GRAPH\|TABLE\|CIRCUIT)` · `crop` · `confidence` · `ocr_text?` |
+| **Document** | `id` · `chapter_id` · `type` · `tags[]` · `blocks[]` · `source_image_url?` |
+| **Item** | `id` · `chapter_id` · `revision_id` · `type (KNOWLEDGE\|PROCEDURE\|DOCUMENT\|WRITING)` · `term?` · `keywords[]?` · `steps[]?` · `linked_doc_id?` · `tags[]` · `confidence` · `validation_required` · `archived` |
+| **ValidationTask** | `id` · `item_id` · `crop_url` · `suggestion` · `priority` · `status` · `resolved_by?` |
+| **Template** | `id (template_id)` · `name` · `version` · `question_type` · `difficulty` · `eligibility{}` · `variables[]` · `prompt_template` · `grading{}` |
+| **Question** | `id` · `template_id` · `item_id` · `rendered_prompt` · `expected_answer{}` · `grading_policy` |
+| **Attempt** | `id` · `question_id` · `user_id` · `answer` · `score` · `feedback` · `created_at` |
+| **Mastery** | `id` · `user_id` · `item_id` · `state (UNKNOWN\|FRAGILE\|OK\|SOLID)` · `next_due_at` · `last_review_at` · `consecutive_successes` |
+| **Session** | `id` · `user_id` · `chapter_id` · `type (daily\|diagnostic\|mock_exam)` · `questions[]` · `started_at` · `completed_at?` |
+
+---
+
+## 17. Algorithmes MVP
+
+### 17.1 Sélection session (politique 70/20/10)
+
+**70 %** items dus (`next_due_at ≤ aujourd'hui`) + items FRAGILE/UNKNOWN prioritaires. **20 %** items OK récemment réussis (consolidation). **10 %** items SOLID ou nouveaux (découverte / anti-oubli long terme).
+
+**Contraintes additionnelles :** HG inclut ≥1 exercice document si items document disponibles · PC remonte les questions `unites` si erreurs récurrentes sur les 3 dernières sessions · max 1 rédaction et max 1 `long_problem` par session.
+
+### 17.2 Spaced repetition (règles simples)
+
+| État | next_due_at (standard) | next_due_at (contrôle < 7j) |
+|---|---|---|
+| UNKNOWN | J+1 | J+1 |
+| FRAGILE | J+1 à J+2 | J+1 |
+| OK | J+3 à J+7 | J+2 à J+3 |
+| SOLID | J+7 à J+14 | J+3 à J+5 |
+
+### 17.3 Correction
+
+- **KEYWORDS :** min N mots-clés + synonymes pack. Tolérance stemming (Fr). Score partiel si N-1.
+- **NUMERIC :** tolérance ± 2 %. Unité obligatoire. Arrondi intermédiaire autorisé à 2 décimales. Faux négatif si unité absente même si valeur correcte.
+- **CHECKLIST / RUBRIC :** 4 critères max, score 0/1 par critère. Score partiel affiché.
+- **MCQ :** AUTO. Un seul choix correct. Distractor justifié pour les gabarits `piege`.
+
+---
+
+## 18. Exigences non fonctionnelles
+
+### Performance
+- Carte de leçon + items < 2 min pour ~10 pages (objectif < 90 s).
+- First value (premier exercice) < 5 min après upload.
+- Composition session < 1 s (lazy generation + cache).
+
+### Sécurité
+- Chiffrement transit (TLS 1.3) et repos (AES-256).
+- Isolation des données par `user_id` à toutes les couches.
+- Pas d'exposition des photos originales sans auth.
+
+### RGPD / Mineurs
+- Consentement parent obligatoire (mineur < 15 ans).
+- Export et suppression des données sur demande.
+- Minimisation : photos supprimées par défaut 30j après extraction (opt-in conservation).
+- Logs anonymisés pour analytics.
+
+### Explicabilité
+- Chaque exercice affiche 2 lignes max expliquant pourquoi il est proposé.
+- Carte de maîtrise montre l'historique des tentatives par item.
+
+### Mobile-first
+- Upload et lecture confortables sur smartphone.
+- Formulaires sans scroll excessif.
+- Mode offline partiel : sessions téléchargées en avance si connexion disponible.
+
+### Observabilité
+- Métriques par `template_id` : taux réussite, temps médian, taux partial.
+- Métriques par tag : zones de confusion.
+- Alertes sur dégradation OCR confidence ou pipeline J0 timeout.
+
+---
+
+## 19. KPIs (MVP)
+
+| Catégorie | KPI | Cible MVP | Source |
+|---|---|---|---|
+| Activation | Upload → diagnostic complété (J0) | > 70% | pipeline logs |
+| Activation | Temps first value (premier exercice) | < 5 min | pipeline logs |
+| Engagement | Sessions / semaine / élève actif | > 3 | session DB |
+| Engagement | Taux complétion plan quotidien | > 60% | session DB |
+| Apprentissage | Transitions UNKNOWN/FRAGILE → OK/SOLID | > 40% à J+7 | mastery DB |
+| Apprentissage | Score contrôle blanc J-3 → J-1 | progression > 0 | mock exam |
+| Qualité tags | Taux auto-tagging correct (chapitres pilotes) | > 85% | admin validation |
+| Qualité templates | Taux réussite moyen par template | 30–70% (zone apprentissage) | attempt DB |
+| Parents passif | Taux ouverture digest hebdo | > 40% | email analytics |
+| Parents passif | Taux opt-out alertes | < 5% | settings DB |
+| OCR | Confidence moyenne blocs TEXT | > 0.85 | OCR service |
+
+---
+
+## 20. Questions §16 tranchées (v1.3)
+
+| Question | Décision | Justification |
+|---|---|---|
+| **Q1 — Date contrôle obligatoire ?** | **Strongly nudged, pas obligatoire.** | La rendre obligatoire crée de la friction à l'onboarding pour les élèves qui ne connaissent pas encore leur date. Le nudge est répété à J+3 et J+7. En l'absence de date, le plan est généré sur un horizon fixe de 14 jours. |
+| **Q2 — Suppression photos après extraction ?** | **Suppression automatique à J+30 par défaut, opt-in conservation.** | Réduit l'exposition RGPD sur les données de mineurs. La conservation opt-in est utile pour re-segmentation ou debug. Communiqué clairement à l'onboarding. |
+| **Q3 — Niveau collège ciblé en premier ?** | **4e en priorité.** | La 4e couvre les chapitres pilotes HG (inégalités, féodale) et PC (masse-volume) dans les programmes officiels. Les rubriques de rédaction sont calibrées au niveau 4e. Extension 3e et 5e post-MVP en ajustant les paramètres de rubrique par pack. |
+| **Q4 — Gestion des synonymes ?** | **Pack + admin uniquement en MVP. Pas d'apprentissage progressif.** | L'apprentissage progressif des synonymes introduit un risque de dérive qualité non supervisée. En MVP, l'admin peut enrichir les synonymes par pack après analyse des tentatives. Une roadmap post-MVP inclura la suggestion de synonymes à valider par l'admin. |
+
+---
+
+## 21. Risques & mitigations
+
+| Risque | Probabilité | Impact | Mitigation |
+|---|---|---|---|
+| OCR faible sur manuscrit dense | Haute | Élevé | HITL + retry/fallback (§13) + tags/doc types robustes |
+| Pipeline J0 > 2 min sur 30 pages | Moyenne | Élevé | Parallélisation + streaming + cache OCR permanent |
+| Coût LLM élevé (génération questions) | Haute | Moyen | Lazy generation + cache pool 24h |
+| UX J0 trop longue → abandon | Haute | Élevé | First value < 5 min, streaming carte, QCM flash immédiat |
+| Parent incompréhension validation HITL | Moyenne | Moyen | UX simplifiée ≤3 clics, contexte visuel, max 3 validations/semaine |
+| Faux négatifs correction numérique | Moyenne | Élevé | Tolérance ±2%, arrondi intermédiaire autorisé, unité feedback explicite |
+| Complexité 3 matières / 4 chapitres | Faible | Moyen | 1 moteur + packs ; bibliothèque gabarits 100% générique |
+| RGPD mineurs / photos sensibles | Faible | Très élevé | Suppression J+30 par défaut, consent parental, chiffrement repos |
+
+---
+
+*Fin du document — Révise Mieux PRD v1.3 · 5 mars 2026*
