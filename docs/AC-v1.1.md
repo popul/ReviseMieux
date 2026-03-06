@@ -20,8 +20,8 @@
 | Z3 | Validation HITL — Skip / Ignore behavior | Élevé | 9 |
 | Z4 | Lazy generation — Concurrence & cache | Élevé | 10 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 8 |
-| Z6 | Emploi du temps, Notifications & Révision proactive | Élevé | 14 |
-| | **Total** | | **65** |
+| Z6 | Emploi du temps, Notifications & Révision proactive | Élevé | 18 |
+| | **Total** | | **69** |
 
 ---
 
@@ -639,8 +639,46 @@
 | **WHEN** | Le scheduler évalue les sessions pre_class pour mardi soir. |
 | **THEN** | Aucune session `pre_class` n'est créée pour SVT. Aucune notification `pre_class` n'est envoyée. Le système n'affiche pas d'erreur. |
 
+### Z6-AC15 — Items dues non révisés : aucune pénalité mastery
+
+| | |
+|---|---|
+| **GIVEN** | Un item en état **OK** avec `next_due_at = 2 mars`. L'élève ne révise pas du 2 au 5 mars (3 jours de retard). |
+| **WHEN** | L'élève ouvre une session le 5 mars. |
+| **THEN** | L'item est toujours en état **OK**. `consecutive_successes` n'a pas changé. `next_due_at` est resté au 2 mars (non modifié par l'inaction). L'item apparaît en priorité dans les 70% « items dus » de la session (car `next_due_at < now`). Aucune régression n'a eu lieu. |
+
+> **NOTE :** Le Mastery state n'est JAMAIS modifié par l'inaction. Seule une réponse incorrecte déclenche une régression (Z1-AC05 à Z1-AC07). Un élève qui revient après une pause retrouve ses acquis intacts et reprend là où il en était. Cette règle s'applique à tous les états (FRAGILE, OK, SOLID).
+
+### Z6-AC16 — Rappel unique le lendemain pour session evening_first manquée
+
+| | |
+|---|---|
+| **GIVEN** | Une session `evening_first` a été proposée lundi soir à 18h30. L'élève n'a répondu à aucune question. Il est mardi 08h00 (heure de rappel par défaut). |
+| **WHEN** | Le scheduler de notifications s'exécute mardi matin. |
+| **THEN** | Une notification `missed_session_reminder` est envoyée : « Tu avais une révision en attente — on s'y remet ? ». `source_session_id` référence la session manquée. **Aucun second rappel** n'est envoyé si l'élève ignore ce rappel. La session originale reste disponible jusqu'à expiration (TTL 72h). |
+
+> **NOTE :** Seules les sessions `evening_first` et `pre_class` non commencées (0 questions répondues) déclenchent un rappel. Les sessions `daily` non commencées ne génèrent PAS de rappel pour éviter la sur-sollicitation. Les sessions partiellement complétées (≥ 1 question répondue) ne déclenchent pas non plus de rappel.
+
+### Z6-AC17 — Rappel unique le lendemain pour session pre_class manquée
+
+| | |
+|---|---|
+| **GIVEN** | Une session `pre_class` a été proposée mardi soir. L'élève n'a répondu à aucune question. Il est mercredi 08h00. |
+| **WHEN** | Le scheduler de notifications s'exécute mercredi matin. |
+| **THEN** | Une notification `missed_session_reminder` est envoyée : « Tu avais une révision en attente — on s'y remet ? ». Le rappel est envoyé même si le cours a déjà eu lieu (mercredi matin). **Un seul rappel**, jamais de relance. |
+
+### Z6-AC18 — Aucune mécanique de streak
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a révisé 5 jours consécutifs puis ne révise pas pendant 3 jours. |
+| **WHEN** | L'élève revient le 9e jour et ouvre l'application. |
+| **THEN** | Aucun compteur de « série » ou de « streak » n'est affiché. Aucun message de type « Tu as perdu ta série » n'apparaît. L'interface affiche l'état actuel de la carte de maîtrise sans référence à la régularité passée. Le message d'accueil est neutre ou positif : « Tes révisions t'attendent — on continue ? ». |
+
+> **NOTE :** L'absence de streak est un choix produit délibéré. La gamification par streak culpabilise les élèves en cas de rupture et peut être contre-productive pour les collégiens (11–15 ans). Le service valorise la qualité de la révision, pas la quantité de jours consécutifs.
+
 ---
 
-> Ces 65 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 69 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
 *Fin du document — Révise Mieux AC v1.1 · 6 mars 2026*

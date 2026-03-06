@@ -566,6 +566,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 - Contrôle blanc multi-chapitres inclut les items de tous les chapitres de l'exam.
 - Élève peut désactiver les notifications sans perdre les sessions proactives.
 - Sans emploi du temps saisi, le service fonctionne normalement (mode dégradé = pas de notifications proactives, sessions standards uniquement).
+- Session manquée : items dues non révisés restent priorisés sans pénalité. Un seul rappel le lendemain matin pour les sessions `evening_first` et `pre_class` non commencées. Aucune mécanique de streak.
 
 ---
 
@@ -588,7 +589,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 | **Attempt** | `id` · `question_id` · `user_id` · `answer` · `score` · `feedback` · `created_at` |
 | **Mastery** | `id` · `user_id` · `item_id` · `state (UNKNOWN\|FRAGILE\|OK\|SOLID)` · `next_due_at` · `last_review_at` · `consecutive_successes` |
 | **Session** | `id` · `user_id` · `chapter_ids[]` · `type (daily\|diagnostic\|mock_exam\|evening_first\|pre_class)` · `trigger (manual\|scheduled\|notification)` · `questions[]` · `started_at` · `completed_at?` |
-| **Notification** | `id` · `user_id` · `type (capture_reminder\|review_reminder\|pre_class)` · `subject` · `scheduled_at` · `sent_at?` · `clicked_at?` |
+| **Notification** | `id` · `user_id` · `type (capture_reminder\|review_reminder\|pre_class\|missed_session_reminder)` · `subject` · `scheduled_at` · `sent_at?` · `clicked_at?` · `source_session_id?` |
 
 ---
 
@@ -618,6 +619,29 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 - Justification affichée : « Tu as [Matière] demain — prépare-toi en cas d'interro surprise ».
 
 **Règle de non-doublon :** si une session `daily` est déjà planifiée le même soir, la session `pre_class` fusionne ses items dans la session `daily` (les items pre_class sont ajoutés en priorité dans les 20% consolidation ou les 70% dus).
+
+### 17.1c Session manquée (politique)
+
+> **Principe :** le service ne culpabilise jamais. Un élève qui rate une session ne subit aucune pénalité mécanique. Le système s'adapte en douceur.
+
+**Expiration session :** une session non complétée expire après 72h (TTL standard). Les questions non répondues sont libérées.
+
+**Items dues non révisés — aucune pénalité :**
+- Les items dont `next_due_at` est dépassé gardent leur `next_due_at` d'origine. Ils ne régressent PAS.
+- Ils deviennent simplement « en retard » (`next_due_at < now`) et sont automatiquement **priorisés** dans la prochaine session composée (ils tombent dans les 70 % « items dus »).
+- Le Mastery state n'est jamais modifié par l'inaction. Seule une réponse incorrecte déclenche une régression (cf. Z1-AC05 à Z1-AC07).
+
+**1 rappel le lendemain (unique, non intrusif) :**
+- Si une session `evening_first` ou `pre_class` expire sans avoir été commencée (0 questions répondues), **un seul rappel** est envoyé le lendemain matin (heure configurable, défaut 08h00).
+- Type de notification : `missed_session_reminder`.
+- Message : « Tu avais une révision en attente — on s'y remet ? ».
+- **Aucun second rappel.** Si l'élève ignore le rappel, aucune relance supplémentaire n'est envoyée.
+- Les sessions `daily` non commencées ne déclenchent PAS de rappel (pour éviter la sur-sollicitation).
+
+**Pas de mécanique de streak :**
+- Aucun compteur de jours consécutifs n'est affiché.
+- Aucune mécanique de gamification liée à la régularité n'est implémentée en MVP.
+- Le système ne culpabilise jamais l'élève pour une absence de révision.
 
 ### 17.2 Spaced repetition (règles simples)
 
@@ -738,6 +762,7 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 | Emploi du temps obsolète / non saisi | Moyenne | Moyen | Mode dégradé sans emploi du temps (sessions standards). Nudge si emploi du temps absent à J+3. Rappel début de trimestre pour mettre à jour. |
 | Exam multi-chapitres : explosion combinatoire items | Faible | Moyen | Contrôle blanc limité à 30 min, sélection représentative par chapitre (proportionnelle au nb d'items) |
 | RGPD mineurs / photos sensibles | Faible | Très élevé | Suppression J+30 par défaut, consent parental, chiffrement repos |
+| Session manquée / décrochage silencieux | Moyenne | Moyen | 1 rappel unique le lendemain matin (pas de harcèlement). Items dues re-priorisés automatiquement. Aucune pénalité mastery. KPI « taux complétion » pour détecter les décrochages à l'échelle. |
 
 ---
 
