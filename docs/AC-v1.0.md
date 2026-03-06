@@ -15,12 +15,12 @@
 
 | # | Zone | Risque | AC count |
 |---|---|---|---|
-| Z1 | Transitions Mastery (états + régressions) | Très élevé | 10 |
+| Z1 | Transitions Mastery (états + régressions) | Très élevé | 11 |
 | Z2 | Pipeline J0 — Error paths & timeouts | Très élevé | 10 |
 | Z3 | Validation HITL — Skip / Ignore behavior | Élevé | 9 |
 | Z4 | Lazy generation — Concurrence & cache | Élevé | 10 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 8 |
-| | **Total** | | **47** |
+| | **Total** | | **48** |
 
 ---
 
@@ -49,6 +49,8 @@
 | **THEN** | L'état passe à **OK**. `consecutive_successes = 2`. `next_due_at = now + 3 jours`. |
 
 > **NOTE :** La progression FRAGILE→OK n'exige pas un espacement de 24h. L'espacement de 24h est requis uniquement pour OK→SOLID.
+
+> **NOTE :** « Répond correctement » signifie un score ≥ seuil de réussite du pack. Pour les questions NUMERIC avec `unit_required = true`, l'unité fait partie intégrante de la réponse : une valeur juste sans unité est un **échec** (cf. Z1-AC11). Pour les RUBRIC, le seuil est ≥ `seuil_pack` (cf. Z1-AC10). Cette définition de « réponse correcte » s'applique uniformément à tous les AC Z1.
 
 ### Z1-AC03 — Progression OK → SOLID (espacement requis)
 
@@ -117,6 +119,16 @@
 | **THEN** | L'état reste **FRAGILE**. `consecutive_successes` n'est pas incrémenté. Le feedback affiche les critères manquants. Seul un score ≥ `seuil_pack` (défaut 3/4) compte comme réussite. |
 
 > **NOTE :** Le seuil de réussite pour les RUBRIC est paramétrable par pack. Défaut MVP : 3/4 critères.
+
+### Z1-AC11 — Réponse NUMERIC sans unité = échec mastery
+
+| | |
+|---|---|
+| **GIVEN** | Un item en état **FRAGILE** lié à une question NUMERIC avec `unit_required = true`. |
+| **WHEN** | L'élève donne la valeur correcte (dans la tolérance ± 2 %) mais omet l'unité. |
+| **THEN** | Le score est considéré comme un **échec**. L'état reste **FRAGILE** (pas de progression). `consecutive_successes` est remis à `0`. Le feedback indique explicitement que l'unité est manquante. |
+
+> **NOTE :** Ce AC formalise la règle PRD « Faux négatif si unité absente même si valeur correcte ». Il s'applique à tous les états de mastery, pas seulement FRAGILE — l'exemple FRAGILE est donné car c'est le cas le plus courant. La même logique vaut pour OK et SOLID (régression selon Z1-AC05 / Z1-AC06).
 
 ---
 
