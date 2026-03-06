@@ -46,7 +46,7 @@
 |---|---|
 | **GIVEN** | Un item en état **FRAGILE** avec `consecutive_successes = 1`. |
 | **WHEN** | L'élève répond correctement une fois à une question liée à cet item (même session). |
-| **THEN** | L'état passe à **OK**. `consecutive_successes = 2`. `next_due_at = now + 3 jours`. |
+| **THEN** | L'état passe à **OK**. `consecutive_successes = 2`. `next_due_at = now + 3 jours` (ajusté par Z1-AC08 si contrôle posé). |
 
 > **NOTE :** La progression FRAGILE→OK n'exige pas un espacement de 24h. L'espacement de 24h est requis uniquement pour OK→SOLID.
 
@@ -74,7 +74,7 @@
 |---|---|
 | **GIVEN** | Un item en état **SOLID** avec `consecutive_successes ≥ 3`. |
 | **WHEN** | L'élève répond incorrectement une fois à une question liée à cet item. |
-| **THEN** | L'état passe à **OK** (pas FRAGILE). `consecutive_successes = 0`. `next_due_at = now + 2 jours`. |
+| **THEN** | L'état passe à **OK** (pas FRAGILE). `consecutive_successes = 0`. `next_due_at = now + 2 jours` (ajusté par Z1-AC08 si contrôle posé). |
 
 > **NOTE :** La régression SOLID saute FRAGILE. Tomber directement en FRAGILE serait punitif et démotivant pour un élève ayant prouvé une maîtrise solide.
 
