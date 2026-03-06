@@ -538,6 +538,15 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 - Saisie manuelle lors de l'onboarding : matière + jour + créneau horaire (matin/après-midi suffit).
 - Modifiable à tout moment dans les paramètres.
 - L'emploi du temps déclenche les notifications et la planification des sessions.
+- **Vue semaine avec actions contextuelles** : les créneaux récurrents sont affichés sur une grille semaine. Tap sur un créneau → menu contextuel : « Annuler cette semaine » / « Déplacer ». Ajout ponctuel via « + » sur un jour vide.
+
+**11.1b — Exceptions ponctuelles (annulation / déplacement)**
+- Un cours peut être **annulé** pour une date précise (ex. « pas de PC mardi 11 mars »). Le créneau récurrent reste inchangé pour les semaines suivantes.
+- Un cours peut être **déplacé** vers un autre jour/période pour une semaine donnée (ex. « PC déplacé de mardi matin à jeudi après-midi cette semaine »). Cela crée une annulation sur le créneau d'origine + un ajout ponctuel sur le nouveau créneau.
+- Les exceptions sont modélisées par l'entité `ScheduleException` (voir §16).
+- **Impact notifications** : les notifications `capture_reminder` et `pre_class` s'ajustent automatiquement. Un cours annulé ne déclenche aucune notification. Un cours déplacé déclenche les notifications sur le nouveau jour.
+- **Impact sessions** : la session `pre_class` est planifiée la veille du créneau effectif (après prise en compte des exceptions), pas du créneau récurrent.
+- Les exceptions passées (date < aujourd'hui) sont ignorées par le scheduler. Nettoyage automatique des exceptions de plus de 30 jours.
 
 **11.2 — Notification saisie de cours (soir après cours)**
 - Le soir (heure configurable, défaut 18h30) après une journée où l'élève a eu cours dans une matière suivie, notification push : « Tu as eu [Matière] aujourd'hui — saisis ton cours pour réviser ce soir ! ».
@@ -567,6 +576,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 - Élève peut désactiver les notifications sans perdre les sessions proactives.
 - Sans emploi du temps saisi, le service fonctionne normalement (mode dégradé = pas de notifications proactives, sessions standards uniquement).
 - Session manquée : items dues non révisés restent priorisés sans pénalité. Un seul rappel le lendemain matin pour les sessions `evening_first` et `pre_class` non commencées. Aucune mécanique de streak.
+- Exceptions emploi du temps : annulation et déplacement ponctuels gérés. Notifications et sessions `pre_class` ajustées automatiquement selon le créneau effectif.
 
 ---
 
@@ -576,6 +586,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 |---|---|
 | **User** | `id` · `role (student\|parent)` · `consent_parent_at` · `linked_student_id?` · `notification_hour?` (défaut 18h30) |
 | **ScheduleSlot** | `id` · `user_id` · `subject` · `day_of_week (1–7)` · `period (morning\|afternoon)` · `created_at` |
+| **ScheduleException** | `id` · `user_id` · `subject` · `original_date` · `type (cancelled\|moved)` · `moved_to_date?` · `moved_to_period?` · `created_at` |
 | **Exam** | `id` · `user_id` · `name?` · `exam_date` · `chapter_ids[]` · `created_at` |
 | **Chapter** | `id` · `subject` · `class_level` · `name` · `exam_id?` · `pack_id` · `current_revision_id` |
 | **ChapterRevision** | `id` · `chapter_id` · `revision_number` · `created_at` · `pages[]` · `status` |

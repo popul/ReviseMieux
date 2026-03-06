@@ -20,8 +20,8 @@
 | Z3 | Validation HITL — Skip / Ignore behavior | Élevé | 9 |
 | Z4 | Lazy generation — Concurrence & cache | Élevé | 10 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 8 |
-| Z6 | Emploi du temps, Notifications & Révision proactive | Élevé | 18 |
-| | **Total** | | **69** |
+| Z6 | Emploi du temps, Notifications & Révision proactive | Élevé | 23 |
+| | **Total** | | **74** |
 
 ---
 
@@ -677,8 +677,52 @@
 
 > **NOTE :** L'absence de streak est un choix produit délibéré. La gamification par streak culpabilise les élèves en cas de rupture et peut être contre-productive pour les collégiens (11–15 ans). Le service valorise la qualité de la révision, pas la quantité de jours consécutifs.
 
+### Z6-AC19 — Annulation ponctuelle d'un cours
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a un `ScheduleSlot` mardi matin pour Physique-Chimie. Il crée une `ScheduleException` de type `cancelled` pour le mardi 11 mars. |
+| **WHEN** | Le scheduler de notifications et de sessions s'exécute le lundi 10 mars soir et le mardi 11 mars soir. |
+| **THEN** | **Lundi soir :** aucune session `pre_class` n'est proposée pour Physique-Chimie (le cours du lendemain est annulé). **Mardi soir :** aucune notification `capture_reminder` ni `review_reminder` n'est envoyée pour Physique-Chimie. Le créneau récurrent du mardi matin reste inchangé pour les semaines suivantes (le mardi 18 mars fonctionne normalement). |
+
+> **NOTE :** L'exception est ponctuelle. Elle ne modifie pas le `ScheduleSlot` récurrent. Le scheduler résout les créneaux effectifs d'une semaine en combinant `ScheduleSlot` + `ScheduleException` du même `(user_id, subject)`.
+
+### Z6-AC20 — Déplacement ponctuel d'un cours
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a un `ScheduleSlot` mardi matin pour Physique-Chimie. Il déplace le cours du mardi 11 mars vers jeudi 13 mars après-midi. |
+| **WHEN** | Le système enregistre le déplacement. |
+| **THEN** | Une `ScheduleException` est créée : `type = 'moved'`, `original_date = 2026-03-11`, `moved_to_date = 2026-03-13`, `moved_to_period = 'afternoon'`. **Mardi 11 :** aucune notification ni session `pre_class` pour PC (cours annulé ce jour). **Mercredi 12 soir :** une session `pre_class` est proposée pour PC (veille du cours déplacé à jeudi). **Jeudi 13 soir :** une notification `capture_reminder` ou `review_reminder` est envoyée pour PC. Le créneau récurrent mardi matin reprend normalement le mardi 18 mars. |
+
+### Z6-AC21 — Exception sans impact sur les autres matières
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a un `ScheduleSlot` mardi matin pour PC et un `ScheduleSlot` mardi après-midi pour SVT. Le cours de PC du mardi 11 mars est annulé. |
+| **WHEN** | Le scheduler s'exécute le mardi 11 mars soir. |
+| **THEN** | La notification pour PC n'est PAS envoyée (cours annulé). La notification pour SVT EST envoyée normalement (pas d'exception sur SVT). L'exception est isolée par `(user_id, subject, original_date)`. |
+
+### Z6-AC22 — Nettoyage automatique des exceptions passées
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a 5 `ScheduleException` dont 3 ont une `original_date` de plus de 30 jours. |
+| **WHEN** | Le job de nettoyage s'exécute (quotidien). |
+| **THEN** | Les 3 exceptions de plus de 30 jours sont supprimées. Les 2 exceptions récentes sont conservées. Aucune exception future n'est supprimée. |
+
+### Z6-AC23 — Déplacement vers un jour déjà occupé (même matière)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a un `ScheduleSlot` mardi matin pour PC et un `ScheduleSlot` jeudi matin pour PC. Il déplace le cours de mardi 11 mars vers jeudi 13 mars. |
+| **WHEN** | Le scheduler évalue jeudi 13 mars. |
+| **THEN** | Le cours PC du jeudi 13 mars existe déjà (créneau récurrent). Le déplacement ajoute un deuxième créneau PC le même jour. Les notifications ne sont envoyées qu'**une seule fois** pour PC ce jour-là (déduplication par `(user_id, subject, date)`). La session `pre_class` du mercredi soir couvre PC une seule fois (pas de doublon). |
+
+> **NOTE :** Le déplacement vers un jour où la matière est déjà prévue est autorisé (l'élève peut avoir 2h de PC le même jour). Le système déduplique les notifications et sessions mais ne bloque pas la saisie.
+
 ---
 
-> Ces 69 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 74 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
 *Fin du document — Révise Mieux AC v1.1 · 6 mars 2026*
