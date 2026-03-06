@@ -6,7 +6,7 @@
 > |---|---|
 > | **Version** | 1.0 |
 > | **Date** | 5 mars 2026 |
-> | **Périmètre** | 5 zones critiques identifiées — 47 AC en format Given/When/Then |
+> | **Périmètre** | 5 zones critiques identifiées — 51 AC en format Given/When/Then |
 > | **Usage** | À intégrer comme contexte système avant chaque session de vibe coding, et à transformer en tests unitaires |
 
 ---
@@ -15,12 +15,12 @@
 
 | # | Zone | Risque | AC count |
 |---|---|---|---|
-| Z1 | Transitions Mastery (états + régressions) | Très élevé | 11 |
+| Z1 | Transitions Mastery (états + régressions) | Très élevé | 14 |
 | Z2 | Pipeline J0 — Error paths & timeouts | Très élevé | 10 |
 | Z3 | Validation HITL — Skip / Ignore behavior | Élevé | 9 |
 | Z4 | Lazy generation — Concurrence & cache | Élevé | 10 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 8 |
-| | **Total** | | **48** |
+| | **Total** | | **51** |
 
 ---
 
@@ -114,6 +114,8 @@
 
 > **NOTE :** Les contrôles sont typiquement annoncés à +7 jours. Exemples avec T=7 : OK → J+2, SOLID → J+3, régression → J+1. Avec T=3 : OK → J+1, SOLID → J+2, régression → J+1. Sans `exam_date`, les intervalles standard s'appliquent (cf. Z1-AC01 à Z1-AC07).
 
+> **Edge case T ≤ 0 :** Si `exam_date` est passé (`T ≤ 0`), le resserrement ne s'applique plus — les intervalles standard reprennent. L'`exam_date` expiré est ignoré (équivalent à « pas de contrôle posé »). Le système ne doit jamais produire un `next_due_at` dans le passé.
+
 ### Z1-AC09 — Indépendance des Mastery states entre items
 
 | | |
@@ -151,6 +153,24 @@
 | **THEN** | Le score N-1 est considéré comme une **réussite**. `consecutive_successes` est incrémenté. La progression mastery s'applique normalement. Le feedback indique le mot-clé manquant à titre informatif. |
 
 > **NOTE :** Le seuil de réussite KEYWORDS est ≥ N-1 (tolérance d'un mot-clé manquant), conformément au PRD §17.3 « Score partiel si N-1 ». En dessous de N-1 (ex. N-2 ou moins), c'est un échec. Cette tolérance compense les variations de formulation naturelles en français. Ce AC complète Z1-AC10 (RUBRIC) et Z1-AC11 (NUMERIC) pour couvrir tous les types de scoring.
+
+### Z1-AC13 — Échec sur item UNKNOWN (pas de descente sous UNKNOWN)
+
+| | |
+|---|---|
+| **GIVEN** | Un item en état **UNKNOWN** avec `consecutive_successes = 0`. |
+| **WHEN** | L'élève répond incorrectement à une question liée à cet item. |
+| **THEN** | L'état reste **UNKNOWN**. `consecutive_successes = 0`. `next_due_at = now + 1 jour`. Aucune régression n'est possible en dessous de UNKNOWN. |
+
+### Z1-AC14 — Maintien SOLID sur réussite successive
+
+| | |
+|---|---|
+| **GIVEN** | Un item en état **SOLID** avec `consecutive_successes ≥ 3` et `last_review_at` ≥ 24h. |
+| **WHEN** | L'élève répond correctement à une question liée à cet item. |
+| **THEN** | L'état reste **SOLID**. `consecutive_successes += 1`. `next_due_at = now + 7 jours` (ajusté par Z1-AC08 si contrôle posé). `last_review_at` est mis à jour. |
+
+> **NOTE :** Un item SOLID qui continue d'être réussi reste SOLID avec un intervalle constant de J+7. L'incrémentation de `consecutive_successes` au-delà de 3 permet de distinguer un item « fraîchement SOLID » d'un item « profondément ancré » pour d'éventuelles heuristiques post-MVP.
 
 ---
 
@@ -498,6 +518,6 @@
 
 ---
 
-> Ces 49 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 51 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
 *Fin du document — Révise Mieux AC v1.0 · 5 mars 2026*
