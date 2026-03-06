@@ -30,6 +30,8 @@
 >
 > La machine à états Mastery est le cœur de la valeur produit. Une régression silencieuse ou un calcul incorrect de `next_due_at` casse la répétition espacée sans que l'élève s'en aperçoive.
 
+> **Note :** les règles Z1-AC01 à Z1-AC10 s'appliquent uniformément quel que soit le type de session (`diagnostic`, `daily`, `mock_exam`). Le type de session n'affecte pas la logique de transition de maîtrise.
+
 ### Z1-AC01 — Progression UNKNOWN → FRAGILE
 
 | | |
