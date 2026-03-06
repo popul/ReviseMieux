@@ -568,6 +568,15 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 - Les contrôles blancs couvrent l'ensemble des chapitres liés à l'exam.
 - Le plan d'étude répartit les items de tous les chapitres concernés dans les sessions quotidiennes.
 
+**11.6 — Notifications parent (visibilité emploi du temps & suivi)**
+- Le compte parent reçoit des notifications push et un tableau de bord récapitulatif pour 3 types d'événements :
+  1. **Annulation / déplacement de cours** — notification push dès que l'élève crée une `ScheduleException`. Message : « [Prénom] a annulé son cours de [Matière] du [date] » ou « [Prénom] a déplacé son cours de [Matière] du [date] au [nouvelle date] ».
+  2. **Session de révision manquée** — notification push le **lendemain matin** (même heure que le rappel élève) si une session `evening_first` ou `pre_class` n'a pas été commencée. Message : « [Prénom] n'a pas fait sa session de révision de [Matière] hier soir ». Pas de notification si l'élève a terminé la session en retard dans la nuit (avant 6h).
+  3. **Inactivité prolongée** — notification push si l'élève n'a eu aucune activité (ni capture, ni session, ni review) depuis **3 jours consécutifs**. Message : « [Prénom] n'a pas utilisé ReviseMieux depuis 3 jours ». Envoyée une seule fois par période d'inactivité (pas de spam quotidien).
+- **Tableau de bord parent** : vue synthétique listant les événements des 7 derniers jours (annulations, déplacements, sessions manquées, inactivité). Accessible depuis l'app parent.
+- **Respect de l'autonomie** : les notifications parent sont informatives, pas bloquantes. L'élève n'est pas notifié que ses parents ont reçu une alerte (pas de mécanique de surveillance visible). Le parent ne peut pas annuler/déplacer les cours depuis son compte.
+- **Opt-out parent** : le parent peut désactiver chaque catégorie de notification individuellement dans ses paramètres.
+
 **Critères d'acceptation :**
 - Notifications déclenchées correctement selon l'emploi du temps saisi.
 - Micro-session soir J0 proposée dans les 4h après upload.
@@ -577,6 +586,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 - Sans emploi du temps saisi, le service fonctionne normalement (mode dégradé = pas de notifications proactives, sessions standards uniquement).
 - Session manquée : items dues non révisés restent priorisés sans pénalité. Un seul rappel le lendemain matin pour les sessions `evening_first` et `pre_class` non commencées. Aucune mécanique de streak.
 - Exceptions emploi du temps : annulation et déplacement ponctuels gérés. Notifications et sessions `pre_class` ajustées automatiquement selon le créneau effectif.
+- Notifications parent : push envoyé pour annulations/déplacements (temps réel), sessions manquées (lendemain matin), inactivité (après 3 jours). Chaque catégorie désactivable individuellement par le parent.
 
 ---
 
@@ -600,7 +610,8 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 | **Attempt** | `id` · `question_id` · `user_id` · `answer` · `score` · `feedback` · `created_at` |
 | **Mastery** | `id` · `user_id` · `item_id` · `state (UNKNOWN\|FRAGILE\|OK\|SOLID)` · `next_due_at` · `last_review_at` · `consecutive_successes` |
 | **Session** | `id` · `user_id` · `chapter_ids[]` · `type (daily\|diagnostic\|mock_exam\|evening_first\|pre_class)` · `trigger (manual\|scheduled\|notification)` · `questions[]` · `started_at` · `completed_at?` |
-| **Notification** | `id` · `user_id` · `type (capture_reminder\|review_reminder\|pre_class\|missed_session_reminder)` · `subject` · `scheduled_at` · `sent_at?` · `clicked_at?` · `source_session_id?` |
+| **Notification** | `id` · `user_id` · `type (capture_reminder\|review_reminder\|pre_class\|missed_session_reminder\|parent_schedule_change\|parent_missed_session\|parent_inactivity)` · `subject` · `scheduled_at` · `sent_at?` · `clicked_at?` · `source_session_id?` · `linked_student_id?` |
+| **ParentNotificationPref** | `id` · `parent_user_id` · `schedule_change_enabled (default true)` · `missed_session_enabled (default true)` · `inactivity_enabled (default true)` · `inactivity_threshold_days (default 3)` |
 
 ---
 

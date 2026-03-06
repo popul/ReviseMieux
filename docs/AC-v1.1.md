@@ -20,8 +20,8 @@
 | Z3 | Validation HITL — Skip / Ignore behavior | Élevé | 9 |
 | Z4 | Lazy generation — Concurrence & cache | Élevé | 10 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 8 |
-| Z6 | Emploi du temps, Notifications & Révision proactive | Élevé | 23 |
-| | **Total** | | **74** |
+| Z6 | Emploi du temps, Notifications & Révision proactive | Élevé | 27 |
+| | **Total** | | **78** |
 
 ---
 
@@ -721,8 +721,42 @@
 
 > **NOTE :** Le déplacement vers un jour où la matière est déjà prévue est autorisé (l'élève peut avoir 2h de PC le même jour). Le système déduplique les notifications et sessions mais ne bloque pas la saisie.
 
+### Z6-AC24 — Notification parent : annulation / déplacement de cours (temps réel)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a un parent lié (`linked_student_id`). Le parent a `schedule_change_enabled = true` dans ses `ParentNotificationPref`. L'élève annule son cours de PC du mardi 11 mars. |
+| **WHEN** | L'élève confirme l'annulation. |
+| **THEN** | Une notification push est envoyée **immédiatement** au parent : « [Prénom] a annulé son cours de Physique-Chimie du mardi 11 mars ». L'événement apparaît dans le tableau de bord parent (section « 7 derniers jours »). L'élève n'est **pas** notifié que son parent a reçu l'alerte. Si le parent a `schedule_change_enabled = false`, aucune notification n'est envoyée mais l'événement reste visible dans le tableau de bord. |
+
+### Z6-AC25 — Notification parent : session de révision manquée (lendemain matin)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève avait une session `pre_class` planifiée le lundi 10 mars soir pour PC. La session n'a pas été commencée à 23h59. Le parent a `missed_session_enabled = true`. |
+| **WHEN** | Le scheduler parent s'exécute le mardi 11 mars matin (même heure que le rappel élève). |
+| **THEN** | Notification push parent : « [Prénom] n'a pas fait sa session de révision de Physique-Chimie hier soir ». L'événement apparaît dans le tableau de bord parent. **Exception** : si l'élève a terminé la session entre 00h00 et 06h00 le mardi, la notification parent n'est **pas** envoyée (session comptée comme faite en retard). |
+
+### Z6-AC26 — Notification parent : inactivité prolongée (3 jours)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève n'a eu aucune activité (capture, session, review) depuis 3 jours consécutifs. Le parent a `inactivity_enabled = true` et `inactivity_threshold_days = 3`. |
+| **WHEN** | Le job d'inactivité s'exécute le matin du 4ème jour sans activité. |
+| **THEN** | Notification push parent : « [Prénom] n'a pas utilisé ReviseMieux depuis 3 jours ». L'alerte est envoyée **une seule fois** par période d'inactivité. Aucune nouvelle notification tant que l'élève n'a pas repris une activité puis recommencé une nouvelle période d'inactivité. Le seuil est configurable par le parent (`inactivity_threshold_days`). |
+
+### Z6-AC27 — Opt-out parent par catégorie
+
+| | |
+|---|---|
+| **GIVEN** | Le parent désactive `missed_session_enabled` dans ses paramètres mais laisse `schedule_change_enabled` et `inactivity_enabled` activés. |
+| **WHEN** | L'élève manque une session ET annule un cours le même jour. |
+| **THEN** | Le parent reçoit **uniquement** la notification d'annulation de cours (schedule_change). Aucune notification pour la session manquée. Les deux événements restent visibles dans le tableau de bord parent (le tableau de bord n'est pas filtré par les préférences de notification). |
+
+> **NOTE :** Les notifications parent respectent l'autonomie de l'élève. L'objectif est d'informer les parents sans créer une dynamique de surveillance. L'élève ne voit jamais « ton parent a été prévenu ». Le parent ne peut pas agir sur l'emploi du temps de l'élève depuis son compte.
+
 ---
 
-> Ces 74 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 78 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
 *Fin du document — Révise Mieux AC v1.1 · 6 mars 2026*
