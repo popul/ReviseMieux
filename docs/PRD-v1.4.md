@@ -1,12 +1,13 @@
-# Révise Mieux — PRD v1.3
+# Révise Mieux — PRD v1.4
 
 > **Product Requirements Document — MVP Collège**
 >
 > | | |
 > |---|---|
-> | **Version** | 1.3 |
-> | **Date** | 5 mars 2026 |
+> | **Version** | 1.4 |
+> | **Date** | 6 mars 2026 |
 > | **Statut** | Draft — Review interne |
+> | **Évolutions v1.4 vs v1.3** | Emploi du temps élève · Révision proactive dès le soir · Anticipation interros surprises · Notifications saisie/révision · Exam multi-chapitres |
 > | **Évolutions v1.3 vs v1.2** | Pipeline J0 détaillé · SLA par étape · Lazy generation · Stratégie cache LLM · Retry/fallback OCR · Versioning chapitre |
 
 ---
@@ -32,7 +33,7 @@
 17. [Algorithmes MVP](#17-algorithmes-mvp)
 18. [Exigences non fonctionnelles](#18-exigences-non-fonctionnelles)
 19. [KPIs](#19-kpis-mvp)
-20. [Questions §16 tranchées](#20-questions-16-tranchées-v13)
+20. [Questions §16 tranchées](#20-questions-16-tranchées-v14)
 21. [Risques & mitigations](#21-risques--mitigations)
 
 ---
@@ -76,9 +77,11 @@ Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schém
 
 - **Rappel actif > relecture.** Toute session génère des questions, jamais de simple re-lecture de carte.
 - **Répétition espacée.** État SOLID uniquement après 2 réussites espacées d'au moins 24h.
+- **Révision proactive dès J0.** Chaque cours capturé déclenche une première révision le soir même, sans attendre qu'un contrôle soit annoncé. Un élève qui révise un peu chaque soir est mieux armé face aux interros surprises.
 - **Analyse documentaire standardisée :** décrire → prélever → expliquer → conclure.
 - **Human-in-the-loop :** validation rapide des zones incertaines critiques, plutôt que faux sentiment de certitude.
 - **First value rapide :** l'élève doit pouvoir faire un premier exercice en moins de 5 min après upload. La qualité s'affine ensuite.
+- **Anticipation permanente.** Le service connaît l'emploi du temps de l'élève et prépare une révision ciblée la veille de chaque cours, pour couvrir le risque d'interro surprise.
 
 ---
 
@@ -92,13 +95,17 @@ Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schém
 | Auto-tagging + enrichissement contrôlé par pack. | OCR offline complet sur device. |
 | Détection d'incertitudes → file de validation (max 8/chapter). | Apprentissage progressif des synonymes (admin uniquement en MVP). |
 | Diagnostic initial 5–10 min → carte de maîtrise initiale. | Imports depuis ENT ou manuels numériques. |
-| Sessions quotidiennes adaptatives (spaced repetition, 70/20/10). | |
+| Sessions quotidiennes adaptatives (spaced repetition, 70/20/10). | Import automatique emploi du temps depuis ENT/Pronote. |
 | Questions générées via gabarits génériques + packs (lazy generation). | |
 | Contrôles blancs (≥1 par chapitre) avec correction guidée. | |
 | Dashboard élève + reporting parent passif (digest hebdo + veille contrôle). | |
 | Alertes parent actif (opt-in) sur risques détectés. | |
 | Admin : CRUD packs, lexiques, gabarits, analytics template. | |
 | Versioning chapitre (re-upload de pages → nouvelle révision). | |
+| **Emploi du temps élève** (saisie manuelle) → notifications saisie cours + révision proactive. | |
+| **Révision proactive dès le soir** après chaque prise de cours, même sans date de contrôle. | |
+| **Anticipation interros surprises** : révision ciblée la veille de chaque cours. | |
+| **Exams multi-chapitres** : un contrôle peut couvrir plusieurs leçons. | |
 
 ---
 
@@ -132,12 +139,16 @@ Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schém
 
 | Étape | Description |
 |---|---|
+| **Onboarding — Emploi du temps** | Saisie de l'emploi du temps hebdomadaire : pour chaque matière, les créneaux de cours (ex. « Histoire-Géo : mardi 10h, vendredi 14h »). Saisie manuelle, une seule fois. Modifiable à tout moment. |
 | **J0 — Création** | Création chapitre : matière, classe, nom, date contrôle (fortement encouragée). Parcours < 60 s. Si date présente, plan calibré automatiquement. |
 | **J0 — Upload** | Upload 1–30 photos. Segmentation immédiate (blocs typés). Carte de leçon préliminaire affichée dès la première page traitée (streaming). |
 | **J0 — Validation** | 0 à 8 validations critiques proposées par ordre d'impact estimé sur la note. Le reste est marqué UNCERTAIN et non bloquant. |
 | **J0 — Diagnostic** | Diagnostic initial 5–10 min → carte de maîtrise → plan personnalisé. Questions pré-générées (lazy) disponibles immédiatement après validation. |
+| **J0 soir — 1re révision** | Le soir même après la prise de cours, micro-session de première appropriation (5–10 min). Focus : définitions, vocabulaire clé, structure du cours. Même sans date de contrôle connue. |
+| **Soir après cours** | Notification push le soir après chaque journée de cours : « Tu as eu [Matière] aujourd'hui — saisis ton cours pour commencer à réviser ce soir ! ». Déclenchée via l'emploi du temps. |
+| **Veille de cours** | Révision anticipation surprise : la veille de chaque cours d'une matière, le service propose une mini-session de rappel (5 min) sur les chapitres actifs de cette matière. Objectif : être prêt en cas d'interro surprise. |
 | **J+1..J-3** | Micro-sessions quotidiennes adaptatives (70% dû/fragile, 20% consolidation, 10% découverte). Feedback immédiat + explication « pourquoi cet exercice ». |
-| **J-3** | Contrôle blanc n°1 : format proche du vrai contrôle, incluant doc + exercice méthode. Correction guidée avec rubriques. |
+| **J-3** | Contrôle blanc n°1 : format proche du vrai contrôle, incluant doc + exercice méthode. Correction guidée avec rubriques. Un contrôle peut couvrir plusieurs chapitres — le contrôle blanc les inclut tous. |
 | **J-1** | Contrôle blanc n°2 (si date connue). Synthèse : points solides / fragiles / recommandations d'urgence. |
 
 ### 5.2 Parcours parent passif (défaut)
@@ -429,12 +440,13 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 
 ### Epic 1 — Onboarding & chapitres
 
-Création chapitre : matière, classe, nom, date contrôle.
+Création chapitre : matière, classe, nom, date contrôle. Saisie de l'emploi du temps hebdomadaire lors de l'onboarding (une seule fois, modifiable).
 
 **Critères d'acceptation :**
-- Parcours création < 60 s.
+- Parcours création chapitre < 60 s.
+- Saisie emploi du temps < 3 min (interface par matière + créneau).
 - Date présente → plan calibré automatiquement.
-- Sans date → nudge UI répété à J+3 si toujours absente.
+- Sans date → révision proactive activée dès J0 soir + nudge UI répété à J+3 si toujours absente.
 
 ### Epic 2 — Upload & segmentation
 
@@ -516,14 +528,55 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 - Zones de confusion identifiées par tag (ex. `unites`, `document`).
 - Export CSV des métriques qualité.
 
+### Epic 11 — Emploi du temps, notifications & révision proactive
+
+> **Nouveau en v1.4.** Le service exploite l'emploi du temps de l'élève pour orchestrer deux boucles proactives : (1) notification saisie de cours le soir + révision immédiate, (2) révision d'anticipation la veille de chaque cours.
+
+**Sous-fonctionnalités :**
+
+**11.1 — Saisie de l'emploi du temps**
+- Saisie manuelle lors de l'onboarding : matière + jour + créneau horaire (matin/après-midi suffit).
+- Modifiable à tout moment dans les paramètres.
+- L'emploi du temps déclenche les notifications et la planification des sessions.
+
+**11.2 — Notification saisie de cours (soir après cours)**
+- Le soir (heure configurable, défaut 18h30) après une journée où l'élève a eu cours dans une matière suivie, notification push : « Tu as eu [Matière] aujourd'hui — saisis ton cours pour réviser ce soir ! ».
+- Si le chapitre est déjà saisi, la notification devient : « Révise tes points fragiles en [Matière] — 10 min ce soir ».
+- Fréquence max : 2 notifications/soir. Priorité aux matières avec contrôle proche.
+
+**11.3 — Révision proactive le soir (J0 soir)**
+- Dès qu'un cours est capturé, le service propose une micro-session de première appropriation le soir même (5–10 min).
+- Contenu : QCM flash, définitions clés, cloze texte à trous — les gabarits les plus simples (difficulté 1).
+- Objectif : ancrage initial. Même sans date de contrôle. Le plan d'étude démarre immédiatement.
+
+**11.4 — Révision veille de cours (anticipation surprise)**
+- La veille au soir de chaque cours d'une matière, mini-session de rappel (5 min) sur les chapitres actifs de cette matière.
+- Sélection : items FRAGILE/OK les moins récemment révisés + items UNKNOWN non encore vus.
+- Justification affichée : « Tu as [Matière] demain — prépare-toi en cas d'interro surprise ».
+
+**11.5 — Exams multi-chapitres**
+- Un contrôle peut couvrir plusieurs chapitres/leçons. L'`exam_date` est attachée à un **Exam** qui référence N chapitres.
+- Les contrôles blancs couvrent l'ensemble des chapitres liés à l'exam.
+- Le plan d'étude répartit les items de tous les chapitres concernés dans les sessions quotidiennes.
+
+**Critères d'acceptation :**
+- Notifications déclenchées correctement selon l'emploi du temps saisi.
+- Micro-session soir J0 proposée dans les 4h après upload.
+- Session anticipation disponible la veille de chaque cours (si chapitres actifs existent).
+- Contrôle blanc multi-chapitres inclut les items de tous les chapitres de l'exam.
+- Élève peut désactiver les notifications sans perdre les sessions proactives.
+- Sans emploi du temps saisi, le service fonctionne normalement (mode dégradé = pas de notifications proactives, sessions standards uniquement).
+
 ---
 
 ## 16. Modèle de données (MVP)
 
 | Entité | Champs |
 |---|---|
-| **User** | `id` · `role (student\|parent)` · `consent_parent_at` · `linked_student_id?` |
-| **Chapter** | `id` · `subject` · `class_level` · `name` · `exam_date?` · `pack_id` · `current_revision_id` |
+| **User** | `id` · `role (student\|parent)` · `consent_parent_at` · `linked_student_id?` · `notification_hour?` (défaut 18h30) |
+| **ScheduleSlot** | `id` · `user_id` · `subject` · `day_of_week (1–7)` · `period (morning\|afternoon)` · `created_at` |
+| **Exam** | `id` · `user_id` · `name?` · `exam_date` · `chapter_ids[]` · `created_at` |
+| **Chapter** | `id` · `subject` · `class_level` · `name` · `exam_id?` · `pack_id` · `current_revision_id` |
 | **ChapterRevision** | `id` · `chapter_id` · `revision_number` · `created_at` · `pages[]` · `status` |
 | **Page** | `id` · `revision_id` · `photo_url` · `order` · `ocr_status` |
 | **Block** | `id` · `page_id` · `type (TEXT\|PHOTO\|SCHEMA\|MAP\|GRAPH\|TABLE\|CIRCUIT)` · `crop` · `confidence` · `ocr_text?` |
@@ -534,7 +587,8 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 | **Question** | `id` · `template_id` · `item_id` · `rendered_prompt` · `expected_answer{}` · `grading_policy` |
 | **Attempt** | `id` · `question_id` · `user_id` · `answer` · `score` · `feedback` · `created_at` |
 | **Mastery** | `id` · `user_id` · `item_id` · `state (UNKNOWN\|FRAGILE\|OK\|SOLID)` · `next_due_at` · `last_review_at` · `consecutive_successes` |
-| **Session** | `id` · `user_id` · `chapter_id` · `type (daily\|diagnostic\|mock_exam)` · `questions[]` · `started_at` · `completed_at?` |
+| **Session** | `id` · `user_id` · `chapter_ids[]` · `type (daily\|diagnostic\|mock_exam\|evening_first\|pre_class)` · `trigger (manual\|scheduled\|notification)` · `questions[]` · `started_at` · `completed_at?` |
+| **Notification** | `id` · `user_id` · `type (capture_reminder\|review_reminder\|pre_class)` · `subject` · `scheduled_at` · `sent_at?` · `clicked_at?` |
 
 ---
 
@@ -546,9 +600,30 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 
 **Contraintes additionnelles :** HG inclut ≥1 exercice document si items document disponibles · PC remonte les questions `unites` si erreurs récurrentes sur les 3 dernières sessions · max 1 rédaction et max 1 `long_problem` par session.
 
+### 17.1b Sessions proactives (nouveau v1.4)
+
+> **Principe :** le service n'attend pas qu'un contrôle soit annoncé pour faire réviser. Chaque cours pris génère une boucle de révision immédiate. L'emploi du temps pilote les rappels et les sessions d'anticipation.
+
+**Session soir J0 (`evening_first`)** — Déclenchée le soir même après un upload de cours.
+- Durée cible : 5–10 min.
+- Sélection : 100% items UNKNOWN du chapitre fraîchement capturé.
+- Gabarits limités à difficulté 1 : `FLASH_MCQ`, `DEF_SHORT`, `CLOZE_KEYWORDS`.
+- Objectif : première appropriation, ancrage du vocabulaire et des concepts clés.
+
+**Session veille de cours (`pre_class`)** — Déclenchée la veille au soir de chaque cours d'une matière.
+- Durée cible : 5 min.
+- Scope : **tous les chapitres actifs** de la matière concernée (un contrôle peut couvrir plusieurs leçons).
+- Sélection : items FRAGILE/OK les moins récemment révisés (priorité `last_review_at` le plus ancien), puis items UNKNOWN jamais vus.
+- Gabarits : difficulté 1–2 uniquement (rappel rapide, pas d'exercice long).
+- Justification affichée : « Tu as [Matière] demain — prépare-toi en cas d'interro surprise ».
+
+**Règle de non-doublon :** si une session `daily` est déjà planifiée le même soir, la session `pre_class` fusionne ses items dans la session `daily` (les items pre_class sont ajoutés en priorité dans les 20% consolidation ou les 70% dus).
+
 ### 17.2 Spaced repetition (règles simples)
 
-**Sans contrôle (horizon fixe 14 jours) :**
+**Sans contrôle posé — révision proactive continue :**
+
+> **Changement v1.4 :** l'absence de date de contrôle ne signifie plus « pas de révision ». Le service maintient un cycle de révision continu avec les intervalles standard ci-dessous, renforcé par les sessions `pre_class` la veille de chaque cours (si emploi du temps saisi).
 
 | État | next_due_at |
 |---|---|
@@ -627,18 +702,24 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 | Qualité templates | Taux réussite moyen par template | 30–70% (zone apprentissage) | attempt DB |
 | Parents passif | Taux ouverture digest hebdo | > 40% | email analytics |
 | Parents passif | Taux opt-out alertes | < 5% | settings DB |
+| Proactivité | Taux saisie cours le soir même (après notif) | > 50% | notification DB |
+| Proactivité | Taux complétion session soir J0 | > 60% | session DB |
+| Proactivité | Taux complétion session pre_class | > 40% | session DB |
+| Proactivité | Élèves avec emploi du temps saisi | > 70% | schedule DB |
 | OCR | Confidence moyenne blocs TEXT | > 0.85 | OCR service |
 
 ---
 
-## 20. Questions §16 tranchées (v1.3)
+## 20. Questions §16 tranchées (v1.4)
 
 | Question | Décision | Justification |
 |---|---|---|
-| **Q1 — Date contrôle obligatoire ?** | **Strongly nudged, pas obligatoire.** | La rendre obligatoire crée de la friction à l'onboarding pour les élèves qui ne connaissent pas encore leur date. Le nudge est répété à J+3 et J+7. En l'absence de date, le plan est généré sur un horizon fixe de 14 jours. |
+| **Q1 — Date contrôle obligatoire ?** | **Strongly nudged, pas obligatoire.** | La rendre obligatoire crée de la friction à l'onboarding. Le nudge est répété à J+3 et J+7. **v1.4 :** en l'absence de date, la révision proactive démarre quand même dès J0 soir, avec sessions `pre_class` la veille de chaque cours. L'absence de date ne bloque plus rien. |
 | **Q2 — Suppression photos après extraction ?** | **Suppression automatique à J+30 par défaut, opt-in conservation.** | Réduit l'exposition RGPD sur les données de mineurs. La conservation opt-in est utile pour re-segmentation ou debug. Communiqué clairement à l'onboarding. |
 | **Q3 — Niveau collège ciblé en premier ?** | **4e en priorité.** | La 4e couvre les chapitres pilotes HG (inégalités, féodale) et PC (masse-volume) dans les programmes officiels. Les rubriques de rédaction sont calibrées au niveau 4e. Extension 3e et 5e post-MVP en ajustant les paramètres de rubrique par pack. |
 | **Q4 — Gestion des synonymes ?** | **Pack + admin uniquement en MVP. Pas d'apprentissage progressif.** | L'apprentissage progressif des synonymes introduit un risque de dérive qualité non supervisée. En MVP, l'admin peut enrichir les synonymes par pack après analyse des tentatives. Une roadmap post-MVP inclura la suggestion de synonymes à valider par l'admin. |
+| **Q5 — Emploi du temps : saisie manuelle ou import ENT ?** | **Saisie manuelle uniquement en MVP.** | L'import ENT/Pronote est exclu du MVP car chaque établissement utilise un système différent (Pronote, EcoleDirecte, ENT académique…). La saisie manuelle (matière + jour + matin/après-midi) prend < 3 min et suffit pour déclencher les notifications. Import automatique en roadmap post-MVP. |
+| **Q6 — Un contrôle peut-il couvrir plusieurs chapitres ?** | **Oui, via l'entité Exam.** | Un Exam référence N chapitres. Le contrôle blanc couvre tous les chapitres liés. Cela reflète la réalité des contrôles de fin de séquence au collège. |
 
 ---
 
@@ -653,8 +734,11 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 | Parent incompréhension validation HITL | Moyenne | Moyen | UX simplifiée ≤3 clics, contexte visuel, max 3 validations/semaine |
 | Faux négatifs correction numérique | Moyenne | Élevé | Tolérance ±2%, arrondi intermédiaire autorisé, unité feedback explicite |
 | Complexité 3 matières / 4 chapitres | Faible | Moyen | 1 moteur + packs ; bibliothèque gabarits 100% générique |
+| Fatigue notification / sur-sollicitation | Moyenne | Moyen | Max 2 notifs/soir, désactivation possible, fusion session pre_class+daily |
+| Emploi du temps obsolète / non saisi | Moyenne | Moyen | Mode dégradé sans emploi du temps (sessions standards). Nudge si emploi du temps absent à J+3. Rappel début de trimestre pour mettre à jour. |
+| Exam multi-chapitres : explosion combinatoire items | Faible | Moyen | Contrôle blanc limité à 30 min, sélection représentative par chapitre (proportionnelle au nb d'items) |
 | RGPD mineurs / photos sensibles | Faible | Très élevé | Suppression J+30 par défaut, consent parental, chiffrement repos |
 
 ---
 
-*Fin du document — Révise Mieux PRD v1.3 · 5 mars 2026*
+*Fin du document — Révise Mieux PRD v1.4 · 6 mars 2026*
