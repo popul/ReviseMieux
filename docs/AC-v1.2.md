@@ -1,12 +1,13 @@
-# Acceptance Criteria — Révise Mieux v1.1
+# Acceptance Criteria — Révise Mieux v1.2
 
 > **Annexe PRD v1.4 · Zones à risque vibe coding**
 >
 > | | |
 > |---|---|
-> | **Version** | 1.1 |
-> | **Date** | 6 mars 2026 |
-> | **Périmètre** | 6 zones critiques identifiées — 65 AC en format Given/When/Then |
+> | **Version** | 1.2 |
+> | **Date** | 7 mars 2026 |
+> | **Périmètre** | 6 zones critiques identifiées — 94 AC en format Given/When/Then |
+> | **Évolutions v1.2 vs v1.1** | +8 AC couvrant les angles morts identifiés : retry élève pipeline (Z2), re-vérification fidelity timeout + UX validation + SLA admin + détection précoce (Z3), normalisation ponctuation OCR (Z5), ré-engagement inactivité + alerte exams simultanés (Z6) |
 > | **Usage** | À intégrer comme contexte système avant chaque session de vibe coding, et à transformer en tests unitaires |
 
 ---
@@ -16,12 +17,12 @@
 | # | Zone | Risque | AC count |
 |---|---|---|---|
 | Z1 | Transitions Mastery (états + régressions) | Très élevé | 14 |
-| Z2 | Pipeline J0 — Error paths & timeouts | Très élevé | 10 |
-| Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 17 |
+| Z2 | Pipeline J0 — Error paths & timeouts | Très élevé | 11 |
+| Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 21 |
 | Z4 | Lazy generation — Concurrence & cache | Élevé | 10 |
-| Z5 | ChapterRevision — Identité Item & héritage | Élevé | 8 |
-| Z6 | Emploi du temps, Notifications & Révision proactive | Élevé | 27 |
-| | **Total** | | **86** |
+| Z5 | ChapterRevision — Identité Item & héritage | Élevé | 9 |
+| Z6 | Emploi du temps, Notifications & Révision proactive | Élevé | 29 |
+| | **Total** | | **94** |
 
 ---
 
@@ -265,6 +266,16 @@
 | **WHEN** | Le traitement de la page 1 se termine (OCR + items + tags). |
 | **THEN** | La carte de leçon est mise à jour en temps réel via SSE avec les items de la page 1. L'élève peut interagir avec ces items avant que les pages 2–8 soient traitées. Les pages suivantes s'ajoutent progressivement sans recharger la vue. |
 
+### Z2-AC11 — Relance élève pour pages en échec de génération
+
+| | |
+|---|---|
+| **GIVEN** | Une page du chapitre est en `status = 'items_generation_failed'` (erreur LLM après retries). Le texte OCR brut est conservé. |
+| **WHEN** | L'élève consulte la carte de leçon du chapitre. |
+| **THEN** | Un badge 'Exercices non générés · page X' est affiché avec un bouton 'Réessayer'. Le clic déclenche un nouveau passage par l'étape 7 du pipeline (génération items) en réutilisant le texte OCR en cache. Si le retry réussit, les items sont ajoutés à la carte et le badge disparaît. Si le retry échoue à nouveau, le badge réapparaît avec le message 'Génération toujours indisponible — réessaie plus tard'. Maximum 3 retries manuels par page. Au-delà, seul l'admin peut relancer. |
+
+> **NOTE :** Ce mécanisme complète Z2-AC05 en offrant une action côté élève. L'admin reste le fallback ultime mais l'élève n'est plus bloqué sans recours en cas d'indisponibilité temporaire du LLM.
+
 ---
 
 ## Z3 — Validation HITL — Skip / Ignore behavior
@@ -414,6 +425,46 @@
 | **THEN** | L'item n'est **pas** flaggé `anomaly_flag` car il est en état UNKNOWN (taux d'échec élevé attendu à la première exposition). Aucune `ValidationTask` créée. L'item continue à être proposé normalement pour permettre l'apprentissage. Le job ne considère que les items en état FRAGILE, OK ou SOLID. |
 
 > **NOTE :** Ces 4 mécanismes (vérification croisée, cohérence, feedback élève, détection anomalie) forment une boucle de qualité continue : la vérification croisée et la cohérence agissent en amont (pipeline J0), le feedback élève en temps réel, et la détection par taux d'échec en aval (post-usage). Un item peut cumuler plusieurs flags simultanément.
+
+### Z3-AC18 — Re-vérification fidelity différée (rattrapage timeout)
+
+| | |
+|---|---|
+| **GIVEN** | Un item a `fidelity_score = null` et `fidelity_flag = null` suite à un timeout de l'étape 7b (cf. Z3-AC12). |
+| **WHEN** | Le job quotidien de maintenance qualité s'exécute. |
+| **THEN** | L'item est automatiquement soumis à une nouvelle vérification fidelity (étape 7b). Si le service LLM répond : le `fidelity_score` et `fidelity_flag` sont mis à jour normalement. Si `fidelity_score < 0.5`, l'item passe en `validation_required = true` avec création de ValidationTask (cf. Z3-AC11). Si le timeout se reproduit 3 jours consécutifs, l'item est flaggé `validation_required = true` avec `source = 'fidelity_timeout_persistent'` et restreint aux templates simples. |
+
+> **NOTE :** Ce mécanisme empêche les hallucinations LLM de rester indéfiniment non vérifiées. L'item ne peut pas rester en `fidelity_score = null` plus de 3 jours sans action corrective.
+
+### Z3-AC19 — UX clarification "Ignorer" vs "Je ne sais pas"
+
+| | |
+|---|---|
+| **GIVEN** | L'élève consulte une ValidationTask avec les actions disponibles : 'Confirmer', 'Corriger', 'Je ne sais pas', 'Ignorer'. |
+| **WHEN** | L'écran de validation s'affiche. |
+| **THEN** | Chaque action affiche un sous-texte explicatif permanent (pas un tooltip) : — 'Confirmer' → « C'est correct, je valide » — 'Corriger' → « Je corrige moi-même » — 'Je ne sais pas' → « Mon prof ou un adulte vérifiera » — 'Ignorer' → « Retirer de mes révisions ». Le sous-texte de 'Ignorer' précise en rouge atténué : « Cet élément ne sera plus proposé en exercice tant qu'il n'est pas résolu ». |
+
+> **NOTE :** Ce AC adresse le risque de confusion sémantique entre "Ignorer" et "Je ne sais pas" identifié comme source de perte de confiance. La clarification permanente (pas hover/tooltip) est essentielle pour un public collégien.
+
+### Z3-AC20 — Escalade admin : SLA 7 jours sur ValidationTasks non résolues
+
+| | |
+|---|---|
+| **GIVEN** | Une ValidationTask est en statut `PENDING` ou `DEFERRED_BY_STUDENT` depuis 7 jours. L'item associé a `validation_required = true`. |
+| **WHEN** | Le job quotidien de suivi qualité s'exécute. |
+| **THEN** | La ValidationTask est promue en priorité `CRITICAL`. Une alerte admin est créée dans le backoffice avec le tag `sla_breach`. Si la tâche reste non résolue à J+14, l'item est automatiquement restreint aux templates de type QCM uniquement (`GEN.KNOW.FLASH_MCQ`) et un compteur `unresolved_validation_days` est incrémenté dans le dashboard admin. Le KPI « % ValidationTasks résolues < 7j » est tracké. |
+
+> **NOTE :** Sans SLA, les ValidationTasks admin s'accumulent silencieusement. Ce mécanisme garantit une dégradation progressive plutôt qu'un oubli. Le passage en QCM-only à J+14 protège l'élève d'exercices trompeurs sur des items non vérifiés.
+
+### Z3-AC21 — Détection anomalie précoce sur items validation_required
+
+| | |
+|---|---|
+| **GIVEN** | Un item avec `validation_required = true` (templates restreints) a reçu 3 tentatives, dont 3 échecs (taux = 100%). |
+| **WHEN** | Le job quotidien de détection d'anomalies s'exécute. |
+| **THEN** | L'item est flaggé `anomaly_flag = 'high_failure_rate'` malgré le seuil normal de 5 tentatives (cf. Z3-AC16). Le seuil est abaissé à **3 tentatives** pour les items `validation_required = true` car la probabilité que l'item soit défectueux est plus élevée. La ValidationTask existante est promue en priorité `HIGH` si elle ne l'est pas déjà. |
+
+> **NOTE :** Les items non validés sont plus susceptibles d'être défectueux. Attendre 5 échecs sur un item déjà suspect fait subir à l'élève des échecs évitables qui érodent sa confiance. Ce seuil abaissé ne s'applique qu'aux items `validation_required = true`.
 
 ---
 
@@ -584,6 +635,16 @@
 | **GIVEN** | L'item `IDH` a eu 5 tentatives dans R1 (3 réussites, 2 échecs). Dans R2, l'item est hérité avec state SOLID. |
 | **WHEN** | L'élève consulte l'historique de maîtrise de l'item `IDH`. |
 | **THEN** | L'historique affiche les 5 tentatives de R1 + les nouvelles tentatives de R2. L'interface indique que les tentatives anciennes proviennent d'une révision archivée. Aucune tentative n'est supprimée lors de l'archivage. |
+
+### Z5-AC09 — Normalisation insensible à la ponctuation et aux abréviations
+
+| | |
+|---|---|
+| **GIVEN** | L'item `I.D.H.` existe dans R1 (état OK). Dans R2, l'OCR produit `IDH` (sans points). |
+| **WHEN** | La normalisation de clé d'identité est appliquée (cf. Z5-AC01). |
+| **THEN** | La normalisation supprime les points (`.`), tirets (`-`), barres obliques (`/`), espaces multiples et apostrophes typographiques avant comparaison. `normalized("I.D.H.") == normalized("IDH") == "idh"`. L'héritage Mastery s'applique (cf. Z5-AC02). La liste des caractères supprimés est configurable par pack (pour les cas où le tiret est sémantique, ex. `demi-vie`). |
+
+> **NOTE :** Ce AC complète Z5-AC01 et Z5-AC03 pour couvrir les variations OCR fréquentes sur les sigles et abréviations (IDH/I.D.H., PIB/P.I.B., pH/p.H.). Sans cette normalisation étendue, chaque variation OCR crée un doublon et orpheline le Mastery existant — c'est la source principale de régression silencieuse sur les re-uploads. La configurabilité par pack permet de préserver les cas où la ponctuation est sémantique.
 
 ---
 
@@ -821,8 +882,28 @@
 
 > **NOTE :** Les notifications parent respectent l'autonomie de l'élève. L'objectif est d'informer les parents sans créer une dynamique de surveillance. L'élève ne voit jamais « ton parent a été prévenu ». Le parent ne peut pas agir sur l'emploi du temps de l'élève depuis son compte.
 
+### Z6-AC28 — Ré-engagement progressif après inactivité prolongée (7+ jours)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève n'a eu aucune activité depuis 7 jours consécutifs. Le rappel d'inactivité parent (Z6-AC26) a déjà été envoyé à J+3. |
+| **WHEN** | Le job de ré-engagement s'exécute le matin du 8ème jour. |
+| **THEN** | Une notification unique est envoyée à l'élève : « Tes révisions t'attendent — [N] points à consolider en [matière]. On reprend doucement ? ». La notification inclut un deep link vers une session courte (3–5 min, gabarits faciles, priorité items FRAGILE). Si l'élève ne réagit pas, **aucune relance** supplémentaire n'est envoyée (respect du choix). Le système ne relance qu'au prochain changement de contexte : nouvel Exam créé, nouveau chapitre uploadé, ou début de trimestre. |
+
+> **NOTE :** Ce AC complète Z6-AC26 (alerte parent) et Z6-AC18 (pas de streak) en ajoutant un seul point de contact côté élève. L'approche "1 notification + deep link facile" respecte le principe anti-culpabilisation tout en offrant un chemin de retour à faible friction. Le déclencheur contextuel (exam, upload, trimestre) évite le harcèlement tout en maintenant des occasions naturelles de reprise.
+
+### Z6-AC29 — Alerte dates d'exams simultanées sur même journée
+
+| | |
+|---|---|
+| **GIVEN** | L'élève crée un Exam pour Physique-Chimie le 15 mars. Un Exam pour Maths existe déjà le 15 mars. |
+| **WHEN** | L'élève sauvegarde le nouvel Exam. |
+| **THEN** | Un avertissement non-bloquant est affiché : « Tu as déjà un contrôle de Maths le 15 mars — les deux révisions seront planifiées en parallèle ». L'Exam est créé normalement. Le moteur de planification répartit les sessions de révision en alternant les matières les jours précédant le 15 mars (pas de soirée 100% PC + soirée 100% Maths, mais un mix). Le contrôle blanc multi-exam n'est **pas** fusionné (chaque Exam garde son propre mock_exam). |
+
+> **NOTE :** Sans cette détection, l'élève peut se retrouver avec deux contrôles blancs le même jour sans préparation équilibrée. L'alternance des matières dans les sessions pré-exam est plus efficace pour la mémorisation (interleaving effect) et évite la saturation cognitive sur une seule matière.
+
 ---
 
-> Ces 86 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 94 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
-*Fin du document — Révise Mieux AC v1.1 · 6 mars 2026*
+*Fin du document — Révise Mieux AC v1.2 · 7 mars 2026*

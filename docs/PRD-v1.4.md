@@ -826,6 +826,11 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 | Exam multi-chapitres : explosion combinatoire items | Faible | Moyen | Contrôle blanc limité à 30 min, sélection représentative par chapitre (proportionnelle au nb d'items) |
 | RGPD mineurs / photos sensibles | Faible | Très élevé | Suppression J+30 par défaut, consent parental, chiffrement repos |
 | Session manquée / décrochage silencieux | Moyenne | Moyen | 1 rappel unique le lendemain matin (pas de harcèlement). Items dues re-priorisés automatiquement. Aucune pénalité mastery. KPI « taux complétion » pour détecter les décrochages à l'échelle. |
+| Items `fidelity_score = null` non re-vérifiés | Moyenne | Élevé | Job quotidien de re-vérification fidelity (AC Z3-AC18). Item restreint aux templates simples après 3 jours de timeout persistant. Empêche les hallucinations LLM de rester indéfiniment en usage sans vérification. |
+| ValidationTasks admin non résolues (accumulation silencieuse) | Moyenne | Élevé | SLA 7 jours avec escalade priorité CRITICAL (AC Z3-AC20). Restriction QCM-only à J+14 si non résolu. KPI « % résolution < 7j » trackée en dashboard admin. |
+| Confusion UX "Ignorer" vs "Je ne sais pas" (perte d'items utiles) | Moyenne | Moyen | Sous-textes explicatifs permanents sur chaque action de validation (AC Z3-AC19). Mention explicite de l'impact de "Ignorer" sur le flux pédagogique. |
+| Perte silencieuse Mastery sur re-upload (variations OCR sigles) | Haute | Élevé | Normalisation étendue insensible ponctuation/points/tirets (AC Z5-AC09). Configurable par pack pour cas sémantiques. Couvre I.D.H./IDH, P.I.B./PIB, etc. |
+| Exams simultanés même journée (préparation déséquilibrée) | Faible | Moyen | Avertissement non-bloquant à la création + planification alternée des matières en interleaving (AC Z6-AC29). Mock exams restent séparés. |
 
 ---
 
