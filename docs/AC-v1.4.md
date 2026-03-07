@@ -6,8 +6,8 @@
 > |---|---|
 > | **Version** | 1.4 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 6 zones critiques identifiées — 116 AC en format Given/When/Then |
-> | **Évolutions v1.4 vs v1.3** | +13 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) |
+> | **Périmètre** | 6 zones critiques identifiées — 121 AC en format Given/When/Then |
+> | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) |
 > | **Évolutions v1.3 vs v1.2** | +9 AC anti-désengagement : plafond maîtrise items non validés (Z1), micro-célébrations + débrief session (Z1), retour en douceur après absence + cycle post-exam + rampe diagnostic + digest pré-contrôle + anti alert-fatigue parent (Z6) |
 > | **Évolutions v1.2 vs v1.1** | +8 AC couvrant les angles morts identifiés : retry élève pipeline (Z2), re-vérification fidelity timeout + UX validation + SLA admin + détection précoce (Z3), normalisation ponctuation OCR (Z5), ré-engagement inactivité + alerte exams simultanés (Z6) |
 > | **Usage** | À intégrer comme contexte système avant chaque session de vibe coding, et à transformer en tests unitaires |
@@ -18,13 +18,13 @@
 
 | # | Zone | Risque | AC count |
 |---|---|---|---|
-| Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 19 |
-| Z2 | Pipeline J0 — Error paths, timeouts & RGPD | Très élevé | 12 |
-| Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 21 |
-| Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 14 |
+| Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 20 |
+| Z2 | Pipeline J0 — Error paths, timeouts & RGPD | Très élevé | 13 |
+| Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 23 |
+| Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 15 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 9 |
 | Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 41 |
-| | **Total** | | **116** |
+| | **Total** | | **121** |
 
 ---
 
@@ -228,6 +228,16 @@
 
 > **NOTE :** Le script 3 minutes est le moment où le parent teste activement l'enfant à l'oral. Si le parent pose une question basée sur un item hallucé ou défectueux, et que l'enfant répond correctement selon le cours réel (pas l'item erroné), le parent conclut que l'app est défaillante. C'est un des moments de rupture de confiance les plus forts.
 
+### Z1-AC20 — Modification de la date d'exam → recalcul des intervalles compressés
+
+| | |
+|---|---|
+| **GIVEN** | Un exam « Contrôle HG » est fixé au 20 mars. 12 items du chapitre sont en états variés (3 SOLID, 5 OK, 4 FRAGILE). Les `next_due_at` ont été compressés selon Z1-AC08 (cap = exam_date − 1 jour). L'élève modifie la date d'exam au 27 mars (+7 jours). |
+| **WHEN** | La mise à jour de l'exam est sauvegardée. |
+| **THEN** | Tous les `next_due_at` des items liés à cet exam sont **recalculés** avec la nouvelle `exam_date`. Les intervalles reprennent les valeurs standard (1j/3j/7j) si le nouveau `T` le permet, sinon la compression est recalculée proportionnellement au nouveau `T`. Le recalcul ne touche pas les items dont le `next_due_at` est déjà passé (ils restent dus immédiatement). Si la date est avancée (ex: 20 mars → 15 mars), les intervalles se compriment davantage et un avertissement s'affiche : « Tu as peu de temps — les sessions seront plus fréquentes pour ce chapitre. » Si la date est repoussée, un message positif : « Plus de temps pour bien réviser ! » Le digest parent suivant mentionne le changement de date. |
+
+> **NOTE :** Un contrôle reporté par le prof est un cas fréquent au collège. Si l'élève met à jour la date mais que les intervalles restent compressés sur l'ancienne date, il révisera inutilement de manière intensive pendant 7 jours de plus. Inversement, si le contrôle est avancé et que les intervalles ne se compriment pas, l'élève arrive sous-préparé. Le recalcul automatique maintient la cohérence du plan de révision.
+
 ---
 
 ## Z2 — Pipeline J0 — Error paths & timeouts
@@ -337,6 +347,16 @@
 | **THEN** | Si l'utilisateur n'a PAS opté pour la conservation : les crops d'image sont supprimés en même temps que la photo originale. Les `crop_url` des blocs sont remplacés par `null`. Les `source_image_url` des Documents sont remplacés par `null`. Le texte OCR brut est conservé (il ne contient pas l'image de l'écriture manuscrite). Les ValidationTasks en cours conservent un `crop_snapshot_text` (description textuelle du crop) mais pas l'image. Les gabarits de type `GEN.DOC.IMAGE.*` deviennent inéligibles pour les Documents dont le `source_image_url` est `null` — ces items sont restreints aux gabarits textuels. |
 
 > **NOTE :** Le PRD §20 Q2 mentionne la suppression des « photos originales » à J+30, mais les crops (fragments d'image) et les `source_image_url` des Documents n'avaient pas de politique de rétention explicite. Cela créait un trou RGPD : un parent pensait les photos supprimées alors que des fragments persistaient indéfiniment. Ce AC aligne la rétention des crops sur celle des photos originales.
+
+### Z2-AC13 — Versioning du modèle LLM pour reproductibilité et détection de drift
+
+| | |
+|---|---|
+| **GIVEN** | Le pipeline J0 (segmentation, item generation, fidelity check) et la lazy generation utilisent des appels LLM. Le modèle LLM sous-jacent peut changer (mise à jour provider, bascule de modèle, changement de prompt). |
+| **WHEN** | Un appel LLM est effectué à n'importe quelle étape du pipeline ou de la génération. |
+| **THEN** | Chaque résultat LLM (Item, Question, fidelity_score) est taggé avec `llm_model_version` (identifiant du modèle, e.g. `gpt-4o-2024-08-06`) et `prompt_template_version` (hash ou version sémantique du prompt utilisé). Le champ `llm_model_version` est indexé. Un changement de modèle ou de prompt déclenche une alerte admin `LLM_VERSION_CHANGED`. Un job hebdomadaire compare les métriques qualité (taux fidelity_score < 0.6, taux signalements élève) entre l'ancienne et la nouvelle version. Si le taux de dégradation dépasse 15% sur l'un des indicateurs, l'admin reçoit une alerte `LLM_DRIFT_DETECTED` avec détail comparatif. |
+
+> **NOTE :** Sans versioning LLM, un changement de modèle silencieux (ex. le provider met à jour le modèle derrière la même API) peut dégrader la qualité des items générés sans qu'on puisse identifier la cause. Le versioning permet le diagnostic (« depuis quand les fidelity_score baissent-ils ? ») et le rollback informé. C'est aussi une exigence de traçabilité pour un produit éducatif destiné à des mineurs.
 
 ---
 
@@ -528,6 +548,26 @@
 
 > **NOTE :** Les items non validés sont plus susceptibles d'être défectueux. Attendre 5 échecs sur un item déjà suspect fait subir à l'élève des échecs évitables qui érodent sa confiance. Ce seuil abaissé ne s'applique qu'aux items `validation_required = true`.
 
+### Z3-AC22 — Rétractation d'une validation erronée (parent ou élève)
+
+| | |
+|---|---|
+| **GIVEN** | Un parent (ou un élève) a confirmé un item via Z3-AC02 (confidence boostée à 0.85). Trois jours plus tard, l'élève signale une erreur sur ce même item (Z3-AC15) ou le taux d'échec dépasse le seuil (Z3-AC16/AC21). |
+| **WHEN** | Une nouvelle ValidationTask est créée pour un item déjà `RESOLVED_CONFIRMED`. |
+| **THEN** | L'item repasse en `validation_required = true`. La confidence est ramenée à `min(item.confidence, 0.7)` (annulation du boost). Les gabarits sont re-restreints aux templates simples. La ValidationTask originale est marquée `REOPENED` avec une note « Rouvert suite à [source : signalement élève / anomalie détectée] ». L'admin est notifié avec priorité `HIGH`. Les Mastery updates effectués entre la confirmation et la réouverture ne sont **pas** annulés (pas de rétroactivité). |
+
+> **NOTE :** C'est le filet de sécurité pour les validations erronées. Un parent qui confirme « ρ = m/V » alors que l'OCR a mal lu « ρ = m × V » verrouille une erreur en base. Sans rétractation, l'enfant étudie du contenu faux avec une confidence de 0.85. Le signalement élève (Z3-AC15) ou la détection d'anomalie (Z3-AC16) servent de second regard. La non-rétroactivité des Mastery est un compromis pragmatique : corriger le contenu suffit, recalculer le passé serait trop complexe et déstabilisant.
+
+### Z3-AC23 — Détection de réponses trop rapides (anti-clicking aveugle)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève répond à une question MCQ en moins de **2 secondes** (temps entre affichage de la question et soumission de la réponse). |
+| **WHEN** | La réponse est soumise. |
+| **THEN** | La réponse est **acceptée et corrigée normalement** (pas de blocage UX). Mais elle est marquée `rapid_response = true` dans l'Attempt. Le Mastery state est mis à jour **uniquement si la réponse est incorrecte** (régression appliquée normalement). Si la réponse est correcte : `consecutive_successes` n'est **pas** incrémenté et la transition mastery n'est **pas** appliquée. L'item reste dans l'état actuel et sera re-proposé à la prochaine session. Un compteur `rapid_correct_count` est maintenu par session. Si `rapid_correct_count ≥ 3` dans une même session, un message non-bloquant apparaît : « Prends ton temps pour bien lire les questions — tes réponses rapides ne comptent pas pour ta progression. » |
+
+> **NOTE :** Un élève qui clique random sur des MCQ a 25% de chance de répondre juste (4 options). Sans ce AC, 2 MCQ correctes par chance suffisent pour passer de UNKNOWN à OK (Z1-AC01/AC02). Ce AC neutralise les réponses trop rapides côté progression sans bloquer l'UX (l'élève peut toujours cliquer, mais ça ne "compte" pas positivement). La régression sur réponse incorrecte est maintenue car elle incite à réfléchir plutôt qu'à cliquer au hasard. Le seuil de 2 secondes est calibré sur le temps minimum de lecture d'une question MCQ (titre + 4 options).
+
 ---
 
 ## Z4 — Lazy generation — Concurrence & cache
@@ -661,6 +701,16 @@
 | **THEN** | La session est composée avec **au minimum 4 questions** : chaque item génère au moins 1 question, et l'item le plus fragile en génère 2 (gabarits différents sur le même item). La durée cible est réduite à 3–5 min (au lieu de 10–20 min). Si le pool de gabarits éligibles est épuisé (tous les gabarits déjà utilisés pour ces 3 items), la session utilise des reformulations : même item + même gabarit mais avec des distractors différents (MCQ) ou un ordre de keywords différent (CLOZE). Le message d'introduction adapte les attentes : « Petite session rapide — [N] questions sur ce chapitre ». |
 
 > **NOTE :** Un chapitre avec 3 items est courant (élève qui n'a photographié qu'une seule page, ou cours très court). Sans ce AC, la session serait de 2 questions identiques à la veille — l'élève sent qu'il tourne en rond. La reformulation (distractors différents, ordre différent) crée une illusion de nouveauté tout en testant les mêmes connaissances sous des angles différents.
+
+### Z4-AC15 — Anti-lassitude : renouvellement des questions vues fréquemment
+
+| | |
+|---|---|
+| **GIVEN** | Un item FRAGILE a été présenté 4 fois à l'élève dans les 7 derniers jours. Le pool contient 3 questions pour cet item, toutes déjà vues (identifiées via `question_id` dans les Attempts récents). |
+| **WHEN** | Le moteur de composition sélectionne cet item pour la session suivante. |
+| **THEN** | Le pool vérifie si l'élève a déjà vu toutes les questions disponibles pour cet item au cours des 5 dernières sessions. Si oui, une **régénération ciblée** est déclenchée pour cet item uniquement : le LLM génère 1–2 nouvelles questions avec des gabarits ou des angles différents (distractors variés, reformulation de la consigne). Les anciennes questions restent dans le pool (elles redeviennent éligibles après 14 jours sans vue). La régénération est **lazy** et non bloquante : si le LLM est indisponible, une question déjà vue est réutilisée plutôt que de bloquer la session. Un compteur `times_seen` est maintenu par `(user_id, question_id)` pour informer l'algorithme de sélection (préférence aux questions les moins vues). |
+
+> **NOTE :** Un item FRAGILE en spaced repetition est revu toutes les 24h. Avec un pool de 3 questions, l'élève voit la même MCQ au bout de 3 jours. Au 7ème jour, il reconnaît la question et la réponse par mémoire photographique — il ne révise plus le concept, il reconnaît le pattern visuel. C'est une forme de mastery inflation silencieuse. Le renouvellement ciblé force le cerveau à réengager avec le concept sous un angle neuf.
 
 ---
 
@@ -1094,8 +1144,38 @@
 
 > **NOTE :** Les labels internes (UNKNOWN, FRAGILE, OK, SOLID) sont du jargon développeur. Un parent qui voit « 3 items FRAGILE » peut paniquer (« fragile = mauvais ») alors que ça signifie « en cours d'apprentissage, normal après 1 session ». La traduction en langage naturel et l'explication au premier affichage éliminent cette source de confusion.
 
+### Z6-AC39 — Vue progression globale cross-chapitres
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a 3 chapitres actifs (HG-INEG avec 12 items, HG-FEOD avec 8 items, PC-TRANSF avec 15 items). Les états de maîtrise sont variés (mix UNKNOWN/FRAGILE/OK/SOLID). |
+| **WHEN** | L'élève accède à son tableau de bord principal. |
+| **THEN** | Un indicateur de progression globale est affiché : **% maîtrise global** = nombre d'items OK+SOLID / nombre total d'items actifs (non archivés). Chaque chapitre est listé avec sa propre barre de progression visuelle (proportionnelle au nombre d'items). Les chapitres avec un exam à venir dans les 7 jours sont marqués visuellement (badge ou couleur). Un message d'encouragement contextuel est affiché basé sur la tendance (ex: « +12% cette semaine, continue ! » ou « Tu reprends bien après ta pause »). Les items avec `validation_required = true` sont comptés dans le total mais marqués visuellement comme « en vérification ». |
+
+> **NOTE :** Un élève de 13 ans a besoin de voir sa progression globale, pas juste chapitre par chapitre. Sans cet indicateur, l'élève qui a 3 chapitres en cours ne perçoit pas qu'il progresse (« j'ai SOLID sur 2 trucs en HG mais je sais pas où j'en suis au total »). La barre de progression visuelle + le message contextuel exploitent le biais d'engagement de la progression : un % qui monte motive à continuer.
+
+### Z6-AC40 — Suppression (archivage) d'un chapitre par l'élève
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a un chapitre 'La société féodale' avec 8 items (3 SOLID, 3 OK, 2 FRAGILE) et un exam passé le 3 mars (status = `past`). |
+| **WHEN** | L'élève demande à « supprimer » ce chapitre. |
+| **THEN** | Le chapitre passe en `archived = true` (soft delete, jamais de suppression physique). Tous les items associés passent en `archived = true`. Les sessions en cours incluant ce chapitre sont recalculées sans ses items (les questions déjà répondues sont conservées). Le chapitre n'apparaît plus dans le tableau de bord ni dans la composition de sessions. L'historique de maîtrise et les Attempts sont conservés (consultables dans un onglet « Archives »). Les exams liés au chapitre ne déclenchent plus de notifications. Une confirmation est demandée avant l'archivage : « Tu veux archiver ce chapitre ? Tes progrès seront conservés et tu pourras le réactiver plus tard. » Le parent est informé dans le prochain digest (« Chapitre archivé : La société féodale »). |
+
+> **NOTE :** Après un contrôle, l'élève veut « faire le ménage ». Sans mécanisme de suppression, les vieux chapitres encombrent le dashboard et continuent d'injecter des items dans les sessions (même post-exam via Z6-AC31, les items ne disparaissent pas tous). Le soft delete (archivage) est préférable à une suppression physique : l'élève peut réactiver en cas d'erreur, et les données de maîtrise sont préservées pour les analytics parent.
+
+### Z6-AC41 — Résilience réseau : persistance optimiste des réponses en session
+
+| | |
+|---|---|
+| **GIVEN** | L'élève est en session et répond à une question. La connexion réseau est instable ou momentanément perdue. |
+| **WHEN** | La réponse est soumise par le client. |
+| **THEN** | La réponse est immédiatement persistée localement (storage client) avec un statut `pending_sync`. Le feedback de correction est affiché instantanément (calcul client pour MCQ/NUMERIC, grading local basé sur `expected_answer`). La session continue sans attendre la confirmation serveur. Un indicateur discret « synchronisation en cours… » est visible si la connexion est perdue. Dès que la connexion revient, les Attempts `pending_sync` sont envoyés au serveur en FIFO. En cas de conflit (Attempt déjà existant côté serveur pour la même question), le client gagne (last-write-wins sur le même `question_id + user_id`). Si la synchronisation échoue après 3 retries espacés (5s, 15s, 45s), l'Attempt reste `pending_sync` et un message s'affiche : « Certaines réponses n'ont pas pu être enregistrées. Elles seront synchronisées à la prochaine connexion. » Les Mastery updates côté serveur sont appliqués **uniquement** à la réception des Attempts synchronisés (pas de mise à jour optimiste du mastery, seul le feedback est optimiste). |
+
+> **NOTE :** Un collégien utilise l'app en transport en commun, dans sa chambre avec du wifi instable, ou en zone blanche. Sans persistance optimiste, une déconnexion de 10 secondes = réponse perdue + l'élève doit recommencer = frustration maximale → fermeture de l'app. Le feedback optimiste local permet une UX fluide. Le mastery serveur reste cohérent car il n'est mis à jour qu'à la synchro confirmée.
+
 ---
 
-> Ces 116 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 121 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
 *Fin du document — Révise Mieux AC v1.4 · 7 mars 2026*

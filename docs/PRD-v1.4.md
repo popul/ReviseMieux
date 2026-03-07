@@ -647,18 +647,18 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 | **ScheduleSlot** | `id` · `user_id` · `subject` · `day_of_week (1–7)` · `period (morning\|afternoon)` · `created_at` |
 | **ScheduleException** | `id` · `user_id` · `subject` · `original_date` · `type (cancelled\|moved)` · `moved_to_date?` · `moved_to_period?` · `created_at` |
 | **Exam** | `id` · `user_id` · `name?` · `exam_date` · `chapter_ids[]` · `status (active\|past)` · `created_at` |
-| **Chapter** | `id` · `subject` · `class_level` · `name` · `exam_id?` · `pack_id` · `current_revision_id` |
+| **Chapter** | `id` · `subject` · `class_level` · `name` · `exam_id?` · `pack_id` · `current_revision_id` · `archived? (boolean, default false)` |
 | **ChapterRevision** | `id` · `chapter_id` · `revision_number` · `created_at` · `pages[]` · `status` |
 | **Page** | `id` · `revision_id` · `photo_url` · `order` · `ocr_status` |
 | **Block** | `id` · `page_id` · `type (TEXT\|PHOTO\|SCHEMA\|MAP\|GRAPH\|TABLE\|CIRCUIT)` · `crop` · `confidence` · `ocr_text?` |
 | **Document** | `id` · `chapter_id` · `type` · `tags[]` · `blocks[]` · `source_image_url?` |
-| **Item** | `id` · `chapter_id` · `revision_id` · `type (KNOWLEDGE\|PROCEDURE\|DOCUMENT\|WRITING)` · `term?` · `keywords[]?` · `steps[]?` · `linked_doc_id?` · `tags[]` · `confidence` · `validation_required` · `archived` · `fidelity_score?` · `fidelity_flag? (low\|medium\|null)` · `coherence_flag? (contradiction\|orphan_reference\|null)` · `anomaly_flag? (high_failure_rate\|null)` |
+| **Item** | `id` · `chapter_id` · `revision_id` · `type (KNOWLEDGE\|PROCEDURE\|DOCUMENT\|WRITING)` · `term?` · `keywords[]?` · `steps[]?` · `linked_doc_id?` · `tags[]` · `confidence` · `validation_required` · `archived` · `fidelity_score?` · `fidelity_flag? (low\|medium\|null)` · `coherence_flag? (contradiction\|orphan_reference\|null)` · `anomaly_flag? (high_failure_rate\|null)` · `llm_model_version?` · `prompt_template_version?` |
 | **ValidationTask** | `id` · `item_id` · `crop_url` · `suggestion` · `priority` · `status` · `resolved_by?` · `source (uncertainty_detection\|student_report\|anomaly_detection\|coherence_check\|fidelity_check)` · `student_note?` |
 | **Template** | `id (template_id)` · `name` · `version` · `question_type` · `difficulty` · `eligibility{}` · `variables[]` · `prompt_template` · `grading{}` |
-| **Question** | `id` · `template_id` · `item_id` · `rendered_prompt` · `expected_answer{}` · `grading_policy` |
-| **Attempt** | `id` · `question_id` · `user_id` · `answer` · `score` · `feedback` · `created_at` |
+| **Question** | `id` · `template_id` · `item_id` · `rendered_prompt` · `expected_answer{}` · `grading_policy` · `llm_model_version?` · `prompt_template_version?` |
+| **Attempt** | `id` · `question_id` · `user_id` · `answer` · `score` · `feedback` · `created_at` · `rapid_response? (boolean, default false)` · `response_time_ms?` |
 | **Mastery** | `id` · `user_id` · `item_id` · `state (UNKNOWN\|FRAGILE\|OK\|SOLID)` · `next_due_at` · `last_review_at` · `consecutive_successes` |
-| **Session** | `id` · `user_id` · `chapter_ids[]` · `type (daily\|diagnostic\|mock_exam\|evening_first\|pre_class)` · `trigger (manual\|scheduled\|notification)` · `questions[]` · `started_at` · `completed_at?` |
+| **Session** | `id` · `user_id` · `chapter_ids[]` · `type (daily\|diagnostic\|mock_exam\|evening_first\|pre_class)` · `trigger (manual\|scheduled\|notification)` · `questions[]` · `started_at` · `completed_at?` · `current_question_index (default 0)` · `includes_pre_class? (boolean)` |
 | **Notification** | `id` · `user_id` · `type (capture_reminder\|review_reminder\|pre_class\|missed_session_reminder\|parent_schedule_change\|parent_missed_session\|parent_inactivity)` · `subject` · `scheduled_at` · `sent_at?` · `clicked_at?` · `source_session_id?` · `linked_student_id?` |
 | **ParentNotificationPref** | `id` · `parent_user_id` · `schedule_change_enabled (default true)` · `missed_session_enabled (default true)` · `inactivity_enabled (default true)` · `inactivity_threshold_days (default 3)` |
 
@@ -856,6 +856,14 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 | Feedback « Faux » sans explication → pas d'apprentissage | Haute | Élevé | Feedback structuré obligatoire : réponse correcte + ce qui manquait + indice 1 phrase. Templaté, pas LLM live (AC Z4-AC12). |
 | Élève bloqué sans pouvoir passer → frustration → fermeture app | Moyenne | Élevé | Bouton « Passer » sans pénalité mastery, max 2/session, question remise en fin de session (AC Z4-AC13). |
 | Petit chapitre (3 items) = session non viable | Moyenne | Moyen | Session minimum 4 questions, reformulation avec distractors/ordres différents, durée adaptée 3-5 min (AC Z4-AC14). |
+| **Validation erronée verrouillée en base (parent confirme un item OCR faux)** | **Moyenne** | **Très élevé** | Rétractation possible via signalement élève ou détection anomalie (AC Z3-AC22). Confidence ramenée à ≤0.7, item re-restreint aux templates simples, admin notifié priorité HIGH. Non-rétroactivité mastery (pragmatisme). |
+| **Clicking aveugle MCQ → progression artificielle** | **Haute** | **Élevé** | Réponse < 2s marquée `rapid_response`, progression bloquée si correcte, régression maintenue si incorrecte (AC Z3-AC23). Message non-bloquant après 3 réponses rapides/session. Seuil 2s calibré sur temps lecture minimum MCQ. |
+| **Drift LLM silencieux → dégradation qualité items sans diagnostic** | **Moyenne** | **Élevé** | Versioning modèle + prompt sur chaque résultat LLM (AC Z2-AC13). Job hebdomadaire de comparaison qualité entre versions. Alerte admin si dégradation > 15%. Traçabilité complète pour rollback informé. |
+| **Pas de vision globale progression → l'élève ne perçoit pas ses progrès** | **Haute** | **Élevé** | % maîtrise global cross-chapitres sur dashboard (AC Z6-AC39). Barre de progression par chapitre + message d'encouragement contextuel basé sur tendance hebdo. |
+| **Vieux chapitres encombrent le dashboard et les sessions** | **Moyenne** | **Moyen** | Archivage (soft delete) de chapitre à la demande de l'élève (AC Z6-AC40). Données de maîtrise conservées, sessions recalculées, réactivation possible. Parent informé dans digest. |
+| **Perte de connexion mid-session → réponses perdues → frustration** | **Haute** | **Très élevé** | Persistance optimiste côté client avec sync FIFO (AC Z6-AC41). Feedback correction instantané (calcul local MCQ/NUMERIC). Mastery mis à jour uniquement après sync confirmée. Retry exponentiel (5s/15s/45s). |
+| **Date d'exam modifiée → intervalles de révision incohérents** | **Haute** | **Élevé** | Recalcul automatique des `next_due_at` compressés sur modification de `exam_date` (AC Z1-AC20). Message contextuel adapté (avancé vs repoussé). Parent informé dans digest. |
+| **Mêmes questions vues en boucle → apprentissage de surface par reconnaissance** | **Haute** | **Élevé** | Régénération ciblée des questions vues > 5 sessions (AC Z4-AC15). Compteur `times_seen` pour prioriser les questions les moins vues. Renouvellement lazy non-bloquant. |
 
 ---
 
