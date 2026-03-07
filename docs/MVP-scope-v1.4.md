@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Version** | 1.4 |
+| **Version** | 1.4.1 |
 | **Date** | 7 mars 2026 |
-| **Total ACs** | 130 (6 zones) |
+| **Total ACs** | 135 (6 zones) |
 
 ---
 
@@ -66,6 +66,7 @@
 | Z2-AC11 | Retry élève pour pages en échec de génération | MVP Hardening |
 | Z2-AC12 | Rétention crops alignée RGPD (J+30) | MVP Core |
 | Z2-AC13 | Versioning modèle LLM pour reproductibilité | **MVP Core** |
+| Z2-AC14 | Pipeline incrémental pour ajout de pages | **MVP Core** |
 
 > **Note :** Z2-AC13 reclassifié Post-MVP → MVP Core. Pour un produit éducatif destiné à des mineurs, la traçabilité des modèles LLM utilisés est une exigence de qualité et de conformité dès le lancement. Sans versioning, un changement de modèle silencieux peut dégrader la qualité des items sans diagnostic possible.
 
@@ -142,6 +143,8 @@
 | Z5-AC08 | Historique maîtrise préservé entre révisions | MVP Hardening |
 | Z5-AC09 | Normalisation insensible ponctuation (I.D.H. = IDH) | MVP Core |
 | Z5-AC10 | Alerte items haute maîtrise absents de la nouvelle révision | MVP Hardening |
+| Z5-AC11 | Ajout incrémental de pages sans nouvelle révision | **MVP Core** |
+| Z5-AC12 | Pas de re-OCR des pages existantes lors d'un ajout | **MVP Core** |
 
 ---
 
@@ -191,6 +194,8 @@
 | Z6-AC40 | Archivage de chapitre (soft delete) par l'élève | Post-MVP |
 | Z6-AC41 | Résilience réseau : persistance optimiste des réponses | MVP Hardening |
 | Z6-AC42 | Multi-exam par chapitre + resserrement exam le plus proche | MVP Core |
+| Z6-AC43 | Session evening_first incrémentale après ajout de pages | **MVP Core** |
+| Z6-AC44 | Dashboard : explication dilution maîtrise après ajout pages | **MVP Core** |
 
 ---
 
@@ -198,10 +203,10 @@
 
 | Classification | Z1 | Z2 | Z3 | Z4 | Z5 | Z6 | **Total** |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **MVP Core** | 16 | 12 | 12 | 8 | 8 | 20 | **76** |
+| **MVP Core** | 16 | 13 | 12 | 8 | 10 | 22 | **81** |
 | **MVP Hardening** | 5 | 1 | 8 | 7 | 2 | 16 | **39** |
 | **Post-MVP** | 1 | 0 | 5 | 3 | 0 | 6 | **15** |
-| **Total** | 22 | 13 | 25 | 18 | 10 | 42 | **130** |
+| **Total** | 22 | 14 | 25 | 18 | 12 | 44 | **135** |
 
 ### Changements par rapport à l'analyse initiale
 
@@ -209,3 +214,8 @@
 |---|---|---|---|
 | Z1-AC21 | Post-MVP | **MVP Core** | Anti-frustration indispensable pour le public 11-15 ans : sans descente de difficulté, le cycle d'échec répété provoque l'abandon dès la semaine 1. |
 | Z2-AC13 | Post-MVP | **MVP Core** | Traçabilité LLM nécessaire dès le lancement pour un produit éducatif destiné à des mineurs : diagnostic de drift et rollback informé. |
+| Z2-AC14 | *Nouveau* | **MVP Core** | Pipeline incrémental : pendant technique de Z5-AC11, sans lui ajouter 3 pages relance le pipeline complet sur toutes les pages. |
+| Z5-AC11 | *Nouveau* | **MVP Core** | Ajout de pages sans nouvelle révision : cas d'usage #1 en fréquence pour un collégien (cours 2-3x/semaine). |
+| Z5-AC12 | *Nouveau* | **MVP Core** | Pas de re-OCR des pages existantes : élimine le risque de drift OCR et de régression silencieuse de maîtrise. |
+| Z6-AC43 | *Nouveau* | **MVP Core** | Session evening_first incrémentale : premier contact ciblé avec les nouveaux items uniquement. |
+| Z6-AC44 | *Nouveau* | **MVP Core** | Explication dilution dashboard : sans elle, baisse de % anxiogène pour élève et parent. |

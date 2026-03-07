@@ -6,7 +6,8 @@
 > |---|---|
 > | **Version** | 1.4 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 6 zones critiques identifiées — 130 AC en format Given/When/Then |
+> | **Périmètre** | 6 zones critiques identifiées — 135 AC en format Given/When/Then |
+> | **Évolutions v1.4.1 vs v1.4** | +5 AC upload incrémental : ajout de pages sans nouvelle révision (Z5-AC11), pas de re-OCR des pages existantes (Z5-AC12), pipeline incrémental (Z2-AC14), session evening_first incrémentale (Z6-AC43), explication dilution maîtrise dashboard (Z6-AC44) |
 > | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) + anti-frustration élève (feedback explicatif blocage 24h Z1, descente difficulté échecs répétés Z1, fallback LLM indisponible Z4, récupération items ignorés Z3) + anti-silent-failures (anti-starvation items UNKNOWN Z1, garde-fou template/type Z3, invalidation cache exam Z4) + correctifs modèle (session all-SOLID Z4, alerte items perdus re-upload Z5, multi-exam par chapitre Z6, fix Chapter.exam_ids[] pluriel) |
 > | **Évolutions v1.3 vs v1.2** | +9 AC anti-désengagement : plafond maîtrise items non validés (Z1), micro-célébrations + débrief session (Z1), retour en douceur après absence + cycle post-exam + rampe diagnostic + digest pré-contrôle + anti alert-fatigue parent (Z6) |
 > | **Évolutions v1.2 vs v1.1** | +8 AC couvrant les angles morts identifiés : retry élève pipeline (Z2), re-vérification fidelity timeout + UX validation + SLA admin + détection précoce (Z3), normalisation ponctuation OCR (Z5), ré-engagement inactivité + alerte exams simultanés (Z6) |
@@ -19,12 +20,12 @@
 | # | Zone | Risque | AC count |
 |---|---|---|---|
 | Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 22 |
-| Z2 | Pipeline J0 — Error paths, timeouts & RGPD | Très élevé | 13 |
+| Z2 | Pipeline J0 — Error paths, timeouts & RGPD | Très élevé | 14 |
 | Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 25 |
 | Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 18 |
-| Z5 | ChapterRevision — Identité Item & héritage | Élevé | 10 |
-| Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 42 |
-| | **Total** | | **130** |
+| Z5 | ChapterRevision — Identité Item & héritage | Élevé | 12 |
+| Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 44 |
+| | **Total** | | **135** |
 
 ---
 
@@ -377,6 +378,16 @@
 | **THEN** | Chaque résultat LLM (Item, Question, fidelity_score) est taggé avec `llm_model_version` (identifiant du modèle, e.g. `gpt-4o-2024-08-06`) et `prompt_template_version` (hash ou version sémantique du prompt utilisé). Le champ `llm_model_version` est indexé. Un changement de modèle ou de prompt déclenche une alerte admin `LLM_VERSION_CHANGED`. Un job hebdomadaire compare les métriques qualité (taux fidelity_score < 0.6, taux signalements élève) entre l'ancienne et la nouvelle version. Si le taux de dégradation dépasse 15% sur l'un des indicateurs, l'admin reçoit une alerte `LLM_DRIFT_DETECTED` avec détail comparatif. |
 
 > **NOTE :** Sans versioning LLM, un changement de modèle silencieux (ex. le provider met à jour le modèle derrière la même API) peut dégrader la qualité des items générés sans qu'on puisse identifier la cause. Le versioning permet le diagnostic (« depuis quand les fidelity_score baissent-ils ? ») et le rollback informé. C'est aussi une exigence de traçabilité pour un produit éducatif destiné à des mineurs.
+
+### Z2-AC14 — Pipeline incrémental pour ajout de pages (pas de re-traitement des pages existantes)
+
+| | |
+|---|---|
+| **GIVEN** | Le chapitre « Mouvement et vitesse » a 3 pages existantes (pipeline déjà terminé, 8 items générés). L'élève ajoute les pages 4-6 via « Ajouter des pages » (Z5-AC11). |
+| **WHEN** | Le pipeline J0 se déclenche pour les pages ajoutées. |
+| **THEN** | Le pipeline s'exécute **uniquement** sur les pages 4-6. Les étapes sont : (1) segmentation des pages 4-6 en blocs, (2) OCR des blocs textuels, (3) génération d'items à partir des blocs, (4) fidelity check des nouveaux items, (5) cohérence cross-page : les nouveaux items sont comparés aux items **existants** du chapitre pour détecter doublons (similarité cosinus keywords > 0.9) et contradictions — mais les items existants ne sont **pas** comparés entre eux (déjà fait lors du pipeline initial). Le statut du pipeline au niveau chapitre passe à `processing_incremental` (distinct de `processing` pour un pipeline complet). En cas d'échec sur une page ajoutée, le retry élève Z2-AC11 est disponible. Un échec sur les pages 4-6 n'affecte pas les items des pages 1-3. Les pages ajoutées héritent de `revision_id = R1` (pas de nouvelle révision). L'idempotence Z2-AC06 s'applique : si le pipeline incrémental est interrompu et relancé, aucun doublon n'est créé. |
+
+> **NOTE :** Le pipeline incrémental est le pendant technique de Z5-AC11 (ajout de pages). Sans lui, ajouter 3 pages à un chapitre de 10 pages relancerait le pipeline complet sur 13 pages — coût OCR x4, latence x4, et risque de drift OCR sur les pages existantes. Le statut `processing_incremental` permet à l'UI d'afficher « Ajout de 3 pages en cours… » plutôt que « Traitement du chapitre… » (qui inquiéterait l'élève sur ses données existantes).
 
 ---
 
@@ -878,6 +889,26 @@
 
 > **NOTE :** Un re-upload qui fait disparaître silencieusement des items SOLID est une régression invisible. L'élève qui a travaillé pendant 2 semaines pour amener « chloroplaste » à SOLID ne doit pas découvrir sa disparition par hasard. L'alerte explicite transforme un échec silencieux en action corrective (re-upload de la page manquante). Le délai de 14 jours avant archivage définitif laisse le temps de réagir.
 
+### Z5-AC11 — Ajout incrémental de pages à un chapitre existant (sans nouvelle révision)
+
+| | |
+|---|---|
+| **GIVEN** | Le chapitre « Mouvement et vitesse » existe avec une révision R1 contenant les pages 1-3 (uploadées lundi soir). L'élève a cours de physique mercredi. Mercredi soir, il photographie les pages 4-6 (suite du chapitre). |
+| **WHEN** | L'élève utilise l'action « Ajouter des pages » sur un chapitre existant (distinct de « Re-uploader »). |
+| **THEN** | Les pages 4-6 sont **ajoutées** à la révision courante R1 (les champs `Page.order` sont incrémentés : 4, 5, 6). **Aucune nouvelle ChapterRevision n'est créée.** Les pages 1-3 ne sont pas re-traitées : leurs résultats OCR, items, et mastery restent intacts. Seules les pages 4-6 entrent dans le pipeline J0 (segmentation → OCR → items → fidelity check). Les nouveaux items sont créés en état UNKNOWN avec `revision_id = R1`. L'étape de cohérence 7c compare les nouveaux items aux items existants (détection doublons/contradictions cross-pages) mais ne re-vérifie pas les items existants entre eux. La carte de leçon est mise à jour pour inclure les nouvelles pages (streaming, Z2-AC10). La file de validation (Z2-AC09) est recalculée sur l'ensemble des items du chapitre (existants + nouveaux) mais les items déjà validés ne repassent pas en validation. |
+
+> **NOTE :** C'est le cas d'usage #1 en fréquence pour un collégien : un cours se déroule sur 2-3 séances par semaine, et l'élève photographie ses notes au fur et à mesure. Forcer un re-upload complet (nouvelle ChapterRevision) pour ajouter 3 pages crée un risque de perte de maîtrise par drift OCR sur les pages existantes, une latence inutile (re-OCR de pages déjà traitées), et une UX confuse (alertes Z5-AC10 sur des items « disparus » qui sont en fait sur les anciennes pages non re-uploadées). L'action « Ajouter des pages » est la voie par défaut ; « Re-uploader » est réservé aux corrections (photo floue, restructuration).
+
+### Z5-AC12 — Pas de re-OCR des pages existantes lors d'un ajout incrémental
+
+| | |
+|---|---|
+| **GIVEN** | Le chapitre a 3 pages existantes (pages 1-3) avec des résultats OCR stables et 8 items dont 4 en état OK ou SOLID. L'élève ajoute les pages 4-6 via « Ajouter des pages ». |
+| **WHEN** | Le pipeline J0 s'exécute pour les nouvelles pages. |
+| **THEN** | Les résultats OCR des pages 1-3 sont **conservés tels quels** — aucune ré-extraction, aucune invalidation de cache OCR pour ces pages. Les items issus des pages 1-3 ne sont pas recalculés, pas re-matchés, pas soumis à un nouveau fidelity check. Leurs `Mastery` (states, `consecutive_successes`, `next_due_at`) restent inchangés. Le cache de questions (`QuestionCandidate`) des items existants reste valide. Seul le cache au niveau « session composition » est invalidé (pour intégrer les nouveaux items UNKNOWN dans le pool de sélection). Le hash OCR (Z4-AC09) n'est calculé que pour les pages 4-6. |
+
+> **NOTE :** Le principal risque de l'ancien modèle (re-upload complet) était le drift OCR : l'écriture manuscrite d'un collégien produit des variations subtiles à chaque extraction (« PIB/hab. » vs « PIB / hab. » vs « PIB/habitant »). Même avec la normalisation Z5-AC03/AC09, le re-OCR d'une page déjà stable introduit un risque de perte de correspondance et donc de régression silencieuse de maîtrise. En sanctuarisant les pages existantes, ce risque est éliminé.
+
 ---
 
 ## Z6 — Emploi du temps, Notifications & Révision proactive
@@ -1264,8 +1295,28 @@
 
 > **NOTE :** Le modèle initial avait `Chapter.exam_id` (singulier) — un chapitre ne pouvait référencer qu'un seul exam. Or au collège, un chapitre peut être interrogé en interro de chapitre PUIS en contrôle de séquence/brevet blanc. Sans le pluriel, l'élève devait choisir quel exam lier, et le resserrement ne fonctionnait que pour un seul. La bascule automatique entre exams évite une rupture de révision entre l'interro et le contrôle de séquence.
 
+### Z6-AC43 — Session evening_first incrémentale après ajout de pages
+
+| | |
+|---|---|
+| **GIVEN** | Le chapitre « Mouvement et vitesse » existe depuis lundi avec 8 items (4 FRAGILE, 4 OK). Mercredi soir, l'élève ajoute les pages 4-6 (Z5-AC11). Le pipeline incrémental (Z2-AC14) génère 6 nouveaux items en état UNKNOWN. Le chapitre a maintenant 14 items au total (4 FRAGILE + 4 OK + 6 UNKNOWN). |
+| **WHEN** | Le pipeline incrémental se termine avec ≥ 1 nouvel item valide. |
+| **THEN** | Une session de type `evening_first_incremental` est proposée (pas lancée de force). La session contient **uniquement les nouveaux items UNKNOWN** issus des pages ajoutées (pas les items FRAGILE/OK existants — ceux-ci seront couverts par la session daily normale). Les gabarits sont limités à la difficulté 1 (identique à Z6-AC06 : `GEN.KNOW.FLASH_MCQ`, `GEN.KNOW.DEF_SHORT`, `GEN.KNOW.CLOZE_KEYWORDS`). Durée cible : proportionnelle au nombre de nouveaux items (3-5 min pour 6 items). Si l'élève a déjà une session daily composée pour la soirée, la session `evening_first_incremental` est **fusionnée** dans la daily : les nouveaux items UNKNOWN sont insérés dans le bucket 20% (nouveaux) de la politique 70/20/10 (Z6-AC08 étendu). Le message de notification est contextualisé : « 6 nouveaux points ajoutés à Mouvement et vitesse — révise-les ce soir ! » (et non « Nouveau chapitre uploadé »). |
+
+> **NOTE :** La session evening_first standard (Z6-AC05/06) est conçue pour un chapitre fraîchement uploadé où tous les items sont UNKNOWN. Dans le cas incrémental, proposer une evening_first « classique » incluant les items existants FRAGILE/OK briserait la logique 70/20/10 et re-proposerait des items déjà vus avec des gabarits trop simples. La session incrémentale cible uniquement le contenu frais pour le premier contact, puis laisse la session daily intégrer les nouveaux items dans le flux normal dès le lendemain.
+
+### Z6-AC44 — Dashboard : explication de dilution de maîtrise après ajout de pages
+
+| | |
+|---|---|
+| **GIVEN** | Le chapitre « Mouvement et vitesse » avait 8 items (4 OK + 4 SOLID = 100% maîtrise affichée). L'élève ajoute les pages 4-6 et le pipeline génère 6 nouveaux items UNKNOWN. La maîtrise affichée passe à 8/14 = 57%. |
+| **WHEN** | L'élève consulte son dashboard ou la vue chapitre après l'ajout de pages. |
+| **THEN** | Un message contextuel s'affiche au-dessus de la barre de progression du chapitre : « +6 nouveaux points ajoutés — ta maîtrise va remonter au fil des révisions. » Le message est accompagné d'une micro-animation (apparition des 6 nouveaux points en état UNKNOWN dans la barre de progression, visuellement distincts des points existants). Le message disparaît après 72h ou après que l'élève a répondu à au moins une question sur un des nouveaux items (premier contact effectué). La vue progression globale (Z6-AC39) affiche une annotation similaire au niveau matière si la maîtrise globale a baissé de > 10 points de pourcentage suite à l'ajout. Le digest parent (Z6-AC35) mentionne l'ajout de pages dans la section « Activité de la semaine » : « [N] nouveaux points ajoutés à [chapitre] le [date]. » |
+
+> **NOTE :** Sans cette explication, la baisse brutale de pourcentage est anxiogène pour l'élève (« j'ai régressé ? ») et le parent (« il ne révise plus ? »). La dilution de maîtrise est un artefact arithmétique normal — de nouveaux points UNKNOWN font baisser la moyenne — mais elle ressemble visuellement à une régression. Le message contextuel transforme une surprise négative en confirmation positive (« tu as ajouté du contenu, bravo »).
+
 ---
 
-> Ces 130 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 135 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
-*Fin du document — Révise Mieux AC v1.4 · 7 mars 2026*
+*Fin du document — Révise Mieux AC v1.4.1 · 7 mars 2026*
