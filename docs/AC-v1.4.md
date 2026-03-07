@@ -6,8 +6,8 @@
 > |---|---|
 > | **Version** | 1.4 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 6 zones critiques identifiées — 124 AC en format Given/When/Then |
-> | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) + anti-frustration élève (feedback explicatif blocage 24h Z1, descente difficulté échecs répétés Z1, fallback LLM indisponible Z4, récupération items ignorés Z3) |
+> | **Périmètre** | 6 zones critiques identifiées — 127 AC en format Given/When/Then |
+> | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) + anti-frustration élève (feedback explicatif blocage 24h Z1, descente difficulté échecs répétés Z1, fallback LLM indisponible Z4, récupération items ignorés Z3) + anti-silent-failures (anti-starvation items UNKNOWN Z1, garde-fou template/type Z3, invalidation cache exam Z4) |
 > | **Évolutions v1.3 vs v1.2** | +9 AC anti-désengagement : plafond maîtrise items non validés (Z1), micro-célébrations + débrief session (Z1), retour en douceur après absence + cycle post-exam + rampe diagnostic + digest pré-contrôle + anti alert-fatigue parent (Z6) |
 > | **Évolutions v1.2 vs v1.1** | +8 AC couvrant les angles morts identifiés : retry élève pipeline (Z2), re-vérification fidelity timeout + UX validation + SLA admin + détection précoce (Z3), normalisation ponctuation OCR (Z5), ré-engagement inactivité + alerte exams simultanés (Z6) |
 > | **Usage** | À intégrer comme contexte système avant chaque session de vibe coding, et à transformer en tests unitaires |
@@ -18,13 +18,13 @@
 
 | # | Zone | Risque | AC count |
 |---|---|---|---|
-| Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 21 |
+| Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 22 |
 | Z2 | Pipeline J0 — Error paths, timeouts & RGPD | Très élevé | 13 |
-| Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 24 |
-| Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 16 |
+| Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 25 |
+| Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 17 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 9 |
 | Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 41 |
-| | **Total** | | **124** |
+| | **Total** | | **127** |
 
 ---
 
@@ -247,6 +247,16 @@
 | **THEN** | Le gabarit choisi est **rétrogradé** au niveau de difficulté 1 pour cet item (ex: `GEN.KNOW.FLASH_MCQ` ou `GEN.KNOW.DEF_SHORT`). Un indice est ajouté au feedback de la question : référence au passage pertinent de la carte de leçon (« Relis la section [titre_section] de ta leçon »). Si l'élève réussit avec le gabarit simplifié, la question suivante pour cet item remonte à difficulté 2. Si l'élève échoue même au gabarit simplifié (5ème échec consécutif), un message d'encouragement s'affiche : « Ce point est difficile — on va le revoir autrement. Regarde ta leçon et on réessaie demain. » L'item est reporté à J+2 au lieu de J+1 (pause pédagogique). La détection d'anomalie Z3-AC16/AC21 continue de fonctionner en parallèle. |
 
 > **NOTE :** Un élève qui échoue 3 fois de suite sur le même item à la même difficulté entre dans un cycle de frustration : il voit la même question, ne comprend pas, échoue encore, se sent nul. La descente de difficulté brise ce cycle en offrant un exercice plus accessible (MCQ vs question ouverte). Le renvoi vers la carte de leçon transforme un moment d'échec en moment d'apprentissage. La pause J+2 après 5 échecs évite l'acharnement contre-productif — le cerveau a besoin de temps pour consolider.
+
+### Z1-AC22 — Détection et rattrapage des items UNKNOWN jamais révisés (starvation)
+
+| | |
+|---|---|
+| **GIVEN** | Un chapitre a 20 items. 12 sont en état FRAGILE (tous dus quotidiennement). 8 sont en état UNKNOWN avec `next_due_at` dépassé depuis 7+ jours. La politique 70/20/10 sélectionne systématiquement les 12 items FRAGILE dans le bucket 70% (dues) car ils sont plus prioritaires. Les items UNKNOWN n'ont jamais été présentés en session depuis leur création. |
+| **WHEN** | Le moteur de composition crée une session `daily`. |
+| **THEN** | Un mécanisme anti-starvation garantit que chaque session inclut **au minimum 1 item UNKNOWN** s'il existe des items UNKNOWN non présentés depuis 7+ jours. Cet item est injecté dans le bucket 10% « découverte », même si le bucket 70% est plein. Si plusieurs items UNKNOWN sont en starvation, le plus ancien (plus grand écart `next_due_at - now`) est sélectionné en priorité. Un job hebdomadaire détecte les items UNKNOWN avec 0 tentatives depuis > 14 jours et crée une alerte admin `ITEM_STARVATION` (priorité `MEDIUM`). Le dashboard élève affiche un indicateur discret : « [N] points pas encore abordés » si des items UNKNOWN existent depuis > 7 jours sans tentative. |
+
+> **NOTE :** Un chapitre dense (30+ items) avec beaucoup de FRAGILE peut créer une file d'attente infinie pour les items UNKNOWN. Le 70/20/10 est optimal en régime stable mais pathologique en cas de dette : les items FRAGILE monopolisent le bucket et les UNKNOWN ne sont jamais vus. L'élève pense réviser tout le chapitre mais a des trous systématiques. Pire : le mock exam peut tester ces items jamais vus, et l'élève découvre un pan entier du cours le jour du contrôle blanc.
 
 ---
 
@@ -588,6 +598,16 @@
 
 > **NOTE :** Un ado de 13 ans qui ne comprend pas la validation HITL va cliquer « Ignorer » sur tout (le réflexe « fermer la pop-up »). Sans récupération, ces items sont perdus à jamais sauf intervention admin. L'élève ne s'en rend compte que quand il réalise que des points du cours ne sont pas dans ses exercices. La section « Points non vérifiés » rend le problème visible et offre une voie de retour autonome, sans dépendre de l'admin.
 
+### Z3-AC25 — Garde-fou template vs type d'item pour items restreints
+
+| | |
+|---|---|
+| **GIVEN** | Un item de type **PROCEDURE** (ex: calcul de densité, `tags = [calcul, unites]`) a `validation_required = true`. La restriction Z3-AC01 le limite aux templates simples : `GEN.KNOW.DEF_SHORT` et `GEN.KNOW.FLASH_MCQ`. Mais ces templates sont des gabarits de type KNOWLEDGE (rappel de définition), pas de type PROCEDURE (application de calcul). |
+| **WHEN** | Le moteur de composition sélectionne cet item pour une session. |
+| **THEN** | Le moteur vérifie la compatibilité entre le `type` de l'item et les templates restreints disponibles. Si aucun template restreint n'est compatible avec le type de l'item (ex: pas de template PROCEDURE en difficulté 1), le moteur sélectionne le template restreint le **plus proche** du type d'item : pour un PROCEDURE, `GEN.KNOW.FLASH_MCQ` avec une formulation adaptée (« Quelle est la formule de [concept] ? » plutôt que « Définis [concept] »). Le `prompt_template` restreint pour items PROCEDURE est spécifique : il teste la reconnaissance de la formule/méthode (pas la définition). Si un template `GEN.CALC.MCQ_FORMULA` existe en difficulté 1 dans le pack, il est préféré aux templates KNOWLEDGE. Le mismatch est loggé comme `template_type_mismatch` pour suivi admin (KPI « % items avec mismatch template/type »). |
+
+> **NOTE :** Un élève qui sait calculer ρ = m/V mais ne sait pas « définir la masse volumique en une phrase » échoue systématiquement aux questions DEF_SHORT pour cet item. Le mastery reste FRAGILE alors que l'élève maîtrise la compétence. C'est une forme d'impuissance apprise : l'élève finit par croire qu'il ne sait pas, alors que c'est le format de la question qui ne correspond pas à son type de savoir. Le garde-fou adapte la formulation du template au type d'item.
+
 ---
 
 ## Z4 — Lazy generation — Concurrence & cache
@@ -741,6 +761,16 @@
 | **THEN** | L'interface propose un mode « Relecture active » au lieu de laisser l'élève sans rien faire. Ce mode affiche la carte de leçon du chapitre le plus urgent (items dues en priorité) avec des **flashcards textuelles statiques** : pour chaque item KNOWLEDGE, afficher le `term` en recto et la définition extraite de l'OCR en verso (pas de génération LLM nécessaire). L'élève peut « retourner » chaque flashcard. Un bouton « Je savais » / « Je ne savais pas » permet un auto-évaluation (sans impact mastery — marqué `self_assessment = true`). Le message affiché est : « Les exercices ne sont pas disponibles pour le moment — en attendant, révise ta leçon avec ces flashcards ! » Le mode fallback se désactive automatiquement dès que le LLM redevient disponible (vérification toutes les 30s). Si aucun item n'est disponible du tout (chapitre vide), un message s'affiche : « Tes exercices arrivent bientôt — reviens dans quelques minutes. » |
 
 > **NOTE :** Un élève motivé qui ouvre l'app pour réviser et se retrouve face à un mur « réessaie plus tard » ferme l'app et ne revient pas. Le mode relecture active est un filet de sécurité minimal : il ne remplace pas les exercices adaptatifs mais il offre une activité pédagogique en attendant. Les flashcards textuelles ne nécessitent aucun appel LLM (données OCR déjà en base). L'auto-évaluation sans impact mastery évite la corruption des données tout en gardant l'élève engagé.
+
+### Z4-AC17 — Invalidation cache sur création/modification/suppression d'Exam
+
+| | |
+|---|---|
+| **GIVEN** | Un élève a un chapitre PC-TRANSF avec un pool de questions en cache (TTL 24h). Le cache a été composé sans prise en compte d'un exam. L'élève crée un Exam « Contrôle PC » prévu dans 5 jours, lié à ce chapitre. |
+| **WHEN** | L'Exam est créé, modifié (`exam_date` changée), ou supprimé. |
+| **THEN** | Le cache `question_candidates` des chapitres liés à cet Exam est **invalidé immédiatement**. La prochaine composition de session recalcule les priorités avec les intervalles compressés (Z1-AC08) ou décompressés (Z1-AC20). Le cache `item_pool` n'est pas invalidé (les items ne changent pas, seule la priorité change). Si l'Exam est supprimé, les `next_due_at` des items liés sont **recalculés** aux intervalles standard (annulation de la compression Z1-AC08). Un log `EXAM_CACHE_INVALIDATION` est créé avec `exam_id`, `chapter_ids[]`, et le nombre d'entrées cache invalidées. |
+
+> **NOTE :** Le PRD §12.2 liste 4 triggers d'invalidation cache (re-upload, résolution HITL, pack version, mastery change) mais omet le CRUD Exam. Or la création d'un exam est l'événement qui change le plus radicalement la priorité des items (compression des intervalles). Sans invalidation, la première session après création d'un exam utilise un cache composé sans urgence exam — les items sous-prioritaires ne sont pas remontés, et l'élève perd un jour de révision optimale.
 
 ---
 
@@ -1206,6 +1236,6 @@
 
 ---
 
-> Ces 124 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 127 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
 *Fin du document — Révise Mieux AC v1.4 · 7 mars 2026*

@@ -401,6 +401,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 - **Validation HITL d'un item** → invalide uniquement les Question candidates liées à cet item.
 - **Mise à jour de pack_version** → invalide Item pool + Question candidates de tous les chapters du pack.
 - **Changement de mastery state** → pas d'invalidation (in-place update).
+- **Création/modification/suppression d'Exam** → invalide Question candidates des chapters liés à l'Exam (AC Z4-AC17). Recalcul `next_due_at` si exam supprimé.
 
 ---
 
@@ -868,6 +869,9 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 | **LLM indisponible = rien à faire dans l'app → fermeture immédiate** | **Moyenne** | **Très élevé** | Mode « Relecture active » avec flashcards textuelles statiques (AC Z4-AC16). Données OCR en base, aucun LLM requis. Auto-évaluation sans impact mastery. |
 | **Items « Ignoré » en HITL = trou permanent dans la couverture de révision** | **Haute** | **Élevé** | Section « Points non vérifiés » dans carte de leçon avec Réactiver (AC Z3-AC24). Récupération autonome sans admin. |
 | **Blocage OK→SOLID sans explication → élève ne comprend pas** | **Haute** | **Élevé** | Message explicatif positif sur repos cognitif (AC Z1-AC04 enrichi). Affiché 1x/session max. |
+| **Items UNKNOWN jamais présentés en session (starvation par file FRAGILE)** | **Haute** | **Élevé** | Minimum 1 item UNKNOWN/session si starvation > 7 jours (AC Z1-AC22). Alerte admin si 0 tentatives depuis > 14 jours. Indicateur « N points pas encore abordés » sur dashboard élève. |
+| **Mismatch template/type d'item → échecs injustes sur items restreints** | **Moyenne** | **Élevé** | Garde-fou template adaptant la formulation au type d'item PROCEDURE (AC Z3-AC25). Log `template_type_mismatch` pour suivi admin. Template MCQ formule préféré aux templates KNOWLEDGE. |
+| **Création d'exam pas dans les triggers d'invalidation cache → priorités stale** | **Haute** | **Élevé** | Invalidation `question_candidates` sur CRUD Exam (AC Z4-AC17). Recalcul next_due_at sur suppression exam (annulation compression). Log `EXAM_CACHE_INVALIDATION`. |
 
 ---
 
