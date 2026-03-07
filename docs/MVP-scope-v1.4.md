@@ -4,7 +4,7 @@
 |---|---|
 | **Version** | 1.5 |
 | **Date** | 7 mars 2026 |
-| **Total ACs** | 151 (7 zones) |
+| **Total ACs** | 158 (7 zones) |
 
 ---
 
@@ -199,7 +199,7 @@
 
 ---
 
-## Z7 — Routine de soirée & Orchestration (16 ACs)
+## Z7 — Routine de soirée & Orchestration (23 ACs)
 
 | AC | Titre | Classification |
 |---|---|---|
@@ -219,6 +219,13 @@
 | Z7-AC14 | Arc émotionnel de la soirée (accueil, transitions, clôture) | MVP Hardening |
 | Z7-AC15 | Notification parent « routine terminée » (signal positif) | MVP Core |
 | Z7-AC16 | Onboarding de la première soirée | MVP Core |
+| Z7-AC17 | Notions : regroupement des items par concept_tag | **MVP Core** |
+| Z7-AC18 | Vue chapitre par notion (accordéon + maîtrise) | **MVP Core** |
+| Z7-AC19 | Périmètre exam : sélection par notion (auto-scope + ajustement) | **MVP Core** |
+| Z7-AC20 | Auto-suggestion chapitres et notions à la création d'exam | **MVP Core** |
+| Z7-AC21 | Vue « Angles morts » : contenu sans contrôle à venir | **MVP Core** |
+| Z7-AC22 | Prédiction interro surprise : score de probabilité par matière | MVP Hardening |
+| Z7-AC23 | Alerte croisée « notion fragile × jamais testée en contrôle » | MVP Hardening |
 
 ---
 
@@ -226,10 +233,10 @@
 
 | Classification | Z1 | Z2 | Z3 | Z4 | Z5 | Z6 | Z7 | **Total** |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **MVP Core** | 16 | 13 | 12 | 8 | 10 | 22 | 10 | **91** |
-| **MVP Hardening** | 5 | 1 | 8 | 7 | 2 | 16 | 6 | **45** |
+| **MVP Core** | 16 | 13 | 12 | 8 | 10 | 22 | 15 | **96** |
+| **MVP Hardening** | 5 | 1 | 8 | 7 | 2 | 16 | 8 | **47** |
 | **Post-MVP** | 1 | 0 | 5 | 3 | 0 | 6 | 0 | **15** |
-| **Total** | 22 | 14 | 25 | 18 | 12 | 44 | 16 | **151** |
+| **Total** | 22 | 14 | 25 | 18 | 12 | 44 | 23 | **158** |
 
 ### Changements par rapport à l'analyse initiale
 
@@ -243,3 +250,5 @@
 | Z6-AC43 | *Nouveau* | **MVP Core** | Session evening_first incrémentale : premier contact ciblé avec les nouveaux items uniquement. |
 | Z6-AC44 | *Nouveau* | **MVP Core** | Explication dilution dashboard : sans elle, baisse de % anxiogène pour élève et parent. |
 | Z7-AC01→16 | *Nouveau (zone Z7)* | **10 MVP Core + 6 MVP Hardening** | Couche d'orchestration de la routine de soirée : EveningPlan, dashboard soirée, séquencement multi-matières, mode express, notification parent positive, onboarding première soirée. |
+| Z7-AC17→21 | *Nouveau (zone Z7)* | **5 MVP Core** | Hiérarchie contenu par Notion, périmètre exam granulaire, auto-suggestion, vue angles morts. |
+| Z7-AC22→23 | *Nouveau (zone Z7)* | **2 MVP Hardening** | Prédiction interro surprise et alerte croisée fragile × non testée. |

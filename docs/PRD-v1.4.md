@@ -647,21 +647,23 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 | **User** | `id` · `role (student\|parent)` · `consent_parent_at` · `linked_student_id?` · `notification_hour?` (défaut 18h30) |
 | **ScheduleSlot** | `id` · `user_id` · `subject` · `day_of_week (1–7)` · `period (morning\|afternoon)` · `created_at` |
 | **ScheduleException** | `id` · `user_id` · `subject` · `original_date` · `type (cancelled\|moved)` · `moved_to_date?` · `moved_to_period?` · `created_at` |
-| **Exam** | `id` · `user_id` · `name?` · `exam_date` · `chapter_ids[]` · `status (active\|past)` · `created_at` |
+| **Exam** | `id` · `user_id` · `name?` · `exam_date` · `chapter_ids[]` · `notion_ids[]?` (si vide = toutes les notions des chapitres) · `status (active\|past)` · `created_at` |
 | **Chapter** | `id` · `subject` · `class_level` · `name` · `exam_ids[]` · `pack_id` · `current_revision_id` · `archived? (boolean, default false)` |
 | **ChapterRevision** | `id` · `chapter_id` · `revision_number` · `created_at` · `pages[]` · `status` |
 | **Page** | `id` · `revision_id` · `photo_url` · `order` · `ocr_status` |
 | **Block** | `id` · `page_id` · `type (TEXT\|PHOTO\|SCHEMA\|MAP\|GRAPH\|TABLE\|CIRCUIT)` · `crop` · `confidence` · `ocr_text?` |
 | **Document** | `id` · `chapter_id` · `type` · `tags[]` · `blocks[]` · `source_image_url?` |
-| **Item** | `id` · `chapter_id` · `revision_id` · `type (KNOWLEDGE\|PROCEDURE\|DOCUMENT\|WRITING)` · `term?` · `keywords[]?` · `steps[]?` · `linked_doc_id?` · `tags[]` · `confidence` · `validation_required` · `archived` · `fidelity_score?` · `fidelity_flag? (low\|medium\|null)` · `coherence_flag? (contradiction\|orphan_reference\|null)` · `anomaly_flag? (high_failure_rate\|null)` · `llm_model_version?` · `prompt_template_version?` |
+| **Notion** | `id` · `chapter_id` · `name` (libellé lisible généré par le LLM) · `concept_tags[]` · `item_ids[]` · `order (int)` |
+| **Item** | `id` · `chapter_id` · `notion_id?` · `revision_id` · `type (KNOWLEDGE\|PROCEDURE\|DOCUMENT\|WRITING)` · `term?` · `keywords[]?` · `steps[]?` · `linked_doc_id?` · `tags[]` · `confidence` · `validation_required` · `archived` · `fidelity_score?` · `fidelity_flag? (low\|medium\|null)` · `coherence_flag? (contradiction\|orphan_reference\|null)` · `anomaly_flag? (high_failure_rate\|null)` · `llm_model_version?` · `prompt_template_version?` |
 | **ValidationTask** | `id` · `item_id` · `crop_url` · `suggestion` · `priority` · `status` · `resolved_by?` · `source (uncertainty_detection\|student_report\|anomaly_detection\|coherence_check\|fidelity_check)` · `student_note?` |
 | **Template** | `id (template_id)` · `name` · `version` · `question_type` · `difficulty` · `eligibility{}` · `variables[]` · `prompt_template` · `grading{}` |
 | **Question** | `id` · `template_id` · `item_id` · `rendered_prompt` · `expected_answer{}` · `grading_policy` · `llm_model_version?` · `prompt_template_version?` |
 | **Attempt** | `id` · `question_id` · `user_id` · `answer` · `score` · `feedback` · `created_at` · `rapid_response? (boolean, default false)` · `response_time_ms?` |
 | **Mastery** | `id` · `user_id` · `item_id` · `state (UNKNOWN\|FRAGILE\|OK\|SOLID)` · `next_due_at` · `last_review_at` · `consecutive_successes` |
 | **Session** | `id` · `user_id` · `chapter_ids[]` · `type (daily\|diagnostic\|mock_exam\|evening_first\|pre_class)` · `trigger (manual\|scheduled\|notification)` · `questions[]` · `started_at` · `completed_at?` · `current_question_index (default 0)` · `includes_pre_class? (boolean)` |
-| **Notification** | `id` · `user_id` · `type (capture_reminder\|review_reminder\|pre_class\|missed_session_reminder\|parent_schedule_change\|parent_missed_session\|parent_inactivity)` · `subject` · `scheduled_at` · `sent_at?` · `clicked_at?` · `source_session_id?` · `linked_student_id?` |
-| **ParentNotificationPref** | `id` · `parent_user_id` · `schedule_change_enabled (default true)` · `missed_session_enabled (default true)` · `inactivity_enabled (default true)` · `inactivity_threshold_days (default 3)` |
+| **EveningPlan** | `id` · `user_id` · `date` · `steps[] { type (capture\|evening_first\|daily), subject_label, session_id?, estimated_duration_min, status (pending\|in_progress\|completed\|skipped) }` · `total_estimated_min` · `mode (full\|express)` · `completed_at?` · `completion_rate` · `expires_at` |
+| **Notification** | `id` · `user_id` · `type (capture_reminder\|review_reminder\|pre_class\|missed_session_reminder\|parent_schedule_change\|parent_missed_session\|parent_inactivity\|parent_routine_completed)` · `subject` · `scheduled_at` · `sent_at?` · `clicked_at?` · `source_session_id?` · `linked_student_id?` |
+| **ParentNotificationPref** | `id` · `parent_user_id` · `schedule_change_enabled (default true)` · `missed_session_enabled (default true)` · `inactivity_enabled (default true)` · `inactivity_threshold_days (default 3)` · `routine_completed_enabled (default true)` |
 
 ---
 

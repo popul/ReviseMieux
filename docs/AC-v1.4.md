@@ -6,8 +6,8 @@
 > |---|---|
 > | **Version** | 1.4 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 7 zones critiques identifiées — 151 AC en format Given/When/Then |
-> | **Évolutions v1.5 vs v1.4.1** | +15 AC routine de soirée (nouvelle zone Z7) : orchestration EveningPlan (Z7-AC01), dashboard soirée contextuel (Z7-AC02), séquencement multi-matières (Z7-AC03), estimation de durée visible (Z7-AC04), état « fini pour ce soir » (Z7-AC05), guidage capture in-app (Z7-AC06), règles séquencement sessions (Z7-AC07), mode express soirée courte (Z7-AC08), complétion partielle (Z7-AC09), état « rien à faire » (Z7-AC10), comportement week-end (Z7-AC11), guidage capture cours de demain (Z7-AC12), reconnaissance devoirs (Z7-AC13), arc émotionnel soirée (Z7-AC14), notification parent routine terminée (Z7-AC15), onboarding première soirée (Z7-AC16) |
+> | **Périmètre** | 7 zones critiques identifiées — 158 AC en format Given/When/Then |
+> | **Évolutions v1.5 vs v1.4.1** | +23 AC zone Z7 « Routine de soirée & Orchestration ». Orchestration : EveningPlan (AC01), dashboard soirée (AC02), séquencement multi-matières (AC03), estimation durée (AC04), état « fini pour ce soir » (AC05), guidage capture in-app (AC06), séquencement sessions (AC07), mode express (AC08), complétion partielle (AC09), rien à faire (AC10), week-end (AC11), capture cours demain (AC12), devoirs (AC13), arc émotionnel (AC14), notif parent routine (AC15), onboarding 1re soirée (AC16). Hiérarchie contenu & exam : Notions par concept_tag (AC17), vue chapitre par notion (AC18), périmètre exam par notion (AC19), auto-suggestion exam (AC20), vue angles morts (AC21), prédiction interro surprise (AC22), alerte fragile × non testée (AC23) |
 > | **Évolutions v1.4.1 vs v1.4** | +5 AC upload incrémental : ajout de pages sans nouvelle révision (Z5-AC11), pas de re-OCR des pages existantes (Z5-AC12), pipeline incrémental (Z2-AC14), session evening_first incrémentale (Z6-AC43), explication dilution maîtrise dashboard (Z6-AC44) |
 > | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) + anti-frustration élève (feedback explicatif blocage 24h Z1, descente difficulté échecs répétés Z1, fallback LLM indisponible Z4, récupération items ignorés Z3) + anti-silent-failures (anti-starvation items UNKNOWN Z1, garde-fou template/type Z3, invalidation cache exam Z4) + correctifs modèle (session all-SOLID Z4, alerte items perdus re-upload Z5, multi-exam par chapitre Z6, fix Chapter.exam_ids[] pluriel) |
 > | **Évolutions v1.3 vs v1.2** | +9 AC anti-désengagement : plafond maîtrise items non validés (Z1), micro-célébrations + débrief session (Z1), retour en douceur après absence + cycle post-exam + rampe diagnostic + digest pré-contrôle + anti alert-fatigue parent (Z6) |
@@ -26,8 +26,8 @@
 | Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 18 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 12 |
 | Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 44 |
-| Z7 | Routine de soirée & Orchestration | Très élevé | 16 |
-| | **Total** | | **151** |
+| Z7 | Routine de soirée & Orchestration | Très élevé | 23 |
+| | **Total** | | **158** |
 
 ---
 
@@ -1321,7 +1321,7 @@
 
 ## Z7 — Routine de soirée & Orchestration
 
-> EveningPlan · Dashboard soirée · Séquencement multi-matières · Budget temps · Complétion · Guidage capture · Onboarding routine
+> EveningPlan · Dashboard soirée · Séquencement multi-matières · Budget temps · Complétion · Guidage capture · Onboarding routine · Notions & hiérarchie contenu · Périmètre exam par notion · Angles morts · Prédiction interro surprise
 
 ### Z7-AC01 — Calcul automatique du plan de soirée (EveningPlan)
 
@@ -1483,8 +1483,78 @@
 
 > **NOTE :** La première soirée est le moment de conversion critique. L'élève qui comprend le concept de « routine du soir » et qui vit une première expérience guidée et gratifiante reviendra demain. L'élève qui ouvre l'app et voit un dashboard vide ou un pipeline en cours sans contexte ne reviendra pas. Le tutoriel progressif sur 5 jours correspond au temps moyen de formation d'une micro-habitude chez les adolescents. L'analogie avec « un épisode de série » est intentionnelle : c'est le référentiel temporel naturel d'un collégien.
 
+### Z7-AC17 — Notions : regroupement des items par concept_tag
+
+| | |
+|---|---|
+| **GIVEN** | Le chapitre « Densité et masse volumique » contient 14 items. Le pipeline a attribué les `concept_tags` suivants : `masse` (3 items), `volume` (2 items), `rho` (4 items), `deplacement_eau` (3 items), `materiaux` (2 items). |
+| **WHEN** | L'élève consulte la vue détaillée du chapitre. |
+| **THEN** | Les items sont regroupés en **Notions** — une Notion = un cluster de `concept_tags` sémantiquement proches (le pipeline LLM regroupe les tags en Notions nommées lors de la génération du pack). Affichage en accordéon : **Notion « Masse volumique (ρ) »** (items taggés `rho` + `masse` + `volume` = 9 items) avec barre de maîtrise (ex: 4/9 = 44%), **Notion « Mesure par déplacement d'eau »** (items taggés `deplacement_eau` = 3 items) avec barre de maîtrise (3/3 = 100%), **Notion « Matériaux et densité »** (items taggés `materiaux` = 2 items) avec barre de maîtrise (0/2 = 0%). Le regroupement est déterministe et stable (même contenu = mêmes Notions). Le nombre de Notions par chapitre est typiquement 3–7 (le pipeline cible ce range ; si < 3, pas de regroupement affiché ; si > 7, les Notions les plus petites sont fusionnées). Chaque Notion affiche : nom lisible (généré par le LLM, ex: « Les propriétés de l'eau »), nombre d'items, barre de maîtrise (% items OK+SOLID), et un indicateur de dernière révision (« révisé il y a 2 jours »). L'entité `Notion` est définie dans le data model : `id` · `chapter_id` · `name` · `concept_tags[]` · `item_ids[]` · `order (int)`. |
+
+> **NOTE :** Les `concept_tags` existent déjà dans le pipeline (PRD §6.1) mais ne sont pas exposés à l'élève. Le passage de tags plats à des Notions nommées et regroupées est la clé de voûte de la hiérarchisation : l'élève pense en « notions de cours » (masse volumique, déplacement d'eau), pas en tags atomiques (`rho`, `deplacement_eau`). Le LLM qui génère le pack est le mieux placé pour nommer ces regroupements car il a le contexte pédagogique du cours. Le coût est quasi nul (une instruction supplémentaire dans le prompt de génération).
+
+### Z7-AC18 — Notions dans la vue chapitre : accordéon et maîtrise par notion
+
+| | |
+|---|---|
+| **GIVEN** | Le chapitre « Photosynthèse » a 4 Notions : « Chloroplastes et chlorophylle » (6 items, 5 OK/SOLID), « Équation de la photosynthèse » (4 items, 1 FRAGILE, 2 UNKNOWN), « Facteurs limitants » (3 items, 3 SOLID), « Rôle du CO₂ et de la lumière » (5 items, 3 OK). |
+| **WHEN** | L'élève ouvre la vue chapitre « Photosynthèse ». |
+| **THEN** | La vue chapitre affiche la barre de maîtrise globale du chapitre (11/18 = 61%) ET en dessous, les 4 Notions en accordéon, chacune avec : (1) Nom de la notion (« Équation de la photosynthèse »). (2) Mini-barre de maîtrise par notion (1/4 = 25%, couleur rouge/orange). (3) Indicateur d'état dominant (FRAGILE si ≥ 1 item FRAGILE, UNKNOWN si ≥ 1 UNKNOWN et 0 FRAGILE, OK sinon). (4) Au clic/tap sur une Notion → déplier pour voir la liste des items avec leur état individuel (UNKNOWN/FRAGILE/OK/SOLID). Les Notions sont triées par « besoin de révision » : FRAGILE d'abord, puis UNKNOWN, puis OK, puis SOLID. Cette vue permet à l'élève de comprendre **où** il est faible dans un chapitre, pas juste « combien » il maîtrise globalement. |
+
+> **NOTE :** Sans la granularité par Notion, la barre de maîtrise d'un chapitre à 61% ne dit rien d'actionnable. Avec les Notions, l'élève voit que « Facteurs limitants » est à 100% mais « Équation de la photosynthèse » est à 25% — il sait exactement quoi réviser. C'est aussi la base nécessaire pour la sélection du périmètre d'exam (Z7-AC19) : si l'élève ne peut pas voir les notions, il ne peut pas les sélectionner.
+
+### Z7-AC19 — Sélection du périmètre d'exam : auto-scope + ajustement par notion
+
+| | |
+|---|---|
+| **GIVEN** | L'élève crée un Exam « Contrôle Physique — Séquence 2 » avec `exam_date = 2026-04-10`. Il sélectionne 2 chapitres : « Mouvement et vitesse » (5 Notions, 14 items) et « Forces » (4 Notions, 11 items). |
+| **WHEN** | L'écran de sélection du périmètre s'affiche après le choix des chapitres. |
+| **THEN** | Le système affiche un écran de **sélection par Notion** : pour chaque chapitre, la liste des Notions est affichée avec des toggles (activé/désactivé). **Auto-scope par défaut : toutes les Notions sont cochées.** L'élève peut décocher des Notions spécifiques (ex: « Forces de frottement » si le prof n'a pas encore fait ce cours). Chaque Notion affiche : nom, nombre d'items, mini-barre de maîtrise. Un compteur en bas indique le périmètre résultant : « 22 points de révision sur 25 sélectionnés ». Les items des Notions décochées sont **exclus** du resserrement Z1-AC08 (pas d'accélération inutile), du mock_exam (Z6-AC10), et du plan d'étude exam. L'Exam enregistre `notion_ids[]` en plus de `chapter_ids[]` pour tracer le périmètre exact. Si l'élève ne touche à rien (accepte l'auto-scope), le comportement est identique à l'existant (100% du chapitre). Un bouton « Tout sélectionner / Tout désélectionner » est disponible par chapitre. |
+
+> **NOTE :** L'auto-scope avec opt-out (tout coché par défaut, l'élève décoche ce qui n'est pas au programme) est le bon pattern UX pour un collégien. Le pattern inverse (opt-in, rien coché, l'élève doit tout cocher) serait trop fastidieux. La granularité par Notion est le juste milieu entre « tout le chapitre » (trop grossier) et « item par item » (trop fin, 25 checkboxes). 3-7 Notions par chapitre = 6-14 toggles pour 2 chapitres = décision en 30 secondes.
+
+### Z7-AC20 — Auto-suggestion des chapitres et notions lors de la création d'exam
+
+| | |
+|---|---|
+| **GIVEN** | L'élève crée un nouvel Exam. Il sélectionne la matière « Histoire-Géo » et la date « 2026-03-20 ». Il a 4 chapitres actifs en Histoire-Géo : « Inégalités » (créé le 15/02), « Mondialisation » (créé le 01/03), « Urbanisation » (créé le 08/03), « Développement durable » (créé le 14/03). |
+| **WHEN** | L'écran de sélection des chapitres s'affiche. |
+| **THEN** | Le système propose un **auto-scope intelligent** basé sur : (1) **Chapitres récents de la matière** : les 4 chapitres actifs d'Histoire-Géo sont listés, triés du plus récent au plus ancien. (2) **Pré-sélection heuristique** : les chapitres créés dans les 6 dernières semaines avant la date d'exam sont pré-cochés (ici : « Urbanisation » et « Développement durable »). Les chapitres plus anciens sont affichés mais non cochés, avec mention « Créé il y a [N] semaines ». (3) Si un chapitre a déjà été couvert par un exam passé, il est marqué « Déjà au contrôle du [date] » pour éviter les doublons involontaires. (4) Si un chapitre a des pages ajoutées récemment (upload incrémental), il est signalé « Mis à jour le [date] — nouvelles pages ajoutées ». L'élève confirme ou ajuste la sélection. Après la sélection des chapitres, l'écran de sélection par Notion (Z7-AC19) s'affiche. Le parcours complet (matière → date → chapitres → notions → confirmer) prend < 90 secondes. |
+
+> **NOTE :** L'heuristique « chapitres des 6 dernières semaines » reflète le rythme du collège français : une séquence dure typiquement 4-6 semaines, et un contrôle de fin de séquence couvre les chapitres de cette période. La mention « Déjà au contrôle du [date] » évite un piège courant : l'élève qui re-sélectionne un chapitre déjà testé et gaspille du temps de révision. Le signal « pages ajoutées récemment » aide l'élève à repérer les chapitres en cours qui ont du contenu frais.
+
+### Z7-AC21 — Vue « Angles morts » : contenu sans contrôle à venir
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a 8 chapitres actifs répartis sur 4 matières. 3 chapitres sont liés à des Exams à venir (dates futures). 5 chapitres n'ont aucun Exam à venir (dont 2 qui ont eu un exam passé, et 3 qui n'ont jamais été testés). |
+| **WHEN** | L'élève ouvre la vue « Angles morts » (accessible depuis le dashboard progression Z6-AC39, onglet ou filtre). |
+| **THEN** | La vue affiche les chapitres **sans exam à venir**, groupés par matière, chaque entrée montrant : (1) Nom du chapitre + matière. (2) Nombre de Notions et taux de maîtrise global. (3) Date du dernier contrôle lié (si existant) : « Dernier contrôle : 15/02 » ou « Jamais testé en contrôle ». (4) Temps écoulé depuis le dernier contrôle de la matière (pas juste du chapitre) : « Dernier contrôle d'Histoire-Géo : il y a 5 semaines ». (5) Un indicateur visuel de risque (vert/orange/rouge) basé sur : temps depuis dernier contrôle × volume de contenu non testé × taux de maîtrise faible. Les chapitres sont triés par risque décroissant. Un bouton « Créer un contrôle » est disponible pour chaque entrée, pré-rempli avec le chapitre. Un message contextuel en haut de la vue : « [N] chapitres n'ont pas de contrôle prévu. Vérifie avec ton prof si un contrôle est à venir ! » La vue est vide (avec message positif) si tous les chapitres ont un exam à venir. |
+
+> **NOTE :** Les « angles morts » ne sont pas un bug — c'est souvent simplement que l'élève n'a pas encore reçu la date du prochain contrôle. Mais la vue sert deux objectifs : (1) rappeler à l'élève de demander au prof, et (2) permettre au système de maintenir un niveau de révision de fond sur ces chapitres (le daily les inclut via les items dues, mais le resserrement Z1-AC08 ne s'active pas sans date d'exam). La vue devient le point d'entrée naturel pour la prédiction d'interro surprise (Z7-AC22).
+
+### Z7-AC22 — Prédiction d'interro surprise : score de probabilité par matière
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a des cours de SVT le mardi et le vendredi. Historique des contrôles SVT : exam le 10/01, exam le 07/02, exam le 28/02. Nous sommes le 20/03 (3 semaines sans contrôle). L'élève a 2 chapitres SVT sans exam à venir, dont 1 avec des items FRAGILE. |
+| **WHEN** | L'EveningPlan du lundi soir est calculé (veille du cours de SVT mardi). |
+| **THEN** | Le système calcule un **score d'interro surprise** pour SVT, basé sur : (1) **Fréquence historique** des contrôles : 1 contrôle toutes les ~3.5 semaines en SVT (moyenne des intervalles 10/01→07/02 = 4 sem, 07/02→28/02 = 3 sem). (2) **Temps écoulé** depuis le dernier contrôle : 3 semaines (20/03 - 28/02). (3) **Ratio temps/fréquence** : 3/3.5 = 0.86 → probabilité croissante. (4) **Volume non testé** : 2 chapitres, ~15 items sans exam → facteur aggravant. Le score est affiché comme un signal qualitatif (pas un pourcentage, trop anxiogène) : 🟢 « Interro surprise peu probable » (ratio < 0.5), 🟡 « Interro surprise possible — reste prêt ! » (ratio 0.5–0.9), 🔴 « Attention, ça fait longtemps sans contrôle — interro surprise probable ! » (ratio > 0.9). Le signal est intégré dans : (a) le dashboard soirée la veille du cours (« Tu as SVT demain — 🟡 interro surprise possible »), (b) la notification pre_class (Z6-AC07) avec intensité adaptée, (c) la vue Angles morts (Z7-AC21) comme colonne supplémentaire. Le score n'est calculé que pour les matières avec ≥ 3 contrôles historiques (sinon données insuffisantes, pas de prédiction). Après un nouveau contrôle, le score se réinitialise. Le calcul ne nécessite aucun appel LLM — c'est une heuristique arithmétique sur les intervalles. |
+
+> **NOTE :** La prédiction d'interro surprise est un « wow factor » qui positionne l'app comme un vrai coach et pas juste un outil de flashcards. L'élève qui reçoit « Attention, ça fait longtemps sans contrôle de SVT — prépare-toi ! » la veille d'un cours et qui a effectivement une interro le lendemain développe une confiance profonde dans l'app. Le choix du signal qualitatif (🟢🟡🔴) plutôt que « 73% de chances » est délibéré : un pourcentage serait soit ignoré soit source d'anxiété. Un signal en 3 niveaux est actionnable. L'heuristique est simple (intervalle moyen vs temps écoulé) mais étonnamment efficace car les profs ont des rythmes réguliers.
+
+### Z7-AC23 — Alerte croisée « notion fragile × jamais testée en contrôle »
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a le chapitre « Mondialisation » en Histoire-Géo avec 5 Notions. La Notion « Flux migratoires » (4 items) a 3 items FRAGILE et 1 UNKNOWN. Cette Notion n'a jamais été couverte par un Exam (aucun exam passé ou à venir ne référence les `notion_ids` correspondants). La Notion « Échanges commerciaux » (3 items) a 3 items SOLID — pas de risque. |
+| **WHEN** | Le système évalue les risques lors du calcul quotidien (même job que l'EveningPlan, Z7-AC01). |
+| **THEN** | Une **alerte proactive** est générée pour « Flux migratoires » car elle croise deux signaux de risque : **(1) Maîtrise faible** (≥ 50% items FRAGILE/UNKNOWN) ET **(2) Jamais testée** en contrôle (pas de lien avec un Exam passé ou futur). L'alerte est affichée : (a) Dans la vue chapitre, sous la Notion concernée : « ⚠️ Notion fragile et jamais au contrôle — entraîne-toi ! » avec bouton « Lancer un entraînement ciblé » → session ciblée sur les items de cette Notion uniquement (4 questions, gabarits difficulté 1-2). (b) Dans la vue Angles morts (Z7-AC21) : la Notion est mise en évidence en rouge. (c) Dans l'EveningPlan, si espace disponible (durée totale < 20 min) : suggestion optionnelle « +3 min : renforce "Flux migratoires" (notion fragile, jamais au contrôle) ». L'alerte disparaît quand la condition n'est plus remplie (maîtrise ≥ 50% OK/SOLID, ou Notion couverte par un exam). Le nombre max d'alertes actives simultanées est 3 (les plus critiques d'abord, par score de risque = % FRAGILE × ancienneté de la dernière révision). Pas de notification push pour ces alertes — elles sont in-app uniquement, pour éviter la surcharge. |
+
+> **NOTE :** Le croisement « fragile × non testée » identifie le pire scénario pour l'élève : une notion qu'il maîtrise mal et qui pourrait tomber en interro surprise puisqu'elle n'a jamais été au contrôle. C'est le genre de signal qu'un bon répétiteur humain détecterait en feuilletant les copies et l'emploi du temps — l'app le fait automatiquement. La session ciblée par Notion (4 questions sur un sous-ensemble) est un nouveau mode de révision complémentaire au daily (qui pioche transversalement) : ici on attaque chirurgicalement le point faible.
+
 ---
 
-> Ces 151 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 158 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first). Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
-*Fin du document — Révise Mieux AC v1.5 · 7 mars 2026*
+*Fin du document — Révise Mieux AC v1.5.1 · 7 mars 2026*
