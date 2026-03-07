@@ -1,0 +1,211 @@
+# Classification MVP — Revise Mieux v1.4
+
+| | |
+|---|---|
+| **Version** | 1.4 |
+| **Date** | 7 mars 2026 |
+| **Total ACs** | 130 (6 zones) |
+
+---
+
+## Légende
+
+| Classification | Description |
+|---|---|
+| **MVP Core** | Le produit ne fonctionne pas sans. Bloquant pour le lancement. |
+| **MVP Hardening** | Non bloquant jour 1, mais churn mesurable dans les 2-3 premières semaines. Fortement recommandé au lancement. |
+| **Post-MVP** | Raffinements et maturité opérationnelle. Peut attendre mois 2-3. |
+
+---
+
+## Z1 — Transitions Mastery (22 ACs)
+
+| AC | Titre | Classification |
+|---|---|---|
+| Z1-AC01 | UNKNOWN → FRAGILE progression | MVP Core |
+| Z1-AC02 | FRAGILE → OK progression | MVP Core |
+| Z1-AC03 | OK → SOLID (espacement 24h) | MVP Core |
+| Z1-AC04 | Blocage OK → SOLID sans espacement | MVP Core |
+| Z1-AC05 | SOLID → OK régression sur échec | MVP Core |
+| Z1-AC06 | OK → FRAGILE régression sur échec | MVP Core |
+| Z1-AC07 | FRAGILE reste FRAGILE sur échec | MVP Core |
+| Z1-AC08 | Resserrement proportionnel si exam posé | MVP Core |
+| Z1-AC09 | Indépendance des mastery entre items | MVP Core |
+| Z1-AC10 | Score RUBRIC partiel ne déclenche pas progression | MVP Core |
+| Z1-AC11 | NUMERIC sans unité = échec | MVP Core |
+| Z1-AC12 | KEYWORDS scoring partiel (tolérance N-1) | MVP Core |
+| Z1-AC13 | Échec sur item UNKNOWN (pas de sub-UNKNOWN) | MVP Core |
+| Z1-AC14 | Maintien SOLID sur succès continu | MVP Core |
+| Z1-AC15 | Plafond maîtrise OK pour items non validés | MVP Core |
+| Z1-AC16 | Micro-célébrations transitions positives | MVP Hardening |
+| Z1-AC17 | Débrief fin de session | MVP Hardening |
+| Z1-AC18 | Caveat score mock exam items non validés | MVP Hardening |
+| Z1-AC19 | Script 3 min : exclure items sous investigation | MVP Hardening |
+| Z1-AC20 | Changement date exam → recalcul intervalles | MVP Hardening |
+| Z1-AC21 | Descente de difficulté après échecs répétés | **MVP Core** |
+| Z1-AC22 | Détection starvation items UNKNOWN & rattrapage | MVP Hardening |
+
+> **Note :** Z1-AC21 reclassifié Post-MVP → MVP Core. La descente de difficulté après 3 échecs consécutifs est indispensable pour le public cible (11-15 ans) : sans elle, le cycle de frustration sur un item difficile provoque l'abandon dès la première semaine. Le renvoi vers la carte de leçon et la pause J+2 après 5 échecs transforment un moment d'échec en apprentissage.
+
+---
+
+## Z2 — Pipeline J0 — Error paths & timeouts (13 ACs)
+
+| AC | Titre | Classification |
+|---|---|---|
+| Z2-AC01 | Carte leçon partielle si OCR en cours | MVP Core |
+| Z2-AC02 | Timeout OCR sur page intermédiaire | MVP Core |
+| Z2-AC03 | Photo floue détectée (confidence < 0.3) | MVP Core |
+| Z2-AC04 | Aucun item généré sur une page | MVP Core |
+| Z2-AC05 | Échec génération items (erreur LLM) | MVP Core |
+| Z2-AC06 | Idempotence pipeline au restart | MVP Core |
+| Z2-AC07 | Diagnostic impossible si 0 items valides | MVP Core |
+| Z2-AC08 | Bloc SCHEMA/MAP conservé comme Document image | MVP Core |
+| Z2-AC09 | File validation plafonnée à 8 | MVP Core |
+| Z2-AC10 | Streaming carte leçon (première page dispo) | MVP Core |
+| Z2-AC11 | Retry élève pour pages en échec de génération | MVP Hardening |
+| Z2-AC12 | Rétention crops alignée RGPD (J+30) | MVP Core |
+| Z2-AC13 | Versioning modèle LLM pour reproductibilité | **MVP Core** |
+
+> **Note :** Z2-AC13 reclassifié Post-MVP → MVP Core. Pour un produit éducatif destiné à des mineurs, la traçabilité des modèles LLM utilisés est une exigence de qualité et de conformité dès le lancement. Sans versioning, un changement de modèle silencieux peut dégrader la qualité des items sans diagnostic possible.
+
+---
+
+## Z3 — Validation HITL — Skip / Ignore / Quality (25 ACs)
+
+| AC | Titre | Classification |
+|---|---|---|
+| Z3-AC01 | Templates bloqués sur items non validés | MVP Core |
+| Z3-AC02 | Action Confirmer sur ValidationTask | MVP Core |
+| Z3-AC03 | Action Corriger sur ValidationTask | MVP Core |
+| Z3-AC04 | Action « Je ne sais pas » sur ValidationTask | MVP Core |
+| Z3-AC05 | Action Ignorer sur ValidationTask | MVP Core |
+| Z3-AC06 | Chapitre utilisable avec 0 validations faites | MVP Core |
+| Z3-AC07 | Régénération cache ciblée après résolution | MVP Core |
+| Z3-AC08 | Parent actif : max 3 ValidationTasks/semaine | MVP Hardening |
+| Z3-AC09 | Pas de ValidationTask si confidence > 0.85 | MVP Core |
+| Z3-AC10 | Cross-check LLM : item fidèle | MVP Core |
+| Z3-AC11 | Cross-check LLM : item halluciné détecté | MVP Core |
+| Z3-AC12 | Cross-check LLM : timeout (dégradation gracieuse) | MVP Core |
+| Z3-AC13 | Détection doublons intra-chapitre | MVP Hardening |
+| Z3-AC14 | Détection contradictions intra-chapitre | MVP Hardening |
+| Z3-AC15 | Signalement d'erreur par l'élève | MVP Hardening |
+| Z3-AC16 | Détection anomalie par taux d'échec anormal | MVP Hardening |
+| Z3-AC17 | Détection taux d'échec : exclure items UNKNOWN | MVP Hardening |
+| Z3-AC18 | Re-check fidelity différé (rattrapage timeout) | MVP Hardening |
+| Z3-AC19 | UX clarification Ignorer vs Je ne sais pas | MVP Core |
+| Z3-AC20 | SLA admin 7 jours sur ValidationTasks non résolues | Post-MVP |
+| Z3-AC21 | Détection anomalie précoce sur items validation_required | Post-MVP |
+| Z3-AC22 | Rétractation de validation erronée | MVP Hardening |
+| Z3-AC23 | Anti-clicking aveugle (détection réponse < 2s) | MVP Hardening |
+| Z3-AC24 | Récupération items Ignorés par l'élève | MVP Hardening |
+| Z3-AC25 | Garde-fou template/type pour items restreints | Post-MVP |
+
+---
+
+## Z4 — Lazy generation — Concurrence & cache (18 ACs)
+
+| AC | Titre | Classification |
+|---|---|---|
+| Z4-AC01 | Pas de doublons sur composition simultanée | MVP Core |
+| Z4-AC02 | Pool de questions non partagé entre sessions actives | MVP Hardening |
+| Z4-AC03 | Invalidation cache après résolution HITL (atomicité) | MVP Core |
+| Z4-AC04 | Renouvellement TTL à la lecture (sliding window) | MVP Hardening |
+| Z4-AC05 | Invalidation complète sur mise à jour pack_version | MVP Hardening |
+| Z4-AC06 | Session interrompue reprise depuis dernier état | MVP Core |
+| Z4-AC07 | Contraintes pack respectées dans composition lazy | MVP Core |
+| Z4-AC08 | Pool vide : dégradation gracieuse | MVP Core |
+| Z4-AC09 | Cache OCR permanent (hash photo) | MVP Hardening |
+| Z4-AC10 | Mock exam non bloqué par session daily active | MVP Core |
+| Z4-AC11 | Variété gabarits en session (anti-monotonie) | MVP Hardening |
+| Z4-AC12 | Feedback enrichi après réponse incorrecte | MVP Core |
+| Z4-AC13 | Bouton Passer sans pénalité maîtrise | MVP Hardening |
+| Z4-AC14 | Session viable sur petit chapitre (< 5 items) | MVP Hardening |
+| Z4-AC15 | Anti-lassitude : renouvellement questions vues | Post-MVP |
+| Z4-AC16 | Contenu fallback si LLM indisponible | MVP Hardening |
+| Z4-AC17 | Invalidation cache sur CRUD Exam | MVP Core |
+| Z4-AC18 | État « tout à jour » : session consolidation optionnelle | Post-MVP |
+
+---
+
+## Z5 — ChapterRevision — Item identity & Mastery inheritance (10 ACs)
+
+| AC | Titre | Classification |
+|---|---|---|
+| Z5-AC01 | Clé d'identité canonique de l'item | MVP Core |
+| Z5-AC02 | Héritage mastery sur re-upload (même item) | MVP Core |
+| Z5-AC03 | Normalisation « PIB/habitant » vs « PIB par habitant » | MVP Core |
+| Z5-AC04 | Conflit OCR : terme ambigu entre révisions | MVP Core |
+| Z5-AC05 | Révision courante unique par chapitre | MVP Core |
+| Z5-AC06 | Sessions actives non affectées par nouvelle révision | MVP Core |
+| Z5-AC07 | Items archivés non proposés en session | MVP Core |
+| Z5-AC08 | Historique maîtrise préservé entre révisions | MVP Hardening |
+| Z5-AC09 | Normalisation insensible ponctuation (I.D.H. = IDH) | MVP Core |
+| Z5-AC10 | Alerte items haute maîtrise absents de la nouvelle révision | MVP Hardening |
+
+---
+
+## Z6 — Schedule, Notifications, Engagement & Parent trust (42 ACs)
+
+| AC | Titre | Classification |
+|---|---|---|
+| Z6-AC01 | CRUD ScheduleSlot | MVP Core |
+| Z6-AC02 | Notification capture_reminder déclenchée par emploi du temps | MVP Core |
+| Z6-AC03 | review_reminder si chapitre déjà capturé | MVP Core |
+| Z6-AC04 | Max 2 notifications par soirée | MVP Core |
+| Z6-AC05 | Session evening_first déclenchée après upload | MVP Core |
+| Z6-AC06 | evening_first : 100% UNKNOWN, difficulté 1 uniquement | MVP Core |
+| Z6-AC07 | Session pre_class la veille de chaque cours | MVP Core |
+| Z6-AC08 | Fusion pre_class dans daily si même soirée | MVP Core |
+| Z6-AC09 | pre_class : scope multi-chapitres par matière | MVP Core |
+| Z6-AC10 | Mock exam multi-chapitres couvre tous les chapitres liés | MVP Core |
+| Z6-AC11 | Exam multi-chapitre : création et liaison | MVP Core |
+| Z6-AC12 | Mode dégradé sans emploi du temps | MVP Core |
+| Z6-AC13 | Notifications désactivables sans impact sessions | MVP Core |
+| Z6-AC14 | Pas de pre_class si aucun chapitre actif dans la matière | MVP Core |
+| Z6-AC15 | Pas de pénalité maîtrise pour items en retard | MVP Core |
+| Z6-AC16 | Rappel unique le lendemain matin pour evening_first manquée | MVP Hardening |
+| Z6-AC17 | Rappel unique le lendemain matin pour pre_class manquée | MVP Hardening |
+| Z6-AC18 | Pas de mécanique de streak | MVP Core |
+| Z6-AC19 | Annulation ponctuelle de cours (ScheduleException) | MVP Hardening |
+| Z6-AC20 | Déplacement ponctuel de cours | MVP Hardening |
+| Z6-AC21 | Exception isolée à une matière | MVP Hardening |
+| Z6-AC22 | Nettoyage auto exceptions passées (30 jours) | Post-MVP |
+| Z6-AC23 | Déplacement vers jour déjà occupé (déduplication) | Post-MVP |
+| Z6-AC24 | Notification parent : changement emploi du temps (temps réel) | MVP Hardening |
+| Z6-AC25 | Notification parent : session manquée (lendemain matin) | MVP Hardening |
+| Z6-AC26 | Notification parent : inactivité prolongée (3 jours) | MVP Hardening |
+| Z6-AC27 | Opt-out parent par catégorie de notification | MVP Core |
+| Z6-AC28 | Ré-engagement progressif après 7+ jours d'inactivité | Post-MVP |
+| Z6-AC29 | Alerte exams simultanés même jour | Post-MVP |
+| Z6-AC30 | Session « retour en douceur » après absence prolongée | MVP Hardening |
+| Z6-AC31 | Cycle post-exam : archivage progressif des intervalles | MVP Hardening |
+| Z6-AC32 | Diagnostic initial : rampe de difficulté progressive | MVP Hardening |
+| Z6-AC33 | Digest parent : supplément pré-contrôle à J-3 | MVP Hardening |
+| Z6-AC34 | Notification parent : résumé hebdo sessions manquées (anti-fatigue) | MVP Hardening |
+| Z6-AC35 | Digest parent hebdo : contenu 5 sections standardisées | MVP Core |
+| Z6-AC36 | Digest parent : signalement OCR échoué | MVP Hardening |
+| Z6-AC37 | Feedback après résolution admin d'une ValidationTask | Post-MVP |
+| Z6-AC38 | Labels maîtrise traduits pour les parents | MVP Core |
+| Z6-AC39 | Vue progression globale cross-chapitres | MVP Hardening |
+| Z6-AC40 | Archivage de chapitre (soft delete) par l'élève | Post-MVP |
+| Z6-AC41 | Résilience réseau : persistance optimiste des réponses | MVP Hardening |
+| Z6-AC42 | Multi-exam par chapitre + resserrement exam le plus proche | MVP Core |
+
+---
+
+## Résumé
+
+| Classification | Z1 | Z2 | Z3 | Z4 | Z5 | Z6 | **Total** |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **MVP Core** | 16 | 12 | 12 | 8 | 8 | 20 | **76** |
+| **MVP Hardening** | 5 | 1 | 8 | 7 | 2 | 16 | **39** |
+| **Post-MVP** | 1 | 0 | 5 | 3 | 0 | 6 | **15** |
+| **Total** | 22 | 13 | 25 | 18 | 10 | 42 | **130** |
+
+### Changements par rapport à l'analyse initiale
+
+| AC | Ancien | Nouveau | Justification |
+|---|---|---|---|
+| Z1-AC21 | Post-MVP | **MVP Core** | Anti-frustration indispensable pour le public 11-15 ans : sans descente de difficulté, le cycle d'échec répété provoque l'abandon dès la semaine 1. |
+| Z2-AC13 | Post-MVP | **MVP Core** | Traçabilité LLM nécessaire dès le lancement pour un produit éducatif destiné à des mineurs : diagnostic de drift et rollback informé. |
