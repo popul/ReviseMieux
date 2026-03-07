@@ -4,7 +4,7 @@
 |---|---|
 | **Version** | 1.5 |
 | **Date** | 7 mars 2026 |
-| **Total ACs** | 171 (7 zones) |
+| **Total ACs** | 175 (7 zones) |
 
 ---
 
@@ -152,7 +152,7 @@
 
 ---
 
-## Z6 — Schedule, Notifications, Engagement & Parent trust (53 ACs)
+## Z6 — Schedule, Notifications, Engagement & Parent trust (54 ACs)
 
 | AC | Titre | Classification |
 |---|---|---|
@@ -209,10 +209,11 @@
 | Z6-AC51 | Timezone locale : détection automatique et configuration | **MVP Core** |
 | Z6-AC52 | Zone scolaire et calendrier de vacances intégré | **MVP Core** |
 | Z6-AC53 | Mode vacances : jours et créneau de révision | **MVP Core** |
+| Z6-AC54 | Créneaux d'indisponibilité récurrents (sport, activités) | **MVP Core** |
 
 ---
 
-## Z7 — Routine de soirée & Orchestration (23 ACs)
+## Z7 — Routine de soirée & Orchestration (26 ACs)
 
 | AC | Titre | Classification |
 |---|---|---|
@@ -239,6 +240,9 @@
 | Z7-AC21 | Vue « Angles morts » : contenu sans contrôle à venir | **MVP Core** |
 | Z7-AC22 | Prédiction interro surprise : score de probabilité par matière | MVP Hardening |
 | Z7-AC23 | Alerte croisée « notion fragile × jamais testée en contrôle » | MVP Hardening |
+| Z7-AC24 | Bouton « S'avancer » : réviser les items des jours suivants | **MVP Core** |
+| Z7-AC25 | Fiches de révision PDF pour heures d'étude (hors téléphone) | **MVP Core** |
+| Z7-AC26 | Report des résultats papier (checklist post-étude) | **MVP Core** |
 
 ---
 
@@ -246,10 +250,10 @@
 
 | Classification | Z1 | Z2 | Z3 | Z4 | Z5 | Z6 | Z7 | **Total** |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **MVP Core** | 20 | 13 | 12 | 8 | 10 | 30 | 15 | **108** |
+| **MVP Core** | 20 | 13 | 12 | 8 | 10 | 31 | 18 | **112** |
 | **MVP Hardening** | 5 | 1 | 8 | 7 | 2 | 17 | 8 | **48** |
 | **Post-MVP** | 1 | 0 | 5 | 3 | 0 | 6 | 0 | **15** |
-| **Total** | 26 | 14 | 25 | 18 | 12 | 53 | 23 | **171** |
+| **Total** | 26 | 14 | 25 | 18 | 12 | 54 | 26 | **175** |
 
 ### Changements par rapport à l'analyse initiale
 
@@ -271,3 +275,5 @@
 | Z6-AC01 | *Réécrit (zone Z6)* | **MVP Core** | Saisie emploi du temps contextuelle au premier upload d'une matière (grille jour/période inline). Remplace la saisie onboarding. |
 | Z6-AC47 | *Réécrit (zone Z6)* | **MVP Core** | Mode dégradé par matière (non global). Bandeau contextuel sur la carte de leçon. |
 | Z6-AC52→53 | *Nouveau (zone Z6)* | **2 MVP Core** | Zone scolaire + calendrier vacances intégré, mode vacances (choix jours + créneau de révision). |
+| Z6-AC54 | *Nouveau (zone Z6)* | **1 MVP Core** | Créneaux d'indisponibilité récurrents (soirs de sport/activités), redistribution automatique. |
+| Z7-AC24→26 | *Nouveau (zone Z7)* | **3 MVP Core** | Bouton « S'avancer » weekend, fiches PDF imprimables pour heures d'étude, report résultats papier par checklist. |
