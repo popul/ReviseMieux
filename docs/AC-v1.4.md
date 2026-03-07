@@ -6,8 +6,8 @@
 > |---|---|
 > | **Version** | 1.4 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 6 zones critiques identifiées — 127 AC en format Given/When/Then |
-> | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) + anti-frustration élève (feedback explicatif blocage 24h Z1, descente difficulté échecs répétés Z1, fallback LLM indisponible Z4, récupération items ignorés Z3) + anti-silent-failures (anti-starvation items UNKNOWN Z1, garde-fou template/type Z3, invalidation cache exam Z4) |
+> | **Périmètre** | 6 zones critiques identifiées — 130 AC en format Given/When/Then |
+> | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) + anti-frustration élève (feedback explicatif blocage 24h Z1, descente difficulté échecs répétés Z1, fallback LLM indisponible Z4, récupération items ignorés Z3) + anti-silent-failures (anti-starvation items UNKNOWN Z1, garde-fou template/type Z3, invalidation cache exam Z4) + correctifs modèle (session all-SOLID Z4, alerte items perdus re-upload Z5, multi-exam par chapitre Z6, fix Chapter.exam_ids[] pluriel) |
 > | **Évolutions v1.3 vs v1.2** | +9 AC anti-désengagement : plafond maîtrise items non validés (Z1), micro-célébrations + débrief session (Z1), retour en douceur après absence + cycle post-exam + rampe diagnostic + digest pré-contrôle + anti alert-fatigue parent (Z6) |
 > | **Évolutions v1.2 vs v1.1** | +8 AC couvrant les angles morts identifiés : retry élève pipeline (Z2), re-vérification fidelity timeout + UX validation + SLA admin + détection précoce (Z3), normalisation ponctuation OCR (Z5), ré-engagement inactivité + alerte exams simultanés (Z6) |
 > | **Usage** | À intégrer comme contexte système avant chaque session de vibe coding, et à transformer en tests unitaires |
@@ -21,10 +21,10 @@
 | Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 22 |
 | Z2 | Pipeline J0 — Error paths, timeouts & RGPD | Très élevé | 13 |
 | Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 25 |
-| Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 17 |
-| Z5 | ChapterRevision — Identité Item & héritage | Élevé | 9 |
-| Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 41 |
-| | **Total** | | **127** |
+| Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 18 |
+| Z5 | ChapterRevision — Identité Item & héritage | Élevé | 10 |
+| Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 42 |
+| | **Total** | | **130** |
 
 ---
 
@@ -772,6 +772,16 @@
 
 > **NOTE :** Le PRD §12.2 liste 4 triggers d'invalidation cache (re-upload, résolution HITL, pack version, mastery change) mais omet le CRUD Exam. Or la création d'un exam est l'événement qui change le plus radicalement la priorité des items (compression des intervalles). Sans invalidation, la première session après création d'un exam utilise un cache composé sans urgence exam — les items sous-prioritaires ne sont pas remontés, et l'élève perd un jour de révision optimale.
 
+### Z4-AC18 — État « tout est à jour » : session optionnelle quand aucun item n'est dû
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a 15 items, tous en état OK ou SOLID. Aucun `next_due_at` n'est ≤ aujourd'hui. Aucun exam dans les 7 prochains jours. L'élève ouvre l'app et tente de lancer une session. |
+| **WHEN** | Le moteur de composition ne trouve aucun item éligible pour le bucket 70% (dues) ni le bucket 20% (consolidation récente). |
+| **THEN** | L'interface affiche un message positif : « Bravo — tu es à jour sur tous tes chapitres ! Prochaine révision prévue [date du prochain next_due_at]. » Un bouton optionnel « Session de consolidation » est proposé. S'il clique, une session courte (5 questions) est composée à partir des items SOLID les plus anciennement révisés (anti-oubli long terme). Cette session est de type `consolidation_optional` et n'a aucun impact négatif sur le mastery en cas d'échec (pas de régression SOLID→OK). En cas d'exam dans les 7 jours, le message change : « Tu es bien préparé pour [nom exam] ! Tu peux refaire un contrôle blanc ou une session de consolidation. » |
+
+> **NOTE :** L'élève diligent qui a tout révisé et ouvre l'app face à un écran vide (« rien à faire ») se sent récompensé par... rien. C'est le moment où il décide que l'app est inutile et arrête de l'ouvrir. Le message positif + la session optionnelle sans risque maintiennent l'habitude quotidienne sans punir la surperformance.
+
 ---
 
 ## Z5 — ChapterRevision — Identité Item & héritage Mastery
@@ -857,6 +867,16 @@
 | **THEN** | La normalisation supprime les points (`.`), tirets (`-`), barres obliques (`/`), espaces multiples et apostrophes typographiques avant comparaison. `normalized("I.D.H.") == normalized("IDH") == "idh"`. L'héritage Mastery s'applique (cf. Z5-AC02). La liste des caractères supprimés est configurable par pack (pour les cas où le tiret est sémantique, ex. `demi-vie`). |
 
 > **NOTE :** Ce AC complète Z5-AC01 et Z5-AC03 pour couvrir les variations OCR fréquentes sur les sigles et abréviations (IDH/I.D.H., PIB/P.I.B., pH/p.H.). Sans cette normalisation étendue, chaque variation OCR crée un doublon et orpheline le Mastery existant — c'est la source principale de régression silencieuse sur les re-uploads. La configurabilité par pack permet de préserver les cas où la ponctuation est sémantique.
+
+### Z5-AC10 — Alerte items à haute maîtrise non retrouvés dans la nouvelle révision
+
+| | |
+|---|---|
+| **GIVEN** | Le chapitre a 12 items dans R1. 3 items sont en état SOLID (« chloroplaste », « photosynthèse », « stomate »). L'élève re-uploade ses photos (R2). L'OCR de R2 produit 10 items. L'item « chloroplaste » n'est pas retrouvé dans R2 (page manquante ou OCR raté sur ce mot). |
+| **WHEN** | L'héritage Mastery de R1→R2 est calculé (Z5-AC02 à Z5-AC04). |
+| **THEN** | Les items de R1 qui étaient en état **OK ou SOLID** et qui n'ont pas de correspondance dans R2 sont listés dans une alerte in-app à l'élève : « Attention — [N] point(s) bien maîtrisés n'ont pas été retrouvés dans ta nouvelle version : [liste des terms]. Vérifie que toutes les pages sont bien uploadées. » L'alerte propose deux actions : (1) « Re-uploader les pages manquantes » (relance le pipeline J0 avec des pages additionnelles), (2) « C'est normal, ce contenu n'est plus au programme » (confirme l'archivage). Les items archivés sans confirmation restent visibles dans la section « Points non retrouvés » pendant 14 jours avant archivage définitif. Le parent est informé dans le prochain digest si des items SOLID ont été perdus. |
+
+> **NOTE :** Un re-upload qui fait disparaître silencieusement des items SOLID est une régression invisible. L'élève qui a travaillé pendant 2 semaines pour amener « chloroplaste » à SOLID ne doit pas découvrir sa disparition par hasard. L'alerte explicite transforme un échec silencieux en action corrective (re-upload de la page manquante). Le délai de 14 jours avant archivage définitif laisse le temps de réagir.
 
 ---
 
@@ -1234,8 +1254,18 @@
 
 > **NOTE :** Un collégien utilise l'app en transport en commun, dans sa chambre avec du wifi instable, ou en zone blanche. Sans persistance optimiste, une déconnexion de 10 secondes = réponse perdue + l'élève doit recommencer = frustration maximale → fermeture de l'app. Le feedback optimiste local permet une UX fluide. Le mastery serveur reste cohérent car il n'est mis à jour qu'à la synchro confirmée.
 
+### Z6-AC42 — Support multi-exam par chapitre et resserrement sur l'exam le plus proche
+
+| | |
+|---|---|
+| **GIVEN** | Le chapitre « Les inégalités » est lié à deux exams : une interrogation chapitre le 15 mars (`exam_interro`) et un contrôle de séquence le 22 mars (`exam_sequence`). Le modèle utilise `Chapter.exam_ids[]` (pluriel). Le resserrement Z1-AC08 doit choisir une date de référence. |
+| **WHEN** | Le moteur de composition calcule les intervalles pour les items de ce chapitre. |
+| **THEN** | Le resserrement utilise **l'exam actif (`status = active`) le plus proche** comme référence pour `T = exam_date - now`. Si `exam_interro` est le 15 mars et `exam_sequence` le 22 mars, `T` est calculé sur le 15 mars. Après le 15 mars, `exam_interro` passe en `status = past` (Z6-AC31), et le resserrement bascule automatiquement sur `exam_sequence` (T recalculé sur le 22 mars). Le digest parent pré-contrôle (Z6-AC33) est envoyé à J-3 de **chaque** exam actif (deux digests distincts si les dates sont espacées de > 3 jours). Le mock exam (Z6-AC10) est composé pour l'exam le plus proche. Si l'élève supprime un exam, les `next_due_at` sont recalculés sur l'exam actif suivant, ou décompressés si aucun exam actif ne reste (cohérent avec Z4-AC17). |
+
+> **NOTE :** Le modèle initial avait `Chapter.exam_id` (singulier) — un chapitre ne pouvait référencer qu'un seul exam. Or au collège, un chapitre peut être interrogé en interro de chapitre PUIS en contrôle de séquence/brevet blanc. Sans le pluriel, l'élève devait choisir quel exam lier, et le resserrement ne fonctionnait que pour un seul. La bascule automatique entre exams évite une rupture de révision entre l'interro et le contrôle de séquence.
+
 ---
 
-> Ces 127 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 130 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
 *Fin du document — Révise Mieux AC v1.4 · 7 mars 2026*

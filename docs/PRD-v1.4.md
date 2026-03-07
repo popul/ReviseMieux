@@ -648,7 +648,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 | **ScheduleSlot** | `id` · `user_id` · `subject` · `day_of_week (1–7)` · `period (morning\|afternoon)` · `created_at` |
 | **ScheduleException** | `id` · `user_id` · `subject` · `original_date` · `type (cancelled\|moved)` · `moved_to_date?` · `moved_to_period?` · `created_at` |
 | **Exam** | `id` · `user_id` · `name?` · `exam_date` · `chapter_ids[]` · `status (active\|past)` · `created_at` |
-| **Chapter** | `id` · `subject` · `class_level` · `name` · `exam_id?` · `pack_id` · `current_revision_id` · `archived? (boolean, default false)` |
+| **Chapter** | `id` · `subject` · `class_level` · `name` · `exam_ids[]` · `pack_id` · `current_revision_id` · `archived? (boolean, default false)` |
 | **ChapterRevision** | `id` · `chapter_id` · `revision_number` · `created_at` · `pages[]` · `status` |
 | **Page** | `id` · `revision_id` · `photo_url` · `order` · `ocr_status` |
 | **Block** | `id` · `page_id` · `type (TEXT\|PHOTO\|SCHEMA\|MAP\|GRAPH\|TABLE\|CIRCUIT)` · `crop` · `confidence` · `ocr_text?` |
@@ -872,6 +872,9 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 | **Items UNKNOWN jamais présentés en session (starvation par file FRAGILE)** | **Haute** | **Élevé** | Minimum 1 item UNKNOWN/session si starvation > 7 jours (AC Z1-AC22). Alerte admin si 0 tentatives depuis > 14 jours. Indicateur « N points pas encore abordés » sur dashboard élève. |
 | **Mismatch template/type d'item → échecs injustes sur items restreints** | **Moyenne** | **Élevé** | Garde-fou template adaptant la formulation au type d'item PROCEDURE (AC Z3-AC25). Log `template_type_mismatch` pour suivi admin. Template MCQ formule préféré aux templates KNOWLEDGE. |
 | **Création d'exam pas dans les triggers d'invalidation cache → priorités stale** | **Haute** | **Élevé** | Invalidation `question_candidates` sur CRUD Exam (AC Z4-AC17). Recalcul next_due_at sur suppression exam (annulation compression). Log `EXAM_CACHE_INVALIDATION`. |
+| **Élève diligent = rien à faire dans l'app → perte d'habitude** | **Moyenne** | **Élevé** | Message positif « à jour » + session consolidation optionnelle sans risque de régression (AC Z4-AC18). |
+| **Items SOLID perdus silencieusement sur re-upload (page manquante)** | **Haute** | **Très élevé** | Alerte explicite listant les items OK/SOLID non retrouvés dans R2 (AC Z5-AC10). Option re-upload pages manquantes. Délai 14 jours avant archivage définitif. |
+| **Chapter.exam_id singulier → un seul exam par chapitre, resserrement cassé** | **Haute** | **Élevé** | Modèle corrigé : `Chapter.exam_ids[]` (pluriel). Resserrement sur exam actif le plus proche, bascule automatique après exam passé (AC Z6-AC42). |
 
 ---
 
