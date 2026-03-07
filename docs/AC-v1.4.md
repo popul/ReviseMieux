@@ -6,8 +6,8 @@
 > |---|---|
 > | **Version** | 1.4 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 6 zones critiques identifiées — 112 AC en format Given/When/Then |
-> | **Évolutions v1.4 vs v1.3** | +9 AC confiance parent & RGPD : rétention crops alignée J+30 (Z2), score mock exam avec caveat qualité + exclusion script 3 min (Z1), digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits (Z6) |
+> | **Périmètre** | 6 zones critiques identifiées — 116 AC en format Given/When/Then |
+> | **Évolutions v1.4 vs v1.3** | +13 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) |
 > | **Évolutions v1.3 vs v1.2** | +9 AC anti-désengagement : plafond maîtrise items non validés (Z1), micro-célébrations + débrief session (Z1), retour en douceur après absence + cycle post-exam + rampe diagnostic + digest pré-contrôle + anti alert-fatigue parent (Z6) |
 > | **Évolutions v1.2 vs v1.1** | +8 AC couvrant les angles morts identifiés : retry élève pipeline (Z2), re-vérification fidelity timeout + UX validation + SLA admin + détection précoce (Z3), normalisation ponctuation OCR (Z5), ré-engagement inactivité + alerte exams simultanés (Z6) |
 > | **Usage** | À intégrer comme contexte système avant chaque session de vibe coding, et à transformer en tests unitaires |
@@ -21,10 +21,10 @@
 | Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 19 |
 | Z2 | Pipeline J0 — Error paths, timeouts & RGPD | Très élevé | 12 |
 | Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 21 |
-| Z4 | Lazy generation — Concurrence & cache | Élevé | 10 |
+| Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 14 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 9 |
 | Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 41 |
-| | **Total** | | **112** |
+| | **Total** | | **116** |
 
 ---
 
@@ -622,6 +622,46 @@
 | **WHEN** | CB1 est composé. |
 | **THEN** | CB1 est une session indépendante avec son propre pool de questions. CB1 n'est pas bloqué par S1. Les deux sessions coexistent. Les Mastery updates de CB1 sont appliqués indépendamment de S1. |
 
+### Z4-AC11 — Variété de gabarits dans une session (anti-monotonie)
+
+| | |
+|---|---|
+| **GIVEN** | Une session `daily` est composée avec 10 questions. Le pool contient des questions de types FLASH_MCQ, DEF_SHORT, CLOZE_KEYWORDS, ASSOC_TERM_DEF, et DOC.EXTRACT_EVIDENCE. |
+| **WHEN** | Le moteur de composition ordonne les questions dans la session. |
+| **THEN** | Aucun gabarit identique (`template_id`) ne peut apparaître plus de **2 fois consécutives**. Si la contrainte ne peut pas être respectée (pool trop petit), elle est relaxée mais loggée. La session alterne les types de questions (`question_type`) autant que possible : pas 3 MCQ d'affilée si des SHORT_ANSWER sont disponibles. L'ordonnancement est déterministe (pas random) : il alterne les types par round-robin sur les types disponibles. |
+
+> **NOTE :** 5 flashcards consécutives rendent la session monotone et mécanique. L'alternance des types de questions maintient l'attention et active différents circuits cognitifs (reconnaissance ≠ rappel ≠ production). Cette contrainte n'affecte pas la sélection des items (qui reste 70/20/10), seulement l'ordonnancement des questions dans la session.
+
+### Z4-AC12 — Feedback enrichi après réponse incorrecte
+
+| | |
+|---|---|
+| **GIVEN** | L'élève répond incorrectement à une question de type KEYWORDS sur l'item « photosynthèse » (keywords attendus : chloroplaste, lumière, CO2). L'élève a répondu « les plantes font de la nourriture ». |
+| **WHEN** | La correction est affichée. |
+| **THEN** | Le feedback contient **3 éléments obligatoires** : — **1. La réponse correcte** : « Les mots-clés attendus étaient : chloroplaste, lumière, CO2 ». — **2. Ce qui manquait** (spécifique au type) : KEYWORDS → mots-clés manquants listés. NUMERIC → valeur attendue + unité + formule utilisée. MCQ → explication du distractor choisi (« Tu as choisi X — en réalité, X est faux car... »). — **3. Un indice pour la prochaine fois** (1 phrase max) : « Retiens que la photosynthèse se passe dans les chloroplastes grâce à la lumière et au CO2. ». Le feedback est généré par template (pas par LLM en temps réel) pour garantir la cohérence et la vitesse (< 200 ms). Le feedback est toujours factuel, jamais culpabilisant. |
+
+> **NOTE :** Un feedback qui dit juste « Faux — la bonne réponse est X » n'enseigne rien. L'indice en 1 phrase est le micro-moment d'apprentissage le plus puissant de la session. Le contenu est templaté (pas LLM live) pour garantir la rapidité et éviter les hallucinations dans le feedback lui-même.
+
+### Z4-AC13 — Bouton « Passer » sur une question (sans pénalité mastery)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève est bloqué sur une question de type NUMERIC. Il ne connaît pas la formule. |
+| **WHEN** | L'élève appuie sur « Passer cette question ». |
+| **THEN** | La question est marquée `status = SKIPPED`. Le Mastery state de l'item n'est **PAS modifié** (ni progression, ni régression). `consecutive_successes` n'est pas remis à 0. La question est placée en fin de session (si la session a encore ≥ 3 questions restantes) pour une seconde chance. Si l'élève la passe à nouveau, elle est comptée comme non répondue. Le feedback de la réponse correcte est affiché après le 2ème passage (l'élève voit la solution même s'il n'a pas répondu). Maximum 2 « Passer » par session (au-delà, le bouton est grisé). |
+
+> **NOTE :** Sans mécanisme « Passer », un élève bloqué sur une question de calcul reste immobile → frustration → fermeture de l'app. Le « Passer » sans pénalité mastery est cohérent avec le principe « seule une réponse incorrecte déclenche une régression » (Z1-AC05 à Z1-AC07). La limite de 2 passes par session empêche l'abus (tout passer sans réfléchir). La solution affichée après le 2ème passage transforme un moment de blocage en moment d'apprentissage.
+
+### Z4-AC14 — Session viable sur petit chapitre (< 5 items)
+
+| | |
+|---|---|
+| **GIVEN** | Un chapitre n'a que 3 items valides. Le moteur de composition doit créer une session `daily`. |
+| **WHEN** | La composition est lancée. |
+| **THEN** | La session est composée avec **au minimum 4 questions** : chaque item génère au moins 1 question, et l'item le plus fragile en génère 2 (gabarits différents sur le même item). La durée cible est réduite à 3–5 min (au lieu de 10–20 min). Si le pool de gabarits éligibles est épuisé (tous les gabarits déjà utilisés pour ces 3 items), la session utilise des reformulations : même item + même gabarit mais avec des distractors différents (MCQ) ou un ordre de keywords différent (CLOZE). Le message d'introduction adapte les attentes : « Petite session rapide — [N] questions sur ce chapitre ». |
+
+> **NOTE :** Un chapitre avec 3 items est courant (élève qui n'a photographié qu'une seule page, ou cours très court). Sans ce AC, la session serait de 2 questions identiques à la veille — l'élève sent qu'il tourne en rond. La reformulation (distractors différents, ordre différent) crée une illusion de nouveauté tout en testant les mêmes connaissances sous des angles différents.
+
 ---
 
 ## Z5 — ChapterRevision — Identité Item & héritage Mastery
@@ -1056,6 +1096,6 @@
 
 ---
 
-> Ces 112 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 116 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
 *Fin du document — Révise Mieux AC v1.4 · 7 mars 2026*

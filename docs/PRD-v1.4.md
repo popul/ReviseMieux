@@ -852,6 +852,10 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 | Labels maîtrise incompréhensibles pour les parents | Moyenne | Moyen | Traduction UNKNOWN/FRAGILE/OK/SOLID en langage parent (AC Z6-AC38). % maîtrise calculé sur OK+SOLID uniquement. |
 | Items sous investigation proposés dans script 3 minutes | Moyenne | Élevé | Script exclut items avec `validation_required` ou `anomaly_flag` (AC Z1-AC19). Évite que le parent teste l'enfant sur du contenu potentiellement faux. |
 | Résolution admin sans feedback → boîte noire | Faible | Moyen | Notification in-app élève + mention dans digest parent après résolution admin (AC Z6-AC37). Ferme la boucle de feedback. |
+| Sessions monotones (5 MCQ consécutifs) → ennui | Haute | Moyen | Variété de gabarits imposée : max 2 consécutifs du même template, alternance round-robin des question_type (AC Z4-AC11). |
+| Feedback « Faux » sans explication → pas d'apprentissage | Haute | Élevé | Feedback structuré obligatoire : réponse correcte + ce qui manquait + indice 1 phrase. Templaté, pas LLM live (AC Z4-AC12). |
+| Élève bloqué sans pouvoir passer → frustration → fermeture app | Moyenne | Élevé | Bouton « Passer » sans pénalité mastery, max 2/session, question remise en fin de session (AC Z4-AC13). |
+| Petit chapitre (3 items) = session non viable | Moyenne | Moyen | Session minimum 4 questions, reformulation avec distractors/ordres différents, durée adaptée 3-5 min (AC Z4-AC14). |
 
 ---
 
