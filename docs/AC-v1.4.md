@@ -6,8 +6,8 @@
 > |---|---|
 > | **Version** | 1.4 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 7 zones critiques identifiées — 169 AC en format Given/When/Then |
-> | **Évolutions v1.5 vs v1.4.1** | +4 AC zone Z1 : accès leçon contextuel pendant question (AC23), reformulation « je ne comprends pas » (AC24), scoring de réponse partielle (AC25), matrice transition maîtrise avec hint/clarification/partiel (AC26). +7 AC zone Z6 : onboarding parent et liaison élève (AC45), comportement jour d'examen (AC46), mode dégradé sans emploi du temps (AC47), multi-exam overlapping reset+recompression (AC48), mock exam J-3 auto + à la demande (AC49), parent multi-enfants notif par enfant (AC50), timezone locale auto (AC51). +23 AC zone Z7 « Routine de soirée & Orchestration ». Orchestration : EveningPlan (AC01), dashboard soirée (AC02), séquencement multi-matières (AC03), estimation durée (AC04), état « fini pour ce soir » (AC05), guidage capture in-app (AC06), séquencement sessions (AC07), mode express (AC08), complétion partielle (AC09), rien à faire (AC10), week-end (AC11), capture cours demain (AC12), devoirs (AC13), arc émotionnel (AC14), notif parent routine (AC15), onboarding 1re soirée (AC16). Hiérarchie contenu & exam : Notions par concept_tag (AC17), vue chapitre par notion (AC18), périmètre exam par notion (AC19), auto-suggestion exam (AC20), vue angles morts (AC21), prédiction interro surprise (AC22), alerte fragile × non testée (AC23) |
+> | **Périmètre** | 7 zones critiques identifiées — 171 AC en format Given/When/Then |
+> | **Évolutions v1.5 vs v1.4.1** | +4 AC zone Z1 : accès leçon contextuel pendant question (AC23), reformulation « je ne comprends pas » (AC24), scoring de réponse partielle (AC25), matrice transition maîtrise avec hint/clarification/partiel (AC26). +9 AC zone Z6 : onboarding parent et liaison élève (AC45), comportement jour d'examen (AC46), mode dégradé par matière (AC47 réécrit), multi-exam overlapping reset+recompression (AC48), mock exam J-3 auto + à la demande (AC49), parent multi-enfants notif par enfant (AC50), timezone locale auto (AC51), zone scolaire et calendrier vacances intégré (AC52), mode vacances jours + créneau (AC53). AC01 réécrit : saisie emploi du temps contextuelle au premier upload d'une matière (grille jour/période inline). +23 AC zone Z7 « Routine de soirée & Orchestration ». Orchestration : EveningPlan (AC01), dashboard soirée (AC02), séquencement multi-matières (AC03), estimation durée (AC04), état « fini pour ce soir » (AC05), guidage capture in-app (AC06), séquencement sessions (AC07), mode express (AC08), complétion partielle (AC09), rien à faire (AC10), week-end (AC11), capture cours demain (AC12), devoirs (AC13), arc émotionnel (AC14), notif parent routine (AC15), onboarding 1re soirée (AC16). Hiérarchie contenu & exam : Notions par concept_tag (AC17), vue chapitre par notion (AC18), périmètre exam par notion (AC19), auto-suggestion exam (AC20), vue angles morts (AC21), prédiction interro surprise (AC22), alerte fragile × non testée (AC23) |
 > | **Évolutions v1.4.1 vs v1.4** | +5 AC upload incrémental : ajout de pages sans nouvelle révision (Z5-AC11), pas de re-OCR des pages existantes (Z5-AC12), pipeline incrémental (Z2-AC14), session evening_first incrémentale (Z6-AC43), explication dilution maîtrise dashboard (Z6-AC44) |
 > | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) + anti-frustration élève (feedback explicatif blocage 24h Z1, descente difficulté échecs répétés Z1, fallback LLM indisponible Z4, récupération items ignorés Z3) + anti-silent-failures (anti-starvation items UNKNOWN Z1, garde-fou template/type Z3, invalidation cache exam Z4) + correctifs modèle (session all-SOLID Z4, alerte items perdus re-upload Z5, multi-exam par chapitre Z6, fix Chapter.exam_ids[] pluriel) |
 > | **Évolutions v1.3 vs v1.2** | +9 AC anti-désengagement : plafond maîtrise items non validés (Z1), micro-célébrations + débrief session (Z1), retour en douceur après absence + cycle post-exam + rampe diagnostic + digest pré-contrôle + anti alert-fatigue parent (Z6) |
@@ -25,9 +25,9 @@
 | Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 25 |
 | Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 18 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 12 |
-| Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 51 |
+| Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 53 |
 | Z7 | Routine de soirée & Orchestration | Très élevé | 23 |
-| | **Total** | | **169** |
+| | **Total** | | **171** |
 
 ---
 
@@ -959,13 +959,15 @@
 >
 > L'emploi du temps est le socle de toute la couche proactive. Une notification mal ciblée fatigue l'élève. Une session evening_first ou pre_class mal composée dilue la valeur du rappel. Un exam multi-chapitres mal borné explose le temps de session.
 
-### Z6-AC01 — CRUD ScheduleSlot
+### Z6-AC01 — Saisie de l'emploi du temps contextuelle au premier upload d'une matière
 
 | | |
 |---|---|
-| **GIVEN** | L'élève est en onboarding ou dans ses paramètres. |
-| **WHEN** | Il saisit un créneau : matière = 'Physique-Chimie', jour = mardi, période = matin. |
-| **THEN** | Un `ScheduleSlot` est créé avec `user_id`, `subject`, `day_of_week = 2`, `period = 'morning'`. La modification et la suppression sont possibles à tout moment. Un doublon exact `(user_id, subject, day_of_week, period)` est rejeté (contrainte d'unicité). |
+| **GIVEN** | L'élève uploade son premier chapitre d'une matière (ex : Physique-Chimie). Aucun `ScheduleSlot` n'existe pour cette matière. |
+| **WHEN** | Le formulaire de création de chapitre est validé (matière + nom + photos). |
+| **THEN** | Avant de lancer le pipeline J0, l'app affiche un écran inline : « Quand as-tu [Physique-Chimie] dans la semaine ? » avec une **grille jour × période** (Lu–Ve, matin/après-midi). L'élève coche les créneaux (ex : mardi matin + jeudi matin + vendredi après-midi). Un bouton « Plus tard » permet de sauter (l'app fonctionne sans, cf. Z6-AC47). À la confirmation, les `ScheduleSlot` correspondants sont créés en batch (un par case cochée). La contrainte d'unicité `(user_id, subject, day_of_week, period)` s'applique. Si l'élève uploade un 2ème chapitre de la même matière plus tard, cet écran n'apparaît **pas** (les ScheduleSlots existent déjà). La modification et la suppression restent possibles à tout moment dans les paramètres (CRUD standard). |
+
+> **NOTE :** La saisie contextuelle au moment de l'upload résout le problème principal de l'onboarding : un élève de 12 ans ne connaît pas son emploi du temps par cœur et abandonne un formulaire abstrait. Mais au moment où il photographie son cours de Physique, il sait **exactement** quand il a cette matière — la question est naturelle, la réponse immédiate. L'emploi du temps se construit progressivement, matière par matière, au rythme des uploads. Après 2-3 captures (première semaine d'usage), l'agenda est complet sans que l'élève ait eu l'impression de « remplir un formulaire ».
 
 ### Z6-AC02 — Notification capture_reminder déclenchée par emploi du temps
 
@@ -1377,15 +1379,15 @@
 
 > **NOTE :** Le jour de l'exam est un non-lieu pédagogique pour la révision espacée : réviser le matin même n'améliore pas significativement la rétention (l'encodage est déjà consolidé ou pas) et génère de l'anxiété. L'app doit passer du mode « coach de révision » au mode « supporteur » le jour J. L'exclusion des items exam du daily évite le cas absurde où l'app propose « Révise la masse volumique ce soir » alors que l'élève vient de passer le contrôle dessus.
 
-### Z6-AC47 — Emploi du temps non renseigné : mode dégradé fonctionnel
+### Z6-AC47 — Matière sans emploi du temps : mode dégradé par matière
 
 | | |
 |---|---|
-| **GIVEN** | L'élève a créé son compte mais a sauté la saisie de l'emploi du temps (optionnel mais fortement encouragé). Il a capturé un chapitre de Physique. |
+| **GIVEN** | L'élève a capturé un chapitre de Physique mais a sauté l'écran « Quand as-tu Physique ? » (bouton « Plus tard » de Z6-AC01). Aucun `ScheduleSlot` n'existe pour la matière Physique. Il a aussi capturé un chapitre de Maths avec emploi du temps renseigné. |
 | **WHEN** | L'élève ouvre l'app dans la fenêtre de soirée. |
-| **THEN** | L'app fonctionne en **mode dégradé** : (1) Pas de `capture_reminder` (Z6-AC02) car l'app ne sait pas quelles matières ont eu lieu aujourd'hui. (2) Pas de `pre_class` (Z6-AC07) car l'app ne sait pas quels cours sont prévus demain. (3) Le `daily` fonctionne normalement (basé sur les items dues, pas sur l'emploi du temps). (4) L'EveningPlan ne contient que les étapes possibles : captures manuelles + daily. Pas de guidage par matière. (5) Un bandeau persistant (dismissible) s'affiche : « Ajoute ton emploi du temps pour des rappels personnalisés avant chaque cours ! » avec bouton direct vers la saisie. (6) Le dashboard soirée affiche un plan simplifié : « Révision quotidienne (~X min) » sans le contexte matière. Le mode dégradé n'empêche pas l'usage de l'app — l'élève peut capturer des chapitres, faire des sessions, créer des exams. Il perd uniquement le guidage proactif lié au schedule. |
+| **THEN** | L'app fonctionne en **mode dégradé par matière** (pas globalement) : (1) **Physique (sans schedule)** : pas de `capture_reminder` (Z6-AC02), pas de `pre_class` (Z6-AC07) pour cette matière. Le `daily` fonctionne normalement (basé sur les items dues, pas sur le schedule). L'EveningPlan inclut les sessions daily Physique mais sans guidage contextuel (« Tu as eu Physique aujourd'hui »). (2) **Maths (avec schedule)** : toutes les fonctionnalités proactives actives — `capture_reminder`, `pre_class`, guidage par matière. (3) **Bandeau par matière** : un bandeau contextuel s'affiche sur la carte de leçon Physique : « Ajoute tes créneaux de Physique pour des rappels avant chaque cours ! » avec bouton direct vers la grille jour/période (réutilise l'écran de Z6-AC01). Le bandeau est dismissible mais réapparaît à chaque upload d'un nouveau chapitre de cette matière. (4) Le mode dégradé n'empêche pas l'usage — l'élève peut capturer, faire des sessions, créer des exams en Physique. Il perd uniquement le guidage proactif lié au schedule pour cette matière. |
 
-> **NOTE :** Forcer la saisie de l'emploi du temps à l'onboarding est tentant mais risqué : un élève de 12 ans qui ne sait pas son emploi du temps par cœur abandonne l'onboarding. Le mode dégradé permet de commencer immédiatement (valeur en < 5 min) et de compléter l'emploi du temps plus tard. Le bandeau persistant rappelle la valeur ajoutée sans bloquer. C'est le pattern « progressive onboarding » : les fonctionnalités avancées se débloquent à mesure que l'élève fournit des données.
+> **NOTE :** Le mode dégradé par matière (et non global) est la conséquence directe de la saisie contextuelle (Z6-AC01) : l'emploi du temps se construit matière par matière, donc le mode dégradé est aussi matière par matière. Un élève qui a renseigné 3 matières sur 5 bénéficie du guidage proactif pour ces 3 matières, pas d'un mode « tout ou rien ». Le bandeau contextuel sur la carte de leçon est plus efficace qu'un bandeau global car il rappelle la valeur au moment où l'élève interagit avec la matière concernée.
 
 ### Z6-AC48 — Multi-exam overlapping : reset + recompression entre exams
 
@@ -1426,6 +1428,26 @@
 | **THEN** | Le système détecte automatiquement le timezone de l'appareil via l'API système (Intl.DateTimeFormat sur le client) et le stocke dans `user.timezone` (ex : `Europe/Paris`). Toutes les heures sont calculées en heure locale de l'utilisateur : `notification_hour` (défaut 18h30 locale), fenêtre de soirée `evening_window_start/end` (défaut 17h-22h locale), `weekend_notification_hour` (défaut 10h locale), digest parent (dimanche 9h locale), calcul de `next_due_at` (minuit local pour le « jour »). Le champ `user.timezone` est modifiable dans les paramètres (« Fuseau horaire »). Le serveur stocke toutes les dates en UTC et convertit à l'affichage et pour le scheduling des notifications. Si le timezone n'est pas détectable (cas rare), le fallback est `Europe/Paris`. |
 
 > **NOTE :** La France métropolitaine est le marché principal, mais les DOM-TOM représentent ~3% de la population scolaire française et les lycées français à l'étranger sont un segment premium. Un élève à La Réunion qui reçoit sa notification à 18h30 heure de Paris (21h30 locale) ne révisera pas. Le coût d'implémentation est faible (détection auto + stockage d'un string timezone) et évite un problème UX silencieux mais fatal pour ces utilisateurs.
+
+### Z6-AC52 — Zone scolaire et calendrier de vacances intégré
+
+| | |
+|---|---|
+| **GIVEN** | L'élève crée son compte (onboarding) ou uploade son premier chapitre (si la zone n'a pas encore été renseignée). |
+| **WHEN** | L'app détecte que `user.school_zone` est null. |
+| **THEN** | Un écran inline s'affiche : « Tu es en zone ? » avec les options : Zone A, Zone B, Zone C, DOM-TOM / Autre. La zone sélectionnée est stockée dans `user.school_zone`. Le système charge le calendrier des vacances scolaires correspondant pour l'année scolaire en cours (table `SchoolHolidayPeriod` : `zone`, `name`, `start_date`, `end_date`). Le calendrier est pré-intégré (données statiques ou API `data.education.gouv.fr`) et couvre : Toussaint, Noël, Hiver, Printemps, Été. Pour les zones A/B/C, les dates diffèrent pour Hiver et Printemps. Pour DOM-TOM, un calendrier spécifique par académie est intégré (Réunion, Guadeloupe, Martinique, Guyane, Mayotte). La zone est modifiable dans les paramètres (« Zone scolaire »). Le calendrier est mis à jour annuellement (arrêté ministériel publié ~2 ans à l'avance). Pendant une période de vacances (`SchoolHolidayPeriod` active) : (1) les `capture_reminder` et `pre_class` sont **suspendus** (pas de cours), (2) les `daily` sont maintenus selon la configuration vacances (Z6-AC53), (3) le dashboard affiche un bandeau « Mode vacances » avec la date de reprise des cours. |
+
+> **NOTE :** Le calendrier scolaire français est prévisible et officiel — les dates sont publiées 2-3 ans à l'avance par le Ministère. L'intégrer (plutôt que de laisser l'élève activer/désactiver manuellement un « mode vacances ») est un gain UX majeur : aucune action requise de l'élève, le système sait quand sont les vacances. Le seul input nécessaire est la zone (3 options pour la métropole). Les vacances de Toussaint et Noël sont nationales (même dates, toutes zones) ; seuls Hiver et Printemps varient par zone. Le coût est une table de ~20 lignes/an, mise à jour une fois par an.
+
+### Z6-AC53 — Mode vacances : l'élève choisit ses jours et créneau de révision
+
+| | |
+|---|---|
+| **GIVEN** | La période de vacances de Toussaint commence (détectée via `SchoolHolidayPeriod` active pour la zone de l'élève). L'élève n'a pas encore configuré ses préférences vacances. |
+| **WHEN** | L'élève ouvre l'app le premier jour des vacances (ou la veille au soir). |
+| **THEN** | Un écran s'affiche : « C'est les vacances ! Quand veux-tu réviser ? » avec : (1) **Sélection des jours** : grille Lu–Di avec cases à cocher. Pré-coché : lundi, mercredi, vendredi (3 jours, recommandation par défaut). L'élève peut modifier librement (0 à 7 jours). (2) **Créneau préféré** : slider 8h–20h (défaut : 10h). Ce créneau remplace `notification_hour` et `evening_window` pendant les vacances. (3) Bouton « C'est parti ! » pour confirmer ou « Pas maintenant » pour reporter (rappel le lendemain). Les préférences sont stockées dans `VacationPreference` : `user_id`, `holiday_period_id`, `revision_days[]` (tableau de `day_of_week`), `preferred_hour`, `created_at`. Pendant les vacances actives : les notifications de rappel de révision sont envoyées uniquement les jours sélectionnés, à l'heure choisie. Le concept de « soirée » disparaît : l'EveningPlan devient un « RevisionPlan » sans contrainte horaire soirée. Les jours sans révision prévue : aucune notification, aucune culpabilisation. Les items dues sont reportées au prochain jour de révision prévu. Si l'élève ne configure rien (« Pas maintenant » × 3) : fallback = notification quotidienne à `weekend_notification_hour` (10h), douce et non insistante. Les préférences vacances sont **réutilisées** pour la prochaine période de vacances (suggestion « Mêmes jours que la dernière fois ? » avec modification possible). |
+
+> **NOTE :** Pendant les vacances, le rythme scolaire qui structure la soirée disparaît. Sans adaptation, l'app envoie des notifications « Tu as eu Maths aujourd'hui » un 28 décembre — incohérent et irritant. Le mode vacances respecte le rythme de l'élève (il choisit ses jours) tout en maintenant le lien avec l'app (les items dues continuent d'évoluer). La recommandation 3 jours/semaine est un bon compromis : assez fréquent pour maintenir la mémoire, assez espacé pour que ce soit des « vraies vacances ». Le fallback doux (notification quotidienne 10h) garantit que même un élève qui n'a pas configuré ses vacances reçoit un signal minimal sans agression.
 
 ---
 

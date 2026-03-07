@@ -4,7 +4,7 @@
 |---|---|
 | **Version** | 1.5 |
 | **Date** | 7 mars 2026 |
-| **Total ACs** | 169 (7 zones) |
+| **Total ACs** | 171 (7 zones) |
 
 ---
 
@@ -152,11 +152,11 @@
 
 ---
 
-## Z6 — Schedule, Notifications, Engagement & Parent trust (51 ACs)
+## Z6 — Schedule, Notifications, Engagement & Parent trust (53 ACs)
 
 | AC | Titre | Classification |
 |---|---|---|
-| Z6-AC01 | CRUD ScheduleSlot | MVP Core |
+| Z6-AC01 | Saisie emploi du temps contextuelle au premier upload d'une matière | **MVP Core** |
 | Z6-AC02 | Notification capture_reminder déclenchée par emploi du temps | MVP Core |
 | Z6-AC03 | review_reminder si chapitre déjà capturé | MVP Core |
 | Z6-AC04 | Max 2 notifications par soirée | MVP Core |
@@ -202,11 +202,13 @@
 | Z6-AC44 | Dashboard : explication dilution maîtrise après ajout pages | **MVP Core** |
 | Z6-AC45 | Onboarding parent : création de compte et liaison à l'élève | **MVP Core** |
 | Z6-AC46 | Comportement le jour de l'examen | **MVP Core** |
-| Z6-AC47 | Emploi du temps non renseigné : mode dégradé fonctionnel | **MVP Core** |
+| Z6-AC47 | Matière sans emploi du temps : mode dégradé par matière | **MVP Core** |
 | Z6-AC48 | Multi-exam overlapping : reset + recompression entre exams | **MVP Core** |
 | Z6-AC49 | Proposition contrôle blanc : J-3 auto + à la demande | **MVP Core** |
 | Z6-AC50 | Parent multi-enfants : une notification par enfant | MVP Hardening |
 | Z6-AC51 | Timezone locale : détection automatique et configuration | **MVP Core** |
+| Z6-AC52 | Zone scolaire et calendrier de vacances intégré | **MVP Core** |
+| Z6-AC53 | Mode vacances : jours et créneau de révision | **MVP Core** |
 
 ---
 
@@ -244,10 +246,10 @@
 
 | Classification | Z1 | Z2 | Z3 | Z4 | Z5 | Z6 | Z7 | **Total** |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **MVP Core** | 20 | 13 | 12 | 8 | 10 | 28 | 15 | **106** |
+| **MVP Core** | 20 | 13 | 12 | 8 | 10 | 30 | 15 | **108** |
 | **MVP Hardening** | 5 | 1 | 8 | 7 | 2 | 17 | 8 | **48** |
 | **Post-MVP** | 1 | 0 | 5 | 3 | 0 | 6 | 0 | **15** |
-| **Total** | 26 | 14 | 25 | 18 | 12 | 51 | 23 | **169** |
+| **Total** | 26 | 14 | 25 | 18 | 12 | 53 | 23 | **171** |
 
 ### Changements par rapport à l'analyse initiale
 
@@ -266,3 +268,6 @@
 | Z1-AC23→26 | *Nouveau (zone Z1)* | **4 MVP Core** | Aide contextuelle en session : accès leçon par Notion pendant question, reformulation « je ne comprends pas », scoring partiel encourageant, matrice de transition maîtrise consolidée. |
 | Z6-AC45→47 | *Nouveau (zone Z6)* | **3 MVP Core** | Onboarding parent (liaison élève par code invitation), comportement jour d'examen (exclusion items, message encouragement), mode dégradé sans emploi du temps. |
 | Z6-AC48→51 | *Nouveau (zone Z6)* | **3 MVP Core + 1 Hardening** | Multi-exam reset+recompression, mock exam J-3 auto, parent multi-enfants (Hardening), timezone locale auto. |
+| Z6-AC01 | *Réécrit (zone Z6)* | **MVP Core** | Saisie emploi du temps contextuelle au premier upload d'une matière (grille jour/période inline). Remplace la saisie onboarding. |
+| Z6-AC47 | *Réécrit (zone Z6)* | **MVP Core** | Mode dégradé par matière (non global). Bandeau contextuel sur la carte de leçon. |
+| Z6-AC52→53 | *Nouveau (zone Z6)* | **2 MVP Core** | Zone scolaire + calendrier vacances intégré, mode vacances (choix jours + créneau de révision). |

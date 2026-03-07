@@ -139,7 +139,8 @@ Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schém
 
 | Étape | Description |
 |---|---|
-| **Onboarding — Emploi du temps** | Saisie de l'emploi du temps hebdomadaire : pour chaque matière, les créneaux de cours (ex. « Histoire-Géo : mardi 10h, vendredi 14h »). Saisie manuelle, une seule fois. Modifiable à tout moment. |
+| **Onboarding — Zone scolaire** | Saisie de la zone scolaire (A / B / C / DOM-TOM) pour intégrer le calendrier des vacances. Saisie unique, modifiable dans les paramètres. |
+| **J0 — Emploi du temps contextuel** | Lors du premier upload d'une matière, l'app demande « Quand as-tu [Matière] ? » avec une grille jour × période (matin/après-midi). L'emploi du temps se construit progressivement, matière par matière, au rythme des uploads. Modifiable à tout moment dans les paramètres. |
 | **J0 — Création** | Création chapitre : matière, classe, nom, date contrôle (fortement encouragée). Parcours < 60 s. Si date présente, plan calibré automatiquement. |
 | **J0 — Upload** | Upload 1–30 photos. Segmentation immédiate (blocs typés). Carte de leçon préliminaire affichée dès la première page traitée (streaming). |
 | **J0 — Validation** | 0 à 8 validations critiques proposées par ordre d'impact estimé sur la note. Le reste est marqué UNCERTAIN et non bloquant. |
@@ -655,9 +656,11 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 
 | Entité | Champs |
 |---|---|
-| **User** | `id` · `role (student\|parent)` · `consent_parent_at` · `linked_student_id?` · `linked_student_ids[]?` (parent multi-enfants) · `notification_hour?` (défaut 18h30) · `timezone?` (défaut Europe/Paris, détection auto) · `evening_window_start?` (défaut 17h) · `evening_window_end?` (défaut 22h) · `weekend_notification_hour?` (défaut 10h) |
+| **User** | `id` · `role (student\|parent)` · `consent_parent_at` · `linked_student_id?` · `linked_student_ids[]?` (parent multi-enfants) · `school_zone? (A\|B\|C\|reunion\|guadeloupe\|martinique\|guyane\|mayotte)` · `notification_hour?` (défaut 18h30) · `timezone?` (défaut Europe/Paris, détection auto) · `evening_window_start?` (défaut 17h) · `evening_window_end?` (défaut 22h) · `weekend_notification_hour?` (défaut 10h) |
 | **ScheduleSlot** | `id` · `user_id` · `subject` · `day_of_week (1–7)` · `period (morning\|afternoon)` · `created_at` |
 | **ScheduleException** | `id` · `user_id` · `subject` · `original_date` · `type (cancelled\|moved)` · `moved_to_date?` · `moved_to_period?` · `created_at` |
+| **SchoolHolidayPeriod** | `id` · `zone (A\|B\|C\|reunion\|guadeloupe\|martinique\|guyane\|mayotte)` · `name (toussaint\|noel\|hiver\|printemps\|ete)` · `start_date` · `end_date` · `school_year (ex: 2025-2026)` |
+| **VacationPreference** | `id` · `user_id` · `holiday_period_id` · `revision_days[] (tableau de day_of_week 1-7)` · `preferred_hour (int 8-20)` · `created_at` |
 | **Exam** | `id` · `user_id` · `name?` · `exam_date` · `chapter_ids[]` · `notion_ids[]?` (si vide = toutes les notions des chapitres) · `status (active\|past)` · `created_at` |
 | **Chapter** | `id` · `subject` · `class_level` · `name` · `exam_ids[]` · `pack_id` · `current_revision_id` · `archived? (boolean, default false)` |
 | **ChapterRevision** | `id` · `chapter_id` · `revision_number` · `created_at` · `pages[]` · `status` |
