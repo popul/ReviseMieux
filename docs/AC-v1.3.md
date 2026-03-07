@@ -1,12 +1,13 @@
-# Acceptance Criteria — Révise Mieux v1.2
+# Acceptance Criteria — Révise Mieux v1.3
 
 > **Annexe PRD v1.4 · Zones à risque vibe coding**
 >
 > | | |
 > |---|---|
-> | **Version** | 1.2 |
+> | **Version** | 1.3 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 6 zones critiques identifiées — 94 AC en format Given/When/Then |
+> | **Périmètre** | 6 zones critiques identifiées — 103 AC en format Given/When/Then |
+> | **Évolutions v1.3 vs v1.2** | +9 AC anti-désengagement : plafond maîtrise items non validés (Z1), micro-célébrations + débrief session (Z1), retour en douceur après absence + cycle post-exam + rampe diagnostic + digest pré-contrôle + anti alert-fatigue parent (Z6) |
 > | **Évolutions v1.2 vs v1.1** | +8 AC couvrant les angles morts identifiés : retry élève pipeline (Z2), re-vérification fidelity timeout + UX validation + SLA admin + détection précoce (Z3), normalisation ponctuation OCR (Z5), ré-engagement inactivité + alerte exams simultanés (Z6) |
 > | **Usage** | À intégrer comme contexte système avant chaque session de vibe coding, et à transformer en tests unitaires |
 
@@ -16,13 +17,13 @@
 
 | # | Zone | Risque | AC count |
 |---|---|---|---|
-| Z1 | Transitions Mastery (états + régressions) | Très élevé | 14 |
+| Z1 | Transitions Mastery (états + régressions + engagement) | Très élevé | 17 |
 | Z2 | Pipeline J0 — Error paths & timeouts | Très élevé | 11 |
 | Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 21 |
 | Z4 | Lazy generation — Concurrence & cache | Élevé | 10 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 9 |
-| Z6 | Emploi du temps, Notifications & Révision proactive | Élevé | 29 |
-| | **Total** | | **94** |
+| Z6 | Emploi du temps, Notifications, Révision proactive & Engagement | Élevé | 35 |
+| | **Total** | | **103** |
 
 ---
 
@@ -175,6 +176,36 @@
 | **THEN** | L'état reste **SOLID**. `consecutive_successes += 1`. `next_due_at = now + 7 jours` (ajusté par Z1-AC08 si contrôle posé). `last_review_at` est mis à jour. |
 
 > **NOTE :** Un item SOLID qui continue d'être réussi reste SOLID avec un intervalle constant de J+7. L'incrémentation de `consecutive_successes` au-delà de 3 permet de distinguer un item « fraîchement SOLID » d'un item « profondément ancré » pour d'éventuelles heuristiques post-MVP.
+
+### Z1-AC15 — Plafond maîtrise OK pour items restreints aux templates simples
+
+| | |
+|---|---|
+| **GIVEN** | Un item avec `validation_required = true` qui ne reçoit que des gabarits simples (GEN.KNOW.DEF_SHORT, GEN.KNOW.FLASH_MCQ — cf. Z3-AC01). L'item est en état **OK** avec `consecutive_successes = 2`. |
+| **WHEN** | L'élève répond correctement à une question liée à cet item (gabarit simple). |
+| **THEN** | L'état reste **OK** (plafonné). L'item ne peut PAS passer **SOLID** tant que `validation_required = true`. `consecutive_successes` est incrémenté normalement mais la transition OK → SOLID est bloquée. Le dashboard affiche un badge « maîtrise partielle — vérification requise » sur cet item. |
+
+> **NOTE :** C'est le AC le plus critique pour l'intégrité de la maîtrise. Sans ce plafond, un item potentiellement hallucé (fidelity_score null ou < 0.5) peut atteindre SOLID via des QCM triviaux. Le parent voit alors une maîtrise à 80%+ qui ne reflète pas la réalité. Ce AC empêche structurellement la pollution du signal mastery par des items non vérifiés. La résolution de la ValidationTask (Z3-AC02/03) lève automatiquement le plafond.
+
+### Z1-AC16 — Micro-célébration sur transitions de maîtrise positives
+
+| | |
+|---|---|
+| **GIVEN** | Un item vient de transiter vers un nouvel état positif (UNKNOWN → FRAGILE, FRAGILE → OK, OK → SOLID). |
+| **WHEN** | La transition est enregistrée en base (Mastery state update). |
+| **THEN** | L'interface affiche un feedback visuel de célébration adapté à la transition : — UNKNOWN → FRAGILE : message « Bien joué, tu commences à maîtriser [term] ! » (encouragement léger). — FRAGILE → OK : message « [term] est de mieux en mieux — continue comme ça ! » + animation subtile. — OK → SOLID : message « [term] est acquis — bravo ! 🎯 » + animation marquée + compteur d'items SOLID du chapitre incrémenté visiblement. Le feedback est affiché en fin de question (après le feedback de correction), pendant 2 secondes, et ne bloque pas la navigation vers la question suivante. |
+
+> **NOTE :** L'absence de célébration est le premier facteur de désengagement identifié chez les 11-15 ans. Le service valorise la qualité (« tu maîtrises ce concept ») plutôt que la quantité (pas de streak). Les animations sont légères et non-bloquantes — le but est un micro-shot de dopamine, pas une interruption. Ce AC complète Z6-AC18 (pas de streak) : on ne célèbre pas la régularité mais la progression réelle.
+
+### Z1-AC17 — Débrief de fin de session
+
+| | |
+|---|---|
+| **GIVEN** | L'élève termine une session (toutes les questions répondues ou TTL expiré avec ≥ 1 question répondue). |
+| **WHEN** | La session passe en `status = COMPLETED`. |
+| **THEN** | Un écran de débrief est affiché avec : — Score global de la session (X/Y correctes). — Liste des items ayant progressé positivement (transitions vers un état supérieur) avec le nouveau badge. — 1 item prioritaire à revoir (le plus fragile encore, avec `next_due_at` le plus proche). — Message de fermeture contextuel : si session evening_first → « Super première prise de contact ! ». Si session pre_class → « Tu es prêt(e) pour demain ! ». Si session daily → « Bonne révision, à demain ! ». — Bouton unique « Terminer » (pas de partage, pas de gamification complexe). Le débrief est optionnel : l'élève peut fermer l'app sans le lire (pas de blocage). |
+
+> **NOTE :** Le débrief est le moment le plus important pour la rétention. Un élève qui ne sait pas s'il a progressé ne reviendra pas. Ce écran doit être rapide (< 3 secondes de chargement), positif (mettre en avant les progrès, pas les échecs) et actionnable (montrer le prochain objectif). L'absence de débrief est le 2ème facteur de churn identifié après l'absence de célébration.
 
 ---
 
@@ -902,8 +933,58 @@
 
 > **NOTE :** Sans cette détection, l'élève peut se retrouver avec deux contrôles blancs le même jour sans préparation équilibrée. L'alternance des matières dans les sessions pré-exam est plus efficace pour la mémorisation (interleaving effect) et évite la saturation cognitive sur une seule matière.
 
+### Z6-AC30 — Session « retour en douceur » après absence prolongée
+
+| | |
+|---|---|
+| **GIVEN** | L'élève n'a eu aucune activité depuis ≥ 5 jours. Il a 15 items en retard (`next_due_at < now`), dont 8 FRAGILE et 7 OK. Il ouvre l'app et lance une session. |
+| **WHEN** | Le moteur de composition prépare la session. |
+| **THEN** | La session est composée en mode « retour en douceur » : — Durée réduite : 5 min max (au lieu de 10–20 min). — Sélection : uniquement les 4–6 items les plus anciens en retard (pas les 15). — Gabarits : difficulté 1–2 uniquement (rappel, pas d'exercice long). — Message d'accueil : « Content de te revoir ! On reprend doucement avec quelques rappels. ». — Les items non sélectionnés restent en retard et seront proposés dans les sessions suivantes (étalement sur 3–5 jours). Le mode « retour en douceur » se désactive automatiquement après 2 sessions complétées consécutivement. |
+
+> **NOTE :** Sans ce mécanisme, un élève qui revient après une semaine voit une session de 20 min bourrée d'items qu'il a oubliés → cascade d'échecs → sentiment d'incompétence → décrochage définitif. Le « retour en douceur » étale la dette sur plusieurs jours et utilise des gabarits faciles pour reconstruire la confiance avant de monter en difficulté. C'est le premier anti-pattern de churn identifié dans les apps de spaced repetition (cf. problème connu d'Anki).
+
+### Z6-AC31 — Cycle de vie post-exam : archivage automatique
+
+| | |
+|---|---|
+| **GIVEN** | Un Exam avec `exam_date = 10 mars` couvre les chapitres ch1 et ch2. La date est dépassée (`now > exam_date + 1 jour`). |
+| **WHEN** | Le job quotidien de maintenance s'exécute le 12 mars. |
+| **THEN** | L'Exam passe en `status = 'past'`. Les chapitres ch1 et ch2 ne sont **plus** soumis au resserrement de planning Z1-AC08 (les intervalles reviennent aux valeurs standard sans exam). Les items SOLID de ch1/ch2 passent en intervalle J+14 (repos long terme au lieu de J+7). Les items FRAGILE/OK gardent leurs intervalles standard (J+1, J+3). Les chapitres restent actifs et révisables mais ne sont plus prioritaires dans la session quotidienne. Un message « Contrôle passé — tes acquis sont en maintenance longue » est affiché sur la carte du chapitre. L'élève peut relancer un contrôle blanc à tout moment (utile pour un futur brevet ou examen global). |
+
+> **NOTE :** Sans ce AC, les items post-exam continuent de saturer les sessions quotidiennes avec le même rythme qu'avant l'exam. L'élève a mentalement tourné la page mais l'app insiste. C'est la 3ème cause de désinstallation identifiée. Le passage en « maintenance longue » (J+14 pour SOLID) maintient l'ancrage sans fatiguer.
+
+### Z6-AC32 — Diagnostic initial : rampe de difficulté progressive
+
+| | |
+|---|---|
+| **GIVEN** | L'élève lance son premier diagnostic sur un chapitre avec 12 items UNKNOWN. |
+| **WHEN** | Le moteur de composition prépare le diagnostic initial. |
+| **THEN** | Les 2–3 premières questions sont des gabarits de difficulté 1 (FLASH_MCQ, DEF_SHORT) sur les items les plus simples (confidence la plus haute). Les questions suivantes montent progressivement en difficulté (2, puis 3 si disponible). Si l'élève enchaîne 3 échecs consécutifs, le moteur redescend en difficulté 1 pour les 2 questions suivantes avant de remonter. Le diagnostic ne commence jamais par un gabarit NUMERIC, RUBRIC ou ORDERING. En fin de diagnostic, le message de clôture est toujours positif : « Bonne première exploration ! Tu as [X] points acquis et [Y] à travailler — on s'y met dès ce soir ! ». |
+
+> **NOTE :** La première impression détermine la rétention. Un diagnostic qui commence par un exercice de calcul complexe sur un chapitre jamais vu → échec → l'élève pense « cette app est trop dure ». La rampe progressive garantit 2–3 réussites rapides en début de session (effet psychologique de compétence perçue) avant d'augmenter le challenge.
+
+### Z6-AC33 — Notification parent : digest hebdo calé sur calendrier d'exams
+
+| | |
+|---|---|
+| **GIVEN** | Un Exam est prévu le mercredi 12 mars. Le digest hebdo parent est normalement envoyé le dimanche. |
+| **WHEN** | Le scheduler prépare le digest de la semaine contenant un exam à J-5 ou moins. |
+| **THEN** | Un digest supplémentaire « pré-contrôle » est envoyé **3 jours avant l'exam** (samedi 9 mars) en plus du digest hebdo standard. Ce digest inclut : — Titre : « Contrôle [Matière] dans 3 jours ». — Maîtrise par chapitre concerné (% items OK+SOLID). — Items encore FRAGILE/UNKNOWN (liste courte, max 5). — Recommandation : « Encouragez [Prénom] à faire un dernier contrôle blanc ce week-end ». Le digest standard du dimanche inclut une section « Contrôle dans 3 jours » en haut si non envoyé samedi. Aucun digest supplémentaire si le parent a opt-out de la catégorie. |
+
+> **NOTE :** Le digest hebdo à date fixe ne suffit pas : un parent qui reçoit le récap dimanche pour un contrôle lundi n'a plus le temps d'agir. Le digest pré-contrôle à J-3 donne une fenêtre d'action (week-end). C'est le moment où le parent a le plus besoin du signal et où la valeur perçue du service est la plus haute.
+
+### Z6-AC34 — Notification parent : résumé hebdo sessions manquées (anti alert-fatigue)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a manqué 3 sessions cette semaine (lundi pre_class, mercredi evening_first, vendredi daily). Le parent a `missed_session_enabled = true`. |
+| **WHEN** | Le scheduler parent prépare les notifications de session manquée. |
+| **THEN** | Le parent ne reçoit **PAS** 3 notifications individuelles. À la place : — **Première session manquée de la semaine** : notification push individuelle (cf. Z6-AC25). — **Sessions manquées suivantes (2ème et 3ème)** : regroupées dans le digest hebdo sous la section « Sessions manquées cette semaine : 3 ». Pas de notification push supplémentaire. Maximum **1 notification push « session manquée » par semaine** pour le parent. Le détail complet reste visible dans le tableau de bord parent (Z6-AC27). |
+
+> **NOTE :** Un parent qui reçoit 3+ notifications « session manquée » par semaine désactive les alertes. L'alert fatigue est la première cause de désactivation des notifications parent dans les apps éducatives. La règle « 1 push/semaine + résumé dans le digest » maintient le signal sans créer de bruit. Le tableau de bord reste exhaustif pour les parents qui veulent le détail.
+
 ---
 
-> Ces 94 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 103 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
-*Fin du document — Révise Mieux AC v1.2 · 7 mars 2026*
+*Fin du document — Révise Mieux AC v1.3 · 7 mars 2026*

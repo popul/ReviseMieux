@@ -831,7 +831,14 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 | Confusion UX "Ignorer" vs "Je ne sais pas" (perte d'items utiles) | Moyenne | Moyen | Sous-textes explicatifs permanents sur chaque action de validation (AC Z3-AC19). Mention explicite de l'impact de "Ignorer" sur le flux pédagogique. |
 | Perte silencieuse Mastery sur re-upload (variations OCR sigles) | Haute | Élevé | Normalisation étendue insensible ponctuation/points/tirets (AC Z5-AC09). Configurable par pack pour cas sémantiques. Couvre I.D.H./IDH, P.I.B./PIB, etc. |
 | Exams simultanés même journée (préparation déséquilibrée) | Faible | Moyen | Avertissement non-bloquant à la création + planification alternée des matières en interleaving (AC Z6-AC29). Mock exams restent séparés. |
+| **Fausse maîtrise SOLID sur items non validés (mastery inflation)** | **Haute** | **Très élevé** | Plafond maîtrise OK tant que `validation_required = true` (AC Z1-AC15). L'item ne peut pas atteindre SOLID avec uniquement des QCM simples. Badge « maîtrise partielle » visible. Empêche la pollution du signal mastery pour l'élève ET le parent. |
+| Absence de feedback positif → churn élève | Haute | Élevé | Micro-célébrations sur transitions positives (AC Z1-AC16). Débrief de fin de session avec progrès et prochain objectif (AC Z1-AC17). Pas de streak mais valorisation de la progression réelle. |
+| Retour après absence = session écrasante → décrochage définitif | Haute | Élevé | Mode « retour en douceur » : session courte (5 min), gabarits faciles, étalement de la dette sur 3–5 jours (AC Z6-AC30). Se désactive après 2 sessions consécutives. |
+| Diagnostic initial trop dur → mauvaise première impression | Moyenne | Élevé | Rampe de difficulté progressive (AC Z6-AC32). Les 2–3 premières questions sont faciles. Redescente automatique après 3 échecs consécutifs. Message de clôture toujours positif. |
+| Items post-exam saturent les sessions → fatigue | Moyenne | Moyen | Archivage automatique post-exam (AC Z6-AC31). Items SOLID passent en maintenance longue (J+14). Chapitres post-exam restent actifs mais non prioritaires. |
+| Alert fatigue parent sur sessions manquées → désactivation totale | Moyenne | Moyen | Max 1 push « session manquée » / semaine (AC Z6-AC34). Sessions manquées suivantes résumées dans digest hebdo. Détail complet dans tableau de bord. |
+| Digest parent mal timé par rapport aux exams | Moyenne | Moyen | Digest supplémentaire « pré-contrôle » à J-3 avant chaque exam (AC Z6-AC33). Inclut maîtrise par chapitre + items fragiles + recommandation d'action. |
 
 ---
 
-*Fin du document — Révise Mieux PRD v1.4 · 6 mars 2026*
+*Fin du document — Révise Mieux PRD v1.4 · 7 mars 2026*
