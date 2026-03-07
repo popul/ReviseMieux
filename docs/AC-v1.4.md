@@ -6,8 +6,9 @@
 > |---|---|
 > | **Version** | 1.4 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 8 zones critiques identifiées — 182 AC en format Given/When/Then |
-> | **Évolutions v1.5.3 vs v1.5.2** | +7 AC zone Z8 « Onboarding & First Use Experience » : chapitre démo cold start (AC01), empty state guidé (AC02), UX recovery premier OCR (AC03), écran progression J0 (AC04), onboarding parent 3 écrans (AC05), digest parent anticipé J+2 (AC06), timing invitation parent post-1re session (AC07) |
+> | **Périmètre** | 8 zones critiques identifiées — 185 AC en format Given/When/Then |
+> | **Évolutions v1.5.4 vs v1.5.3** | Audit de cohérence fonctionnelle : +2 AC zone Z1 (AC07b/AC07c dead end recovery après régression), +1 AC zone Z8 (AC08 séquence onboarding déterministe). Corrections : Z1-AC01/02/03/04 alignés sur `last_success_at` au lieu de `last_review_at` pour le gating 24h, convention timestamps globale en header Z1, exception `consolidation_optional` (Z4-AC18) dans header Z1, Z1-AC08 interaction avec indisponibilités (Z6-AC54) + notion_ids (Z7-AC19), Z7-AC16 GIVEN corrigé pour chapitre démo (Z8-AC01) + hors fenêtre soirée, Z7-AC15 champ standardisé `routine_completed_enabled`, Z8-AC01 items démo exclus du pool daily/pre_class/EveningPlan + archivage différé post-pipeline, Z8-AC05 fallback si parent link avant session, Z8-AC06 GIVEN aligné + dedup avec digest pré-contrôle (Z6-AC33), Z8-AC07 restreint aux vrais chapitres |
+| **Évolutions v1.5.3 vs v1.5.2** | +7 AC zone Z8 « Onboarding & First Use Experience » : chapitre démo cold start (AC01), empty state guidé (AC02), UX recovery premier OCR (AC03), écran progression J0 (AC04), onboarding parent 3 écrans (AC05), digest parent anticipé J+2 (AC06), timing invitation parent post-1re session (AC07) |
 | **Évolutions v1.5 vs v1.4.1** | +4 AC zone Z1 : accès leçon contextuel pendant question (AC23), reformulation « je ne comprends pas » (AC24), scoring de réponse partielle (AC25), matrice transition maîtrise avec hint/clarification/partiel (AC26). +9 AC zone Z6 : onboarding parent et liaison élève (AC45), comportement jour d'examen (AC46), mode dégradé par matière (AC47 réécrit), multi-exam overlapping reset+recompression (AC48), mock exam J-3 auto + à la demande (AC49), parent multi-enfants notif par enfant (AC50), timezone locale auto (AC51), zone scolaire et calendrier vacances intégré (AC52), mode vacances jours + créneau (AC53). AC01 réécrit : saisie emploi du temps contextuelle au premier upload d'une matière (grille jour/période inline). Indisponibilité récurrente sport/activités (AC54). +26 AC zone Z7 : +3 nouveaux — bouton « S'avancer » weekend (AC24), fiches PDF imprimables pour heures d'étude (AC25), report résultats papier par checklist (AC26) « Routine de soirée & Orchestration ». Orchestration : EveningPlan (AC01), dashboard soirée (AC02), séquencement multi-matières (AC03), estimation durée (AC04), état « fini pour ce soir » (AC05), guidage capture in-app (AC06), séquencement sessions (AC07), mode express (AC08), complétion partielle (AC09), rien à faire (AC10), week-end (AC11), capture cours demain (AC12), devoirs (AC13), arc émotionnel (AC14), notif parent routine (AC15), onboarding 1re soirée (AC16). Hiérarchie contenu & exam : Notions par concept_tag (AC17), vue chapitre par notion (AC18), périmètre exam par notion (AC19), auto-suggestion exam (AC20), vue angles morts (AC21), prédiction interro surprise (AC22), alerte fragile × non testée (AC23) |
 > | **Évolutions v1.4.1 vs v1.4** | +5 AC upload incrémental : ajout de pages sans nouvelle révision (Z5-AC11), pas de re-OCR des pages existantes (Z5-AC12), pipeline incrémental (Z2-AC14), session evening_first incrémentale (Z6-AC43), explication dilution maîtrise dashboard (Z6-AC44) |
 > | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) + anti-frustration élève (feedback explicatif blocage 24h Z1, descente difficulté échecs répétés Z1, fallback LLM indisponible Z4, récupération items ignorés Z3) + anti-silent-failures (anti-starvation items UNKNOWN Z1, garde-fou template/type Z3, invalidation cache exam Z4) + correctifs modèle (session all-SOLID Z4, alerte items perdus re-upload Z5, multi-exam par chapitre Z6, fix Chapter.exam_ids[] pluriel) |
@@ -21,15 +22,15 @@
 
 | # | Zone | Risque | AC count |
 |---|---|---|---|
-| Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 26 |
+| Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 28 |
 | Z2 | Pipeline J0 — Error paths, timeouts & RGPD | Très élevé | 14 |
 | Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 25 |
 | Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 18 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 12 |
 | Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 54 |
 | Z7 | Routine de soirée & Orchestration | Très élevé | 26 |
-| Z8 | Onboarding & First Use Experience | Très élevé | 7 |
-| | **Total** | | **182** |
+| Z8 | Onboarding & First Use Experience | Très élevé | 8 |
+| | **Total** | | **185** |
 
 ---
 
@@ -39,22 +40,24 @@
 >
 > La machine à états Mastery est le cœur de la valeur produit. Une régression silencieuse ou un calcul incorrect de `next_due_at` casse la répétition espacée sans que l'élève s'en aperçoive.
 
-> **Note :** les règles Z1-AC01 à Z1-AC10 s'appliquent uniformément quel que soit le type de session (`diagnostic`, `daily`, `mock_exam`). Le type de session n'affecte pas la logique de transition de maîtrise.
+> **Note :** les règles Z1-AC01 à Z1-AC10 s'appliquent uniformément quel que soit le type de session (`diagnostic`, `daily`, `mock_exam`), **sauf** `consolidation_optional` (cf. Z4-AC18 — pas de régression). Le type de session n'affecte pas la logique de transition de maîtrise en dehors de cette exception.
+>
+> **Convention timestamps :** Toute tentative met à jour `last_review_at = now`. Si la réponse est correcte (score ≥ 0.7), `last_success_at = now` est également mis à jour. Ces mises à jour s'appliquent indépendamment de la transition d'état. Les mentions explicites de `last_review_at` dans les AC individuels sont des rappels — la règle s'applique systématiquement.
 
 ### Z1-AC01 — Progression UNKNOWN → FRAGILE
 
 | | |
 |---|---|
-| **GIVEN** | Un item en état **UNKNOWN** avec `consecutive_successes = 0`. |
-| **WHEN** | L'élève répond correctement une fois à une question liée à cet item. |
-| **THEN** | L'état passe à **FRAGILE**. `consecutive_successes = 1`. `next_due_at = now + 1 jour`. `last_review_at` est mis à jour. |
+| **GIVEN** | Un item en état **UNKNOWN**. |
+| **WHEN** | L'élève répond correctement une fois à une question liée à cet item (score ≥ 0.7, sans aide). |
+| **THEN** | L'état passe à **FRAGILE**. `consecutive_successes = 1`. `next_due_at = now + 1 jour`. |
 
 ### Z1-AC02 — Progression FRAGILE → OK
 
 | | |
 |---|---|
-| **GIVEN** | Un item en état **FRAGILE** avec `consecutive_successes = 1`. |
-| **WHEN** | L'élève répond correctement une fois à une question liée à cet item (même session). |
+| **GIVEN** | Un item en état **FRAGILE** avec `consecutive_successes ≥ 1`. |
+| **WHEN** | L'élève répond correctement une fois à une question liée à cet item (score ≥ 0.7, sans aide). |
 | **THEN** | L'état passe à **OK**. `consecutive_successes = 2`. `next_due_at = now + 3 jours` (ajusté par Z1-AC08 si contrôle posé). |
 
 > **NOTE :** La progression FRAGILE→OK n'exige pas un espacement de 24h. L'espacement de 24h est requis uniquement pour OK→SOLID.
@@ -65,15 +68,15 @@
 
 | | |
 |---|---|
-| **GIVEN** | Un item en état **OK** avec `consecutive_successes ≥ 2` et `last_review_at` = hier ou avant (≥ 24h écoulées). |
-| **WHEN** | L'élève répond correctement à une question liée à cet item. |
+| **GIVEN** | Un item en état **OK** avec `consecutive_successes ≥ 2` et `last_success_at` ≥ 24h avant la tentative actuelle. |
+| **WHEN** | L'élève répond correctement à une question liée à cet item (score ≥ 0.7, sans aide). |
 | **THEN** | L'état passe à **SOLID**. `consecutive_successes += 1`. `next_due_at = now + 7 jours` (ajusté par Z1-AC08 si contrôle posé). |
 
 ### Z1-AC04 — Blocage OK → SOLID sans espacement
 
 | | |
 |---|---|
-| **GIVEN** | Un item en état **OK** avec `last_review_at < 24h`. |
+| **GIVEN** | Un item en état **OK** avec `last_success_at < 24h`. |
 | **WHEN** | L'élève répond correctement à une question liée à cet item dans la même session. |
 | **THEN** | L'état reste **OK**. `consecutive_successes` n'est PAS incrémenté. `next_due_at` n'est PAS modifié. Aucun feedback trompeur n'est affiché. Un message explicatif positif est affiché : « Bonne réponse ! Reviens demain pour verrouiller ce point — ton cerveau a besoin d'une nuit pour bien mémoriser. » Le message apparaît une seule fois par session (pas de spam si plusieurs items OK sont dans ce cas). |
 
@@ -103,6 +106,26 @@
 | **WHEN** | L'élève répond incorrectement à une question liée à cet item. |
 | **THEN** | L'état reste **FRAGILE**. `consecutive_successes = 0`. `next_due_at = now + 1 jour`. Pas de retour à UNKNOWN. |
 
+### Z1-AC07b — Récupération FRAGILE après régression (cs=0, réponse correcte)
+
+| | |
+|---|---|
+| **GIVEN** | Un item en état **FRAGILE** avec `consecutive_successes = 0` (suite à régression Z1-AC06/AC07 ou demi-succès Z1-AC26). |
+| **WHEN** | L'élève répond correctement à une question liée à cet item (score ≥ 0.7, sans aide). |
+| **THEN** | `consecutive_successes = 1`. L'état reste **FRAGILE**. `next_due_at = now + 1 jour`. Au prochain succès, Z1-AC02 s'applique (FRAGILE→OK avec cs≥1). |
+
+> **NOTE :** Sans cet AC, un item FRAGILE avec cs=0 (après échec) ne matchait aucune règle sur réponse correcte : Z1-AC01 exige UNKNOWN, Z1-AC02 exigeait cs=1. L'élève réussissait et rien ne se passait — dead end. Cet AC comble la lacune en créant le chemin FRAGILE(cs=0) → FRAGILE(cs=1) → OK(cs=2).
+
+### Z1-AC07c — Récupération OK après régression (cs<2, réponse correcte)
+
+| | |
+|---|---|
+| **GIVEN** | Un item en état **OK** avec `consecutive_successes < 2` (suite à régression Z1-AC05 ou demi-succès Z1-AC26). |
+| **WHEN** | L'élève répond correctement à une question liée à cet item (score ≥ 0.7, sans aide, `last_success_at` ≥ 24h ou cs < 2). |
+| **THEN** | `consecutive_successes += 1`. L'état reste **OK**. `next_due_at = now + 3 jours` (ajusté par Z1-AC08 si contrôle posé). Le chemin vers SOLID reprend : OK(cs=0) → OK(cs=1) → OK(cs=2) → SOLID (si ≥ 24h, Z1-AC03). |
+
+> **NOTE :** Après une régression SOLID→OK (Z1-AC05), cs est remis à 0. Sans cet AC, l'item OK avec cs=0 ne matchait aucune règle sur réponse correcte : Z1-AC03 exige cs≥2. L'élève était dans un dead end. Le chemin de récupération est maintenant OK(cs=0) → OK(cs=1) → OK(cs=2) → SOLID — 3 succès espacés, conforme à l'intention SRS.
+
 ### Z1-AC08 — Resserrement proportionnel si contrôle posé
 
 | | |
@@ -119,7 +142,7 @@
 | SOLID | J+7 | J + max(2, ⌊T/2⌋) |
 | Régression SOLID→OK | J+2 | J + max(1, ⌊T/4⌋) |
 
-**Cap absolu :** `next_due_at ≤ exam_date − 1 jour` (sur l'exam le plus proche). L'item reste visible dans les sessions pré-contrôle même s'il est SOLID.
+**Cap absolu :** `next_due_at ≤ exam_date − 1 jour` (sur l'exam le plus proche). L'item reste visible dans les sessions pré-contrôle même s'il est SOLID. **Interaction avec les indisponibilités (Z6-AC54) :** si le report pour indisponibilité pousserait `next_due_at` au-delà du cap exam, l'item est inclus dans la session du dernier soir disponible avant le cap, même si la session est légèrement allongée. Si l'Exam a `notion_ids[]` (Z7-AC19), seuls les items appartenant aux Notions sélectionnées sont soumis au resserrement.
 
 > **NOTE :** Les contrôles sont typiquement annoncés à +7 jours. Exemples avec T=7 : OK → J+2, SOLID → J+3, régression → J+1. Avec T=3 : OK → J+1, SOLID → J+2, régression → J+1. Sans aucun `Exam` lié, les intervalles standard s'appliquent (cf. Z1-AC01 à Z1-AC07).
 
@@ -1611,7 +1634,7 @@
 
 | | |
 |---|---|
-| **GIVEN** | L'élève a complété son EveningPlan (toutes les étapes en statut « completed »). L'événement `routine_completed` est émis (Z7-AC05). Le parent a activé les notifications (`parent_routine_completed_enabled = true`, activé par défaut). |
+| **GIVEN** | L'élève a complété son EveningPlan (toutes les étapes en statut « completed »). L'événement `routine_completed` est émis (Z7-AC05). Le parent a activé les notifications (`routine_completed_enabled = true`, activé par défaut). |
 | **WHEN** | L'événement `routine_completed` est traité par le service de notification. |
 | **THEN** | Le parent reçoit une notification push : « ✅ [Prénom] a terminé sa révision du soir : [N] matières, [X] min. [résumé court : ex. "3 points progressent en Physique"]. » En cas de complétion partielle (Z7-AC09, ≥ 50% des étapes) : « [Prénom] a fait une partie de sa révision ce soir ([N]/[M] activités, [X] min). » En cas de complétion < 50% ou routine non commencée : pas de notification positive — la notification « session manquée » existante (Z6-AC25) prend le relais le lendemain matin. La notification `routine_completed` est envoyée maximum 1 fois par soir. Elle n'est pas envoyée les soirs où l'EveningPlan est vide (Z7-AC10 — rien à faire). Le parent peut désactiver cette notification dans ses préférences (Z6-AC27 étendu avec `routine_completed_enabled`). Le digest hebdomadaire (Z6-AC35) inclut un compteur de routines complétées : « Cette semaine : [N]/[M] routines de soirée complétées. » |
 
@@ -1621,9 +1644,9 @@
 
 | | |
 |---|---|
-| **GIVEN** | L'élève vient de terminer l'onboarding initial (création de compte + saisie emploi du temps). Il n'a aucun chapitre, aucun item, aucun historique. C'est sa première soirée avec l'app. |
-| **WHEN** | L'élève ouvre l'app dans la fenêtre de soirée pour la première fois. |
-| **THEN** | Le dashboard soirée affiche un **mode tutoriel première soirée** (overlay guidé) : (1) « Bienvenue dans ta routine du soir ! Chaque soir, l'app te dit quoi faire en ~10-15 min. » (2) « Ce soir, on va capturer ton premier chapitre. Prends en photo les pages de ton cours de [matière du jour si schedule renseigné / "ta matière préférée" sinon]. » → bouton « Capturer mon premier chapitre ». (3) Après la capture + pipeline terminé : « Parfait ! Maintenant, un premier contact rapide avec ce que tu as noté. ~5 min. » → lancement de l'evening_first. (4) Après l'evening_first : écran de clôture spécial première soirée : « Bravo, ta première routine est terminée ! 🎉 Demain soir, l'app te proposera une nouvelle session pour renforcer ce que tu as appris. Chaque soir, ça prend 10-15 min — moins qu'un épisode de ta série. » (5) Le lendemain soir (jour 2) : le dashboard affiche un message de « jour 2 » : « Tu reviens ! Aujourd'hui, on révise ce que tu as appris hier. Tu vas voir, c'est rapide. » La session daily est proposée. (6) Le tutoriel progressif s'étend sur 5 jours : jour 1 = capture + evening_first, jour 2 = daily expliqué, jour 3 = pre_class expliqué (si applicable), jour 4 = mode express mentionné, jour 5 = « Tu as pris le rythme ! À partir de maintenant, l'app te guide automatiquement. » Chaque message tutoriel est affiché une seule fois et ne réapparaît plus après. |
+| **GIVEN** | L'élève vient de terminer l'onboarding initial (création de compte + saisie emploi du temps). Le chapitre démo (Z8-AC01) est présent mais l'élève n'a uploadé aucun vrai chapitre. C'est sa première soirée avec l'app. |
+| **WHEN** | L'élève ouvre l'app dans la fenêtre de soirée pour la première fois. Si l'élève a déjà complété une capture + evening_first avant la première fenêtre de soirée (ex : compte créé à 10h le samedi), le tutoriel saute les étapes déjà faites et reprend à l'étape suivante du tutoriel progressif (jour 2+). |
+| **THEN** | Le dashboard soirée affiche un **mode tutoriel première soirée** (overlay guidé) : (1) « Bienvenue dans ta routine du soir ! Chaque soir, l'app te dit quoi faire en ~10-15 min. » (2) « Maintenant, capture ton vrai cours. Prends en photo les pages de ton cours de [matière du jour si schedule renseigné / "ta matière préférée" sinon]. » → bouton « Capturer mon premier chapitre ». (3) Après la capture + pipeline terminé : « Parfait ! Maintenant, un premier contact rapide avec ce que tu as noté. ~5 min. » → lancement de l'evening_first. (4) Après l'evening_first : écran de clôture spécial première soirée : « Bravo, ta première routine est terminée ! 🎉 Demain soir, l'app te proposera une nouvelle session pour renforcer ce que tu as appris. Chaque soir, ça prend 10-15 min — moins qu'un épisode de ta série. » (5) Le lendemain soir (jour 2) : le dashboard affiche un message de « jour 2 » : « Tu reviens ! Aujourd'hui, on révise ce que tu as appris hier. Tu vas voir, c'est rapide. » La session daily est proposée. (6) Le tutoriel progressif s'étend sur 5 jours : jour 1 = capture + evening_first, jour 2 = daily expliqué, jour 3 = pre_class expliqué (si applicable), jour 4 = mode express mentionné, jour 5 = « Tu as pris le rythme ! À partir de maintenant, l'app te guide automatiquement. » Chaque message tutoriel est affiché une seule fois et ne réapparaît plus après. |
 
 > **NOTE :** La première soirée est le moment de conversion critique. L'élève qui comprend le concept de « routine du soir » et qui vit une première expérience guidée et gratifiante reviendra demain. L'élève qui ouvre l'app et voit un dashboard vide ou un pipeline en cours sans contexte ne reviendra pas. Le tutoriel progressif sur 5 jours correspond au temps moyen de formation d'une micro-habitude chez les adolescents. L'analogie avec « un épisode de série » est intentionnelle : c'est le référentiel temporel naturel d'un collégien.
 
@@ -1743,7 +1766,7 @@
 |---|---|
 | **GIVEN** | L'élève vient de créer son compte (email/OAuth). Il n'a encore uploadé aucun chapitre. L'app est vide. |
 | **WHEN** | L'élève arrive sur le dashboard pour la première fois. |
-| **THEN** | Un **chapitre démo** est automatiquement présent dans l'app : matière « Physique-Chimie », titre « Densité et masse volumique (démo) ». Ce chapitre contient 8 items pré-générés (2 MCQ, 2 CLOZE, 2 SHORT, 1 NUMERIC, 1 DEFINITION), tous en état UNKNOWN, difficulté 1. Le dashboard affiche un bandeau contextuel : « Essaie une session de révision avec ce chapitre d'exemple — 3 min ». L'élève peut lancer une `evening_first` sur le chapitre démo exactement comme sur un vrai chapitre (même moteur de session Z6-AC05/AC06, même débrief Z1-AC17, mêmes micro-célébrations Z1-AC16). Le chapitre démo est marqué `is_demo = true` dans la base. Il est **exclu** de la progression globale et du digest parent. Quand l'élève uploade son premier vrai chapitre, le chapitre démo est automatiquement archivé (ne pollue plus le dashboard). L'élève peut le supprimer manuellement à tout moment. Si l'élève n'interagit pas avec le chapitre démo et uploade directement un vrai chapitre, aucune friction — le chapitre démo est archivé silencieusement. |
+| **THEN** | Un **chapitre démo** est automatiquement présent dans l'app : matière « Physique-Chimie », titre « Densité et masse volumique (démo) ». Ce chapitre contient 8 items pré-générés (2 MCQ, 2 CLOZE, 2 SHORT, 1 NUMERIC, 1 DEFINITION), tous en état UNKNOWN, difficulté 1. Le dashboard affiche un bandeau contextuel : « Essaie une session de révision avec ce chapitre d'exemple — 3 min ». L'élève peut lancer une `evening_first` sur le chapitre démo exactement comme sur un vrai chapitre (même moteur de session Z6-AC05/AC06, même débrief Z1-AC17, mêmes micro-célébrations Z1-AC16). Le chapitre démo est marqué `is_demo = true` dans la base. Il est **exclu** de la progression globale, du digest parent, du pool de composition des sessions `daily`/`pre_class`, et de l'`EveningPlan` (Z7-AC01). Seule la session `evening_first` initiale est proposée sur le chapitre démo. Quand le pipeline J0 du premier vrai chapitre se termine avec ≥ 1 item valide, le chapitre démo est automatiquement archivé (ne pollue plus le dashboard). L'élève peut le supprimer manuellement à tout moment. Si l'élève n'interagit pas avec le chapitre démo et uploade directement un vrai chapitre, aucune friction — le chapitre démo est archivé silencieusement. |
 
 > **NOTE :** Le chapitre démo résout le problème #1 d'adoption : le cold start. Un parent qui télécharge l'app à 22h un mardi peut voir son enfant faire un quiz en 3 minutes, sans cahier, sans photo, sans attente OCR. Le contenu « Densité et masse volumique » est volontairement un sujet de 5e/4e accessible, sans prérequis. Le coût technique est quasi nul : 8 items statiques injectés à la création du compte, traités par le même moteur. L'archivage automatique évite que le chapitre démo ne devienne du bruit une fois que l'élève a du vrai contenu.
 
@@ -1781,9 +1804,9 @@
 
 | | |
 |---|---|
-| **GIVEN** | Le parent vient de créer son compte et de le lier à l'élève via le code 6 caractères (Z6-AC45). L'élève a déjà fait au moins 1 session (démo ou réelle). |
+| **GIVEN** | Le parent vient de créer son compte et de le lier à l'élève via le code 6 caractères (Z6-AC45). |
 | **WHEN** | Le parent accède au dashboard pour la première fois. |
-| **THEN** | Avant d'afficher le dashboard, le parent voit un **mini-onboarding en 3 écrans** (swipeable, skippable) : **(Écran 1) « Voici ce que fait [Prénom] »** : résumé visuel du principe (photo → questions → révision espacée → maîtrise). Durée de lecture : 10s. **(Écran 2) « Votre tableau de bord »** : aperçu annoté du dashboard avec 3 flèches : progression globale, matières actives, lien vers le script 3 minutes (Z1-AC19). **(Écran 3) « Restez informé sans effort »** : explication des notifications (routine terminée, digest hebdo, alerte inactivité) + bouton « Gérer mes préférences » (Z6-AC27). Après le 3e écran ou le skip, le parent arrive sur le dashboard réel. |
+| **THEN** | Avant d'afficher le dashboard, le parent voit un **mini-onboarding en 3 écrans** (swipeable, skippable) : **(Écran 1) « Voici ce que fait [Prénom] »** : résumé visuel du principe (photo → questions → révision espacée → maîtrise). Durée de lecture : 10s. **(Écran 2) « Votre tableau de bord »** : aperçu annoté du dashboard avec 3 flèches : progression globale, matières actives, lien vers le script 3 minutes (Z1-AC19). **(Écran 3) « Restez informé sans effort »** : explication des notifications (routine terminée, digest hebdo, alerte inactivité) + bouton « Gérer mes préférences » (Z6-AC27). Après le 3e écran ou le skip, le parent arrive sur le dashboard réel. Si aucune session n'a été faite, l'Écran 1 utilise le futur (« Voici ce que fera [Prénom] ») et le dashboard affiche « [Prénom] n'a pas encore commencé — vous serez notifié dès sa première session. » |
 
 > **NOTE :** 3 écrans = 30 secondes. C'est le minimum pour que le parent comprenne (1) ce que fait l'app, (2) ce qu'il voit, (3) ce qu'il recevra. Sans ça, le parent voit un dashboard avec des % qu'il ne comprend pas et des boutons qu'il n'ose pas toucher.
 
@@ -1791,9 +1814,9 @@
 
 | | |
 |---|---|
-| **GIVEN** | Le parent a lié son compte à l'élève (Z6-AC45). Il est mercredi. Le prochain digest standard est dimanche 9h (Z6-AC35). L'élève a fait au moins 2 sessions depuis la liaison. |
-| **WHEN** | 48h se sont écoulées depuis la liaison parent OU l'élève a complété 3 sessions (ce qui arrive en premier). |
-| **THEN** | Le parent reçoit un **digest anticipé** (notification push + email si activé) avec : (1) Nombre de sessions complétées depuis la liaison. (2) Temps total de révision. (3) Matières actives et nombre de chapitres. (4) Progression mastery globale (% FRAGILE → OK ou mieux). (5) Message d'encouragement contextualisé : « [Prénom] a révisé [X] min en [N] sessions depuis [jour]. Les premiers résultats arrivent vite — voici ce qu'on observe déjà. » Ce digest anticipé est **unique** — il n'est envoyé qu'une fois, après la première liaison. Les digests suivants reprennent le rythme hebdomadaire standard (dimanche 9h, Z6-AC35). Si le parent lie le compte un samedi, le digest anticipé est envoyé lundi (48h), et le digest standard dimanche suivant — pas de doublon si < 3 jours d'écart (le digest standard de ce dimanche est sauté, le prochain est le dimanche d'après). Le champ `parent.first_digest_sent_at` empêche les envois multiples. |
+| **GIVEN** | Le parent a lié son compte à l'élève (Z6-AC45). Le prochain digest standard est dimanche 9h (Z6-AC35). |
+| **WHEN** | (48h se sont écoulées depuis la liaison OU l'élève a complété 3 sessions, ce qui arrive en premier) ET l'élève a fait au moins 1 session depuis la liaison. Si 0 sessions à 48h, le digest anticipé est reporté jusqu'à la première session complétée. |
+| **THEN** | Le parent reçoit un **digest anticipé** (notification push + email si activé) avec : (1) Nombre de sessions complétées depuis la liaison. (2) Temps total de révision. (3) Matières actives et nombre de chapitres. (4) Progression mastery globale (% FRAGILE → OK ou mieux). (5) Message d'encouragement contextualisé : « [Prénom] a révisé [X] min en [N] sessions depuis [jour]. Les premiers résultats arrivent vite — voici ce qu'on observe déjà. » Ce digest anticipé est **unique** — il n'est envoyé qu'une fois, après la première liaison. Les digests suivants reprennent le rythme hebdomadaire standard (dimanche 9h, Z6-AC35). Si le parent lie le compte un samedi, le digest anticipé est envoyé lundi (48h), et le digest standard dimanche suivant — pas de doublon si < 3 jours d'écart (le digest standard de ce dimanche est sauté, le prochain est le dimanche d'après). Le digest anticipé est également dédupliqué avec le digest pré-contrôle (Z6-AC33) : si les deux sont programmés dans un intervalle de 48h, ils sont fusionnés en un seul envoi. Le champ `parent.first_digest_sent_at` empêche les envois multiples. |
 
 > **NOTE :** Attendre 6 jours (mercredi → dimanche) pour le premier signal parent est un churn silencieux. Le parent oublie l'app, l'enfant perd son allié. Le digest anticipé dit « l'app marche, votre enfant l'utilise, voici les preuves ». Le trigger dual (48h OU 3 sessions) couvre les deux cas : l'enfant actif (3 sessions en 24h = digest dès le lendemain) et l'enfant occasionnel (digest à 48h même avec 2 sessions). Le coût technique est un cron conditionnel sur `parent.linked_at + 48h` — trivial.
 
@@ -1801,14 +1824,24 @@
 
 | | |
 |---|---|
-| **GIVEN** | L'élève a terminé sa première session `evening_first` (sur chapitre démo Z8-AC01 ou sur un vrai chapitre Z6-AC05). L'élève n'a pas encore invité de parent (aucun compte parent lié). |
+| **GIVEN** | L'élève a terminé sa première session `evening_first` sur un **vrai chapitre** (`is_demo = false`, cf. Z6-AC05). La session démo ne déclenche pas l'invitation. L'élève n'a pas encore invité de parent (aucun compte parent lié). |
 | **WHEN** | L'écran de débrief de la première session (Z1-AC17) est affiché. |
 | **THEN** | Après le débrief standard, un **écran d'invitation parent** s'affiche : « Bravo pour ta première session ! Invite un parent pour qu'il suive ta progression. » Avec deux boutons : (1) « Inviter maintenant » → déclenche le flow Z6-AC45 (génération code 6 caractères + partage). (2) « Plus tard » → ferme l'écran, l'invitation reste accessible dans les paramètres. L'écran d'invitation n'est montré qu'**une seule fois** (après la 1re session). Si l'élève tape « Plus tard », un rappel discret apparaît dans les paramètres (badge notification sur l'icône settings) mais **aucune** notification push ni pop-up de relance. Le timing « après la 1re session » est intentionnel : l'élève a vécu le produit, il peut expliquer à son parent « c'est une app qui me pose des questions sur mes cours ». Avant la 1re session, l'élève ne sait pas ce que fait l'app et ne peut pas la recommander. |
 
 > **NOTE :** Z6-AC45 spécifie le mécanisme de liaison mais pas le *quand*. Proposer l'invitation à la création du compte (avant toute session) est prématuré : l'élève ne sait pas encore ce qu'il recommande. Après la 1re session, l'élève vient de vivre le « moment magique » (ses propres questions de cours transformées en quiz) et a un pitch naturel. C'est aussi le moment où le parent voit son enfant excité par une app éducative — fenêtre d'opportunité maximale.
 
+### Z8-AC08 — Séquence d'onboarding déterministe (orchestration Day 0)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève vient de créer son compte. Les composants d'onboarding sont répartis entre Z6 (schedule), Z7 (tutoriel soirée), et Z8 (démo, empty state, recovery, parent invite). |
+| **WHEN** | L'élève interagit avec l'app pour la première fois. |
+| **THEN** | La séquence d'onboarding est déterministe et suit cet ordre : **(1) Création de compte** → (2) **Chapitre démo** apparaît (Z8-AC01) + **Empty state** visible (Z8-AC02) → (3) **Session démo optionnelle** (evening_first sur le chapitre démo, ~3 min) → (4) **Première soirée** dans la fenêtre de soirée : tutoriel Z7-AC16 (overlay guidé vers capture du vrai cours) → (5) **Premier upload** : saisie emploi du temps contextuelle (Z6-AC01) → pipeline J0 avec écran de progression (Z8-AC04) → si échec : recovery (Z8-AC03) → (6) **evening_first sur vrai chapitre** (Z6-AC05/AC06) → (7) **Débrief** (Z1-AC17) → **Invitation parent** (Z8-AC07). Les étapes (3), (5), (6), (7) sont des transitions event-driven, pas des timers. Si l'élève fait les étapes hors ordre (ex : upload avant la fenêtre de soirée), le tutoriel Z7-AC16 s'adapte en sautant les étapes déjà complétées. À aucun moment deux overlays/écrans modaux ne sont affichés simultanément. |
+
+> **NOTE :** Cet AC est un orchéstrateur : il ne définit pas de nouveau comportement mais impose un **ordre de priorité** quand plusieurs composants veulent s'afficher en même temps. Sans lui, un développeur implémentant Z7-AC16 et Z8-AC02 indépendamment pourrait superposer le tutoriel sur l'empty state. La règle est simple : un seul écran modal à la fois, dans l'ordre défini ci-dessus.
+
 ---
 
-> Ces 182 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first). Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 185 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first). Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
-*Fin du document — Révise Mieux AC v1.5.3 · 7 mars 2026*
+*Fin du document — Révise Mieux AC v1.5.4 · 7 mars 2026*
