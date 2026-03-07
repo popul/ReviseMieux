@@ -864,6 +864,10 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 | **Perte de connexion mid-session → réponses perdues → frustration** | **Haute** | **Très élevé** | Persistance optimiste côté client avec sync FIFO (AC Z6-AC41). Feedback correction instantané (calcul local MCQ/NUMERIC). Mastery mis à jour uniquement après sync confirmée. Retry exponentiel (5s/15s/45s). |
 | **Date d'exam modifiée → intervalles de révision incohérents** | **Haute** | **Élevé** | Recalcul automatique des `next_due_at` compressés sur modification de `exam_date` (AC Z1-AC20). Message contextuel adapté (avancé vs repoussé). Parent informé dans digest. |
 | **Mêmes questions vues en boucle → apprentissage de surface par reconnaissance** | **Haute** | **Élevé** | Régénération ciblée des questions vues > 5 sessions (AC Z4-AC15). Compteur `times_seen` pour prioriser les questions les moins vues. Renouvellement lazy non-bloquant. |
+| **Cycle d'échec répété sur un item → frustration → churn** | **Haute** | **Très élevé** | Descente automatique de difficulté après 3 échecs consécutifs (AC Z1-AC21). Indice avec renvoi vers carte de leçon. Pause pédagogique J+2 après 5 échecs. |
+| **LLM indisponible = rien à faire dans l'app → fermeture immédiate** | **Moyenne** | **Très élevé** | Mode « Relecture active » avec flashcards textuelles statiques (AC Z4-AC16). Données OCR en base, aucun LLM requis. Auto-évaluation sans impact mastery. |
+| **Items « Ignoré » en HITL = trou permanent dans la couverture de révision** | **Haute** | **Élevé** | Section « Points non vérifiés » dans carte de leçon avec Réactiver (AC Z3-AC24). Récupération autonome sans admin. |
+| **Blocage OK→SOLID sans explication → élève ne comprend pas** | **Haute** | **Élevé** | Message explicatif positif sur repos cognitif (AC Z1-AC04 enrichi). Affiché 1x/session max. |
 
 ---
 

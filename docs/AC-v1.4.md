@@ -6,8 +6,8 @@
 > |---|---|
 > | **Version** | 1.4 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 6 zones critiques identifiées — 121 AC en format Given/When/Then |
-> | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) |
+> | **Périmètre** | 6 zones critiques identifiées — 124 AC en format Given/When/Then |
+> | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) + anti-frustration élève (feedback explicatif blocage 24h Z1, descente difficulté échecs répétés Z1, fallback LLM indisponible Z4, récupération items ignorés Z3) |
 > | **Évolutions v1.3 vs v1.2** | +9 AC anti-désengagement : plafond maîtrise items non validés (Z1), micro-célébrations + débrief session (Z1), retour en douceur après absence + cycle post-exam + rampe diagnostic + digest pré-contrôle + anti alert-fatigue parent (Z6) |
 > | **Évolutions v1.2 vs v1.1** | +8 AC couvrant les angles morts identifiés : retry élève pipeline (Z2), re-vérification fidelity timeout + UX validation + SLA admin + détection précoce (Z3), normalisation ponctuation OCR (Z5), ré-engagement inactivité + alerte exams simultanés (Z6) |
 > | **Usage** | À intégrer comme contexte système avant chaque session de vibe coding, et à transformer en tests unitaires |
@@ -18,13 +18,13 @@
 
 | # | Zone | Risque | AC count |
 |---|---|---|---|
-| Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 20 |
+| Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 21 |
 | Z2 | Pipeline J0 — Error paths, timeouts & RGPD | Très élevé | 13 |
-| Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 23 |
-| Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 15 |
+| Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 24 |
+| Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 16 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 9 |
 | Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 41 |
-| | **Total** | | **121** |
+| | **Total** | | **124** |
 
 ---
 
@@ -70,7 +70,7 @@
 |---|---|
 | **GIVEN** | Un item en état **OK** avec `last_review_at < 24h`. |
 | **WHEN** | L'élève répond correctement à une question liée à cet item dans la même session. |
-| **THEN** | L'état reste **OK**. `consecutive_successes` n'est PAS incrémenté. `next_due_at` n'est PAS modifié. Aucun feedback trompeur n'est affiché. |
+| **THEN** | L'état reste **OK**. `consecutive_successes` n'est PAS incrémenté. `next_due_at` n'est PAS modifié. Aucun feedback trompeur n'est affiché. Un message explicatif positif est affiché : « Bonne réponse ! Reviens demain pour verrouiller ce point — ton cerveau a besoin d'une nuit pour bien mémoriser. » Le message apparaît une seule fois par session (pas de spam si plusieurs items OK sont dans ce cas). |
 
 ### Z1-AC05 — Régression SOLID → OK sur échec unique
 
@@ -237,6 +237,16 @@
 | **THEN** | Tous les `next_due_at` des items liés à cet exam sont **recalculés** avec la nouvelle `exam_date`. Les intervalles reprennent les valeurs standard (1j/3j/7j) si le nouveau `T` le permet, sinon la compression est recalculée proportionnellement au nouveau `T`. Le recalcul ne touche pas les items dont le `next_due_at` est déjà passé (ils restent dus immédiatement). Si la date est avancée (ex: 20 mars → 15 mars), les intervalles se compriment davantage et un avertissement s'affiche : « Tu as peu de temps — les sessions seront plus fréquentes pour ce chapitre. » Si la date est repoussée, un message positif : « Plus de temps pour bien réviser ! » Le digest parent suivant mentionne le changement de date. |
 
 > **NOTE :** Un contrôle reporté par le prof est un cas fréquent au collège. Si l'élève met à jour la date mais que les intervalles restent compressés sur l'ancienne date, il révisera inutilement de manière intensive pendant 7 jours de plus. Inversement, si le contrôle est avancé et que les intervalles ne se compriment pas, l'élève arrive sous-préparé. Le recalcul automatique maintient la cohérence du plan de révision.
+
+### Z1-AC21 — Descente de difficulté après échecs répétés sur un item
+
+| | |
+|---|---|
+| **GIVEN** | Un item FRAGILE ou UNKNOWN a été présenté à l'élève 3 fois consécutives dans les 5 derniers jours, et l'élève a échoué les 3 fois. Les questions utilisaient des gabarits de difficulté ≥ 2 (ex: `GEN.KNOW.ASSOC_TERM_DEF`, `GEN.DOC.INTERPRET_WITH_CONCEPT`). |
+| **WHEN** | Le moteur de composition sélectionne cet item pour la session suivante. |
+| **THEN** | Le gabarit choisi est **rétrogradé** au niveau de difficulté 1 pour cet item (ex: `GEN.KNOW.FLASH_MCQ` ou `GEN.KNOW.DEF_SHORT`). Un indice est ajouté au feedback de la question : référence au passage pertinent de la carte de leçon (« Relis la section [titre_section] de ta leçon »). Si l'élève réussit avec le gabarit simplifié, la question suivante pour cet item remonte à difficulté 2. Si l'élève échoue même au gabarit simplifié (5ème échec consécutif), un message d'encouragement s'affiche : « Ce point est difficile — on va le revoir autrement. Regarde ta leçon et on réessaie demain. » L'item est reporté à J+2 au lieu de J+1 (pause pédagogique). La détection d'anomalie Z3-AC16/AC21 continue de fonctionner en parallèle. |
+
+> **NOTE :** Un élève qui échoue 3 fois de suite sur le même item à la même difficulté entre dans un cycle de frustration : il voit la même question, ne comprend pas, échoue encore, se sent nul. La descente de difficulté brise ce cycle en offrant un exercice plus accessible (MCQ vs question ouverte). Le renvoi vers la carte de leçon transforme un moment d'échec en moment d'apprentissage. La pause J+2 après 5 échecs évite l'acharnement contre-productif — le cerveau a besoin de temps pour consolider.
 
 ---
 
@@ -568,6 +578,16 @@
 
 > **NOTE :** Un élève qui clique random sur des MCQ a 25% de chance de répondre juste (4 options). Sans ce AC, 2 MCQ correctes par chance suffisent pour passer de UNKNOWN à OK (Z1-AC01/AC02). Ce AC neutralise les réponses trop rapides côté progression sans bloquer l'UX (l'élève peut toujours cliquer, mais ça ne "compte" pas positivement). La régression sur réponse incorrecte est maintenue car elle incite à réfléchir plutôt qu'à cliquer au hasard. Le seuil de 2 secondes est calibré sur le temps minimum de lecture d'une question MCQ (titre + 4 options).
 
+### Z3-AC24 — Récupération des items « Ignoré » par l'élève
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a cliqué « Ignorer » sur 4 items lors de la validation HITL (Z3-AC05). Ces items sont en `status = IGNORED` et exclus des sessions. L'élève réalise plus tard (ou après explication du parent) que ces items étaient utiles. |
+| **WHEN** | L'élève accède à la carte de leçon du chapitre et consulte les items « ignorés » (section dédiée en bas de la carte, libellée « Points non vérifiés »). |
+| **THEN** | Chaque item ignoré est affiché avec son `term` ou résumé et un bouton « Réactiver ». En cliquant « Réactiver », l'élève revoit la suggestion de l'IA et peut choisir : « C'est bon » (→ Z3-AC02, confidence boostée), « À corriger » (→ Z3-AC03, correction), ou « Je ne sais pas » (→ Z3-AC04, admin). L'item réactivé repasse en circuit normal (éligible aux sessions). Si les 4 items sont ignorés, un nudge discret apparaît dans la carte de leçon : « 4 points n'ont pas été vérifiés — ils ne seront pas dans tes exercices. » Ce nudge disparaît si l'élève réactive ou confirme son choix de les laisser ignorés. Un bouton « Tout laisser ignoré » masque le nudge définitivement pour ce chapitre. |
+
+> **NOTE :** Un ado de 13 ans qui ne comprend pas la validation HITL va cliquer « Ignorer » sur tout (le réflexe « fermer la pop-up »). Sans récupération, ces items sont perdus à jamais sauf intervention admin. L'élève ne s'en rend compte que quand il réalise que des points du cours ne sont pas dans ses exercices. La section « Points non vérifiés » rend le problème visible et offre une voie de retour autonome, sans dépendre de l'admin.
+
 ---
 
 ## Z4 — Lazy generation — Concurrence & cache
@@ -642,7 +662,7 @@
 |---|---|
 | **GIVEN** | Le cache du pool est expiré et le LLM est indisponible (timeout). L'élève tente de démarrer une session. |
 | **WHEN** | La composition de session échoue à générer des questions. |
-| **THEN** | L'interface affiche : 'Préparation de tes exercices en cours… réessaie dans quelques secondes.' Aucune session vide n'est créée en base. La page n'affiche pas d'erreur 500. |
+| **THEN** | L'interface affiche : 'Préparation de tes exercices en cours… réessaie dans quelques secondes.' Aucune session vide n'est créée en base. La page n'affiche pas d'erreur 500. Si après **10 secondes** le LLM n'est toujours pas disponible, le fallback Z4-AC16 est déclenché. |
 
 ### Z4-AC09 — OCR cache permanent (hash photo)
 
@@ -711,6 +731,16 @@
 | **THEN** | Le pool vérifie si l'élève a déjà vu toutes les questions disponibles pour cet item au cours des 5 dernières sessions. Si oui, une **régénération ciblée** est déclenchée pour cet item uniquement : le LLM génère 1–2 nouvelles questions avec des gabarits ou des angles différents (distractors variés, reformulation de la consigne). Les anciennes questions restent dans le pool (elles redeviennent éligibles après 14 jours sans vue). La régénération est **lazy** et non bloquante : si le LLM est indisponible, une question déjà vue est réutilisée plutôt que de bloquer la session. Un compteur `times_seen` est maintenu par `(user_id, question_id)` pour informer l'algorithme de sélection (préférence aux questions les moins vues). |
 
 > **NOTE :** Un item FRAGILE en spaced repetition est revu toutes les 24h. Avec un pool de 3 questions, l'élève voit la même MCQ au bout de 3 jours. Au 7ème jour, il reconnaît la question et la réponse par mémoire photographique — il ne révise plus le concept, il reconnaît le pattern visuel. C'est une forme de mastery inflation silencieuse. Le renouvellement ciblé force le cerveau à réengager avec le concept sous un angle neuf.
+
+### Z4-AC16 — Fallback contenu quand le LLM est indisponible
+
+| | |
+|---|---|
+| **GIVEN** | L'élève tente de démarrer une session. Le LLM est indisponible depuis > 10 secondes (Z4-AC08 épuisé). Le chapitre a une carte de leçon avec des blocs de texte et des items existants (même sans questions générées). |
+| **WHEN** | Le fallback est déclenché. |
+| **THEN** | L'interface propose un mode « Relecture active » au lieu de laisser l'élève sans rien faire. Ce mode affiche la carte de leçon du chapitre le plus urgent (items dues en priorité) avec des **flashcards textuelles statiques** : pour chaque item KNOWLEDGE, afficher le `term` en recto et la définition extraite de l'OCR en verso (pas de génération LLM nécessaire). L'élève peut « retourner » chaque flashcard. Un bouton « Je savais » / « Je ne savais pas » permet un auto-évaluation (sans impact mastery — marqué `self_assessment = true`). Le message affiché est : « Les exercices ne sont pas disponibles pour le moment — en attendant, révise ta leçon avec ces flashcards ! » Le mode fallback se désactive automatiquement dès que le LLM redevient disponible (vérification toutes les 30s). Si aucun item n'est disponible du tout (chapitre vide), un message s'affiche : « Tes exercices arrivent bientôt — reviens dans quelques minutes. » |
+
+> **NOTE :** Un élève motivé qui ouvre l'app pour réviser et se retrouve face à un mur « réessaie plus tard » ferme l'app et ne revient pas. Le mode relecture active est un filet de sécurité minimal : il ne remplace pas les exercices adaptatifs mais il offre une activité pédagogique en attendant. Les flashcards textuelles ne nécessitent aucun appel LLM (données OCR déjà en base). L'auto-évaluation sans impact mastery évite la corruption des données tout en gardant l'élève engagé.
 
 ---
 
@@ -1176,6 +1206,6 @@
 
 ---
 
-> Ces 121 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 124 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
 *Fin du document — Révise Mieux AC v1.4 · 7 mars 2026*
