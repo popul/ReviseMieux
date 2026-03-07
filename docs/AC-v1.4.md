@@ -1,12 +1,13 @@
-# Acceptance Criteria — Révise Mieux v1.3
+# Acceptance Criteria — Révise Mieux v1.4
 
 > **Annexe PRD v1.4 · Zones à risque vibe coding**
 >
 > | | |
 > |---|---|
-> | **Version** | 1.3 |
+> | **Version** | 1.4 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 6 zones critiques identifiées — 103 AC en format Given/When/Then |
+> | **Périmètre** | 6 zones critiques identifiées — 112 AC en format Given/When/Then |
+> | **Évolutions v1.4 vs v1.3** | +9 AC confiance parent & RGPD : rétention crops alignée J+30 (Z2), score mock exam avec caveat qualité + exclusion script 3 min (Z1), digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits (Z6) |
 > | **Évolutions v1.3 vs v1.2** | +9 AC anti-désengagement : plafond maîtrise items non validés (Z1), micro-célébrations + débrief session (Z1), retour en douceur après absence + cycle post-exam + rampe diagnostic + digest pré-contrôle + anti alert-fatigue parent (Z6) |
 > | **Évolutions v1.2 vs v1.1** | +8 AC couvrant les angles morts identifiés : retry élève pipeline (Z2), re-vérification fidelity timeout + UX validation + SLA admin + détection précoce (Z3), normalisation ponctuation OCR (Z5), ré-engagement inactivité + alerte exams simultanés (Z6) |
 > | **Usage** | À intégrer comme contexte système avant chaque session de vibe coding, et à transformer en tests unitaires |
@@ -17,13 +18,13 @@
 
 | # | Zone | Risque | AC count |
 |---|---|---|---|
-| Z1 | Transitions Mastery (états + régressions + engagement) | Très élevé | 17 |
-| Z2 | Pipeline J0 — Error paths & timeouts | Très élevé | 11 |
+| Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 19 |
+| Z2 | Pipeline J0 — Error paths, timeouts & RGPD | Très élevé | 12 |
 | Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 21 |
 | Z4 | Lazy generation — Concurrence & cache | Élevé | 10 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 9 |
-| Z6 | Emploi du temps, Notifications, Révision proactive & Engagement | Élevé | 35 |
-| | **Total** | | **103** |
+| Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 41 |
+| | **Total** | | **112** |
 
 ---
 
@@ -207,6 +208,26 @@
 
 > **NOTE :** Le débrief est le moment le plus important pour la rétention. Un élève qui ne sait pas s'il a progressé ne reviendra pas. Ce écran doit être rapide (< 3 secondes de chargement), positif (mettre en avant les progrès, pas les échecs) et actionnable (montrer le prochain objectif). L'absence de débrief est le 2ème facteur de churn identifié après l'absence de célébration.
 
+### Z1-AC18 — Score contrôle blanc : caveat qualité si items non validés
+
+| | |
+|---|---|
+| **GIVEN** | L'élève complète un contrôle blanc (`mock_exam`). Sur 20 questions, 6 portent sur des items avec `validation_required = true` (restreints aux templates simples, cf. Z3-AC01). |
+| **WHEN** | Le score du contrôle blanc est calculé et affiché (à l'élève et dans le résumé parent). |
+| **THEN** | Le score global est affiché normalement (ex. 14/20). Un sous-texte est ajouté : « Score basé sur [14] questions complètes et [6] questions simplifiées (contenu en cours de vérification) ». Le résumé envoyé au parent inclut la même mention. Le score est accompagné d'un indicateur de confiance : `score_confidence = (questions_full_templates / total_questions)` — ici 0.70. Si `score_confidence < 0.5`, un avertissement explicite est ajouté : « Plus de la moitié des questions étaient simplifiées — ce score est peu représentatif. Encouragez [Prénom] à vérifier les zones incertaines. » |
+
+> **NOTE :** Sans ce caveat, le parent voit « 14/20 » et pense que l'enfant est prêt. Mais 6 questions étaient des QCM simples au lieu d'exercices de calcul ou rédaction — le score est structurellement gonflé. Ce AC rend l'inflation visible et actionnable. Le `score_confidence` est également exploité par le digest (Z6-AC35).
+
+### Z1-AC19 — Script 3 minutes : exclusion des items sous investigation
+
+| | |
+|---|---|
+| **GIVEN** | Le parent consulte le « script 3 minutes » pour un chapitre. 3 items sont les plus fragiles : Item A (FRAGILE, `validation_required = false`), Item B (FRAGILE, `validation_required = true`, `source = 'fidelity_check'`), Item C (UNKNOWN, `anomaly_flag = 'high_failure_rate'`). |
+| **WHEN** | Le système compose les 2–3 questions orales du script. |
+| **THEN** | Item B et Item C sont **exclus** du script (items sous investigation). Seul Item A est inclus. Si moins de 2 items sont éligibles après exclusion, le script est complété avec des items OK récemment révisés (consolidation orale). Le script n'inclut **jamais** un item avec `validation_required = true` ou `anomaly_flag != null`. Un message est affiché si des items ont été exclus : « [N] point(s) sont en cours de vérification et ne sont pas inclus dans le script. » |
+
+> **NOTE :** Le script 3 minutes est le moment où le parent teste activement l'enfant à l'oral. Si le parent pose une question basée sur un item hallucé ou défectueux, et que l'enfant répond correctement selon le cours réel (pas l'item erroné), le parent conclut que l'app est défaillante. C'est un des moments de rupture de confiance les plus forts.
+
 ---
 
 ## Z2 — Pipeline J0 — Error paths & timeouts
@@ -306,6 +327,16 @@
 | **THEN** | Un badge 'Exercices non générés · page X' est affiché avec un bouton 'Réessayer'. Le clic déclenche un nouveau passage par l'étape 7 du pipeline (génération items) en réutilisant le texte OCR en cache. Si le retry réussit, les items sont ajoutés à la carte et le badge disparaît. Si le retry échoue à nouveau, le badge réapparaît avec le message 'Génération toujours indisponible — réessaie plus tard'. Maximum 3 retries manuels par page. Au-delà, seul l'admin peut relancer. |
 
 > **NOTE :** Ce mécanisme complète Z2-AC05 en offrant une action côté élève. L'admin reste le fallback ultime mais l'élève n'est plus bloqué sans recours en cas d'indisponibilité temporaire du LLM.
+
+### Z2-AC12 — Rétention crops et OCR alignée sur politique photos (RGPD)
+
+| | |
+|---|---|
+| **GIVEN** | Une page a été traitée par le pipeline. Les crops (Block.crop, Document.source_image_url) et le texte OCR brut sont stockés. La photo originale est supprimée à J+30 (politique par défaut). |
+| **WHEN** | Le job de nettoyage RGPD s'exécute à J+30 pour cette page. |
+| **THEN** | Si l'utilisateur n'a PAS opté pour la conservation : les crops d'image sont supprimés en même temps que la photo originale. Les `crop_url` des blocs sont remplacés par `null`. Les `source_image_url` des Documents sont remplacés par `null`. Le texte OCR brut est conservé (il ne contient pas l'image de l'écriture manuscrite). Les ValidationTasks en cours conservent un `crop_snapshot_text` (description textuelle du crop) mais pas l'image. Les gabarits de type `GEN.DOC.IMAGE.*` deviennent inéligibles pour les Documents dont le `source_image_url` est `null` — ces items sont restreints aux gabarits textuels. |
+
+> **NOTE :** Le PRD §20 Q2 mentionne la suppression des « photos originales » à J+30, mais les crops (fragments d'image) et les `source_image_url` des Documents n'avaient pas de politique de rétention explicite. Cela créait un trou RGPD : un parent pensait les photos supprimées alors que des fragments persistaient indéfiniment. Ce AC aligne la rétention des crops sur celle des photos originales.
 
 ---
 
@@ -983,8 +1014,48 @@
 
 > **NOTE :** Un parent qui reçoit 3+ notifications « session manquée » par semaine désactive les alertes. L'alert fatigue est la première cause de désactivation des notifications parent dans les apps éducatives. La règle « 1 push/semaine + résumé dans le digest » maintient le signal sans créer de bruit. Le tableau de bord reste exhaustif pour les parents qui veulent le détail.
 
+### Z6-AC35 — Digest parent hebdo : contenu standardisé avec indicateur qualité
+
+| | |
+|---|---|
+| **GIVEN** | Le parent est en mode passif. Le scheduler prépare le digest hebdomadaire. L'élève a 2 chapitres actifs : 'Photosynthèse' (15 items, 3 validation_required, 80% OK+SOLID) et 'Densité' (10 items, 0 validation_required, 60% OK+SOLID). |
+| **WHEN** | Le digest est généré. |
+| **THEN** | Le digest contient **obligatoirement** les sections suivantes, dans cet ordre : — **1. Résumé activité** : « [Prénom] a révisé [X] fois cette semaine, [Y] min au total ». Si aucune activité : « [Prénom] n'a pas révisé cette semaine » (pas de données masquées). — **2. Maîtrise par chapitre** : pour chaque chapitre actif, le % d'items OK+SOLID et le nombre d'items restants (FRAGILE+UNKNOWN). Si des items ont `validation_required = true`, mention « [N] point(s) en vérification — exercices simplifiés en attendant ». — **3. Alertes** (si applicable) : items à risque (FRAGILE + prochain exam < 5j), sessions manquées (résumé, cf. Z6-AC34), inactivité. — **4. Prochaine action** : « Encouragez [Prénom] à [action concrète] ». Ex. « faire le contrôle blanc de Physique-Chimie ce week-end ». — **5. Score dernier contrôle blanc** (si complété cette semaine) : score + `score_confidence` (cf. Z1-AC18). Le digest est lisible en < 30 secondes (max 150 mots hors titres). |
+
+> **NOTE :** Le digest est le touchpoint principal des parents passifs (mode par défaut). Son contenu était sous-spécifié — un vague « couverture, maîtrise, risques » sans format. Ce AC standardise les 5 sections obligatoires et surtout rend visible le statut de qualité des items (section 2). Un parent qui voit « 3 points en vérification » comprend que la maîtrise affichée est provisoire, ce qui évite la fausse confiance.
+
+### Z6-AC36 — Digest parent : signalement capture incomplète (pages OCR échouées)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a uploadé 10 pages pour le chapitre 'Photosynthèse'. 2 pages sont en `status = FAILED` ou `items_generation_failed`. Le parent reçoit le digest hebdomadaire. |
+| **WHEN** | Le digest est généré pour ce chapitre. |
+| **THEN** | La section maîtrise du chapitre inclut une mention : « ⚠ 2 pages sur 10 n'ont pas pu être analysées — le cours est partiellement couvert. [Prénom] peut reprendre les photos pour compléter. ». Si le nombre de pages échouées représente > 30% du total, la mention est promue en alerte (section 3) : « Attention : plus de 30% du cours de [Matière] n'a pas été analysé. Les exercices et le contrôle blanc ne couvrent pas tout le programme. ». L'alerte est envoyée **une seule fois** (pas répétée chaque semaine si l'élève ne corrige pas). |
+
+> **NOTE :** C'est un gap critique identifié : le parent ne savait pas que la capture était incomplète. Il voyait « 80% de maîtrise sur Photosynthèse » sans savoir que 20% du contenu manquait. Le contrôle blanc sur contenu incomplet donne un score trompeur. Ce AC ferme la boucle entre « problème pipeline » et « parent informé ».
+
+### Z6-AC37 — Feedback après résolution d'une ValidationTask admin
+
+| | |
+|---|---|
+| **GIVEN** | Un item avait `validation_required = true`. L'élève a cliqué « Je ne sais pas » (Z3-AC04). La ValidationTask a été résolue par l'admin (corrigée ou confirmée). |
+| **WHEN** | L'admin résout la tâche. |
+| **THEN** | L'élève reçoit une notification in-app (pas push) la prochaine fois qu'il ouvre l'app : « Un point que tu avais signalé a été vérifié : [term] — [action : confirmé / corrigé]. Tes exercices sont mis à jour. ». Si le parent est en mode actif et avait vu l'item dans sa file, le prochain digest mentionne « [N] vérification(s) résolue(s) cette semaine ». Les templates complets sont débloqués pour cet item (cf. Z3-AC01 levé). |
+
+> **NOTE :** Sans ce feedback, les items disparaissent dans une boîte noire. L'élève signale un problème et n'a jamais de retour. Le parent valide des items et ne sait pas si ça a servi. Ce AC ferme la boucle de feedback et renforce la confiance dans le système de qualité.
+
+### Z6-AC38 — Labels de maîtrise traduits pour le parent
+
+| | |
+|---|---|
+| **GIVEN** | Le digest ou le tableau de bord parent affiche les états de maîtrise des items. |
+| **WHEN** | Le parent consulte les données de maîtrise. |
+| **THEN** | Les labels techniques sont traduits en langage parent : — UNKNOWN → « Pas encore vu ». — FRAGILE → « En cours d'apprentissage ». — OK → « Compris, à consolider ». — SOLID → « Bien acquis ». — Un item avec `validation_required = true` affiche « En vérification » à la place de son état mastery. Le tooltip (ou sous-texte au premier affichage) explique brièvement ce que signifie chaque niveau. Le % de maîtrise du digest est calculé sur les items OK + SOLID uniquement (FRAGILE et UNKNOWN ne comptent pas comme « maîtrisés »). |
+
+> **NOTE :** Les labels internes (UNKNOWN, FRAGILE, OK, SOLID) sont du jargon développeur. Un parent qui voit « 3 items FRAGILE » peut paniquer (« fragile = mauvais ») alors que ça signifie « en cours d'apprentissage, normal après 1 session ». La traduction en langage naturel et l'explication au premier affichage éliminent cette source de confusion.
+
 ---
 
-> Ces 103 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 112 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
-*Fin du document — Révise Mieux AC v1.3 · 7 mars 2026*
+*Fin du document — Révise Mieux AC v1.4 · 7 mars 2026*

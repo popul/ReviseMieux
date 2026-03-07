@@ -153,9 +153,17 @@ Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schém
 
 ### 5.2 Parcours parent passif (défaut)
 
-- **Digest hebdo :** couverture du chapitre, maîtrise globale, risques identifiés, prochaine action recommandée. Lisible en < 30 s.
+- **Digest hebdo (5 sections standardisées, AC Z6-AC35) :**
+  1. **Résumé activité** : sessions complétées, temps total. Mention explicite si aucune activité.
+  2. **Maîtrise par chapitre** : % OK+SOLID, items restants. Mention si items en vérification ou pages OCR échouées (AC Z6-AC36).
+  3. **Alertes** : items à risque pré-exam, sessions manquées (résumé hebdo, AC Z6-AC34), inactivité.
+  4. **Prochaine action** : recommandation concrète et actionnable.
+  5. **Score contrôle blanc** (si complété) : score + indicateur de confiance (AC Z1-AC18).
+  - Labels de maîtrise traduits en langage parent : « Pas encore vu / En cours / Compris / Bien acquis » (AC Z6-AC38).
+  - Lisible en < 30 s (max 150 mots hors titres).
+- **Digest pré-contrôle (AC Z6-AC33) :** envoyé à J-3 avant chaque exam. Maîtrise par chapitre + items fragiles + recommandation.
 - **Veille contrôle :** alerte 5 jours avant si maîtrise insuffisante sur des items critiques (définis par pack).
-- **Score contrôle blanc :** résumé envoyé automatiquement après chaque contrôle blanc complété.
+- **Score contrôle blanc :** résumé envoyé automatiquement après chaque contrôle blanc complété, avec caveat qualité si items non validés.
 
 ### 5.3 Parcours parent actif (opt-in)
 
@@ -638,7 +646,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 | **User** | `id` · `role (student\|parent)` · `consent_parent_at` · `linked_student_id?` · `notification_hour?` (défaut 18h30) |
 | **ScheduleSlot** | `id` · `user_id` · `subject` · `day_of_week (1–7)` · `period (morning\|afternoon)` · `created_at` |
 | **ScheduleException** | `id` · `user_id` · `subject` · `original_date` · `type (cancelled\|moved)` · `moved_to_date?` · `moved_to_period?` · `created_at` |
-| **Exam** | `id` · `user_id` · `name?` · `exam_date` · `chapter_ids[]` · `created_at` |
+| **Exam** | `id` · `user_id` · `name?` · `exam_date` · `chapter_ids[]` · `status (active\|past)` · `created_at` |
 | **Chapter** | `id` · `subject` · `class_level` · `name` · `exam_id?` · `pack_id` · `current_revision_id` |
 | **ChapterRevision** | `id` · `chapter_id` · `revision_number` · `created_at` · `pages[]` · `status` |
 | **Page** | `id` · `revision_id` · `photo_url` · `order` · `ocr_status` |
@@ -756,7 +764,7 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 ### RGPD / Mineurs
 - Consentement parent obligatoire (mineur < 15 ans).
 - Export et suppression des données sur demande.
-- Minimisation : photos supprimées par défaut 30j après extraction (opt-in conservation).
+- Minimisation : photos originales ET crops d'image supprimés par défaut 30j après extraction (opt-in conservation). Le texte OCR brut est conservé (pas d'image). Voir AC Z2-AC12 pour les détails de rétention des crops.
 - Logs anonymisés pour analytics.
 
 ### Explicabilité
@@ -838,6 +846,12 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 | Items post-exam saturent les sessions → fatigue | Moyenne | Moyen | Archivage automatique post-exam (AC Z6-AC31). Items SOLID passent en maintenance longue (J+14). Chapitres post-exam restent actifs mais non prioritaires. |
 | Alert fatigue parent sur sessions manquées → désactivation totale | Moyenne | Moyen | Max 1 push « session manquée » / semaine (AC Z6-AC34). Sessions manquées suivantes résumées dans digest hebdo. Détail complet dans tableau de bord. |
 | Digest parent mal timé par rapport aux exams | Moyenne | Moyen | Digest supplémentaire « pré-contrôle » à J-3 avant chaque exam (AC Z6-AC33). Inclut maîtrise par chapitre + items fragiles + recommandation d'action. |
+| Score contrôle blanc gonflé par templates simplifiés | Haute | Élevé | Score accompagné d'un `score_confidence` + caveat explicite si items non validés (AC Z1-AC18). Parent voit la proportion de questions complètes vs simplifiées. |
+| Parent non informé de capture incomplète (pages OCR échouées) | Haute | Élevé | Digest inclut signalement des pages échouées par chapitre (AC Z6-AC36). Alerte si > 30% du contenu manque. |
+| Crops d'image persistent au-delà de la suppression J+30 des photos | Moyenne | Très élevé | Rétention crops alignée sur photos originales (AC Z2-AC12). Suppression crops + source_image_url à J+30. RGPD conforme. |
+| Labels maîtrise incompréhensibles pour les parents | Moyenne | Moyen | Traduction UNKNOWN/FRAGILE/OK/SOLID en langage parent (AC Z6-AC38). % maîtrise calculé sur OK+SOLID uniquement. |
+| Items sous investigation proposés dans script 3 minutes | Moyenne | Élevé | Script exclut items avec `validation_required` ou `anomaly_flag` (AC Z1-AC19). Évite que le parent teste l'enfant sur du contenu potentiellement faux. |
+| Résolution admin sans feedback → boîte noire | Faible | Moyen | Notification in-app élève + mention dans digest parent après résolution admin (AC Z6-AC37). Ferme la boucle de feedback. |
 
 ---
 
