@@ -6,8 +6,8 @@
 > |---|---|
 > | **Version** | 1.4 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 7 zones critiques identifiées — 158 AC en format Given/When/Then |
-> | **Évolutions v1.5 vs v1.4.1** | +23 AC zone Z7 « Routine de soirée & Orchestration ». Orchestration : EveningPlan (AC01), dashboard soirée (AC02), séquencement multi-matières (AC03), estimation durée (AC04), état « fini pour ce soir » (AC05), guidage capture in-app (AC06), séquencement sessions (AC07), mode express (AC08), complétion partielle (AC09), rien à faire (AC10), week-end (AC11), capture cours demain (AC12), devoirs (AC13), arc émotionnel (AC14), notif parent routine (AC15), onboarding 1re soirée (AC16). Hiérarchie contenu & exam : Notions par concept_tag (AC17), vue chapitre par notion (AC18), périmètre exam par notion (AC19), auto-suggestion exam (AC20), vue angles morts (AC21), prédiction interro surprise (AC22), alerte fragile × non testée (AC23) |
+> | **Périmètre** | 7 zones critiques identifiées — 161 AC en format Given/When/Then |
+> | **Évolutions v1.5 vs v1.4.1** | +3 AC zone Z1 : accès leçon contextuel pendant question (AC23), reformulation « je ne comprends pas » (AC24), scoring de réponse partielle (AC25). +23 AC zone Z7 « Routine de soirée & Orchestration ». Orchestration : EveningPlan (AC01), dashboard soirée (AC02), séquencement multi-matières (AC03), estimation durée (AC04), état « fini pour ce soir » (AC05), guidage capture in-app (AC06), séquencement sessions (AC07), mode express (AC08), complétion partielle (AC09), rien à faire (AC10), week-end (AC11), capture cours demain (AC12), devoirs (AC13), arc émotionnel (AC14), notif parent routine (AC15), onboarding 1re soirée (AC16). Hiérarchie contenu & exam : Notions par concept_tag (AC17), vue chapitre par notion (AC18), périmètre exam par notion (AC19), auto-suggestion exam (AC20), vue angles morts (AC21), prédiction interro surprise (AC22), alerte fragile × non testée (AC23) |
 > | **Évolutions v1.4.1 vs v1.4** | +5 AC upload incrémental : ajout de pages sans nouvelle révision (Z5-AC11), pas de re-OCR des pages existantes (Z5-AC12), pipeline incrémental (Z2-AC14), session evening_first incrémentale (Z6-AC43), explication dilution maîtrise dashboard (Z6-AC44) |
 > | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) + anti-frustration élève (feedback explicatif blocage 24h Z1, descente difficulté échecs répétés Z1, fallback LLM indisponible Z4, récupération items ignorés Z3) + anti-silent-failures (anti-starvation items UNKNOWN Z1, garde-fou template/type Z3, invalidation cache exam Z4) + correctifs modèle (session all-SOLID Z4, alerte items perdus re-upload Z5, multi-exam par chapitre Z6, fix Chapter.exam_ids[] pluriel) |
 > | **Évolutions v1.3 vs v1.2** | +9 AC anti-désengagement : plafond maîtrise items non validés (Z1), micro-célébrations + débrief session (Z1), retour en douceur après absence + cycle post-exam + rampe diagnostic + digest pré-contrôle + anti alert-fatigue parent (Z6) |
@@ -20,14 +20,14 @@
 
 | # | Zone | Risque | AC count |
 |---|---|---|---|
-| Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 22 |
+| Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 25 |
 | Z2 | Pipeline J0 — Error paths, timeouts & RGPD | Très élevé | 14 |
 | Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 25 |
 | Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 18 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 12 |
 | Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 44 |
 | Z7 | Routine de soirée & Orchestration | Très élevé | 23 |
-| | **Total** | | **158** |
+| | **Total** | | **161** |
 
 ---
 
@@ -260,6 +260,36 @@
 | **THEN** | Un mécanisme anti-starvation garantit que chaque session inclut **au minimum 1 item UNKNOWN** s'il existe des items UNKNOWN non présentés depuis 7+ jours. Cet item est injecté dans le bucket 10% « découverte », même si le bucket 70% est plein. Si plusieurs items UNKNOWN sont en starvation, le plus ancien (plus grand écart `next_due_at - now`) est sélectionné en priorité. Un job hebdomadaire détecte les items UNKNOWN avec 0 tentatives depuis > 14 jours et crée une alerte admin `ITEM_STARVATION` (priorité `MEDIUM`). Le dashboard élève affiche un indicateur discret : « [N] points pas encore abordés » si des items UNKNOWN existent depuis > 7 jours sans tentative. |
 
 > **NOTE :** Un chapitre dense (30+ items) avec beaucoup de FRAGILE peut créer une file d'attente infinie pour les items UNKNOWN. Le 70/20/10 est optimal en régime stable mais pathologique en cas de dette : les items FRAGILE monopolisent le bucket et les UNKNOWN ne sont jamais vus. L'élève pense réviser tout le chapitre mais a des trous systématiques. Pire : le mock exam peut tester ces items jamais vus, et l'élève découvre un pan entier du cours le jour du contrôle blanc.
+
+### Z1-AC23 — Bouton « Voir ma leçon » contextuel pendant une question
+
+| | |
+|---|---|
+| **GIVEN** | L'élève est en session (daily, evening_first, mock_exam…). Une question est affichée sur l'item « masse volumique ρ = m/V ». L'item appartient à la Notion « Masse volumique (ρ) » du chapitre « Densité et masse volumique ». L'élève hésite et ne se souvient plus de la formule. |
+| **WHEN** | L'élève tape sur le bouton « 📖 Voir ma leçon » (visible en permanence sous la zone de réponse, discret mais accessible). |
+| **THEN** | Un panneau coulissant (bottom sheet / drawer) s'ouvre et affiche **uniquement la section pertinente de la carte de leçon** : les blocs OCR correspondant à la Notion de l'item en cours (pas toute la leçon — juste la section liée). Le titre du panneau est « Ta leçon — [nom de la Notion] ». Si l'item a un `linked_doc_id` (document lié), le document est aussi affiché. Le panneau est scrollable si la section est longue. La question reste visible en arrière-plan (effet de transparence ou split-screen sur tablette). L'élève peut fermer le panneau et revenir à la question pour répondre. **Impact maîtrise** : la réponse est marquée `hint_used = true`. Si la réponse est correcte avec hint, elle compte comme un **demi-succès** : elle ne casse pas la série de `consecutive_successes` mais ne l'incrémente pas non plus (neutre). L'item ne peut pas passer de OK → SOLID sur une réponse avec hint (il faut une réussite « propre » pour SOLID). L'item peut passer de UNKNOWN → FRAGILE ou FRAGILE → OK avec hint (l'élève a quand même fait l'effort de chercher et répondre). Un indicateur discret « 📖 » apparaît sur la question dans le débrief de session pour les questions où le hint a été utilisé. |
+
+> **NOTE :** Ce bouton est conçu pour l'élève « orienté résultat » qui ne veut pas relire sa leçon de manière proactive mais a besoin d'un coup de pouce quand il est bloqué. La clé est la **contextualisation** : on ne montre pas toute la leçon (ennuyeux, trop long) mais uniquement la Notion pertinente (2-4 blocs OCR, ~30 secondes de lecture). C'est l'équivalent numérique de « demander au prof de répéter » — pas de la triche, mais un étayage (scaffolding). Le demi-succès est le bon compromis : on ne pénalise pas l'effort (l'élève a cherché, lu, compris, puis répondu) mais on ne le récompense pas autant qu'une réponse de mémoire (le passage SOLID exige la récupération sans aide, c'est le standard de la maîtrise réelle).
+
+### Z1-AC24 — Bouton « Je ne comprends pas la question » : reformulation et clarification
+
+| | |
+|---|---|
+| **GIVEN** | L'élève est en session. La question affichée est : « Explique pourquoi un objet plus dense que l'eau coule » (gabarit `GEN.KNOW.DEF_SHORT`, item « densité et flottaison »). L'élève ne comprend pas ce qu'on lui demande : est-ce la définition de la densité ? La formule ? Le lien avec la flottaison ? |
+| **WHEN** | L'élève tape sur le bouton « ❓ Je ne comprends pas la question » (visible à côté du bouton « Voir ma leçon »). |
+| **THEN** | Le système affiche une **reformulation en 2 parties** (générée par template, pas LLM live) : **(1) Ce qu'on te demande** (intention de la question en langage simple) : « On te demande d'expliquer le lien entre la densité d'un objet et le fait qu'il coule dans l'eau. » **(2) Un indice de démarrage** (sans donner la réponse) : « Pense à comparer la densité de l'objet avec celle de l'eau (ρ_eau = 1 g/cm³). » La reformulation est pré-générée lors de l'instanciation de la question (étape 3 du moteur d'exploitation, PRD §7.2) : chaque question instanciée contient un champ `clarification { intent: string, starter_hint: string }` généré par le LLM au moment de la composition (coût marginal ~50 tokens par question). Si le champ `clarification` est absent (question ancienne, migration), un fallback textuel s'affiche : « Cette question porte sur : [item.term]. Essaie de répondre avec ce que tu sais, même partiellement ! » **Impact maîtrise** : l'utilisation de la clarification est marquée `clarification_used = true`. Même impact que `hint_used` (Z1-AC23) : demi-succès, pas de passage OK→SOLID. L'élève peut cumuler clarification + hint leçon sur la même question (les deux marqueurs sont indépendants). Le débrief affiche « ❓ » pour les questions où la clarification a été utilisée. |
+
+> **NOTE :** « Je ne comprends pas la question » est un signal d'UX fondamental qu'aucune app de révision ne gère correctement. Quand un élève ne comprend pas l'intention d'une question, il a trois options : (1) répondre au hasard → feedback non informatif, frustration, (2) passer → pas d'apprentissage, (3) demander à un parent → interruption. Le bouton ❓ offre une 4ème option : comprendre ce qu'on attend de lui, puis essayer. La reformulation en deux parties (intention + indice de démarrage) est inspirée des pratiques des bons profs : avant de donner la réponse, ils reformulent la question et donnent un « coup de pouce ». Le coût LLM est marginal car la clarification est pré-générée à la composition, pas en temps réel.
+
+### Z1-AC25 — Réponse partielle encouragée : « Je ne sais pas tout mais je tente »
+
+| | |
+|---|---|
+| **GIVEN** | L'élève est face à une question SHORT_ANSWER ou KEYWORDS. Il a une vague idée mais n'est pas sûr de lui. Il n'a pas envie de voir la leçon (trop long) ni de passer la question (frustrant). |
+| **WHEN** | L'élève soumet une réponse partielle (pour KEYWORDS : 1 mot-clé sur 3 attendus ; pour SHORT_ANSWER : réponse incomplète mais contenant ≥ 1 élément correct). |
+| **THEN** | La correction reconnaît explicitement l'effort partiel : **(1) Score partiel** : pour KEYWORDS, chaque mot-clé correct vaut des points (ex: 1/3 = « Tu as trouvé 1 mot-clé sur 3 — c'est un début ! »). Pour SHORT_ANSWER, si ≥ 1 concept-clé est présent dans la réponse, le score est ≥ 0.3 (pas 0). **(2) Feedback différencié** : « Tu as trouvé [élément correct]. Il manquait [éléments manquants]. » au lieu d'un simple « Faux ». **(3) Impact maîtrise** : un score partiel (≥ 0.3 et < 0.7) est traité comme un « demi-échec » : l'item ne régresse pas (pas de OK→FRAGILE) mais ne progresse pas non plus (le `consecutive_successes` est remis à 0 sans pénalité supplémentaire). Un score ≥ 0.7 est traité comme une réussite. Un score < 0.3 est traité comme un échec. **(4) Le feedback affiche toujours la réponse complète** pour que l'élève voie ce qu'il manquait, même en cas de réponse partielle. Le message de feedback partiel utilise un ton encourageant : « Bien, tu y es presque ! » (score 0.5-0.7), « C'est un bon début ! » (score 0.3-0.5). |
+
+> **NOTE :** L'élève orienté résultat a besoin de voir que son effort est reconnu, même incomplet. Un système binaire « correct/incorrect » est frustrant car il met au même niveau « je n'avais aucune idée » et « j'avais 2 mots-clés sur 3 ». Le score partiel valorise la connaissance partielle et évite le découragement. C'est aussi pédagogiquement juste : en vrai contrôle, un élève qui donne 2 mots-clés sur 3 n'a pas 0 — il a une note intermédiaire. Le seuil 0.3 pour « demi-échec » (pas de régression) est un filet de sécurité : l'élève qui tente une réponse partielle ne doit pas être puni plus sévèrement que celui qui passe la question.
 
 ---
 

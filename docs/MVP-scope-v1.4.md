@@ -4,7 +4,7 @@
 |---|---|
 | **Version** | 1.5 |
 | **Date** | 7 mars 2026 |
-| **Total ACs** | 158 (7 zones) |
+| **Total ACs** | 161 (7 zones) |
 
 ---
 
@@ -44,6 +44,9 @@
 | Z1-AC20 | Changement date exam → recalcul intervalles | MVP Hardening |
 | Z1-AC21 | Descente de difficulté après échecs répétés | **MVP Core** |
 | Z1-AC22 | Détection starvation items UNKNOWN & rattrapage | MVP Hardening |
+| Z1-AC23 | Bouton « Voir ma leçon » contextuel pendant une question | **MVP Core** |
+| Z1-AC24 | Bouton « Je ne comprends pas la question » : reformulation | **MVP Core** |
+| Z1-AC25 | Réponse partielle encouragée : scoring graduel | **MVP Core** |
 
 > **Note :** Z1-AC21 reclassifié Post-MVP → MVP Core. La descente de difficulté après 3 échecs consécutifs est indispensable pour le public cible (11-15 ans) : sans elle, le cycle de frustration sur un item difficile provoque l'abandon dès la première semaine. Le renvoi vers la carte de leçon et la pause J+2 après 5 échecs transforment un moment d'échec en apprentissage.
 
@@ -233,10 +236,10 @@
 
 | Classification | Z1 | Z2 | Z3 | Z4 | Z5 | Z6 | Z7 | **Total** |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **MVP Core** | 16 | 13 | 12 | 8 | 10 | 22 | 15 | **96** |
+| **MVP Core** | 19 | 13 | 12 | 8 | 10 | 22 | 15 | **99** |
 | **MVP Hardening** | 5 | 1 | 8 | 7 | 2 | 16 | 8 | **47** |
 | **Post-MVP** | 1 | 0 | 5 | 3 | 0 | 6 | 0 | **15** |
-| **Total** | 22 | 14 | 25 | 18 | 12 | 44 | 23 | **158** |
+| **Total** | 25 | 14 | 25 | 18 | 12 | 44 | 23 | **161** |
 
 ### Changements par rapport à l'analyse initiale
 
@@ -252,3 +255,4 @@
 | Z7-AC01→16 | *Nouveau (zone Z7)* | **10 MVP Core + 6 MVP Hardening** | Couche d'orchestration de la routine de soirée : EveningPlan, dashboard soirée, séquencement multi-matières, mode express, notification parent positive, onboarding première soirée. |
 | Z7-AC17→21 | *Nouveau (zone Z7)* | **5 MVP Core** | Hiérarchie contenu par Notion, périmètre exam granulaire, auto-suggestion, vue angles morts. |
 | Z7-AC22→23 | *Nouveau (zone Z7)* | **2 MVP Hardening** | Prédiction interro surprise et alerte croisée fragile × non testée. |
+| Z1-AC23→25 | *Nouveau (zone Z1)* | **3 MVP Core** | Aide contextuelle en session : accès leçon par Notion pendant question, reformulation « je ne comprends pas », scoring partiel encourageant. |
