@@ -17,11 +17,11 @@
 |---|---|---|---|
 | Z1 | Transitions Mastery (états + régressions) | Très élevé | 14 |
 | Z2 | Pipeline J0 — Error paths & timeouts | Très élevé | 10 |
-| Z3 | Validation HITL — Skip / Ignore behavior | Élevé | 9 |
+| Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 17 |
 | Z4 | Lazy generation — Concurrence & cache | Élevé | 10 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 8 |
 | Z6 | Emploi du temps, Notifications & Révision proactive | Élevé | 27 |
-| | **Total** | | **78** |
+| | **Total** | | **86** |
 
 ---
 
@@ -348,6 +348,72 @@
 | **GIVEN** | Un chapitre dont tous les blocs ont `confidence ≥ 0.85` et aucun terme du lexique pack critique n'est détecté comme ambigu. |
 | **WHEN** | Le pipeline J0 finalise la détection d'incertitudes. |
 | **THEN** | Aucune ValidationTask n'est créée. La file de validation est vide. L'élève passe directement au diagnostic sans étape de validation. Tous les items ont `validation_required = false`. |
+
+### Z3-AC10 — Vérification croisée LLM : item fidèle au texte OCR
+
+| | |
+|---|---|
+| **GIVEN** | Le pipeline J0 a généré un item KNOWLEDGE avec `term = "photosynthèse"` et `keywords = ["chloroplaste", "lumière", "CO2"]` à partir d'un bloc OCR contenant « La photosynthèse est le processus par lequel les plantes utilisent la lumière, le CO2 et l'eau pour produire de la matière organique dans les chloroplastes ». |
+| **WHEN** | L'étape 7b (vérification croisée LLM) s'exécute. |
+| **THEN** | Le `fidelity_score` est `≥ 0.7` (item fidèle au texte source). `fidelity_flag = null`. L'item n'est pas ajouté à la file de validation pour cette raison. |
+
+### Z3-AC11 — Vérification croisée LLM : item déformé par le LLM
+
+| | |
+|---|---|
+| **GIVEN** | Le pipeline J0 a généré un item KNOWLEDGE avec `term = "respiration cellulaire"` à partir d'un bloc OCR qui parle uniquement de photosynthèse (hallucination LLM — le terme n'apparaît pas dans le texte source). |
+| **WHEN** | L'étape 7b (vérification croisée LLM) s'exécute. |
+| **THEN** | Le `fidelity_score` est `< 0.5`. `fidelity_flag = 'low'`. `validation_required = true`. Une `ValidationTask` est créée avec `source = 'fidelity_check'` et `suggestion = "L'item ne correspond pas au texte source — vérifier"`. L'item est restreint aux templates simples (GEN.KNOW.DEF_SHORT, GEN.KNOW.FLASH_MCQ). |
+
+### Z3-AC12 — Vérification croisée LLM : timeout du service
+
+| | |
+|---|---|
+| **GIVEN** | L'étape 7b est lancée mais le service LLM de vérification ne répond pas dans le délai imparti (timeout). |
+| **WHEN** | Le timeout expire. |
+| **THEN** | L'item est conservé avec `fidelity_score = null` et `fidelity_flag = null`. Le pipeline continue normalement (comportement dégradé = confiance OCR seule, pas de blocage). L'incident est loggé pour monitoring. |
+
+### Z3-AC13 — Cohérence intra-chapitre : détection de doublons
+
+| | |
+|---|---|
+| **GIVEN** | Le pipeline a généré deux items dans le même chapitre : Item A (`term = "chloroplaste"`, `confidence = 0.9`) et Item B (`term = "chloroplaste"`, `confidence = 0.7`). |
+| **WHEN** | L'étape 7c (cohérence intra-chapitre) s'exécute. |
+| **THEN** | Les deux items sont identifiés comme doublons (même `term`). L'item de plus faible confidence (Item B, 0.7) est archivé automatiquement (`archived = true`). L'item A est conservé. Aucune `ValidationTask` n'est créée (résolution automatique). Le Mastery associé à Item B, s'il existe, est transféré à Item A. |
+
+### Z3-AC14 — Cohérence intra-chapitre : détection de contradictions
+
+| | |
+|---|---|
+| **GIVEN** | Le pipeline a généré deux items dans le même chapitre : Item A (`term = "densité"`, définition = « masse divisée par le volume ») et Item B (`term = "masse volumique"`, définition = « volume divisé par la masse »). La détection LLM identifie une contradiction. |
+| **WHEN** | L'étape 7c s'exécute. |
+| **THEN** | Les deux items sont flaggés `coherence_flag = 'contradiction'` et `validation_required = true`. Une `ValidationTask` est créée pour chacun avec `source = 'coherence_check'` et `suggestion = "Contradiction détectée avec l'item [autre_item_id] — vérifier les définitions"`. Les deux items sont restreints aux templates simples jusqu'à résolution. |
+
+### Z3-AC15 — Feedback élève : signalement d'erreur sur un item
+
+| | |
+|---|---|
+| **GIVEN** | L'élève est en session de révision. Une question affiche « La photosynthèse produit du méthane » (item mal extrait). |
+| **WHEN** | L'élève appuie sur « Signaler une erreur » et saisit optionnellement « C'est de l'O2, pas du méthane ». |
+| **THEN** | Une `ValidationTask` est créée avec `source = 'student_report'`, `student_note = "C'est de l'O2, pas du méthane"`, `priority = HIGH` (signalement élève toujours prioritaire). L'item reste utilisable en mode dégradé (templates simples uniquement). Si une `ValidationTask` existe déjà pour cet item, le signalement est ajouté comme note complémentaire sur la tâche existante (pas de doublon). La réponse de l'élève à cette question n'est **pas** comptée dans le score Mastery (item sous investigation). |
+
+### Z3-AC16 — Détection par taux d'échec anormal
+
+| | |
+|---|---|
+| **GIVEN** | Un item en état FRAGILE a reçu 6 tentatives sur les 7 derniers jours, dont 5 échecs (taux d'échec = 83%). |
+| **WHEN** | Le job quotidien de détection d'anomalies s'exécute. |
+| **THEN** | `anomaly_flag = 'high_failure_rate'` est positionné. `validation_required = true`. Une `ValidationTask` est créée avec `source = 'anomaly_detection'` et `suggestion = "Taux d'échec anormal (83%) — vérifier l'item"`. L'item est restreint aux templates simples jusqu'à vérification. |
+
+### Z3-AC17 — Détection par taux d'échec : exclusion des items UNKNOWN
+
+| | |
+|---|---|
+| **GIVEN** | Un item en état UNKNOWN a reçu 5 tentatives, toutes en échec (taux = 100%). |
+| **WHEN** | Le job quotidien de détection d'anomalies s'exécute. |
+| **THEN** | L'item n'est **pas** flaggé `anomaly_flag` car il est en état UNKNOWN (taux d'échec élevé attendu à la première exposition). Aucune `ValidationTask` créée. L'item continue à être proposé normalement pour permettre l'apprentissage. Le job ne considère que les items en état FRAGILE, OK ou SOLID. |
+
+> **NOTE :** Ces 4 mécanismes (vérification croisée, cohérence, feedback élève, détection anomalie) forment une boucle de qualité continue : la vérification croisée et la cohérence agissent en amont (pipeline J0), le feedback élève en temps réel, et la détection par taux d'échec en aval (post-usage). Un item peut cumuler plusieurs flags simultanément.
 
 ---
 
@@ -757,6 +823,6 @@
 
 ---
 
-> Ces 78 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+> Ces 86 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
 *Fin du document — Révise Mieux AC v1.1 · 6 mars 2026*

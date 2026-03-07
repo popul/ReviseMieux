@@ -351,6 +351,8 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 | 5. Génération Items | Plan + blocs | Items KNOWLEDGE/PROC/DOC | Non | < 3 s/page |
 | 6. Auto-tagging | Items + lexique pack | Items taggés | Non | < 200 ms |
 | 7. Détection incertains | Items + confidence | File validation (max 8) | Oui (si critiques) | < 500 ms |
+| 7b. Vérification croisée LLM | Items + texte OCR source | Score fidélité sémantique | Non | < 2 s/page |
+| 7c. Cohérence intra-chapitre | Tous items du chapitre | Doublons/contradictions flaggés | Non | < 1 s |
 | 8. Carte leçon (draft) | Items sans validation | Carte navigable | Non (streaming) | Dès page 1 prête |
 | 9. Validation HITL | File validation | Items validés/corrigés | Partiel | Élève, asynchrone |
 | 10. Diagnostic initial | Items validés | Questions instanciées (lazy) | Oui | < 1 s |
@@ -406,6 +408,45 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 | Bloc illisible après 3 tentatives | Item créé avec `content = null`, `flagged = true` | Message 'Zone illisible — à vérifier' |
 | Page entière confidence < 0.3 | Notifier l'élève : 'Photo floue — reprendre si possible' | Suggestion retake, non-bloquant |
 | confidence bloc SCHEMA/MAP < 0.5 | Conserver l'image brute comme `Document.source`, ne pas OCRiser | Document exploitable via gabarit image |
+
+### 13.1 Vérification croisée LLM (fidélité sémantique)
+
+> **Nouveau en v1.4.** L'OCR peut être correct mais l'item généré par le LLM peut déformer le sens du cours. Un second appel LLM compare chaque item au texte OCR source.
+
+- **Étape 7b du pipeline** : après génération des items, un prompt dédié évalue la fidélité sémantique de chaque item par rapport au texte OCR source.
+- Le LLM produit un `fidelity_score` (0–1) et une `fidelity_reason` pour chaque item.
+- **Seuils** : `fidelity_score < 0.5` → `validation_required = true` + `fidelity_flag = 'low'`. `fidelity_score 0.5–0.7` → item utilisable mais `fidelity_flag = 'medium'` (prioritaire pour validation HITL si la file n'est pas pleine). `fidelity_score ≥ 0.7` → item validé sémantiquement.
+- Le prompt de vérification reçoit : le texte OCR brut du bloc source, l'item généré (term, keywords, steps), et le contexte du pack (matière, tags attendus).
+- **Non-bloquant** : si le service LLM de vérification timeout, l'item est conservé avec `fidelity_score = null` (comportement dégradé = confiance OCR seule).
+
+### 13.2 Cohérence intra-chapitre
+
+> **Nouveau en v1.4.** Les items d'un même chapitre doivent être cohérents entre eux : pas de doublons, pas de contradictions.
+
+- **Étape 7c du pipeline** : après vérification croisée, tous les items du chapitre sont comparés deux à deux.
+- **Doublons** : deux items avec un `term` identique ou une similarité cosinus des `keywords` > 0.9 → le doublon de plus faible confidence est archivé automatiquement.
+- **Contradictions** : deux items du même chapitre avec des définitions contradictoires (détection LLM) → les deux sont flaggés `validation_required = true` avec `coherence_flag = 'contradiction'`.
+- **Termes orphelins** : un item référençant un concept non défini par aucun autre item du chapitre → `coherence_flag = 'orphan_reference'` (informatif, non bloquant).
+
+### 13.3 Feedback élève sur items
+
+> **Nouveau en v1.4.** L'élève peut signaler une erreur sur un item ou une question à tout moment pendant une session.
+
+- **Bouton « Signaler une erreur »** visible sur chaque question et sur chaque item de la carte de leçon.
+- Le signalement crée une `ValidationTask` avec : `source = 'student_report'`, `item_id`, `crop_url` (contexte visuel), texte libre optionnel de l'élève.
+- Les signalements élèves sont prioritaires dans la file de validation (affichés en premier).
+- **Déduplication** : si une `ValidationTask` existe déjà pour cet item (quelque soit la source), le signalement élève est ajouté comme note sur la tâche existante (pas de doublon).
+- L'item signalé reste utilisable en mode dégradé (templates simples uniquement) jusqu'à résolution.
+
+### 13.4 Détection par taux d'échec anormal
+
+> **Nouveau en v1.4.** Un item avec un taux d'échec anormalement élevé est probablement mal extrait.
+
+- **Job quotidien** : pour chaque item avec `≥ 5 tentatives`, calcul du taux d'échec sur les 7 derniers jours.
+- **Seuil** : taux d'échec `> 80%` ET `≥ 5 tentatives` → `validation_required = true` avec `anomaly_flag = 'high_failure_rate'`.
+- Une `ValidationTask` est créée automatiquement avec `source = 'anomaly_detection'`, `suggestion = 'Taux d\'échec anormal (X%) — vérifier l\'item'`.
+- **Exception** : les items en état UNKNOWN ne sont pas concernés (taux d'échec élevé attendu à la première exposition).
+- **Auto-résolution** : si le taux d'échec repasse sous 50% après correction ou nouvelles tentatives, le flag est retiré automatiquement.
 
 ---
 
@@ -603,8 +644,8 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 | **Page** | `id` · `revision_id` · `photo_url` · `order` · `ocr_status` |
 | **Block** | `id` · `page_id` · `type (TEXT\|PHOTO\|SCHEMA\|MAP\|GRAPH\|TABLE\|CIRCUIT)` · `crop` · `confidence` · `ocr_text?` |
 | **Document** | `id` · `chapter_id` · `type` · `tags[]` · `blocks[]` · `source_image_url?` |
-| **Item** | `id` · `chapter_id` · `revision_id` · `type (KNOWLEDGE\|PROCEDURE\|DOCUMENT\|WRITING)` · `term?` · `keywords[]?` · `steps[]?` · `linked_doc_id?` · `tags[]` · `confidence` · `validation_required` · `archived` |
-| **ValidationTask** | `id` · `item_id` · `crop_url` · `suggestion` · `priority` · `status` · `resolved_by?` |
+| **Item** | `id` · `chapter_id` · `revision_id` · `type (KNOWLEDGE\|PROCEDURE\|DOCUMENT\|WRITING)` · `term?` · `keywords[]?` · `steps[]?` · `linked_doc_id?` · `tags[]` · `confidence` · `validation_required` · `archived` · `fidelity_score?` · `fidelity_flag? (low\|medium\|null)` · `coherence_flag? (contradiction\|orphan_reference\|null)` · `anomaly_flag? (high_failure_rate\|null)` |
+| **ValidationTask** | `id` · `item_id` · `crop_url` · `suggestion` · `priority` · `status` · `resolved_by?` · `source (uncertainty_detection\|student_report\|anomaly_detection\|coherence_check\|fidelity_check)` · `student_note?` |
 | **Template** | `id (template_id)` · `name` · `version` · `question_type` · `difficulty` · `eligibility{}` · `variables[]` · `prompt_template` · `grading{}` |
 | **Question** | `id` · `template_id` · `item_id` · `rendered_prompt` · `expected_answer{}` · `grading_policy` |
 | **Attempt** | `id` · `question_id` · `user_id` · `answer` · `score` · `feedback` · `created_at` |
