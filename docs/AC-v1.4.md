@@ -6,8 +6,8 @@
 > |---|---|
 > | **Version** | 1.4 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 7 zones critiques identifiées — 161 AC en format Given/When/Then |
-> | **Évolutions v1.5 vs v1.4.1** | +3 AC zone Z1 : accès leçon contextuel pendant question (AC23), reformulation « je ne comprends pas » (AC24), scoring de réponse partielle (AC25). +23 AC zone Z7 « Routine de soirée & Orchestration ». Orchestration : EveningPlan (AC01), dashboard soirée (AC02), séquencement multi-matières (AC03), estimation durée (AC04), état « fini pour ce soir » (AC05), guidage capture in-app (AC06), séquencement sessions (AC07), mode express (AC08), complétion partielle (AC09), rien à faire (AC10), week-end (AC11), capture cours demain (AC12), devoirs (AC13), arc émotionnel (AC14), notif parent routine (AC15), onboarding 1re soirée (AC16). Hiérarchie contenu & exam : Notions par concept_tag (AC17), vue chapitre par notion (AC18), périmètre exam par notion (AC19), auto-suggestion exam (AC20), vue angles morts (AC21), prédiction interro surprise (AC22), alerte fragile × non testée (AC23) |
+> | **Périmètre** | 7 zones critiques identifiées — 165 AC en format Given/When/Then |
+> | **Évolutions v1.5 vs v1.4.1** | +4 AC zone Z1 : accès leçon contextuel pendant question (AC23), reformulation « je ne comprends pas » (AC24), scoring de réponse partielle (AC25), matrice transition maîtrise avec hint/clarification/partiel (AC26). +3 AC zone Z6 : onboarding parent et liaison élève (AC45), comportement jour d'examen (AC46), mode dégradé sans emploi du temps (AC47). +23 AC zone Z7 « Routine de soirée & Orchestration ». Orchestration : EveningPlan (AC01), dashboard soirée (AC02), séquencement multi-matières (AC03), estimation durée (AC04), état « fini pour ce soir » (AC05), guidage capture in-app (AC06), séquencement sessions (AC07), mode express (AC08), complétion partielle (AC09), rien à faire (AC10), week-end (AC11), capture cours demain (AC12), devoirs (AC13), arc émotionnel (AC14), notif parent routine (AC15), onboarding 1re soirée (AC16). Hiérarchie contenu & exam : Notions par concept_tag (AC17), vue chapitre par notion (AC18), périmètre exam par notion (AC19), auto-suggestion exam (AC20), vue angles morts (AC21), prédiction interro surprise (AC22), alerte fragile × non testée (AC23) |
 > | **Évolutions v1.4.1 vs v1.4** | +5 AC upload incrémental : ajout de pages sans nouvelle révision (Z5-AC11), pas de re-OCR des pages existantes (Z5-AC12), pipeline incrémental (Z2-AC14), session evening_first incrémentale (Z6-AC43), explication dilution maîtrise dashboard (Z6-AC44) |
 > | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) + anti-frustration élève (feedback explicatif blocage 24h Z1, descente difficulté échecs répétés Z1, fallback LLM indisponible Z4, récupération items ignorés Z3) + anti-silent-failures (anti-starvation items UNKNOWN Z1, garde-fou template/type Z3, invalidation cache exam Z4) + correctifs modèle (session all-SOLID Z4, alerte items perdus re-upload Z5, multi-exam par chapitre Z6, fix Chapter.exam_ids[] pluriel) |
 > | **Évolutions v1.3 vs v1.2** | +9 AC anti-désengagement : plafond maîtrise items non validés (Z1), micro-célébrations + débrief session (Z1), retour en douceur après absence + cycle post-exam + rampe diagnostic + digest pré-contrôle + anti alert-fatigue parent (Z6) |
@@ -20,14 +20,14 @@
 
 | # | Zone | Risque | AC count |
 |---|---|---|---|
-| Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 25 |
+| Z1 | Transitions Mastery (états + régressions + engagement + reporting) | Très élevé | 26 |
 | Z2 | Pipeline J0 — Error paths, timeouts & RGPD | Très élevé | 14 |
 | Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 25 |
 | Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 18 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 12 |
-| Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 44 |
+| Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 47 |
 | Z7 | Routine de soirée & Orchestration | Très élevé | 23 |
-| | **Total** | | **161** |
+| | **Total** | | **165** |
 
 ---
 
@@ -269,7 +269,7 @@
 | **WHEN** | L'élève tape sur le bouton « 📖 Voir ma leçon » (visible en permanence sous la zone de réponse, discret mais accessible). |
 | **THEN** | Un panneau coulissant (bottom sheet / drawer) s'ouvre et affiche **uniquement la section pertinente de la carte de leçon** : les blocs OCR correspondant à la Notion de l'item en cours (pas toute la leçon — juste la section liée). Le titre du panneau est « Ta leçon — [nom de la Notion] ». Si l'item a un `linked_doc_id` (document lié), le document est aussi affiché. Le panneau est scrollable si la section est longue. La question reste visible en arrière-plan (effet de transparence ou split-screen sur tablette). L'élève peut fermer le panneau et revenir à la question pour répondre. **Impact maîtrise** : la réponse est marquée `hint_used = true`. Si la réponse est correcte avec hint, elle compte comme un **demi-succès** : elle ne casse pas la série de `consecutive_successes` mais ne l'incrémente pas non plus (neutre). L'item ne peut pas passer de OK → SOLID sur une réponse avec hint (il faut une réussite « propre » pour SOLID). L'item peut passer de UNKNOWN → FRAGILE ou FRAGILE → OK avec hint (l'élève a quand même fait l'effort de chercher et répondre). Un indicateur discret « 📖 » apparaît sur la question dans le débrief de session pour les questions où le hint a été utilisé. |
 
-> **NOTE :** Ce bouton est conçu pour l'élève « orienté résultat » qui ne veut pas relire sa leçon de manière proactive mais a besoin d'un coup de pouce quand il est bloqué. La clé est la **contextualisation** : on ne montre pas toute la leçon (ennuyeux, trop long) mais uniquement la Notion pertinente (2-4 blocs OCR, ~30 secondes de lecture). C'est l'équivalent numérique de « demander au prof de répéter » — pas de la triche, mais un étayage (scaffolding). Le demi-succès est le bon compromis : on ne pénalise pas l'effort (l'élève a cherché, lu, compris, puis répondu) mais on ne le récompense pas autant qu'une réponse de mémoire (le passage SOLID exige la récupération sans aide, c'est le standard de la maîtrise réelle).
+> **NOTE :** Ce bouton est conçu pour l'élève « orienté résultat » qui ne veut pas relire sa leçon de manière proactive mais a besoin d'un coup de pouce quand il est bloqué. La clé est la **contextualisation** : on ne montre pas toute la leçon (ennuyeux, trop long) mais uniquement la Notion pertinente (2-4 blocs OCR, ~30 secondes de lecture). C'est l'équivalent numérique de « demander au prof de répéter » — pas de la triche, mais un étayage (scaffolding). Le demi-succès est le bon compromis : on ne pénalise pas l'effort (l'élève a cherché, lu, compris, puis répondu) mais on ne le récompense pas autant qu'une réponse de mémoire (le passage SOLID exige la récupération sans aide, c'est le standard de la maîtrise réelle). **Pré-requis** : l'entité `Notion` (Z7-AC17) et le champ `Item.notion_id` doivent exister pour que le panneau affiche la bonne section. Si `notion_id` est absent (migration, chapitre ancien), le panneau affiche la carte de leçon complète du chapitre en fallback. Voir Z1-AC26 pour la matrice complète de transition maîtrise avec `hint_used`.
 
 ### Z1-AC24 — Bouton « Je ne comprends pas la question » : reformulation et clarification
 
@@ -290,6 +290,16 @@
 | **THEN** | La correction reconnaît explicitement l'effort partiel : **(1) Score partiel** : pour KEYWORDS, chaque mot-clé correct vaut des points (ex: 1/3 = « Tu as trouvé 1 mot-clé sur 3 — c'est un début ! »). Pour SHORT_ANSWER, si ≥ 1 concept-clé est présent dans la réponse, le score est ≥ 0.3 (pas 0). **(2) Feedback différencié** : « Tu as trouvé [élément correct]. Il manquait [éléments manquants]. » au lieu d'un simple « Faux ». **(3) Impact maîtrise** : un score partiel (≥ 0.3 et < 0.7) est traité comme un « demi-échec » : l'item ne régresse pas (pas de OK→FRAGILE) mais ne progresse pas non plus (le `consecutive_successes` est remis à 0 sans pénalité supplémentaire). Un score ≥ 0.7 est traité comme une réussite. Un score < 0.3 est traité comme un échec. **(4) Le feedback affiche toujours la réponse complète** pour que l'élève voie ce qu'il manquait, même en cas de réponse partielle. Le message de feedback partiel utilise un ton encourageant : « Bien, tu y es presque ! » (score 0.5-0.7), « C'est un bon début ! » (score 0.3-0.5). |
 
 > **NOTE :** L'élève orienté résultat a besoin de voir que son effort est reconnu, même incomplet. Un système binaire « correct/incorrect » est frustrant car il met au même niveau « je n'avais aucune idée » et « j'avais 2 mots-clés sur 3 ». Le score partiel valorise la connaissance partielle et évite le découragement. C'est aussi pédagogiquement juste : en vrai contrôle, un élève qui donne 2 mots-clés sur 3 n'a pas 0 — il a une note intermédiaire. Le seuil 0.3 pour « demi-échec » (pas de régression) est un filet de sécurité : l'élève qui tente une réponse partielle ne doit pas être puni plus sévèrement que celui qui passe la question.
+
+### Z1-AC26 — Matrice de transition maîtrise avec hint, clarification et score partiel
+
+| | |
+|---|---|
+| **GIVEN** | L'élève répond à une question sur un item. Il a potentiellement utilisé le hint leçon (`hint_used`), la clarification (`clarification_used`), ou les deux. Le score obtenu est dans l'une des 3 tranches : échec (< 0.3), partiel (0.3–0.7), réussite (≥ 0.7). |
+| **WHEN** | Le moteur de maîtrise calcule la transition d'état pour cet item. |
+| **THEN** | La matrice de transition est la suivante : **(A) Sans aide (hint=false, clarification=false)** : score < 0.3 = échec (régression Z1-AC05/06/07, `consecutive_successes` = 0). Score 0.3–0.7 = demi-échec (`consecutive_successes` = 0, pas de régression). Score ≥ 0.7 = réussite (`consecutive_successes` += 1, progression Z1-AC01/02/03). **(B) Avec aide (hint=true et/ou clarification=true)** : score < 0.3 = échec standard (même que A). Score 0.3–0.7 = demi-échec standard (même que A). Score ≥ 0.7 = **demi-succès** : `consecutive_successes` inchangé (ni incrémenté, ni remis à 0). Pas de régression. L'item ne peut PAS passer OK→SOLID sur un demi-succès (exige réussite sans aide). L'item PEUT passer UNKNOWN→FRAGILE ou FRAGILE→OK sur un demi-succès (l'effort de chercher dans la leçon et de répondre correctement vaut progression). `Mastery.last_success_at` est mis à jour sur un demi-succès (car la réponse est correcte, même aidée). **(C) Cumul aide + partiel** : si hint=true ET score 0.3–0.7, le résultat est un demi-échec (le score partiel domine). Le champ `Attempt.hint_used` et `Attempt.clarification_used` sont indépendants — l'utilisation des deux sur la même question n'aggrave pas le résultat vs un seul. **(D) Espacement 24h** (clarification Z1-AC03/AC04) : le passage OK→SOLID exige `last_success_at` datant de ≥ 24h avant la tentative actuelle. Une réponse correcte dans la même session qu'un passage FRAGILE→OK ne peut PAS déclencher OK→SOLID : le `last_success_at` vient d'être positionné à l'instant, l'écart est 0h < 24h. |
+
+> **NOTE :** Cette matrice consolide les règles dispersées dans Z1-AC01 à Z1-AC25 en un tableau de décision unique. Sans cette consolidation, le développeur doit mentalement combiner 6 ACs pour déterminer le résultat d'une seule réponse. La clarification de la règle « même session » (point D) résout l'ambiguïté entre Z1-AC02 (permet FRAGILE→OK en même session) et Z1-AC04 (bloque OK→SOLID si < 24h) : les deux sont vrais simultanément, car le mécanisme de blocage est `last_success_at`, pas le numéro de session.
 
 ---
 
@@ -1347,6 +1357,36 @@
 
 > **NOTE :** Sans cette explication, la baisse brutale de pourcentage est anxiogène pour l'élève (« j'ai régressé ? ») et le parent (« il ne révise plus ? »). La dilution de maîtrise est un artefact arithmétique normal — de nouveaux points UNKNOWN font baisser la moyenne — mais elle ressemble visuellement à une régression. Le message contextuel transforme une surprise négative en confirmation positive (« tu as ajouté du contenu, bravo »).
 
+### Z6-AC45 — Onboarding parent : création de compte et liaison à l'élève
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a créé son compte et renseigné son emploi du temps. Il souhaite inviter un parent. |
+| **WHEN** | L'élève tape sur « Inviter un parent » (accessible dans les paramètres ou proposé en fin d'onboarding). |
+| **THEN** | Un **code d'invitation** à 6 caractères est généré (alphanumériques, validité 48h, usage unique). L'élève peut le partager par SMS, messagerie, ou affichage à l'écran. Le parent ouvre l'app, crée un compte (email + mot de passe, ou OAuth) avec `role = parent`, puis saisit le code d'invitation. Le système lie les deux comptes : `user.linked_student_id` est positionné sur le compte parent. Le parent accède immédiatement au dashboard parent simplifié (digest, progression globale, script 3 minutes). Un parent peut lier plusieurs élèves (saisie de plusieurs codes). L'élève peut voir quel parent est lié (paramètres) et révoquer le lien. La liaison est **unidirectionnelle** : le parent voit les données de l'élève, l'élève ne voit pas le compte parent. Si aucun parent n'est lié, les fonctionnalités parent (digests, notifications) sont inactives — pas d'erreur, simplement pas de destinataire. L'onboarding élève mentionne l'invitation parent mais ne la rend pas obligatoire : « Invite un parent pour qu'il suive tes progrès — tu peux le faire plus tard. » |
+
+> **NOTE :** L'absence totale de spécification de l'onboarding parent était le trou fonctionnel le plus critique : tous les ACs parent (Z6-AC24 à Z6-AC35, Z7-AC15) supposent un parent lié mais aucun ne définit comment cette liaison se crée. Le code d'invitation est le pattern le plus simple et le plus sécurisé pour un mineur : pas de partage d'email de l'enfant, pas de recherche par nom, lien explicitement initié par l'élève.
+
+### Z6-AC46 — Comportement le jour de l'examen
+
+| | |
+|---|---|
+| **GIVEN** | Un Exam « Contrôle Physique » a `exam_date = 2026-03-15`. Nous sommes le 15 mars. L'Exam couvre 2 chapitres (14 items). |
+| **WHEN** | L'élève ouvre l'app le jour de l'examen. |
+| **THEN** | **(1) Le matin (avant 14h)** : le dashboard affiche un message d'encouragement : « Contrôle de Physique aujourd'hui — tu es prêt ! Bonne chance ! 🍀 » Aucune session de révision n'est proposée pour les items de cet Exam (trop tard pour la révision espacée, risque d'anxiété). Les items des chapitres liés à l'Exam sont temporairement exclus du daily. Un lien optionnel « Relire ma leçon » ouvre la carte de leçon en mode lecture seule (pas d'exercices). **(2) Le soir** : l'EveningPlan exclut les items de l'Exam (pas de révision le soir même du contrôle — l'effort cognitif post-exam est contre-productif). Les autres matières sont proposées normalement. **(3) Le lendemain (J+1)** : l'Exam passe en `status = past`. Les items liés passent en mode maintenance longue : `next_due_at` recalculé à J+14 pour les SOLID, J+7 pour les OK, J+3 pour les FRAGILE (au lieu des intervalles compressés Z1-AC08). Le message dans le dashboard : « Contrôle de Physique passé ! Les révisions de ce chapitre sont allégées. » **(4) Notification parent le jour J** : « [Prénom] a son contrôle de Physique aujourd'hui. » (si `parent_schedule_change_enabled = true`). |
+
+> **NOTE :** Le jour de l'exam est un non-lieu pédagogique pour la révision espacée : réviser le matin même n'améliore pas significativement la rétention (l'encodage est déjà consolidé ou pas) et génère de l'anxiété. L'app doit passer du mode « coach de révision » au mode « supporteur » le jour J. L'exclusion des items exam du daily évite le cas absurde où l'app propose « Révise la masse volumique ce soir » alors que l'élève vient de passer le contrôle dessus.
+
+### Z6-AC47 — Emploi du temps non renseigné : mode dégradé fonctionnel
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a créé son compte mais a sauté la saisie de l'emploi du temps (optionnel mais fortement encouragé). Il a capturé un chapitre de Physique. |
+| **WHEN** | L'élève ouvre l'app dans la fenêtre de soirée. |
+| **THEN** | L'app fonctionne en **mode dégradé** : (1) Pas de `capture_reminder` (Z6-AC02) car l'app ne sait pas quelles matières ont eu lieu aujourd'hui. (2) Pas de `pre_class` (Z6-AC07) car l'app ne sait pas quels cours sont prévus demain. (3) Le `daily` fonctionne normalement (basé sur les items dues, pas sur l'emploi du temps). (4) L'EveningPlan ne contient que les étapes possibles : captures manuelles + daily. Pas de guidage par matière. (5) Un bandeau persistant (dismissible) s'affiche : « Ajoute ton emploi du temps pour des rappels personnalisés avant chaque cours ! » avec bouton direct vers la saisie. (6) Le dashboard soirée affiche un plan simplifié : « Révision quotidienne (~X min) » sans le contexte matière. Le mode dégradé n'empêche pas l'usage de l'app — l'élève peut capturer des chapitres, faire des sessions, créer des exams. Il perd uniquement le guidage proactif lié au schedule. |
+
+> **NOTE :** Forcer la saisie de l'emploi du temps à l'onboarding est tentant mais risqué : un élève de 12 ans qui ne sait pas son emploi du temps par cœur abandonne l'onboarding. Le mode dégradé permet de commencer immédiatement (valeur en < 5 min) et de compléter l'emploi du temps plus tard. Le bandeau persistant rappelle la valeur ajoutée sans bloquer. C'est le pattern « progressive onboarding » : les fonctionnalités avancées se débloquent à mesure que l'élève fournit des données.
+
 ---
 
 ## Z7 — Routine de soirée & Orchestration
@@ -1587,4 +1627,4 @@
 
 > Ces 158 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first). Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
 
-*Fin du document — Révise Mieux AC v1.5.1 · 7 mars 2026*
+*Fin du document — Révise Mieux AC v1.5.2 · 7 mars 2026*

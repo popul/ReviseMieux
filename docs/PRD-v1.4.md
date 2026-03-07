@@ -192,7 +192,17 @@ Un tag est une étiquette attachée à un Item (et optionnellement à un Documen
 - **Pack enrichment (déterministe) :** mapping de termes prioritaires (ex. `idh`, `rho`).
 - **Validation humaine (admin) :** ajustements en backoffice pour cas limites. Pas de tags libres côté élève en MVP.
 
-### 6.3 Exploitation runtime
+### 6.3 Regroupement en Notions
+
+Après le tagging (étape 6 du pipeline), les items sont regroupés en **Notions** — clusters sémantiques nommés (3–7 par chapitre). Le LLM analyse les `concept_tags` attribués et produit des regroupements lisibles (ex : tags `rho`, `masse`, `volume` → Notion « Masse volumique (ρ) »). Chaque Notion reçoit un nom pédagogique, un ordre d'affichage, et une liste d'items. L'entité `Notion` est définie en §16. Les Notions sont utilisées pour :
+
+- **Vue chapitre** : accordéon par notion avec barre de maîtrise individuelle.
+- **Sélection périmètre exam** : l'élève coche/décoche des Notions (pas des items).
+- **Aide contextuelle** : le bouton « Voir ma leçon » (en session) affiche la section OCR de la Notion pertinente.
+
+Le regroupement est déterministe pour un même contenu. En cas d'ajout de pages (upload incrémental), les nouveaux items sont intégrés dans les Notions existantes ou de nouvelles Notions sont créées si les `concept_tags` ne correspondent à aucun cluster existant.
+
+### 6.4 Exploitation runtime
 
 | Usage | Règle |
 |---|---|
@@ -358,6 +368,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 | 4. Reconstruction plan | Texte OCR | Plan hiérarchique JSON | Non | < 500 ms |
 | 5. Génération Items | Plan + blocs | Items KNOWLEDGE/PROC/DOC | Non | < 3 s/page |
 | 6. Auto-tagging | Items + lexique pack | Items taggés | Non | < 200 ms |
+| 6b. Regroupement Notions | Items taggés | Notions nommées (3–7 clusters par chapitre) | Non | < 500 ms |
 | 7. Détection incertains | Items + confidence | File validation (max 8) | Oui (si critiques) | < 500 ms |
 | 7b. Vérification croisée LLM | Items + texte OCR source | Score fidélité sémantique | Non | < 2 s/page |
 | 7c. Cohérence intra-chapitre | Tous items du chapitre | Doublons/contradictions flaggés | Non | < 1 s |
@@ -659,7 +670,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 | **Template** | `id (template_id)` · `name` · `version` · `question_type` · `difficulty` · `eligibility{}` · `variables[]` · `prompt_template` · `grading{}` |
 | **Question** | `id` · `template_id` · `item_id` · `rendered_prompt` · `expected_answer{}` · `grading_policy` · `clarification? { intent: string, starter_hint: string }` · `llm_model_version?` · `prompt_template_version?` |
 | **Attempt** | `id` · `question_id` · `user_id` · `answer` · `score` · `feedback` · `created_at` · `rapid_response? (boolean, default false)` · `response_time_ms?` · `hint_used? (boolean)` · `clarification_used? (boolean)` |
-| **Mastery** | `id` · `user_id` · `item_id` · `state (UNKNOWN\|FRAGILE\|OK\|SOLID)` · `next_due_at` · `last_review_at` · `consecutive_successes` |
+| **Mastery** | `id` · `user_id` · `item_id` · `state (UNKNOWN\|FRAGILE\|OK\|SOLID)` · `next_due_at` · `last_review_at` · `last_success_at?` · `consecutive_successes` |
 | **Session** | `id` · `user_id` · `chapter_ids[]` · `type (daily\|diagnostic\|mock_exam\|evening_first\|pre_class)` · `trigger (manual\|scheduled\|notification)` · `questions[]` · `started_at` · `completed_at?` · `current_question_index (default 0)` · `includes_pre_class? (boolean)` |
 | **EveningPlan** | `id` · `user_id` · `date` · `steps[] { type (capture\|evening_first\|daily), subject_label, session_id?, estimated_duration_min, status (pending\|in_progress\|completed\|skipped) }` · `total_estimated_min` · `mode (full\|express)` · `completed_at?` · `completion_rate` · `expires_at` |
 | **Notification** | `id` · `user_id` · `type (capture_reminder\|review_reminder\|pre_class\|missed_session_reminder\|parent_schedule_change\|parent_missed_session\|parent_inactivity\|parent_routine_completed)` · `subject` · `scheduled_at` · `sent_at?` · `clicked_at?` · `source_session_id?` · `linked_student_id?` |

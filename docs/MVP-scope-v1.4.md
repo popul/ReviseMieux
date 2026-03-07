@@ -4,7 +4,7 @@
 |---|---|
 | **Version** | 1.5 |
 | **Date** | 7 mars 2026 |
-| **Total ACs** | 161 (7 zones) |
+| **Total ACs** | 165 (7 zones) |
 
 ---
 
@@ -18,7 +18,7 @@
 
 ---
 
-## Z1 — Transitions Mastery (22 ACs)
+## Z1 — Transitions Mastery (26 ACs)
 
 | AC | Titre | Classification |
 |---|---|---|
@@ -31,12 +31,12 @@
 | Z1-AC07 | FRAGILE reste FRAGILE sur échec | MVP Core |
 | Z1-AC08 | Resserrement proportionnel si exam posé | MVP Core |
 | Z1-AC09 | Indépendance des mastery entre items | MVP Core |
-| Z1-AC10 | Score RUBRIC partiel ne déclenche pas progression | MVP Core |
+| Z1-AC10 | Score partiel ne déclenche pas de progression | MVP Core |
 | Z1-AC11 | NUMERIC sans unité = échec | MVP Core |
 | Z1-AC12 | KEYWORDS scoring partiel (tolérance N-1) | MVP Core |
 | Z1-AC13 | Échec sur item UNKNOWN (pas de sub-UNKNOWN) | MVP Core |
 | Z1-AC14 | Maintien SOLID sur succès continu | MVP Core |
-| Z1-AC15 | Plafond maîtrise OK pour items non validés | MVP Core |
+| Z1-AC15 | Plafond maîtrise OK pour items restreints aux templates simples | MVP Core |
 | Z1-AC16 | Micro-célébrations transitions positives | MVP Hardening |
 | Z1-AC17 | Débrief fin de session | MVP Hardening |
 | Z1-AC18 | Caveat score mock exam items non validés | MVP Hardening |
@@ -47,12 +47,13 @@
 | Z1-AC23 | Bouton « Voir ma leçon » contextuel pendant une question | **MVP Core** |
 | Z1-AC24 | Bouton « Je ne comprends pas la question » : reformulation | **MVP Core** |
 | Z1-AC25 | Réponse partielle encouragée : scoring graduel | **MVP Core** |
+| Z1-AC26 | Matrice de transition maîtrise avec hint, clarification et score partiel | **MVP Core** |
 
 > **Note :** Z1-AC21 reclassifié Post-MVP → MVP Core. La descente de difficulté après 3 échecs consécutifs est indispensable pour le public cible (11-15 ans) : sans elle, le cycle de frustration sur un item difficile provoque l'abandon dès la première semaine. Le renvoi vers la carte de leçon et la pause J+2 après 5 échecs transforment un moment d'échec en apprentissage.
 
 ---
 
-## Z2 — Pipeline J0 — Error paths & timeouts (13 ACs)
+## Z2 — Pipeline J0 — Error paths & timeouts (14 ACs)
 
 | AC | Titre | Classification |
 |---|---|---|
@@ -79,7 +80,7 @@
 
 | AC | Titre | Classification |
 |---|---|---|
-| Z3-AC01 | Templates bloqués sur items non validés | MVP Core |
+| Z3-AC01 | Gabarits bloqués sur item validation_required non résolu | MVP Core |
 | Z3-AC02 | Action Confirmer sur ValidationTask | MVP Core |
 | Z3-AC03 | Action Corriger sur ValidationTask | MVP Core |
 | Z3-AC04 | Action « Je ne sais pas » sur ValidationTask | MVP Core |
@@ -132,7 +133,7 @@
 
 ---
 
-## Z5 — ChapterRevision — Item identity & Mastery inheritance (10 ACs)
+## Z5 — ChapterRevision — Item identity & Mastery inheritance (12 ACs)
 
 | AC | Titre | Classification |
 |---|---|---|
@@ -151,7 +152,7 @@
 
 ---
 
-## Z6 — Schedule, Notifications, Engagement & Parent trust (42 ACs)
+## Z6 — Schedule, Notifications, Engagement & Parent trust (47 ACs)
 
 | AC | Titre | Classification |
 |---|---|---|
@@ -199,6 +200,9 @@
 | Z6-AC42 | Multi-exam par chapitre + resserrement exam le plus proche | MVP Core |
 | Z6-AC43 | Session evening_first incrémentale après ajout de pages | **MVP Core** |
 | Z6-AC44 | Dashboard : explication dilution maîtrise après ajout pages | **MVP Core** |
+| Z6-AC45 | Onboarding parent : création de compte et liaison à l'élève | **MVP Core** |
+| Z6-AC46 | Comportement le jour de l'examen | **MVP Core** |
+| Z6-AC47 | Emploi du temps non renseigné : mode dégradé fonctionnel | **MVP Core** |
 
 ---
 
@@ -236,10 +240,10 @@
 
 | Classification | Z1 | Z2 | Z3 | Z4 | Z5 | Z6 | Z7 | **Total** |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **MVP Core** | 19 | 13 | 12 | 8 | 10 | 22 | 15 | **99** |
+| **MVP Core** | 20 | 13 | 12 | 8 | 10 | 25 | 15 | **103** |
 | **MVP Hardening** | 5 | 1 | 8 | 7 | 2 | 16 | 8 | **47** |
 | **Post-MVP** | 1 | 0 | 5 | 3 | 0 | 6 | 0 | **15** |
-| **Total** | 25 | 14 | 25 | 18 | 12 | 44 | 23 | **161** |
+| **Total** | 26 | 14 | 25 | 18 | 12 | 47 | 23 | **165** |
 
 ### Changements par rapport à l'analyse initiale
 
@@ -255,4 +259,5 @@
 | Z7-AC01→16 | *Nouveau (zone Z7)* | **10 MVP Core + 6 MVP Hardening** | Couche d'orchestration de la routine de soirée : EveningPlan, dashboard soirée, séquencement multi-matières, mode express, notification parent positive, onboarding première soirée. |
 | Z7-AC17→21 | *Nouveau (zone Z7)* | **5 MVP Core** | Hiérarchie contenu par Notion, périmètre exam granulaire, auto-suggestion, vue angles morts. |
 | Z7-AC22→23 | *Nouveau (zone Z7)* | **2 MVP Hardening** | Prédiction interro surprise et alerte croisée fragile × non testée. |
-| Z1-AC23→25 | *Nouveau (zone Z1)* | **3 MVP Core** | Aide contextuelle en session : accès leçon par Notion pendant question, reformulation « je ne comprends pas », scoring partiel encourageant. |
+| Z1-AC23→26 | *Nouveau (zone Z1)* | **4 MVP Core** | Aide contextuelle en session : accès leçon par Notion pendant question, reformulation « je ne comprends pas », scoring partiel encourageant, matrice de transition maîtrise consolidée. |
+| Z6-AC45→47 | *Nouveau (zone Z6)* | **3 MVP Core** | Onboarding parent (liaison élève par code invitation), comportement jour d'examen (exclusion items, message encouragement), mode dégradé sans emploi du temps. |
