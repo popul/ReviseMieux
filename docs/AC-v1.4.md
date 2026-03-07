@@ -6,7 +6,8 @@
 > |---|---|
 > | **Version** | 1.4 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 6 zones critiques identifiées — 135 AC en format Given/When/Then |
+> | **Périmètre** | 7 zones critiques identifiées — 151 AC en format Given/When/Then |
+> | **Évolutions v1.5 vs v1.4.1** | +15 AC routine de soirée (nouvelle zone Z7) : orchestration EveningPlan (Z7-AC01), dashboard soirée contextuel (Z7-AC02), séquencement multi-matières (Z7-AC03), estimation de durée visible (Z7-AC04), état « fini pour ce soir » (Z7-AC05), guidage capture in-app (Z7-AC06), règles séquencement sessions (Z7-AC07), mode express soirée courte (Z7-AC08), complétion partielle (Z7-AC09), état « rien à faire » (Z7-AC10), comportement week-end (Z7-AC11), guidage capture cours de demain (Z7-AC12), reconnaissance devoirs (Z7-AC13), arc émotionnel soirée (Z7-AC14), notification parent routine terminée (Z7-AC15), onboarding première soirée (Z7-AC16) |
 > | **Évolutions v1.4.1 vs v1.4** | +5 AC upload incrémental : ajout de pages sans nouvelle révision (Z5-AC11), pas de re-OCR des pages existantes (Z5-AC12), pipeline incrémental (Z2-AC14), session evening_first incrémentale (Z6-AC43), explication dilution maîtrise dashboard (Z6-AC44) |
 > | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) + anti-frustration élève (feedback explicatif blocage 24h Z1, descente difficulté échecs répétés Z1, fallback LLM indisponible Z4, récupération items ignorés Z3) + anti-silent-failures (anti-starvation items UNKNOWN Z1, garde-fou template/type Z3, invalidation cache exam Z4) + correctifs modèle (session all-SOLID Z4, alerte items perdus re-upload Z5, multi-exam par chapitre Z6, fix Chapter.exam_ids[] pluriel) |
 > | **Évolutions v1.3 vs v1.2** | +9 AC anti-désengagement : plafond maîtrise items non validés (Z1), micro-célébrations + débrief session (Z1), retour en douceur après absence + cycle post-exam + rampe diagnostic + digest pré-contrôle + anti alert-fatigue parent (Z6) |
@@ -25,7 +26,8 @@
 | Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 18 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 12 |
 | Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 44 |
-| | **Total** | | **135** |
+| Z7 | Routine de soirée & Orchestration | Très élevé | 16 |
+| | **Total** | | **151** |
 
 ---
 
@@ -1317,6 +1319,172 @@
 
 ---
 
-> Ces 135 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+## Z7 — Routine de soirée & Orchestration
 
-*Fin du document — Révise Mieux AC v1.4.1 · 7 mars 2026*
+> EveningPlan · Dashboard soirée · Séquencement multi-matières · Budget temps · Complétion · Guidage capture · Onboarding routine
+
+### Z7-AC01 — Calcul automatique du plan de soirée (EveningPlan)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a un emploi du temps renseigné. Aujourd'hui (mardi), il a eu Physique-Chimie (créneau 10h-11h) et Histoire-Géo (créneau 14h-15h). Le chapitre « Mouvement et vitesse » (Physique) existe avec des items FRAGILE/OK dues. Le chapitre « Les inégalités » (Histoire) n'existe pas encore (cours non capturé). Un chapitre de Maths « Pythagore » a des items FRAGILE dues depuis 2 jours. Demain (mercredi), l'élève a SVT (un chapitre actif avec items UNKNOWN). |
+| **WHEN** | L'élève ouvre l'app entre 17h et 22h (fenêtre configurable dans `user.evening_window_start` / `user.evening_window_end`, défaut 17h-22h). |
+| **THEN** | Le système calcule un `EveningPlan` pour ce soir, composé d'étapes ordonnées : (1) **Capture** : « Saisis ton cours d'Histoire-Géo » (matière détectée comme non capturée via schedule + absence de chapitre actif récent). (2) **evening_first** : session premier contact pour Histoire-Géo si la capture est faite (~5 min). (3) **daily** : session de révision quotidienne couvrant Physique (items FRAGILE/OK dues) + Maths (items FRAGILE dues) (~10 min). Les items pre_class pour SVT de demain sont fusionnés dans le daily (Z6-AC08). Chaque étape a un `type` (capture / evening_first / daily), un `estimated_duration_min` calculé (nombre de questions × durée moyenne par type de gabarit : MCQ ~30s, SHORT ~60s, NUMERIC ~90s, RUBRIC ~180s), un `status` (pending / in_progress / completed / skipped), et un `subject_label` pour l'affichage. L'`EveningPlan` est recalculé si un événement survient en cours de soirée (nouvelle capture, session terminée). Le plan est éphémère (TTL = fin de la fenêtre de soirée ou 6h après calcul). |
+
+> **NOTE :** L'`EveningPlan` est la pièce manquante qui transforme un ensemble d'outils en assistant de soirée. Les sessions (evening_first, daily, pre_class) existent déjà et sont bien spécifiées — ce qui manque est l'orchestrateur qui les assemble en une checklist ordonnée avec estimation de durée et suivi de progression. L'EveningPlan ne modifie pas le moteur de composition des sessions ; il séquence et présente les sessions que le moteur produit déjà.
+
+### Z7-AC02 — Dashboard soirée contextuel (écran d'accueil du soir)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève ouvre l'app à 19h30. L'`EveningPlan` a été calculé (Z7-AC01) avec 3 étapes : capture Histoire, evening_first Histoire (~5 min), daily Physique+Maths (~10 min). |
+| **WHEN** | L'heure actuelle est dans la fenêtre de soirée (`evening_window_start` ≤ now ≤ `evening_window_end`). |
+| **THEN** | L'écran d'accueil affiche le **dashboard soirée** (distinct du dashboard progression global Z6-AC39, accessible via un toggle). Le dashboard soirée contient : (1) Un en-tête contextuel : « Bonsoir [prénom] ! Ce soir : 3 activités, ~15 min. » (2) La liste des étapes du plan, chaque étape affichant : icône matière + libellé (« Capture tes notes d'Histoire », « Première révision Histoire », « Révision quotidienne ») + durée estimée + statut visuel (à faire / en cours / fait ✓). (3) Un bouton « C'est parti ! » sur la première étape non complétée. (4) Si l'élève revient après avoir complété une étape, le dashboard est mis à jour (étape cochée, bouton sur l'étape suivante). En dehors de la fenêtre de soirée, le dashboard par défaut reste le dashboard progression (Z6-AC39). L'élève peut basculer manuellement entre les deux vues à tout moment. |
+
+> **NOTE :** Le dashboard soirée EST l'assistant. Un élève de 12 ans qui ouvre l'app a besoin de voir UNE chose : « voilà ce que tu dois faire ce soir ». Le dashboard progression (Z6-AC39) répond à la question « où en suis-je globalement ? » ; le dashboard soirée répond à « qu'est-ce que je fais maintenant ? ». Les deux sont complémentaires mais le dashboard soirée est l'écran primaire pendant la fenêtre du soir.
+
+### Z7-AC03 — Séquencement multi-matières dans le plan de soirée
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a eu Physique et Histoire aujourd'hui. Il capture les deux cours (2 chapitres créés). Il a aussi des items Maths dues (daily). Et demain il a SVT (pre_class). L'EveningPlan contient potentiellement : 2 captures + 2 evening_firsts + 1 daily (avec pre_class SVT fusionné). |
+| **WHEN** | L'EveningPlan est calculé (Z7-AC01). |
+| **THEN** | L'ordre des étapes suit la priorité pédagogique : **(1) Captures** en premier (sans capture, pas de contenu frais). Si plusieurs captures, l'ordre est : matière avec exam le plus proche d'abord, puis par ordre chronologique du créneau de la journée. **(2) evening_first** pour chaque chapitre fraîchement capturé (premier contact le soir même = encodage optimal). Si deux evening_firsts, ils sont **fusionnés en une seule session multi-chapitres** : les items UNKNOWN des deux chapitres sont mélangés, alternant entre matières pour éviter la monotonie. Durée cible de la session fusionnée : min(somme des durées individuelles, 10 min). **(3) daily** en dernier : révision des items dues (70/20/10) avec items pre_class SVT intégrés (Z6-AC08). Le nombre total d'étapes affichées à l'élève est ≤ 4 (captures groupées si > 2 matières). La durée totale estimée du plan ne dépasse pas 25 min ; si elle dépasse, le daily est raccourci (moins de questions, items les plus urgents d'abord). |
+
+> **NOTE :** La fusion des evening_firsts évite le problème du « 3 sessions de 5 min = 3 démarrages, 3 débriefs, friction x3 ». Un seul flux continu avec alternance de matières est plus engageant et fidèle au modèle du « coach qui fait réviser ». L'ordre capture → evening_first → daily suit la logique pédagogique : encoder le neuf d'abord (mémoire de travail fraîche), puis consolider l'ancien (récupération espacée).
+
+### Z7-AC04 — Estimation de durée visible avant le début
+
+| | |
+|---|---|
+| **GIVEN** | L'EveningPlan contient 3 étapes : capture (~2 min estimée sur la base du nombre moyen de pages), evening_first 8 questions (~5 min), daily 12 questions (~8 min). |
+| **WHEN** | Le dashboard soirée s'affiche (Z7-AC02). |
+| **THEN** | Chaque étape affiche sa durée estimée (« ~5 min »). L'en-tête affiche la durée totale (« ~15 min au total »). Les estimations sont calculées à partir du nombre et type de questions composées : MCQ/CLOZE ~30s, SHORT_ANSWER/DEF_SHORT ~60s, NUMERIC ~90s, RUBRIC ~180s, plus 15s de transition entre questions. Le temps de capture est estimé à 1 min par page (basé sur la médiane historique de l'élève, ou 1 min/page par défaut). Si l'élève a un historique de sessions, les estimations sont calibrées sur son rythme réel (médiane des 10 dernières sessions). L'estimation est affichée avec un arrondi à 5 min près au-dessus de 10 min (« ~15 min ») et à la minute près en dessous (« ~7 min »). |
+
+> **NOTE :** La prévisibilité du temps est le facteur #1 de démarrage pour un adolescent. « Ce soir ~15 min » est la différence entre « j'y vais » et « je procrastine ». Sans estimation, l'engagement est perçu comme ouvert et indéfini — un frein psychologique majeur. Le calibrage sur le rythme réel de l'élève améliore la précision au fil du temps.
+
+### Z7-AC05 — État « fini pour ce soir » et écran de clôture
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a complété toutes les étapes de son EveningPlan : capture Histoire (✓), evening_first Histoire+Physique (✓), daily Maths+SVT (✓). |
+| **WHEN** | La dernière session du plan se termine (débrief Z1-AC17 affiché puis fermé). |
+| **THEN** | L'écran de **clôture de soirée** s'affiche (distinct du débrief par session Z1-AC17). Il contient : (1) Message de félicitations : « Bravo [prénom] ! Soirée terminée en [durée réelle] min. » (2) Résumé de la soirée : nombre de matières couvertes, nombre d'items révisés, progressions de maîtrise (items passés FRAGILE→OK, OK→SOLID). (3) Aperçu de demain : « Demain tu as SVT et Français. À demain soir ! » (ou « Demain c'est mercredi, pas de cours — profite ! »). (4) Un seul bouton « Fermer » qui ramène au dashboard progression (Z6-AC39). L'`EveningPlan.completed_at` est horodaté. L'événement `routine_completed` est émis (consommé par Z7-AC15 pour la notification parent). Si l'élève rouvre l'app dans la fenêtre de soirée après clôture, le dashboard soirée affiche « Tout est fait pour ce soir ! 🎉 » avec le résumé, et un lien optionnel vers une session de consolidation (Z4-AC18) sans risque de régression. |
+
+> **NOTE :** L'écran de clôture est le « payoff émotionnel » de toute la routine. Il donne à l'élève la permission explicite de fermer l'app sans culpabilité. Sans ce signal, l'élève ne sait jamais s'il devrait en faire plus — anxiété incompatible avec un usage durable. Le résumé de soirée (et non de session) valorise l'effort global et pas seulement le dernier exercice.
+
+### Z7-AC06 — Guidage capture in-app (matières du jour non capturées)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a eu Physique et Histoire aujourd'hui (schedule). Le chapitre « Mouvement et vitesse » (Physique) existe déjà (capturé la semaine dernière, pages 1-3). L'élève n'a pas de chapitre actif lié à l'Histoire-Géo de ce créneau. |
+| **WHEN** | L'élève ouvre l'app dans la fenêtre de soirée. L'EveningPlan est calculé. |
+| **THEN** | Le plan de soirée affiche en première position : « 📸 Saisis ton cours d'Histoire-Géo » avec un bouton « Capturer » qui ouvre directement le flux de création de chapitre (ou d'ajout de pages si un chapitre HG existe). Pour la Physique, le plan détecte que le chapitre existe mais vérifie si de nouvelles pages sont attendues (cours aujourd'hui + dernière capture antérieure à aujourd'hui). Si oui : « 📸 Ajoute les nouvelles pages de Physique à ton chapitre » avec bouton « Ajouter des pages » (Z5-AC11). Si l'élève a déjà capturé/ajouté les pages aujourd'hui, l'étape de capture est marquée ✓ automatiquement. L'étape de capture indique la matière, le créneau horaire (« cours de 14h »), et un rappel du nombre de pages moyen pour ce type de cours (basé sur l'historique de l'élève ou « ~3-5 pages » par défaut). Si aucune matière n'a de capture en attente, l'étape de capture n'apparaît pas dans le plan. |
+
+> **NOTE :** La notification push `capture_reminder` (Z6-AC02) est le premier signal, mais elle est éphémère (taux d'ouverture ~40%). Le guidage in-app est le deuxième filet : quand l'élève ouvre l'app (de lui-même ou après relance parentale), il voit immédiatement quoi capturer. Sans ce guidage, l'élève qui a ignoré la notification ouvre l'app et voit… le dashboard progression, sans aucune indication qu'il a eu cours aujourd'hui.
+
+### Z7-AC07 — Règles de séquencement des types de session
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a capturé un nouveau chapitre ce soir (evening_first disponible). Il a aussi 15 items FRAGILE/OK dues dans d'autres chapitres (daily disponible). Et il a SVT demain avec un chapitre actif (pre_class pertinent). |
+| **WHEN** | L'EveningPlan compose les sessions de la soirée. |
+| **THEN** | L'ordre déterministe est : **(1) evening_first** (si applicable) — le contenu frais bénéficie de l'encodage initial le soir même (effet de récence + sommeil consolidateur). **(2) daily** — révision espacée des items dues, avec items pre_class fusionnés dans le bucket 20% (Z6-AC08). La session evening_first d'un chapitre **complet** (premier upload, pas incrémental) n'est **pas fusionnée** dans le daily — elle reste une session distincte avec ses propres règles (100% UNKNOWN, difficulté 1, Z6-AC06). La session evening_first **incrémentale** (ajout de pages, Z6-AC43) est fusionnée dans le daily si un daily existe (comportement existant). Si l'élève ne fait que l'evening_first et quitte l'app, le daily reste disponible pendant 72h (TTL session standard). Le plan marque l'evening_first comme « prioritaire » et le daily comme « recommandé ». Le plan ne propose jamais plus de 2 sessions distinctes par soirée (hors capture). Si un pre_class ne peut pas être fusionné dans le daily (pas de daily dû ce soir), il est proposé comme session distincte de 5 min maximum. |
+
+> **NOTE :** La distinction « evening_first reste séparé, evening_first_incremental fusionne » s'explique par la nature du contenu. Un chapitre entièrement nouveau mérite un premier contact dédié (100% UNKNOWN, gabarits simples, contexte « découverte »). Des pages ajoutées à un chapitre existant s'insèrent naturellement dans le flux daily car l'élève connaît déjà le contexte du chapitre. Limiter à 2 sessions max par soirée évite l'effet « encore une session ? » qui tue l'engagement.
+
+### Z7-AC08 — Mode express pour soirée courte (budget temps réduit)
+
+| | |
+|---|---|
+| **GIVEN** | L'EveningPlan estime 20 min pour la soirée complète (capture + evening_first + daily). L'élève a beaucoup de devoirs ce soir. |
+| **WHEN** | L'élève tape sur « Je n'ai pas beaucoup de temps ce soir » (bouton visible sur le dashboard soirée, sous l'estimation de durée). |
+| **THEN** | Le plan bascule en **mode express**. La durée cible passe à ≤ 10 min. Les étapes sont re-priorisées : (1) **Capture** : conservée (l'élève peut toujours photographier ses notes rapidement, ~2 min). (2) **Révision express** : une session unique fusionnant les items les plus urgents — items FRAGILE dues en premier (risque de régression si pas revus), puis items UNKNOWN du chapitre frais (si capture faite) avec gabarits difficulté 1 uniquement. Nombre de questions réduit à 6-8 max. Les items OK dues sont reportés à demain sans pénalité (Z6-AC15). Le débrief express mentionne : « Soirée express terminée en [X] min. Les points restants seront intégrés demain. » L'élève peut aussi saisir une durée libre (« Combien de temps ? ») via un slider 5-15 min, et le plan s'adapte. Le mode express n'affecte pas le calcul des `next_due_at` : les items non revus ce soir restent dues et seront reproposés demain (pas de pénalité). |
+
+> **NOTE :** Un adolescent qui a 45 min de devoirs plus la révision va choisir les devoirs (conséquence immédiate : le prof vérifie demain). Si l'app ne propose pas de mode court, l'élève saute entièrement la révision. 5 minutes de révision ciblée valent infiniment mieux que 0 minute. Le mode express maintient l'habitude vivante les soirs chargés — c'est un anti-churn majeur.
+
+### Z7-AC09 — Complétion partielle et reprise le lendemain
+
+| | |
+|---|---|
+| **GIVEN** | L'EveningPlan de mardi avait 3 étapes. L'élève a complété la capture et l'evening_first (2/3 étapes) mais n'a pas fait le daily. Il ferme l'app à 21h. |
+| **WHEN** | Le lendemain matin (mercredi), l'EveningPlan de mardi est expiré (fin de fenêtre de soirée). Le daily non fait contenait 12 questions. |
+| **THEN** | Les items dues du daily de mardi restent dues (pas de pénalité, Z6-AC15). Ils sont intégrés dans l'EveningPlan de mercredi avec priorité haute (bucket 70% du daily, items en retard). Le dashboard soirée de mardi soir, si l'élève revient avant la fin de la fenêtre, affiche les étapes complétées (✓) et le daily restant avec « Continue ta révision quand tu veux ». L'écran de clôture partielle (si l'élève ferme après 2/3 étapes) affiche : « 2 activités sur 3 terminées — bien joué ! Ta révision quotidienne sera intégrée demain. » Le ton est positif, jamais culpabilisant. Le parent reçoit un signal de complétion partielle (Z7-AC15) : « [Prénom] a capturé son cours et fait sa première révision (2/3 activités). » La complétion partielle est comptabilisée comme « routine partielle » dans les métriques (ni « complète » ni « manquée »). |
+
+> **NOTE :** La complétion partielle est la norme, pas l'exception. Un collégien ne fera pas systématiquement 100% de son plan. Le design doit valoriser l'effort fait (2/3 = bien joué !) plutôt que culpabiliser le manque (1/3 pas fait). Les items non revus ne sont pas perdus — ils passent dans le daily du lendemain. Cette approche est cohérente avec Z6-AC15 (pas de pénalité mastery pour items en retard) et Z6-AC18 (pas de streak).
+
+### Z7-AC10 — État « rien à faire ce soir »
+
+| | |
+|---|---|
+| **GIVEN** | L'élève ouvre l'app un mercredi soir. Il n'a pas eu cours mercredi (pas de ScheduleSlot ce jour). Tous ses items sont en état OK ou SOLID avec `next_due_at` > aujourd'hui. Aucun exam dans les 3 prochains jours. |
+| **WHEN** | L'EveningPlan est calculé et ne contient aucune étape (aucune capture nécessaire, aucun item dû, aucun pre_class). |
+| **THEN** | Le dashboard soirée affiche un état positif : « Tout est à jour ! Profite de ta soirée 😊 ». Le message mentionne le contexte emploi du temps : « Pas de cours aujourd'hui, et toutes tes révisions sont faites. » Un lien optionnel propose : « Envie de t'avancer ? » → session de consolidation (Z4-AC18) sans risque de régression (items SOLID reproposés en mode « renforcement »). Si l'élève a un exam dans les 7 prochains jours mais > 3 jours : suggestion douce « Tu as un contrôle de [matière] dans [N] jours — tu peux faire un entraînement si tu veux. » Le parent ne reçoit pas de notification « routine manquée » pour les soirées sans plan (pas de faux négatif). Le digest hebdomadaire (Z6-AC35) mentionne : « Mercredi : pas de révision prévue (pas de cours). » |
+
+> **NOTE :** Un écran vide est un moment de vérité UX. Si l'élève voit un dashboard vide sans explication, il conclut que l'app est cassée ou inutile. L'état « rien à faire » doit être explicite et positif — c'est une récompense pour l'élève qui est à jour. La mention du contexte emploi du temps (« pas de cours ») valide le fait qu'il n'y a rien à faire et évite la confusion avec « l'app ne fonctionne pas ».
+
+### Z7-AC11 — Comportement week-end (samedi/dimanche)
+
+| | |
+|---|---|
+| **GIVEN** | Samedi matin. L'élève n'a pas cours le week-end (ScheduleSlots uniquement lundi-vendredi). Il a 8 items dues (FRAGILE/OK avec `next_due_at` ≤ samedi). Un exam de Physique est prévu lundi. |
+| **WHEN** | L'élève ouvre l'app le samedi. |
+| **THEN** | Le dashboard soirée est remplacé par un **dashboard week-end** (même composant, ton différent). (1) Pas d'étape « capture » (pas de cours). (2) Si items dues : proposition d'une session daily standard (pas de durée augmentée par défaut — le week-end n'est pas une excuse pour surcharger). (3) Si exam ≤ lundi : suggestion renforcée « Contrôle de Physique lundi — un mock exam ce week-end ? (~15 min) » avec bouton vers le mock exam (Z6-AC10). (4) La fenêtre de notification week-end utilise un horaire distinct (`user.weekend_notification_hour`, défaut 10h00 au lieu de 18h30) — les week-ends se révisent le matin, pas le soir. (5) Le dimanche soir : le plan inclut les pre_class pour lundi (Z6-AC07), présentés avec le message « Demain tu reprends avec [matières]. Prépare-toi ! » (6) Si rien n'est dû le week-end et pas d'exam proche : état « rien à faire » (Z7-AC10) avec suggestion consolidation optionnelle. Le digest parent (Z6-AC35) distingue « activité week-end » de « activité semaine ». |
+
+> **NOTE :** Le week-end est un moment pédagogique différent : pas de pression de capture, plus de temps disponible, et souvent la seule fenêtre pour un mock exam complet. L'horaire de notification décalé au matin reflète la réalité des familles : un ado ne va pas réviser samedi soir. Le dimanche soir est stratégique car il prépare la semaine — les pre_class pour lundi doivent être bien mis en avant.
+
+### Z7-AC12 — Guidage de capture lié au cours de demain
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a SVT demain (mercredi). Il a eu SVT lundi mais n'a jamais capturé ce cours (pas de chapitre SVT actif, ou chapitre SVT existant sans pages récentes). |
+| **WHEN** | L'EveningPlan de mardi soir est calculé. |
+| **THEN** | Le plan inclut une étape de capture contextualisée par le cours de demain : « Tu as SVT demain — saisis ton cours de lundi pour pouvoir le réviser avant ! » Cette étape est positionnée **avant** les étapes de capture des matières du jour (priorité = cours de demain non capturé > cours d'aujourd'hui non capturé, car le pre_class de demain a besoin du contenu). Si l'élève capture le cours SVT, un pre_class est immédiatement composable pour ce soir (intégré dans le daily ou proposé en session courte). Si l'élève ignore l'étape, elle passe en « skippée » sans conséquence. La notification pre_class (Z6-AC07) mentionne aussi le cours non capturé : « Tu as SVT demain — tu n'as pas encore saisi ton cours de lundi. Saisis-le pour réviser ce soir ! » |
+
+> **NOTE :** Aujourd'hui la notification pre_class (Z6-AC07) se contente de proposer une session de révision sur les items existants. Mais si le cours de lundi n'a jamais été capturé, le pre_class n'a rien à proposer. Le guidage de capture lié au cours de demain connecte deux moments qui sont actuellement déconnectés : « tu as SVT demain » + « tu n'as pas capturé lundi ». C'est exactement le comportement d'un coach qui dit « tu as un cours demain, prépare-toi ».
+
+### Z7-AC13 — Reconnaissance des devoirs (coexistence avec la routine)
+
+| | |
+|---|---|
+| **GIVEN** | L'app ne gère pas les devoirs (hors scope PRD). Cependant, l'élève a systématiquement des devoirs à faire chaque soir en plus de la révision. |
+| **WHEN** | Le dashboard soirée s'affiche avec un plan estimé à 15 min. |
+| **THEN** | Le dashboard soirée inclut un message contextuel léger sous l'estimation de durée : « ~15 min de révision — à faire avant ou après tes devoirs ! » Ce message n'est pas lié à une fonctionnalité de gestion des devoirs (hors scope) mais reconnaît leur existence. Si l'élève active le mode express (Z7-AC08), le message adapté est : « Session express ~7 min — parfait pour les soirs chargés en devoirs. » Le message n'apparaît que les soirs de semaine (lundi-vendredi). Il est désactivable dans les préférences (« Ne plus afficher cette mention »). Aucune donnée sur les devoirs n'est collectée ou stockée — c'est un message d'empathie UX, pas une feature. |
+
+> **NOTE :** Ignorer les devoirs, c'est ignorer la réalité de l'élève. Le message « avant ou après tes devoirs » positionne la révision comme complémentaire, pas concurrente. Un adolescent qui perçoit l'app comme « encore un truc à faire en plus de mes devoirs » la désinstalle. Un adolescent qui perçoit l'app comme « un truc rapide que je peux caser entre mes devoirs et ma série » l'adopte. La mention des devoirs est un acte d'empathie, pas une fonctionnalité.
+
+### Z7-AC14 — Arc émotionnel de la soirée (accueil, transitions, clôture)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève ouvre l'app un mardi soir. Il a 3 étapes dans son plan. |
+| **WHEN** | L'élève progresse dans les étapes de son EveningPlan. |
+| **THEN** | Chaque moment-clé de la soirée a un message personnalisé et contextuel : **(1) Accueil** (ouverture de l'app) : « Bonsoir [prénom] ! Ce soir : [N] activités, ~[X] min. » Variantes contextuelles : « Grosse journée — 3 matières ! On s'y met ? » (si ≥ 3 matières), « Soirée tranquille — juste une petite révision ! » (si ≤ 1 session, < 10 min), « Dernière ligne droite avant ton contrôle de [matière] ! » (si exam ≤ 3 jours). **(2) Transitions** (entre étapes) : après la capture → « Super, tes notes sont enregistrées ! Maintenant, un premier contact rapide avec ce que tu as appris. » Après evening_first → « Bien joué, premier contact fait ! Encore [X] min de révision et c'est fini. » **(3) Clôture** : gérée par Z7-AC05. Les messages utilisent le prénom de l'élève et varient (pas de répétition exacte deux soirs de suite — rotation d'au moins 5 variantes par moment). Le ton est encourageant, jamais culpabilisant, et adapté à l'âge (tutoiement, phrases courtes, langage courant). |
+
+> **NOTE :** L'arc émotionnel accueil → progression → clôture est le fil narratif de l'assistant. Les micro-célébrations (Z1-AC16) et le débrief session (Z1-AC17) couvrent le niveau « question » et « session » — mais le niveau « soirée » est le niveau auquel l'élève s'identifie. « J'ai fait ma routine de ce soir » est plus significatif que « j'ai répondu à 12 questions ». Les transitions entre étapes sont les moments où l'élève risque de décrocher (« est-ce que j'ai fini ? ») — les messages de transition éliminent cette incertitude.
+
+### Z7-AC15 — Notification parent « routine terminée » (signal positif)
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a complété son EveningPlan (toutes les étapes en statut « completed »). L'événement `routine_completed` est émis (Z7-AC05). Le parent a activé les notifications (`parent_routine_completed_enabled = true`, activé par défaut). |
+| **WHEN** | L'événement `routine_completed` est traité par le service de notification. |
+| **THEN** | Le parent reçoit une notification push : « ✅ [Prénom] a terminé sa révision du soir : [N] matières, [X] min. [résumé court : ex. "3 points progressent en Physique"]. » En cas de complétion partielle (Z7-AC09, ≥ 50% des étapes) : « [Prénom] a fait une partie de sa révision ce soir ([N]/[M] activités, [X] min). » En cas de complétion < 50% ou routine non commencée : pas de notification positive — la notification « session manquée » existante (Z6-AC25) prend le relais le lendemain matin. La notification `routine_completed` est envoyée maximum 1 fois par soir. Elle n'est pas envoyée les soirs où l'EveningPlan est vide (Z7-AC10 — rien à faire). Le parent peut désactiver cette notification dans ses préférences (Z6-AC27 étendu avec `routine_completed_enabled`). Le digest hebdomadaire (Z6-AC35) inclut un compteur de routines complétées : « Cette semaine : [N]/[M] routines de soirée complétées. » |
+
+> **NOTE :** Les parents ne reçoivent actuellement des signaux que quand ça se passe mal (session manquée Z6-AC25, inactivité Z6-AC26). Un parent qui ne reçoit que des alertes négatives développe une association anxieuse avec l'app. La notification « routine terminée » est le signal positif symétrique — elle répond à la question que chaque parent se pose le soir : « Est-ce qu'il a révisé ? » Sans cette notification, le parent doit soit demander à l'enfant (conflit), soit ouvrir l'app parent pour vérifier (friction). C'est aussi un moteur de rétention pour l'abonnement : la valeur perçue augmente quand le parent « voit » l'effort de l'enfant.
+
+### Z7-AC16 — Onboarding de la première soirée
+
+| | |
+|---|---|
+| **GIVEN** | L'élève vient de terminer l'onboarding initial (création de compte + saisie emploi du temps). Il n'a aucun chapitre, aucun item, aucun historique. C'est sa première soirée avec l'app. |
+| **WHEN** | L'élève ouvre l'app dans la fenêtre de soirée pour la première fois. |
+| **THEN** | Le dashboard soirée affiche un **mode tutoriel première soirée** (overlay guidé) : (1) « Bienvenue dans ta routine du soir ! Chaque soir, l'app te dit quoi faire en ~10-15 min. » (2) « Ce soir, on va capturer ton premier chapitre. Prends en photo les pages de ton cours de [matière du jour si schedule renseigné / "ta matière préférée" sinon]. » → bouton « Capturer mon premier chapitre ». (3) Après la capture + pipeline terminé : « Parfait ! Maintenant, un premier contact rapide avec ce que tu as noté. ~5 min. » → lancement de l'evening_first. (4) Après l'evening_first : écran de clôture spécial première soirée : « Bravo, ta première routine est terminée ! 🎉 Demain soir, l'app te proposera une nouvelle session pour renforcer ce que tu as appris. Chaque soir, ça prend 10-15 min — moins qu'un épisode de ta série. » (5) Le lendemain soir (jour 2) : le dashboard affiche un message de « jour 2 » : « Tu reviens ! Aujourd'hui, on révise ce que tu as appris hier. Tu vas voir, c'est rapide. » La session daily est proposée. (6) Le tutoriel progressif s'étend sur 5 jours : jour 1 = capture + evening_first, jour 2 = daily expliqué, jour 3 = pre_class expliqué (si applicable), jour 4 = mode express mentionné, jour 5 = « Tu as pris le rythme ! À partir de maintenant, l'app te guide automatiquement. » Chaque message tutoriel est affiché une seule fois et ne réapparaît plus après. |
+
+> **NOTE :** La première soirée est le moment de conversion critique. L'élève qui comprend le concept de « routine du soir » et qui vit une première expérience guidée et gratifiante reviendra demain. L'élève qui ouvre l'app et voit un dashboard vide ou un pipeline en cours sans contexte ne reviendra pas. Le tutoriel progressif sur 5 jours correspond au temps moyen de formation d'une micro-habitude chez les adolescents. L'analogie avec « un épisode de série » est intentionnelle : c'est le référentiel temporel naturel d'un collégien.
+
+---
+
+> Ces 151 AC couvrent les zones à risque identifiées pour le vibe coding. Ils sont conçus pour être directement transformés en tests (Jest / Pytest / Playwright). Chaque session de génération de code doit recevoir les AC de la zone concernée comme contexte système, avec l'instruction explicite de générer les tests correspondants avant le code d'implémentation (TDD-first).
+
+*Fin du document — Révise Mieux AC v1.5 · 7 mars 2026*

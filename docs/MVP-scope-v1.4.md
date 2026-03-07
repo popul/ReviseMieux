@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Version** | 1.4.1 |
+| **Version** | 1.5 |
 | **Date** | 7 mars 2026 |
-| **Total ACs** | 135 (6 zones) |
+| **Total ACs** | 151 (7 zones) |
 
 ---
 
@@ -199,14 +199,37 @@
 
 ---
 
+## Z7 — Routine de soirée & Orchestration (16 ACs)
+
+| AC | Titre | Classification |
+|---|---|---|
+| Z7-AC01 | Calcul automatique du plan de soirée (EveningPlan) | **MVP Core** |
+| Z7-AC02 | Dashboard soirée contextuel (écran d'accueil du soir) | **MVP Core** |
+| Z7-AC03 | Séquencement multi-matières dans le plan | **MVP Core** |
+| Z7-AC04 | Estimation de durée visible avant le début | MVP Core |
+| Z7-AC05 | État « fini pour ce soir » et écran de clôture | MVP Core |
+| Z7-AC06 | Guidage capture in-app (matières du jour non capturées) | MVP Core |
+| Z7-AC07 | Règles de séquencement des types de session | MVP Core |
+| Z7-AC08 | Mode express pour soirée courte | MVP Core |
+| Z7-AC09 | Complétion partielle et reprise le lendemain | MVP Hardening |
+| Z7-AC10 | État « rien à faire ce soir » | MVP Hardening |
+| Z7-AC11 | Comportement week-end (samedi/dimanche) | MVP Hardening |
+| Z7-AC12 | Guidage de capture lié au cours de demain | MVP Hardening |
+| Z7-AC13 | Reconnaissance des devoirs (coexistence) | MVP Hardening |
+| Z7-AC14 | Arc émotionnel de la soirée (accueil, transitions, clôture) | MVP Hardening |
+| Z7-AC15 | Notification parent « routine terminée » (signal positif) | MVP Core |
+| Z7-AC16 | Onboarding de la première soirée | MVP Core |
+
+---
+
 ## Résumé
 
-| Classification | Z1 | Z2 | Z3 | Z4 | Z5 | Z6 | **Total** |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **MVP Core** | 16 | 13 | 12 | 8 | 10 | 22 | **81** |
-| **MVP Hardening** | 5 | 1 | 8 | 7 | 2 | 16 | **39** |
-| **Post-MVP** | 1 | 0 | 5 | 3 | 0 | 6 | **15** |
-| **Total** | 22 | 14 | 25 | 18 | 12 | 44 | **135** |
+| Classification | Z1 | Z2 | Z3 | Z4 | Z5 | Z6 | Z7 | **Total** |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **MVP Core** | 16 | 13 | 12 | 8 | 10 | 22 | 10 | **91** |
+| **MVP Hardening** | 5 | 1 | 8 | 7 | 2 | 16 | 6 | **45** |
+| **Post-MVP** | 1 | 0 | 5 | 3 | 0 | 6 | 0 | **15** |
+| **Total** | 22 | 14 | 25 | 18 | 12 | 44 | 16 | **151** |
 
 ### Changements par rapport à l'analyse initiale
 
@@ -219,3 +242,4 @@
 | Z5-AC12 | *Nouveau* | **MVP Core** | Pas de re-OCR des pages existantes : élimine le risque de drift OCR et de régression silencieuse de maîtrise. |
 | Z6-AC43 | *Nouveau* | **MVP Core** | Session evening_first incrémentale : premier contact ciblé avec les nouveaux items uniquement. |
 | Z6-AC44 | *Nouveau* | **MVP Core** | Explication dilution dashboard : sans elle, baisse de % anxiogène pour élève et parent. |
+| Z7-AC01→16 | *Nouveau (zone Z7)* | **10 MVP Core + 6 MVP Hardening** | Couche d'orchestration de la routine de soirée : EveningPlan, dashboard soirée, séquencement multi-matières, mode express, notification parent positive, onboarding première soirée. |
