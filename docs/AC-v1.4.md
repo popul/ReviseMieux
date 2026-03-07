@@ -6,8 +6,8 @@
 > |---|---|
 > | **Version** | 1.4 |
 > | **Date** | 7 mars 2026 |
-> | **Périmètre** | 7 zones critiques identifiées — 165 AC en format Given/When/Then |
-> | **Évolutions v1.5 vs v1.4.1** | +4 AC zone Z1 : accès leçon contextuel pendant question (AC23), reformulation « je ne comprends pas » (AC24), scoring de réponse partielle (AC25), matrice transition maîtrise avec hint/clarification/partiel (AC26). +3 AC zone Z6 : onboarding parent et liaison élève (AC45), comportement jour d'examen (AC46), mode dégradé sans emploi du temps (AC47). +23 AC zone Z7 « Routine de soirée & Orchestration ». Orchestration : EveningPlan (AC01), dashboard soirée (AC02), séquencement multi-matières (AC03), estimation durée (AC04), état « fini pour ce soir » (AC05), guidage capture in-app (AC06), séquencement sessions (AC07), mode express (AC08), complétion partielle (AC09), rien à faire (AC10), week-end (AC11), capture cours demain (AC12), devoirs (AC13), arc émotionnel (AC14), notif parent routine (AC15), onboarding 1re soirée (AC16). Hiérarchie contenu & exam : Notions par concept_tag (AC17), vue chapitre par notion (AC18), périmètre exam par notion (AC19), auto-suggestion exam (AC20), vue angles morts (AC21), prédiction interro surprise (AC22), alerte fragile × non testée (AC23) |
+> | **Périmètre** | 7 zones critiques identifiées — 169 AC en format Given/When/Then |
+> | **Évolutions v1.5 vs v1.4.1** | +4 AC zone Z1 : accès leçon contextuel pendant question (AC23), reformulation « je ne comprends pas » (AC24), scoring de réponse partielle (AC25), matrice transition maîtrise avec hint/clarification/partiel (AC26). +7 AC zone Z6 : onboarding parent et liaison élève (AC45), comportement jour d'examen (AC46), mode dégradé sans emploi du temps (AC47), multi-exam overlapping reset+recompression (AC48), mock exam J-3 auto + à la demande (AC49), parent multi-enfants notif par enfant (AC50), timezone locale auto (AC51). +23 AC zone Z7 « Routine de soirée & Orchestration ». Orchestration : EveningPlan (AC01), dashboard soirée (AC02), séquencement multi-matières (AC03), estimation durée (AC04), état « fini pour ce soir » (AC05), guidage capture in-app (AC06), séquencement sessions (AC07), mode express (AC08), complétion partielle (AC09), rien à faire (AC10), week-end (AC11), capture cours demain (AC12), devoirs (AC13), arc émotionnel (AC14), notif parent routine (AC15), onboarding 1re soirée (AC16). Hiérarchie contenu & exam : Notions par concept_tag (AC17), vue chapitre par notion (AC18), périmètre exam par notion (AC19), auto-suggestion exam (AC20), vue angles morts (AC21), prédiction interro surprise (AC22), alerte fragile × non testée (AC23) |
 > | **Évolutions v1.4.1 vs v1.4** | +5 AC upload incrémental : ajout de pages sans nouvelle révision (Z5-AC11), pas de re-OCR des pages existantes (Z5-AC12), pipeline incrémental (Z2-AC14), session evening_first incrémentale (Z6-AC43), explication dilution maîtrise dashboard (Z6-AC44) |
 > | **Évolutions v1.4 vs v1.3** | +15 AC : confiance parent & RGPD (rétention crops Z2, score mock exam + exclusion script 3 min Z1, digest standardisé + signalement OCR parent + feedback résolution admin + labels maîtrise traduits Z6) + session experience (variété gabarits + feedback enrichi + bouton passer + petit chapitre Z4) + intégrité données (rétractation validation erronée + anti-clicking aveugle Z3, versioning LLM Z2) + UX résilience (progression globale + archivage chapitre + persistance réseau Z6) + robustesse planning (recalcul intervalles sur modif date exam Z1, anti-lassitude questions Z4) + anti-frustration élève (feedback explicatif blocage 24h Z1, descente difficulté échecs répétés Z1, fallback LLM indisponible Z4, récupération items ignorés Z3) + anti-silent-failures (anti-starvation items UNKNOWN Z1, garde-fou template/type Z3, invalidation cache exam Z4) + correctifs modèle (session all-SOLID Z4, alerte items perdus re-upload Z5, multi-exam par chapitre Z6, fix Chapter.exam_ids[] pluriel) |
 > | **Évolutions v1.3 vs v1.2** | +9 AC anti-désengagement : plafond maîtrise items non validés (Z1), micro-célébrations + débrief session (Z1), retour en douceur après absence + cycle post-exam + rampe diagnostic + digest pré-contrôle + anti alert-fatigue parent (Z6) |
@@ -25,9 +25,9 @@
 | Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 25 |
 | Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 18 |
 | Z5 | ChapterRevision — Identité Item & héritage | Élevé | 12 |
-| Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 47 |
+| Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 51 |
 | Z7 | Routine de soirée & Orchestration | Très élevé | 23 |
-| | **Total** | | **165** |
+| | **Total** | | **169** |
 
 ---
 
@@ -1387,6 +1387,46 @@
 
 > **NOTE :** Forcer la saisie de l'emploi du temps à l'onboarding est tentant mais risqué : un élève de 12 ans qui ne sait pas son emploi du temps par cœur abandonne l'onboarding. Le mode dégradé permet de commencer immédiatement (valeur en < 5 min) et de compléter l'emploi du temps plus tard. Le bandeau persistant rappelle la valeur ajoutée sans bloquer. C'est le pattern « progressive onboarding » : les fonctionnalités avancées se débloquent à mesure que l'élève fournit des données.
 
+### Z6-AC48 — Multi-exam overlapping : reset + recompression entre exams
+
+| | |
+|---|---|
+| **GIVEN** | L'élève a Exam1 « Interro Densité » (15 mars, chapitre Densité) et Exam2 « Contrôle séquence » (22 mars, chapitres Densité + Forces). Nous sommes le 16 mars — Exam1 vient de passer (`status = past`). Les items Densité étaient compressés (intervalles J+1 via Z1-AC08). |
+| **WHEN** | Exam1 passe en `status = past` (J+1 après `exam_date`). |
+| **THEN** | **(1) Phase de repos** : les items du chapitre Densité passent temporairement en intervalles de maintenance : SOLID → `next_due_at = J+3`, OK → `next_due_at = J+2`, FRAGILE → `next_due_at = J+1`. Ce « repos cognitif » dure le temps que le prochain exam (Exam2) entre dans la fenêtre de resserrement. **(2) Recompression** : dès que `exam2_date - now ≤ 7 jours` (soit le 15 mars, qui coïncide ici avec le passage d'Exam1), le resserrement Z1-AC08 se réactive pour les items Densité puisqu'Exam2 les référence aussi. Les items Densité reprennent des intervalles compressés. **(3) Items non partagés** : les items Forces (uniquement dans Exam2) restent compressés sans interruption si `exam2_date - now ≤ 7j`. **(4) Règle générale** : un item ne passe en maintenance longue (Z6-AC46) que lorsque **aucun exam actif** ne référence son chapitre (ou ses notions si `notion_ids[]` est renseigné). Le champ `Mastery.next_due_at` est recalculé à chaque changement de `status` d'un Exam. |
+
+> **NOTE :** Le pattern reset + recompression respecte la science cognitive : après un contrôle, le cerveau bénéficie d'un bref repos avant de reprendre la compression. Ce repos est court (2-3 jours max, le temps que la fenêtre J-7 de l'exam suivant s'ouvre) et automatique. L'alternative « compression continue » (pas de repos) risque la fatigue ; l'alternative « maintenance définitive » risque l'oubli si Exam2 reteste le même contenu. Le reset + recompression est le juste milieu.
+
+### Z6-AC49 — Proposition de contrôle blanc : J-3 automatique + à la demande
+
+| | |
+|---|---|
+| **GIVEN** | Un Exam « Contrôle Physique » a `exam_date = 2026-03-20`. L'Exam couvre 2 chapitres (18 items). L'élève n'a encore fait aucun mock_exam pour cet Exam. Nous sommes le 17 mars (J-3). |
+| **WHEN** | Le système évalue les exams à venir lors du calcul quotidien. |
+| **THEN** | **(1) Proposition J-3** : une notification push est envoyée : « Contrôle de Physique dans 3 jours — fais un contrôle blanc pour te tester ! (~15 min) ». Le dashboard soirée (Z7-AC02) affiche un badge « Contrôle blanc disponible » sur l'exam avec un bouton direct « Lancer le contrôle blanc ». L'EveningPlan du soir intègre le mock_exam comme étape optionnelle (après le daily, pas en remplacement). **(2) Rappel J-1** : si l'élève n'a pas fait de mock_exam, un rappel est envoyé : « Dernier soir pour un contrôle blanc avant le contrôle de Physique demain ! » Pas de rappel si le mock a déjà été fait. **(3) À la demande** : un bouton « Lancer un contrôle blanc » est toujours visible sur la page de chaque Exam actif, dès sa création (pas besoin d'attendre J-3). L'élève peut faire plusieurs mock_exams pour le même Exam (les questions varient grâce à la sélection aléatoire pondérée Z6-AC10). **(4) Jour J** : le mock_exam n'est plus proposé le jour de l'examen (Z6-AC46). **(5) Durée** : le mock_exam est cappé à 30 min max (Z6-AC10). La notification J-3 compte dans le plafond de 2 notifications par soirée (Z6-AC04). |
+
+> **NOTE :** J-3 est le sweet spot : assez tôt pour identifier les faiblesses et avoir 2 jours pour les corriger, assez tard pour que le contenu soit frais. J-7 est trop tôt (l'élève n'a pas encore tout révisé et le résultat serait décourageant). J-1 est trop tard (pas le temps de corriger). Le bouton « à la demande » depuis la page exam couvre les élèves proactifs qui veulent s'entraîner sans attendre la notification.
+
+### Z6-AC50 — Parent multi-enfants : une notification par enfant
+
+| | |
+|---|---|
+| **GIVEN** | Un parent a deux élèves liés : Lucas (4ème) et Emma (6ème). Lucas termine sa routine à 19h42 (3 matières, 15 min). Emma termine sa routine à 20h15 (2 matières, 10 min). |
+| **WHEN** | Les événements `routine_completed` sont émis pour chaque élève (Z7-AC05). |
+| **THEN** | Le parent reçoit **une notification distincte par enfant**, au moment où chaque routine est complétée : 19h42 → « ✅ Lucas a terminé sa révision du soir : 3 matières, 15 min. » 20h15 → « ✅ Emma a terminé sa révision du soir : 2 matières, 10 min. » Chaque notification est envoyée indépendamment (pas d'agrégation, pas d'attente). Les préférences de notification (Z6-AC27) s'appliquent globalement (pas par enfant en MVP) : si le parent désactive `routine_completed_enabled`, c'est désactivé pour tous les enfants. Le digest hebdomadaire (Z6-AC35) contient une **section par enfant** avec le résumé individuel. Le dashboard parent affiche un sélecteur d'enfant pour naviguer entre les progressions. Si un seul enfant est lié, le comportement est identique (pas de sélecteur). |
+
+> **NOTE :** Une notification par enfant est plus simple à implémenter et plus claire pour le parent : chaque signal est autonome et complet. L'agrégation en fin de soirée retarderait l'info (« Est-ce que Lucas a révisé ? ») et complexifierait la logique (attendre que tous aient fini, gérer les cas partiels). Le sélecteur d'enfant dans le dashboard est le seul point d'agrégation nécessaire en MVP.
+
+### Z6-AC51 — Timezone locale : détection automatique et configuration
+
+| | |
+|---|---|
+| **GIVEN** | L'élève crée son compte depuis un appareil en timezone `Europe/Paris` (UTC+1 hiver, UTC+2 été). Un autre élève crée son compte depuis La Réunion (`Indian/Reunion`, UTC+4). |
+| **WHEN** | Le compte est créé (onboarding). |
+| **THEN** | Le système détecte automatiquement le timezone de l'appareil via l'API système (Intl.DateTimeFormat sur le client) et le stocke dans `user.timezone` (ex : `Europe/Paris`). Toutes les heures sont calculées en heure locale de l'utilisateur : `notification_hour` (défaut 18h30 locale), fenêtre de soirée `evening_window_start/end` (défaut 17h-22h locale), `weekend_notification_hour` (défaut 10h locale), digest parent (dimanche 9h locale), calcul de `next_due_at` (minuit local pour le « jour »). Le champ `user.timezone` est modifiable dans les paramètres (« Fuseau horaire »). Le serveur stocke toutes les dates en UTC et convertit à l'affichage et pour le scheduling des notifications. Si le timezone n'est pas détectable (cas rare), le fallback est `Europe/Paris`. |
+
+> **NOTE :** La France métropolitaine est le marché principal, mais les DOM-TOM représentent ~3% de la population scolaire française et les lycées français à l'étranger sont un segment premium. Un élève à La Réunion qui reçoit sa notification à 18h30 heure de Paris (21h30 locale) ne révisera pas. Le coût d'implémentation est faible (détection auto + stockage d'un string timezone) et évite un problème UX silencieux mais fatal pour ces utilisateurs.
+
 ---
 
 ## Z7 — Routine de soirée & Orchestration
@@ -1468,8 +1508,8 @@
 | | |
 |---|---|
 | **GIVEN** | L'EveningPlan estime 20 min pour la soirée complète (capture + evening_first + daily). L'élève a beaucoup de devoirs ce soir. |
-| **WHEN** | L'élève tape sur « Je n'ai pas beaucoup de temps ce soir » (bouton visible sur le dashboard soirée, sous l'estimation de durée). |
-| **THEN** | Le plan bascule en **mode express**. La durée cible passe à ≤ 10 min. Les étapes sont re-priorisées : (1) **Capture** : conservée (l'élève peut toujours photographier ses notes rapidement, ~2 min). (2) **Révision express** : une session unique fusionnant les items les plus urgents — items FRAGILE dues en premier (risque de régression si pas revus), puis items UNKNOWN du chapitre frais (si capture faite) avec gabarits difficulté 1 uniquement. Nombre de questions réduit à 6-8 max. Les items OK dues sont reportés à demain sans pénalité (Z6-AC15). Le débrief express mentionne : « Soirée express terminée en [X] min. Les points restants seront intégrés demain. » L'élève peut aussi saisir une durée libre (« Combien de temps ? ») via un slider 5-15 min, et le plan s'adapte. Le mode express n'affecte pas le calcul des `next_due_at` : les items non revus ce soir restent dues et seront reproposés demain (pas de pénalité). |
+| **WHEN** | L'élève tape sur « Je n'ai pas beaucoup de temps ce soir » (bouton visible sur le dashboard soirée, sous l'estimation de durée). Ce bouton est accessible **à tout moment** tant que le plan n'est pas terminé — y compris après avoir complété une ou plusieurs étapes. |
+| **THEN** | Le plan bascule en **mode express** (`EveningPlan.mode = 'express'`). La durée cible **des étapes restantes** passe à ≤ 10 min. Les étapes déjà complétées ne sont pas affectées (elles restent marquées ✓). Les étapes restantes sont re-priorisées : (1) **Capture** : conservée si non faite (l'élève peut toujours photographier ses notes rapidement, ~2 min). (2) **Révision express** : une session unique fusionnant les items les plus urgents — items FRAGILE dues en premier (risque de régression si pas revus), puis items UNKNOWN du chapitre frais (si capture faite) avec gabarits difficulté 1 uniquement. Nombre de questions réduit à 6-8 max. Les items OK dues sont reportés à demain sans pénalité (Z6-AC15). Si l'élève a déjà fait l'evening_first et active express, seul le daily est raccourci. Le débrief express mentionne : « Soirée express terminée en [X] min. Les points restants seront intégrés demain. » L'élève peut aussi saisir une durée libre (« Combien de temps ? ») via un slider 5-15 min, et le plan s'adapte. Le mode express n'affecte pas le calcul des `next_due_at` : les items non revus ce soir restent dues et seront reproposés demain (pas de pénalité). |
 
 > **NOTE :** Un adolescent qui a 45 min de devoirs plus la révision va choisir les devoirs (conséquence immédiate : le prof vérifie demain). Si l'app ne propose pas de mode court, l'élève saute entièrement la révision. 5 minutes de révision ciblée valent infiniment mieux que 0 minute. Le mode express maintient l'habitude vivante les soirs chargés — c'est un anti-churn majeur.
 

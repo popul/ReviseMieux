@@ -372,7 +372,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 | 7. Détection incertains | Items + confidence | File validation (max 8) | Oui (si critiques) | < 500 ms |
 | 7b. Vérification croisée LLM | Items + texte OCR source | Score fidélité sémantique | Non | < 2 s/page |
 | 7c. Cohérence intra-chapitre | Tous items du chapitre | Doublons/contradictions flaggés | Non | < 1 s |
-| 8. Carte leçon (draft) | Items sans validation | Carte navigable | Non (streaming) | Dès page 1 prête |
+| 8. Carte leçon (draft) | Items + Notions + blocs OCR | Carte navigable (vue calculée, pas d'entité persistée) | Non (streaming) | Dès page 1 prête |
 | 9. Validation HITL | File validation | Items validés/corrigés | Partiel | Élève, asynchrone |
 | 10. Diagnostic initial | Items validés | Questions instanciées (lazy) | Oui | < 1 s |
 
@@ -655,7 +655,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 
 | Entité | Champs |
 |---|---|
-| **User** | `id` · `role (student\|parent)` · `consent_parent_at` · `linked_student_id?` · `notification_hour?` (défaut 18h30) |
+| **User** | `id` · `role (student\|parent)` · `consent_parent_at` · `linked_student_id?` · `linked_student_ids[]?` (parent multi-enfants) · `notification_hour?` (défaut 18h30) · `timezone?` (défaut Europe/Paris, détection auto) · `evening_window_start?` (défaut 17h) · `evening_window_end?` (défaut 22h) · `weekend_notification_hour?` (défaut 10h) |
 | **ScheduleSlot** | `id` · `user_id` · `subject` · `day_of_week (1–7)` · `period (morning\|afternoon)` · `created_at` |
 | **ScheduleException** | `id` · `user_id` · `subject` · `original_date` · `type (cancelled\|moved)` · `moved_to_date?` · `moved_to_period?` · `created_at` |
 | **Exam** | `id` · `user_id` · `name?` · `exam_date` · `chapter_ids[]` · `notion_ids[]?` (si vide = toutes les notions des chapitres) · `status (active\|past)` · `created_at` |

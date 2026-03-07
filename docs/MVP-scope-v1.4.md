@@ -4,7 +4,7 @@
 |---|---|
 | **Version** | 1.5 |
 | **Date** | 7 mars 2026 |
-| **Total ACs** | 165 (7 zones) |
+| **Total ACs** | 169 (7 zones) |
 
 ---
 
@@ -152,7 +152,7 @@
 
 ---
 
-## Z6 — Schedule, Notifications, Engagement & Parent trust (47 ACs)
+## Z6 — Schedule, Notifications, Engagement & Parent trust (51 ACs)
 
 | AC | Titre | Classification |
 |---|---|---|
@@ -203,6 +203,10 @@
 | Z6-AC45 | Onboarding parent : création de compte et liaison à l'élève | **MVP Core** |
 | Z6-AC46 | Comportement le jour de l'examen | **MVP Core** |
 | Z6-AC47 | Emploi du temps non renseigné : mode dégradé fonctionnel | **MVP Core** |
+| Z6-AC48 | Multi-exam overlapping : reset + recompression entre exams | **MVP Core** |
+| Z6-AC49 | Proposition contrôle blanc : J-3 auto + à la demande | **MVP Core** |
+| Z6-AC50 | Parent multi-enfants : une notification par enfant | MVP Hardening |
+| Z6-AC51 | Timezone locale : détection automatique et configuration | **MVP Core** |
 
 ---
 
@@ -240,10 +244,10 @@
 
 | Classification | Z1 | Z2 | Z3 | Z4 | Z5 | Z6 | Z7 | **Total** |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **MVP Core** | 20 | 13 | 12 | 8 | 10 | 25 | 15 | **103** |
-| **MVP Hardening** | 5 | 1 | 8 | 7 | 2 | 16 | 8 | **47** |
+| **MVP Core** | 20 | 13 | 12 | 8 | 10 | 28 | 15 | **106** |
+| **MVP Hardening** | 5 | 1 | 8 | 7 | 2 | 17 | 8 | **48** |
 | **Post-MVP** | 1 | 0 | 5 | 3 | 0 | 6 | 0 | **15** |
-| **Total** | 26 | 14 | 25 | 18 | 12 | 47 | 23 | **165** |
+| **Total** | 26 | 14 | 25 | 18 | 12 | 51 | 23 | **169** |
 
 ### Changements par rapport à l'analyse initiale
 
@@ -261,3 +265,4 @@
 | Z7-AC22→23 | *Nouveau (zone Z7)* | **2 MVP Hardening** | Prédiction interro surprise et alerte croisée fragile × non testée. |
 | Z1-AC23→26 | *Nouveau (zone Z1)* | **4 MVP Core** | Aide contextuelle en session : accès leçon par Notion pendant question, reformulation « je ne comprends pas », scoring partiel encourageant, matrice de transition maîtrise consolidée. |
 | Z6-AC45→47 | *Nouveau (zone Z6)* | **3 MVP Core** | Onboarding parent (liaison élève par code invitation), comportement jour d'examen (exclusion items, message encouragement), mode dégradé sans emploi du temps. |
+| Z6-AC48→51 | *Nouveau (zone Z6)* | **3 MVP Core + 1 Hardening** | Multi-exam reset+recompression, mock exam J-3 auto, parent multi-enfants (Hardening), timezone locale auto. |
