@@ -2,9 +2,9 @@
 
 | | |
 |---|---|
-| **Version** | 1.5 |
-| **Date** | 7 mars 2026 |
-| **Total ACs** | 175 (7 zones) |
+| **Version** | 1.6 |
+| **Date** | 8 mars 2026 |
+| **Total ACs** | 185 (8 zones) |
 
 ---
 
@@ -18,7 +18,7 @@
 
 ---
 
-## Z1 — Transitions Mastery (26 ACs)
+## Z1 — Transitions Mastery (28 ACs)
 
 | AC | Titre | Classification |
 |---|---|---|
@@ -29,6 +29,8 @@
 | Z1-AC05 | SOLID → OK régression sur échec | MVP Core |
 | Z1-AC06 | OK → FRAGILE régression sur échec | MVP Core |
 | Z1-AC07 | FRAGILE reste FRAGILE sur échec | MVP Core |
+| Z1-AC07b | Récupération FRAGILE après régression (cs=0, réponse correcte) | MVP Core |
+| Z1-AC07c | Récupération OK après régression (cs<2, réponse correcte) | MVP Core |
 | Z1-AC08 | Resserrement proportionnel si exam posé | MVP Core |
 | Z1-AC09 | Indépendance des mastery entre items | MVP Core |
 | Z1-AC10 | Score partiel ne déclenche pas de progression | MVP Core |
@@ -246,14 +248,29 @@
 
 ---
 
+## Z8 — Onboarding & First Use Experience (8 ACs)
+
+| AC | Titre | Classification |
+|---|---|---|
+| Z8-AC01 | Chapitre démo pré-chargé (cold start) | MVP Core |
+| Z8-AC02 | Empty state guidé avant premier upload | MVP Core |
+| Z8-AC03 | UX de recovery si le premier OCR échoue | MVP Core |
+| Z8-AC04 | Écran de progression pendant le traitement J0 | MVP Core |
+| Z8-AC05 | Onboarding parent : premiers écrans + digest anticipé | MVP Core |
+| Z8-AC06 | Digest parent anticipé (J+2 après liaison) | MVP Core |
+| Z8-AC07 | Invitation parent : timing optimal dans l'onboarding | MVP Core |
+| Z8-AC08 | Séquence d'onboarding déterministe (orchestration Day 0) | MVP Core |
+
+---
+
 ## Résumé
 
-| Classification | Z1 | Z2 | Z3 | Z4 | Z5 | Z6 | Z7 | **Total** |
-|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **MVP Core** | 20 | 13 | 12 | 8 | 10 | 31 | 18 | **112** |
-| **MVP Hardening** | 5 | 1 | 8 | 7 | 2 | 17 | 8 | **48** |
-| **Post-MVP** | 1 | 0 | 5 | 3 | 0 | 6 | 0 | **15** |
-| **Total** | 26 | 14 | 25 | 18 | 12 | 54 | 26 | **175** |
+| Classification | Z1 | Z2 | Z3 | Z4 | Z5 | Z6 | Z7 | Z8 | **Total** |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| **MVP Core** | 22 | 13 | 12 | 8 | 10 | 31 | 18 | 8 | **122** |
+| **MVP Hardening** | 5 | 1 | 8 | 7 | 2 | 17 | 8 | 0 | **48** |
+| **Post-MVP** | 1 | 0 | 5 | 3 | 0 | 6 | 0 | 0 | **15** |
+| **Total** | 28 | 14 | 25 | 18 | 12 | 54 | 26 | 8 | **185** |
 
 ### Changements par rapport à l'analyse initiale
 
