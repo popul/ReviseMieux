@@ -1,9 +1,7 @@
-# Classification MVP — Revise Mieux v1.6
+# Classification MVP — Revise Mieux
 
 | | |
 |---|---|
-| **Version** | 1.6 |
-| **Date** | 8 mars 2026 |
 | **Total ACs** | 185 (8 zones) · dont **55 Lot 0** (33 P1 + 22 P2) |
 
 ---
