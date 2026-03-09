@@ -1,10 +1,10 @@
-# Acceptance Criteria — Révise Mieux v1.4
+# Acceptance Criteria — Révise Mieux v1.5.5
 
-> **Annexe PRD v1.4 · Zones à risque vibe coding**
+> **Annexe PRD v1.5.5 · Zones à risque vibe coding**
 >
 > | | |
 > |---|---|
-> | **Version** | 1.4 |
+> | **Version** | 1.5.5 |
 > | **Date** | 7 mars 2026 |
 > | **Périmètre** | 8 zones critiques · 185 AC en format Given/When/Then |
 > | **Usage** | Chaque zone est un fichier séparé pour un chargement ciblé en contexte agent |
