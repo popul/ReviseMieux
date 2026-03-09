@@ -13,20 +13,20 @@ Le dépôt contient actuellement les **spécifications complètes** du produit. 
 | Document | Description |
 |---|---|
 | [PRD](docs/PRD.md) | Product Requirements Document complet — personas, parcours, pipeline, architecture, modèle de données, algorithmes, SLA |
-| [MVP Scope](docs/MVP-scope.md) | Classification des 185 critères d'acceptation (MVP Core / Hardening / Post-MVP) et périmètre Lot 0 |
-| [Critères d'acceptation](docs/ac/README.md) | 185 ACs en format Given/When/Then, répartis en 8 zones |
+| [MVP Scope](docs/MVP-scope.md) | Classification des 155 critères d'acceptation (MVP Core / Hardening / Post-MVP) et périmètre Lot 0 |
+| [Critères d'acceptation](docs/ac/README.md) | 155 ACs en format Given/When/Then, répartis en 8 zones |
 
 ### Zones de critères d'acceptation
 
 | Zone | Sujet | ACs |
 |---|---|---|
-| [Z1](docs/ac/Z1.md) | Transitions Mastery & répétition espacée | 28 |
+| [Z1](docs/ac/Z1.md) | Transitions Mastery & répétition espacée | 26 |
 | [Z2](docs/ac/Z2.md) | Pipeline J0 — erreurs & timeouts | 14 |
-| [Z3](docs/ac/Z3.md) | Validation HITL (Human-in-the-loop) | 25 |
-| [Z4](docs/ac/Z4.md) | Lazy generation, concurrence & cache | 18 |
-| [Z5](docs/ac/Z5.md) | Versioning chapitre & identité item | 12 |
-| [Z6](docs/ac/Z6.md) | Emploi du temps, notifications & engagement parent | 54 |
-| [Z7](docs/ac/Z7.md) | Routine de soirée & orchestration | 26 |
+| [Z3](docs/ac/Z3.md) | Validation HITL (Human-in-the-loop) | 17 |
+| [Z4](docs/ac/Z4.md) | Lazy generation, concurrence & cache | 13 |
+| [Z5](docs/ac/Z5.md) | Versioning chapitre & identité item | 10 |
+| [Z6](docs/ac/Z6.md) | Emploi du temps, notifications & engagement parent | 43 |
+| [Z7](docs/ac/Z7.md) | Routine de soirée & orchestration | 24 |
 | [Z8](docs/ac/Z8.md) | Onboarding & première utilisation | 8 |
 
 ## Chapitres pilotes (MVP)
