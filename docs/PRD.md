@@ -114,17 +114,17 @@ Le MVP complet représente **171 ACs** répartis en 8 zones de risque, classifi�
 
 | Zone | Retenus | Différés | Ratio |
 |---|---|---|---|
-| Z1 Mastery | 17 | 11 | 61% |
-| Z2 Pipeline | 10 | 4 | 71% |
-| Z3 HITL | 8 | 17 | 32% |
-| Z4 Lazy gen | 5 | 13 | 28% |
-| Z5 Revision | 3 | 9 | 25% |
-| Z6 Schedule | 5 | 49 | 9% |
+| Z1 Mastery | 15 | 13 | 54% |
+| Z2 Pipeline | 10 | 8 | 56% |
+| Z3 HITL | 8 | 9 | 47% |
+| Z4 Lazy gen | 5 | 12 | 29% |
+| Z5 Revision | 3 | 8 | 27% |
+| Z6 Schedule | 5 | 41 | 11% |
 | Z7 Routine | 2 | 24 | 8% |
 | Z8 Onboarding | 5 | 3 | 63% |
-| **Total** | **55** | **130** | **30%** |
+| **Total** | **53** | **118** | **31%** |
 
-**Priorités internes :** P1 (33 ACs) = la boucle fonctionne · P2 (22 ACs) = expérience quotidienne complète.
+**Priorités internes :** P1 (33 ACs) = la boucle fonctionne · P2 (20 ACs) = expérience quotidienne complète.
 
 **Coupé (reporté au MVP) :** multi-utilisateur, notifications push, emploi du temps, orchestration de soirée, RGPD J+30, admin backoffice, mode vacances, fiches PDF.
 
