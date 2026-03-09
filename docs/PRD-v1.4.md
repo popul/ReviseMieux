@@ -16,7 +16,7 @@
 
 1. [Résumé produit](#1-résumé-produit)
 2. [Objectifs, promesse, principes](#2-objectifs-promesse-principes)
-3. [Périmètre MVP](#3-périmètre-mvp)
+3. [Périmètre & séquencement](#3-périmètre--séquencement)
 4. [Personas](#4-personas)
 5. [Parcours utilisateurs](#5-parcours-utilisateurs)
 6. [Tags — Spécification complète](#6-tags--spécification-complète)
@@ -36,7 +36,6 @@
 20. [Questions §16 tranchées](#20-questions-16-tranchées-v14)
 21. [Risques & mitigations](#21-risques--mitigations)
 22. [Machines à états formelles](#22-machines-à-états-formelles)
-23. [Lot 0 — Phases d'implémentation](#23-lot-0--phases-dimplémentation)
 
 ---
 
@@ -87,7 +86,9 @@ Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schém
 
 ---
 
-## 3. Périmètre MVP
+## 3. Périmètre & séquencement
+
+### 3.1 Périmètre MVP (produit complet)
 
 | ✅ Inclus | ❌ Exclu |
 |---|---|
@@ -108,6 +109,77 @@ Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schém
 | **Révision proactive dès le soir** après chaque prise de cours, même sans date de contrôle. | |
 | **Anticipation interros surprises** : révision ciblée la veille de chaque cours. | |
 | **Exams multi-chapitres** : un contrôle peut couvrir plusieurs leçons. | |
+
+Le MVP complet représente **185 ACs** répartis en 8 zones de risque, classifiés en MVP Core (122), MVP Hardening (48) et Post-MVP (15). Voir `MVP-scope-v1.4.md` pour le détail par AC.
+
+### 3.2 Lot 0 — Pré-MVP (version locale père-fils)
+
+> Version locale pour un binôme père-fils, validant la boucle pédagogique fondamentale sur les 4 packs pilotes. **55 ACs retenus sur 185 (30%)**, tous extraits de MVP Core.
+
+| Zone | Retenus | Différés | Ratio |
+|---|---|---|---|
+| Z1 Mastery | 17 | 11 | 61% |
+| Z2 Pipeline | 10 | 4 | 71% |
+| Z3 HITL | 8 | 17 | 32% |
+| Z4 Lazy gen | 5 | 13 | 28% |
+| Z5 Revision | 3 | 9 | 25% |
+| Z6 Schedule | 5 | 49 | 9% |
+| Z7 Routine | 2 | 24 | 8% |
+| Z8 Onboarding | 5 | 3 | 63% |
+| **Total** | **55** | **130** | **30%** |
+
+**Priorités internes :** P1 (33 ACs) = la boucle fonctionne · P2 (22 ACs) = expérience quotidienne complète.
+
+**Coupé (reporté au MVP) :** multi-utilisateur, notifications push, emploi du temps, orchestration de soirée, RGPD J+30, admin backoffice, mode vacances, fiches PDF.
+
+Le tag Lot 0 (P1/P2/—) est porté par chaque AC dans les fichiers `docs/ac/Z*.md`.
+
+### 3.3 Phases d'implémentation Lot 0
+
+#### Phase 0 — Fondations
+
+Créer les artefacts d'ancrage **avant toute fonctionnalité** :
+1. **Schéma de base de données** — traduire le §16 en schéma exécutable, avec les corrections INC-2 à INC-10 déjà appliquées.
+2. **Contrat d'interface** — les routes d'échange entre l'app mobile et le serveur.
+3. **Données de référence** — les 27 templates, les 4 packs avec leurs lexiques et concept_tags.
+4. **Prompts LLM versionnés** — les prompts du pipeline (extraction items, vérification fidélité, regroupement notions, instanciation questions).
+5. **Données de test** — chapitre démo (8 items statiques), fixtures pour les edge cases mastery.
+
+#### Phase 1 — Le moteur (Z1 P1 + Z4 core)
+
+1. Machine à états mastery (Z1-AC01→AC07c, AC09, AC13, AC14)
+2. Calcul de `next_due_at` (spaced repetition §17.2)
+3. Scoring (KEYWORDS, MCQ, SHORT_ANSWER)
+4. Composition de session (algorithme 70/20/10, §17.1)
+5. Reprise de session interrompue (Z4-AC06)
+6. Feedback après réponse (Z4-AC12 simplifié)
+
+> **Critère de validation :** le fils peut jouer une session sur le chapitre démo et voir sa maîtrise évoluer correctement.
+
+#### Phase 2 — Le pipeline (Z2 + Z5 + Z7-AC17)
+
+1. Upload de photos → stockage
+2. OCR par page → texte brut + confidence
+3. Génération d'items par le LLM → Items structurés avec tags
+4. Regroupement en Notions (Z7-AC17)
+5. Streaming de la carte de leçon (Z2-AC10)
+6. Gestion des erreurs : page en échec (Z2-AC02/04/05), 0 items (Z2-AC07)
+7. Identité canonique des items (Z5-AC01)
+
+> **Critère de validation :** le fils prend en photo une page de son cahier, la carte de leçon apparaît avec les items regroupés par notion.
+
+#### Phase 3 — L'expérience complète (P2)
+
+1. Validation HITL (Z3-AC01→AC05, AC09, AC10)
+2. Plafond mastery items non validés (Z1-AC15)
+3. Scoring avancé : RUBRIC (Z1-AC10), NUMERIC avec unité (Z1-AC11), KEYWORDS N-1 (Z1-AC12)
+4. Exam + resserrement (Z1-AC08, Z6-AC11)
+5. Mock exam (Z4-AC10)
+6. Session evening_first (Z6-AC05/AC06)
+7. Vue par notion (Z7-AC18)
+8. Onboarding complet (Z8-AC01→AC04, AC08)
+
+> **Critère de validation :** le fils utilise l'app quotidiennement pendant 1 semaine sur un vrai chapitre, avec un exam posé.
 
 ---
 
@@ -904,7 +976,7 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 
 ## 22. Machines à états formelles
 
-Ces machines à états formalisent les transitions de statut des entités principales. Elles doivent être respectées dès le Lot 0.
+Ces machines à états formalisent les transitions de statut des entités principales. Elles doivent être respectées dès le Lot 0 (§3.2).
 
 ### Session
 
@@ -957,55 +1029,6 @@ UNKNOWN → FRAGILE → OK → SOLID
 - SOLID → OK directement, pas FRAGILE (Z1-AC05)
 
 ---
-
-## 23. Lot 0 — Phases d'implémentation
-
-Le Lot 0 est une version locale pour un binôme père-fils, validant la boucle pédagogique fondamentale sur les 4 packs pilotes. 55 ACs retenus sur 185 (voir AC-v1.4.md pour le détail par AC).
-
-### Phase 0 — Fondations
-
-Créer les artefacts d'ancrage **avant toute fonctionnalité** :
-1. **Schéma de base de données** — traduire le §16 en schéma exécutable, avec les corrections INC-2 à INC-10 déjà appliquées.
-2. **Contrat d'interface** — les routes d'échange entre l'app mobile et le serveur.
-3. **Données de référence** — les 27 templates, les 4 packs avec leurs lexiques et concept_tags.
-4. **Prompts LLM versionnés** — les prompts du pipeline (extraction items, vérification fidélité, regroupement notions, instanciation questions).
-5. **Données de test** — chapitre démo (8 items statiques), fixtures pour les edge cases mastery.
-
-### Phase 1 — Le moteur (Z1 P1 + Z4 core)
-
-1. Machine à états mastery (Z1-AC01→AC07c, AC09, AC13, AC14)
-2. Calcul de `next_due_at` (spaced repetition §17.2)
-3. Scoring (KEYWORDS, MCQ, SHORT_ANSWER)
-4. Composition de session (algorithme 70/20/10, §17.1)
-5. Reprise de session interrompue (Z4-AC06)
-6. Feedback après réponse (Z4-AC12 simplifié)
-
-> **Critère de validation :** le fils peut jouer une session sur le chapitre démo et voir sa maîtrise évoluer correctement.
-
-### Phase 2 — Le pipeline (Z2 + Z5 + Z7-AC17)
-
-1. Upload de photos → stockage
-2. OCR par page → texte brut + confidence
-3. Génération d'items par le LLM → Items structurés avec tags
-4. Regroupement en Notions (Z7-AC17)
-5. Streaming de la carte de leçon (Z2-AC10)
-6. Gestion des erreurs : page en échec (Z2-AC02/04/05), 0 items (Z2-AC07)
-7. Identité canonique des items (Z5-AC01)
-
-> **Critère de validation :** le fils prend en photo une page de son cahier, la carte de leçon apparaît avec les items regroupés par notion.
-
-### Phase 3 — L'expérience complète (P2)
-
-1. Validation HITL (Z3-AC01→AC05, AC09, AC10)
-2. Plafond mastery items non validés (Z1-AC15)
-3. Scoring avancé : RUBRIC (Z1-AC10), NUMERIC avec unité (Z1-AC11), KEYWORDS N-1 (Z1-AC12)
-4. Exam + resserrement (Z1-AC08, Z6-AC11)
-5. Mock exam (Z4-AC10)
-6. Session evening_first (Z6-AC05/AC06)
-7. Vue par notion (Z7-AC18)
-8. Onboarding complet (Z8-AC01→AC04, AC08)
-
-> **Critère de validation :** le fils utilise l'app quotidiennement pendant 1 semaine sur un vrai chapitre, avec un exam posé.
 
 ---
 
