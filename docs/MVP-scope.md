@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Total ACs** | 155 (8 zones) · dont **53 Lot 0** (33 P1 + 20 P2) |
+| **Total ACs** | 171 (8 zones) · dont **53 Lot 0** (33 P1 + 20 P2) |
 
 ---
 
@@ -22,7 +22,7 @@
 
 ---
 
-## Z1 — Transitions Mastery (26 ACs)
+## Z1 — Transitions Mastery (28 ACs)
 
 | AC | Titre | Classification | Lot 0 |
 |---|---|---|---|
@@ -52,12 +52,14 @@
 | Z1-AC22 | Bouton « Je ne comprends pas la question » : reformulation | **MVP Core** | — |
 | Z1-AC23 | Réponse partielle encouragée : scoring graduel | **MVP Core** | — |
 | Z1-AC24 | Matrice de transition maîtrise avec hint, clarification et score partiel | **MVP Core** | — |
+| Z1-AC25 | Jugement de confiance (JOL) pour entraîner la métacognition | MVP Hardening | — |
+| Z1-AC26 | Framing growth mindset systématique dans tous les messages | MVP Hardening | — |
 
 > **Note :** Z1-AC19 reclassifié Post-MVP → MVP Core. La descente de difficulté après 3 échecs consécutifs est indispensable pour le public cible (11-15 ans) : sans elle, le cycle de frustration sur un item difficile provoque l'abandon dès la première semaine. Le renvoi vers la carte de leçon et la pause J+2 après 5 échecs transforment un moment d'échec en apprentissage.
 
 ---
 
-## Z2 — Pipeline J0 — Error paths & timeouts (14 ACs)
+## Z2 — Pipeline J0 — Error paths & timeouts (18 ACs)
 
 | AC | Titre | Classification | Lot 0 |
 |---|---|---|---|
@@ -75,6 +77,10 @@
 | Z2-AC12 | Rétention crops alignée RGPD (J+30) | MVP Core | — |
 | Z2-AC13 | Versioning modèle LLM pour reproductibilité | **MVP Core** | — |
 | Z2-AC14 | Pipeline incrémental pour ajout de pages | **MVP Core** | — |
+| Z2-AC15 | Détection et préservation des zones visuelles (dual coding) | MVP Hardening | — |
+| Z2-AC16 | Extraction structure tableaux dessinés (lignes/colonnes) | MVP Hardening | — |
+| Z2-AC17 | Qualité minimale des crops visuels (résolution, cadrage, stockage) | MVP Hardening | — |
+| Z2-AC18 | Rendu des visuels pendant les sessions de révision | MVP Hardening | — |
 
 > **Note :** Z2-AC13 reclassifié Post-MVP → MVP Core. Pour un produit éducatif destiné à des mineurs, la traçabilité des modèles LLM utilisés est une exigence de qualité et de conformité dès le lancement. Sans versioning, un changement de modèle silencieux peut dégrader la qualité des items sans diagnostic possible.
 
@@ -104,7 +110,7 @@
 
 ---
 
-## Z4 — Lazy generation — Concurrence & cache (13 ACs)
+## Z4 — Lazy generation — Concurrence & cache (17 ACs)
 
 | AC | Titre | Classification | Lot 0 |
 |---|---|---|---|
@@ -121,10 +127,14 @@
 | Z4-AC11 | Session viable sur petit chapitre (< 5 items) | MVP Hardening | — |
 | Z4-AC12 | Contenu fallback si LLM indisponible | MVP Hardening | — |
 | Z4-AC13 | État « tout à jour » : session consolidation optionnelle | Post-MVP | — |
+| Z4-AC14 | Sélection du gabarit adaptée à l'état de maîtrise | MVP Hardening | — |
+| Z4-AC15 | Interleaving inter-chapitres dans les sessions daily | MVP Hardening | — |
+| Z4-AC16 | Calibration dynamique de la difficulté (cible 70-85% réussite) | MVP Hardening | — |
+| Z4-AC17 | Génération de gabarits visuels par le LLM | MVP Hardening | — |
 
 ---
 
-## Z5 — ChapterRevision — Item identity & Mastery inheritance (10 ACs)
+## Z5 — ChapterRevision — Item identity & Mastery inheritance (11 ACs)
 
 | AC | Titre | Classification | Lot 0 |
 |---|---|---|---|
@@ -138,10 +148,11 @@
 | Z5-AC08 | Alerte items haute maîtrise absents de la nouvelle révision | MVP Hardening | — |
 | Z5-AC09 | Ajout incrémental de pages sans nouvelle révision | **MVP Core** | — |
 | Z5-AC10 | Pas de re-OCR des pages existantes lors d'un ajout | **MVP Core** | — |
+| Z5-AC11 | Bouton « Ajouter des pages » et parcours UI d'ajout incrémental | MVP Hardening | — |
 
 ---
 
-## Z6 — Schedule, Notifications, Engagement & Parent trust (43 ACs)
+## Z6 — Schedule, Notifications, Engagement & Parent trust (46 ACs)
 
 | AC | Titre | Classification | Lot 0 |
 |---|---|---|---|
@@ -188,10 +199,13 @@
 | Z6-AC41 | Zone scolaire et calendrier de vacances intégré | **MVP Core** | — |
 | Z6-AC42 | Mode vacances : jours et créneau de révision | **MVP Core** | — |
 | Z6-AC43 | Créneaux d'indisponibilité récurrents (sport, activités) | **MVP Core** | — |
+| Z6-AC44 | Liaison parent-élève via code 6 caractères | MVP Hardening | — |
+| Z6-AC45 | Mode vacances : configuration du rythme de révision | MVP Hardening | — |
+| Z6-AC46 | Interaction scheduler avec les créneaux d'indisponibilité | MVP Hardening | — |
 
 ---
 
-## Z7 — Routine de soirée & Orchestration (24 ACs)
+## Z7 — Routine de soirée & Orchestration (26 ACs)
 
 | AC | Titre | Classification | Lot 0 |
 |---|---|---|---|
@@ -219,6 +233,8 @@
 | Z7-AC22 | Bouton « S'avancer » : réviser les items des jours suivants | **MVP Core** | — |
 | Z7-AC23 | Fiches de révision PDF pour heures d'étude (hors téléphone) | **MVP Core** | — |
 | Z7-AC24 | Report des résultats papier (checklist post-étude) | **MVP Core** | — |
+| Z7-AC25 | Nudge bienveillant si session tardive (après 21h) | MVP Hardening | — |
+| Z7-AC26 | Report des résultats papier : impact maîtrise et vérification croisée | **MVP Core** | — |
 
 ---
 
@@ -241,10 +257,10 @@
 
 | Classification | Z1 | Z2 | Z3 | Z4 | Z5 | Z6 | Z7 | Z8 | **Total** |
 |---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| **MVP Core** | 20 | 13 | 8 | 6 | 8 | 26 | 16 | 8 | **105** |
-| **MVP Hardening** | 8 | 5 | 6 | 9 | 2 | 12 | 9 | 0 | **51** |
+| **MVP Core** | 20 | 13 | 8 | 6 | 8 | 26 | 17 | 8 | **106** |
+| **MVP Hardening** | 8 | 5 | 6 | 9 | 3 | 15 | 9 | 0 | **55** |
 | **Post-MVP** | 0 | 0 | 3 | 2 | 0 | 5 | 0 | 0 | **10** |
-| **Total** | 28 | 18 | 17 | 17 | 10 | 43 | 25 | 8 | **166** |
+| **Total** | 28 | 18 | 17 | 17 | 11 | 46 | 26 | 8 | **171** |
 | **Lot 0 P1** | 12 | 5 | 1 | 4 | 3 | 4 | 1 | 3 | **33** |
 | **Lot 0 P2** | 3 | 5 | 7 | 1 | 0 | 1 | 1 | 2 | **20** |
 | **Lot 0 Total** | 15 | 10 | 8 | 5 | 3 | 5 | 2 | 5 | **53** |

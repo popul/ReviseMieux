@@ -4,7 +4,7 @@
 >
 > | | |
 > |---|---|
-> | **Périmètre** | 8 zones critiques · 166 AC en format Given/When/Then |
+> | **Périmètre** | 8 zones critiques · 171 AC en format Given/When/Then |
 > | **Usage** | Chaque zone est un fichier séparé pour un chargement ciblé en contexte agent |
 
 ---
@@ -17,17 +17,17 @@
 | Z2 | Pipeline J0 — Error paths & timeouts | Très élevé | 18 | [Z2.md](Z2.md) |
 | Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 17 | [Z3.md](Z3.md) |
 | Z4 | Lazy generation — Concurrence, cache & session experience | Élevé | 17 | [Z4.md](Z4.md) |
-| Z5 | ChapterRevision — Identité Item & héritage | Élevé | 10 | [Z5.md](Z5.md) |
-| Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 43 | [Z6.md](Z6.md) |
-| Z7 | Routine de soirée & Orchestration | Très élevé | 25 | [Z7.md](Z7.md) |
+| Z5 | ChapterRevision — Identité Item & héritage | Élevé | 11 | [Z5.md](Z5.md) |
+| Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 46 | [Z6.md](Z6.md) |
+| Z7 | Routine de soirée & Orchestration | Très élevé | 26 | [Z7.md](Z7.md) |
 | Z8 | Onboarding & First Use Experience | Très élevé | 8 | [Z8.md](Z8.md) |
-| | **Total** | | **166** | |
+| | **Total** | | **171** | |
 
 ---
 
 ## Lot 0 — Périmètre pré-MVP
 
-> **53 ACs retenus sur 166 (32%)** — Version locale pour un binôme père-fils, validant la boucle pédagogique fondamentale sur les 4 packs pilotes.
+> **53 ACs retenus sur 171 (31%)** — Version locale pour un binôme père-fils, validant la boucle pédagogique fondamentale sur les 4 packs pilotes.
 
 | Zone | Retenus | Différés | Ratio |
 |---|---|---|---|
@@ -35,11 +35,11 @@
 | Z2 Pipeline | 10 | 8 | 56% |
 | Z3 HITL | 8 | 9 | 47% |
 | Z4 Lazy gen | 5 | 12 | 29% |
-| Z5 Revision | 3 | 7 | 30% |
-| Z6 Schedule | 5 | 38 | 12% |
-| Z7 Routine | 2 | 23 | 8% |
+| Z5 Revision | 3 | 8 | 27% |
+| Z6 Schedule | 5 | 41 | 11% |
+| Z7 Routine | 2 | 24 | 8% |
 | Z8 Onboarding | 5 | 3 | 63% |
-| **Total** | **53** | **113** | **32%** |
+| **Total** | **53** | **118** | **31%** |
 
 **Priorités internes :** P1 (33 ACs) = la boucle fonctionne · P2 (20 ACs) = expérience quotidienne complète.
 

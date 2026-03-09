@@ -2,12 +2,12 @@
 
 ## Projet
 
-Révise Mieux est un SaaS éducatif qui transforme des photos de cahier en assistant de révision pour collégiens. Le dépôt contient pour l'instant uniquement les spécifications (PRD + 166 critères d'acceptation). L'implémentation n'a pas encore démarré.
+Révise Mieux est un SaaS éducatif qui transforme des photos de cahier en assistant de révision pour collégiens. Le dépôt contient pour l'instant uniquement les spécifications (PRD + 171 critères d'acceptation). L'implémentation n'a pas encore démarré.
 
 ## Documents clés
 
 - `docs/PRD.md` — PRD complet (personas, pipeline, architecture, modèle de données, algorithmes, SLA)
-- `docs/MVP-scope.md` — Classification des 166 ACs et périmètre Lot 0 (53 ACs)
+- `docs/MVP-scope.md` — Classification des 171 ACs et périmètre Lot 0 (53 ACs)
 - `docs/ac/Z1.md` à `docs/ac/Z8.md` — Critères d'acceptation détaillés par zone (format Given/When/Then)
 
 ## Concepts métier essentiels

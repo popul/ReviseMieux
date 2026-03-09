@@ -106,11 +106,11 @@ Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schém
 | **Anticipation interros surprises** : révision ciblée la veille de chaque cours. | |
 | **Exams multi-chapitres** : un contrôle peut couvrir plusieurs leçons. | |
 
-Le MVP complet représente **166 ACs** répartis en 8 zones de risque, classifiés en MVP Core (105), MVP Hardening (47) et Post-MVP (10). Voir `MVP-scope.md` pour le détail par AC.
+Le MVP complet représente **171 ACs** répartis en 8 zones de risque, classifiés en MVP Core (105), MVP Hardening (47) et Post-MVP (10). Voir `MVP-scope.md` pour le détail par AC.
 
 ### 3.2 Lot 0 — Pré-MVP (version locale père-fils)
 
-> Version locale pour un binôme père-fils, validant la boucle pédagogique fondamentale sur les 4 packs pilotes. **53 ACs retenus sur 166 (32%)**, tous extraits de MVP Core.
+> Version locale pour un binôme père-fils, validant la boucle pédagogique fondamentale sur les 4 packs pilotes. **53 ACs retenus sur 171 (31%)**, tous extraits de MVP Core.
 
 | Zone | Retenus | Différés | Ratio |
 |---|---|---|---|
@@ -781,7 +781,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 | **ValidationTask** | `id` · `item_id` · `crop_url` · `suggestion` · `priority` · `status` · `resolved_by?` · `source (uncertainty_detection\|student_report\|anomaly_detection\|coherence_check\|fidelity_check)` · `student_note?` |
 | **Template** | `id (template_id)` · `name` · `version` · `question_type` · `difficulty` · `eligibility{}` · `variables[]` · `prompt_template` · `grading{}` · `uses_visual? (boolean, default false)` · `visual_interaction_type? (label_completion\|describe\|matching\|read_value\|identify_zone\|null)` |
 | **Question** | `id` · `template_id` · `item_id` · `visual_block_id?` · `rendered_prompt` · `rendered_visual_url?` (URL du visuel transformé : légendes masquées, zones floutées, etc.) · `expected_answer{}` · `grading_policy` · `clarification? { intent: string, starter_hint: string }` · `llm_model_version?` · `prompt_template_version?` · `times_seen? (default 0)` (incrémenté à chaque présentation en session, utilisé par Z4-AC15 pour le renouvellement) |
-| **Attempt** | `id` · `question_id` · `user_id` · `answer` · `score` · `feedback` · `created_at` · `source (interactive\|paper_report)` (défaut interactive) · `rapid_response? (boolean, default false)` · `response_time_ms?` (mesuré côté client, du rendu de la question au tap « Valider ») · `hint_used? (boolean)` · `clarification_used? (boolean)` |
+| **Attempt** | `id` · `question_id` · `user_id` · `answer` · `score` · `feedback` · `created_at` · `source (interactive\|paper_report)` (défaut interactive) · `rapid_response? (boolean, default false)` · `response_time_ms?` (mesuré côté client, du rendu de la question au tap « Valider ») · `hint_used? (boolean)` · `clarification_used? (boolean)` · `confidence_level? (1\|2\|3\|null)` (jugement de confiance JOL, cf. Z1-AC25 ; null si non collecté — échantillonnage 1/3) |
 | **Mastery** | `id` · `user_id` · `item_id` · `state (UNKNOWN\|FRAGILE\|OK\|SOLID)` · `next_due_at` · `last_review_at` · `last_success_at?` · `consecutive_successes` · `consecutive_failures? (default 0)` (pour Z1-AC21 descente difficulté) · `current_difficulty? (default null)` (override de difficulté par Z1-AC21, null = difficulté template standard) |
 | **Session** | `id` · `user_id` · `chapter_ids[]` · `type (daily\|diagnostic\|mock_exam\|evening_first\|pre_class\|paper_report\|consolidation_optional)` · `trigger (manual\|scheduled\|notification)` · `questions[]` · `started_at` · `completed_at?` · `current_question_index (default 0)` · `includes_pre_class? (boolean)` |
 | **EveningPlan** | `id` · `user_id` · `date` · `steps[] { type (capture\|evening_first\|daily\|pre_class), subject_label, session_id?, estimated_duration_min, status (pending\|in_progress\|completed\|skipped) }` · `total_estimated_min` · `mode (full\|express)` · `completed_at?` · `completion_rate` · `expires_at` |
