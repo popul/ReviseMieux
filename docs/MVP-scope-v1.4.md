@@ -213,7 +213,7 @@
 | Z6-AC47 | Matière sans emploi du temps : mode dégradé par matière | **MVP Core** | — |
 | Z6-AC48 | Multi-exam overlapping : reset + recompression entre exams | **MVP Core** | — |
 | Z6-AC49 | Proposition contrôle blanc : J-3 auto + à la demande | **MVP Core** | — |
-| Z6-AC50 | Parent multi-enfants : une notification par enfant | MVP Hardening | — |
+| Z6-AC50 | Parent multi-enfants : une notification par enfant | **MVP Hardening** | — |
 | Z6-AC51 | Timezone locale : détection automatique et configuration | **MVP Core** | — |
 | Z6-AC52 | Zone scolaire et calendrier de vacances intégré | **MVP Core** | — |
 | Z6-AC53 | Mode vacances : jours et créneau de révision | **MVP Core** | — |
@@ -228,26 +228,26 @@
 | Z7-AC01 | Calcul automatique du plan de soirée (EveningPlan) | **MVP Core** | — |
 | Z7-AC02 | Dashboard soirée contextuel (écran d'accueil du soir) | **MVP Core** | — |
 | Z7-AC03 | Séquencement multi-matières dans le plan | **MVP Core** | — |
-| Z7-AC04 | Estimation de durée visible avant le début | MVP Core | — |
-| Z7-AC05 | État « fini pour ce soir » et écran de clôture | MVP Core | — |
-| Z7-AC06 | Guidage capture in-app (matières du jour non capturées) | MVP Core | — |
-| Z7-AC07 | Règles de séquencement des types de session | MVP Core | — |
-| Z7-AC08 | Mode express pour soirée courte | MVP Core | — |
-| Z7-AC09 | Complétion partielle et reprise le lendemain | MVP Hardening | — |
-| Z7-AC10 | État « rien à faire ce soir » | MVP Hardening | — |
-| Z7-AC11 | Comportement week-end (samedi/dimanche) | MVP Hardening | — |
-| Z7-AC12 | Guidage de capture lié au cours de demain | MVP Hardening | — |
-| Z7-AC13 | Reconnaissance des devoirs (coexistence) | MVP Hardening | — |
-| Z7-AC14 | Arc émotionnel de la soirée (accueil, transitions, clôture) | MVP Hardening | — |
-| Z7-AC15 | Notification parent « routine terminée » (signal positif) | MVP Core | — |
-| Z7-AC16 | Onboarding de la première soirée | MVP Core | — |
+| Z7-AC04 | Estimation de durée visible avant le début | **MVP Core** | — |
+| Z7-AC05 | État « fini pour ce soir » et écran de clôture | **MVP Core** | — |
+| Z7-AC06 | Guidage capture in-app (matières du jour non capturées) | **MVP Core** | — |
+| Z7-AC07 | Règles de séquencement des types de session | **MVP Core** | — |
+| Z7-AC08 | Mode express pour soirée courte | **MVP Core** | — |
+| Z7-AC09 | Complétion partielle et reprise le lendemain | **MVP Hardening** | — |
+| Z7-AC10 | État « rien à faire ce soir » | **MVP Hardening** | — |
+| Z7-AC11 | Comportement week-end (samedi/dimanche) | **MVP Hardening** | — |
+| Z7-AC12 | Guidage de capture lié au cours de demain | **MVP Hardening** | — |
+| Z7-AC13 | Reconnaissance des devoirs (coexistence) | **MVP Hardening** | — |
+| Z7-AC14 | Arc émotionnel de la soirée (accueil, transitions, clôture) | **MVP Hardening** | — |
+| Z7-AC15 | Notification parent « routine terminée » (signal positif) | **MVP Core** | — |
+| Z7-AC16 | Onboarding de la première soirée | **MVP Core** | — |
 | Z7-AC17 | Notions : regroupement des items par concept_tag | **MVP Core** | P1 |
 | Z7-AC18 | Vue chapitre par notion (accordéon + maîtrise) | **MVP Core** | P2 |
 | Z7-AC19 | Périmètre exam : sélection par notion (auto-scope + ajustement) | **MVP Core** | — |
 | Z7-AC20 | Auto-suggestion chapitres et notions à la création d'exam | **MVP Core** | — |
 | Z7-AC21 | Vue « Angles morts » : contenu sans contrôle à venir | **MVP Core** | — |
-| Z7-AC22 | Prédiction interro surprise : score de probabilité par matière | MVP Hardening | — |
-| Z7-AC23 | Alerte croisée « notion fragile × jamais testée en contrôle » | MVP Hardening | — |
+| Z7-AC22 | Prédiction interro surprise : score de probabilité par matière | **MVP Hardening** | — |
+| Z7-AC23 | Alerte croisée « notion fragile × jamais testée en contrôle » | **MVP Hardening** | — |
 | Z7-AC24 | Bouton « S'avancer » : réviser les items des jours suivants | **MVP Core** | — |
 | Z7-AC25 | Fiches de révision PDF pour heures d'étude (hors téléphone) | **MVP Core** | — |
 | Z7-AC26 | Report des résultats papier (checklist post-étude) | **MVP Core** | — |
