@@ -106,7 +106,7 @@ Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schém
 | **Anticipation interros surprises** : révision ciblée la veille de chaque cours. | |
 | **Exams multi-chapitres** : un contrôle peut couvrir plusieurs leçons. | |
 
-Le MVP complet représente **171 ACs** répartis en 8 zones de risque, classifiés en MVP Core (105), MVP Hardening (47) et Post-MVP (10). Voir `MVP-scope.md` pour le détail par AC.
+Le MVP complet représente **171 ACs** répartis en 8 zones de risque, classifiés en MVP Core (106), MVP Hardening (55) et Post-MVP (10). Voir `MVP-scope.md` pour le détail par AC.
 
 ### 3.2 Lot 0 — Pré-MVP (version locale père-fils)
 
