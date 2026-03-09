@@ -6,8 +6,8 @@ Révise Mieux est un SaaS éducatif qui transforme des photos de cahier en assis
 
 ## Documents clés
 
-- `docs/PRD-v1.4.md` — PRD complet (personas, pipeline, architecture, modèle de données, algorithmes, SLA)
-- `docs/MVP-scope-v1.4.md` — Classification des 185 ACs et périmètre Lot 0 (55 ACs)
+- `docs/PRD.md` — PRD complet (personas, pipeline, architecture, modèle de données, algorithmes, SLA)
+- `docs/MVP-scope.md` — Classification des 185 ACs et périmètre Lot 0 (55 ACs)
 - `docs/ac/Z1.md` à `docs/ac/Z8.md` — Critères d'acceptation détaillés par zone (format Given/When/Then)
 
 ## Concepts métier essentiels

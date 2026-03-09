@@ -1,14 +1,10 @@
-# Révise Mieux — PRD v1.4
+# Révise Mieux — PRD
 
 > **Product Requirements Document — MVP Collège**
 >
 > | | |
 > |---|---|
-> | **Version** | 1.4 |
-> | **Date** | 6 mars 2026 |
 > | **Statut** | Draft — Review interne |
-> | **Évolutions v1.4 vs v1.3** | Emploi du temps élève · Révision proactive dès le soir · Anticipation interros surprises · Notifications saisie/révision · Exam multi-chapitres |
-> | **Évolutions v1.3 vs v1.2** | Pipeline J0 détaillé · SLA par étape · Lazy generation · Stratégie cache LLM · Retry/fallback OCR · Versioning chapitre |
 
 ---
 
@@ -110,7 +106,7 @@ Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schém
 | **Anticipation interros surprises** : révision ciblée la veille de chaque cours. | |
 | **Exams multi-chapitres** : un contrôle peut couvrir plusieurs leçons. | |
 
-Le MVP complet représente **185 ACs** répartis en 8 zones de risque, classifiés en MVP Core (122), MVP Hardening (48) et Post-MVP (15). Voir `MVP-scope-v1.4.md` pour le détail par AC.
+Le MVP complet représente **185 ACs** répartis en 8 zones de risque, classifiés en MVP Core (122), MVP Hardening (48) et Post-MVP (15). Voir `MVP-scope.md` pour le détail par AC.
 
 ### 3.2 Lot 0 — Pré-MVP (version locale père-fils)
 
@@ -325,7 +321,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 
 ### 7.2 Moteur d'exploitation (lazy generation)
 
-> **Changement v1.3 — Lazy generation :** les Questions ne sont plus pré-générées en masse après ingestion. Elles sont instanciées à la demande lors de la composition de session (ou du contrôle blanc). Un pool de candidats est mis en cache par chapitre avec TTL 24h. Cela réduit le coût LLM d'un facteur 5–10x et simplifie le pipeline J0.
+> **Lazy generation :** les Questions ne sont plus pré-générées en masse après ingestion. Elles sont instanciées à la demande lors de la composition de session (ou du contrôle blanc). Un pool de candidats est mis en cache par chapitre avec TTL 24h. Cela réduit le coût LLM d'un facteur 5–10x et simplifie le pipeline J0.
 
 1. **Matching :** filtre des templates éligibles via type + tags + confiance + état validation.
 2. **Composition session :** sélection selon politique 70/20/10 + contraintes pack (1 doc max, 1 rédaction max).
@@ -433,7 +429,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 
 ## 10. Pipeline J0 — Flux de données détaillé
 
-> **Nouveau en v1.3.** Ce pipeline explicite les étapes, la parallélisation possible, les points de latence critiques et les dépendances bloquantes vs non-bloquantes.
+> Ce pipeline explicite les étapes, la parallélisation possible, les points de latence critiques et les dépendances bloquantes vs non-bloquantes.
 
 | Étape | Entrée | Sortie | Bloquant ? | SLA cible |
 |---|---|---|---|---|
@@ -493,7 +489,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 
 ## 13. Retry / Fallback OCR
 
-> **Nouveau en v1.3.** L'OCR manuscrit est le point de fragilité principal du pipeline. Une stratégie explicite de retry et de fallback est nécessaire pour éviter des items incorrects qui contaminent la maîtrise de l'élève.
+> L'OCR manuscrit est le point de fragilité principal du pipeline. Une stratégie explicite de retry et de fallback est nécessaire pour éviter des items incorrects qui contaminent la maîtrise de l'élève.
 
 | Condition | Action | Impact utilisateur |
 |---|---|---|
@@ -506,7 +502,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 
 ### 13.1 Vérification croisée LLM (fidélité sémantique)
 
-> **Nouveau en v1.4.** L'OCR peut être correct mais l'item généré par le LLM peut déformer le sens du cours. Un second appel LLM compare chaque item au texte OCR source.
+> L'OCR peut être correct mais l'item généré par le LLM peut déformer le sens du cours. Un second appel LLM compare chaque item au texte OCR source.
 
 - **Étape 7b du pipeline** : après génération des items, un prompt dédié évalue la fidélité sémantique de chaque item par rapport au texte OCR source.
 - Le LLM produit un `fidelity_score` (0–1) et une `fidelity_reason` pour chaque item.
@@ -516,7 +512,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 
 ### 13.2 Cohérence intra-chapitre
 
-> **Nouveau en v1.4.** Les items d'un même chapitre doivent être cohérents entre eux : pas de doublons, pas de contradictions.
+> Les items d'un même chapitre doivent être cohérents entre eux : pas de doublons, pas de contradictions.
 
 - **Étape 7c du pipeline** : après vérification croisée, tous les items du chapitre sont comparés deux à deux.
 - **Doublons** : deux items avec un `term` identique ou une similarité cosinus des `keywords` > 0.9 → le doublon de plus faible confidence est archivé automatiquement.
@@ -525,7 +521,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 
 ### 13.3 Feedback élève sur items
 
-> **Nouveau en v1.4.** L'élève peut signaler une erreur sur un item ou une question à tout moment pendant une session.
+> L'élève peut signaler une erreur sur un item ou une question à tout moment pendant une session.
 
 - **Bouton « Signaler une erreur »** visible sur chaque question et sur chaque item de la carte de leçon.
 - Le signalement crée une `ValidationTask` avec : `source = 'student_report'`, `item_id`, `crop_url` (contexte visuel), texte libre optionnel de l'élève.
@@ -535,7 +531,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 
 ### 13.4 Détection par taux d'échec anormal
 
-> **Nouveau en v1.4.** Un item avec un taux d'échec anormalement élevé est probablement mal extrait.
+> Un item avec un taux d'échec anormalement élevé est probablement mal extrait.
 
 - **Job quotidien** : pour chaque item avec `≥ 5 tentatives`, calcul du taux d'échec sur les 7 derniers jours.
 - **Seuil** : taux d'échec `> 80%` ET `≥ 5 tentatives` → `validation_required = true` avec `anomaly_flag = 'high_failure_rate'`.
@@ -563,7 +559,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 
 ### 14.2 Versioning des chapitres
 
-> **Nouveau en v1.3.** Un élève peut re-uploader des pages (correction d'une photo floue, ajout de pages manquantes). Chaque re-upload crée une **ChapterRevision** immutable. La révision courante est la dernière validée. Les Mastery states sont préservés entre révisions.
+> Un élève peut re-uploader des pages (correction d'une photo floue, ajout de pages manquantes). Chaque re-upload crée une **ChapterRevision** immutable. La révision courante est la dernière validée. Les Mastery states sont préservés entre révisions.
 
 - **ChapterRevision** : `chapter_id` + `revision_number` + `created_at` + `pages[]`.
 - Les Items créés dans une révision antérieure sont **archivés** (non supprimés) pour préserver l'historique de maîtrise.
@@ -666,7 +662,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 
 ### Epic 11 — Emploi du temps, notifications & révision proactive
 
-> **Nouveau en v1.4.** Le service exploite l'emploi du temps de l'élève pour orchestrer deux boucles proactives : (1) notification saisie de cours le soir + révision immédiate, (2) révision d'anticipation la veille de chaque cours.
+> Le service exploite l'emploi du temps de l'élève pour orchestrer deux boucles proactives : (1) notification saisie de cours le soir + révision immédiate, (2) révision d'anticipation la veille de chaque cours.
 
 **Sous-fonctionnalités :**
 
@@ -769,7 +765,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 
 **Contraintes additionnelles :** HG inclut ≥1 exercice document si items document disponibles · PC remonte les questions `unites` si erreurs récurrentes sur les 3 dernières sessions · max 1 rédaction et max 1 `long_problem` par session.
 
-### 17.1b Sessions proactives (nouveau v1.4)
+### 17.1b Sessions proactives
 
 > **Principe :** le service n'attend pas qu'un contrôle soit annoncé pour faire réviser. Chaque cours pris génère une boucle de révision immédiate. L'emploi du temps pilote les rappels et les sessions d'anticipation.
 
@@ -815,7 +811,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 
 **Sans contrôle posé — révision proactive continue :**
 
-> **Changement v1.4 :** l'absence de date de contrôle ne signifie plus « pas de révision ». Le service maintient un cycle de révision continu avec les intervalles standard ci-dessous, renforcé par les sessions `pre_class` la veille de chaque cours (si emploi du temps saisi).
+> L'absence de date de contrôle ne signifie plus « pas de révision ». Le service maintient un cycle de révision continu avec les intervalles standard ci-dessous, renforcé par les sessions `pre_class` la veille de chaque cours (si emploi du temps saisi).
 
 | État | next_due_at |
 |---|---|
@@ -902,11 +898,11 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 
 ---
 
-## 20. Questions §16 tranchées (v1.4)
+## 20. Questions §16 tranchées
 
 | Question | Décision | Justification |
 |---|---|---|
-| **Q1 — Date contrôle obligatoire ?** | **Strongly nudged, pas obligatoire.** | La rendre obligatoire crée de la friction à l'onboarding. Le nudge est répété à J+3 et J+7. **v1.4 :** en l'absence de date, la révision proactive démarre quand même dès J0 soir, avec sessions `pre_class` la veille de chaque cours. L'absence de date ne bloque plus rien. |
+| **Q1 — Date contrôle obligatoire ?** | **Strongly nudged, pas obligatoire.** | La rendre obligatoire crée de la friction à l'onboarding. Le nudge est répété à J+3 et J+7. En l'absence de date, la révision proactive démarre quand même dès J0 soir, avec sessions `pre_class` la veille de chaque cours. L'absence de date ne bloque plus rien. |
 | **Q2 — Suppression photos après extraction ?** | **Suppression automatique à J+30 par défaut, opt-in conservation.** | Réduit l'exposition RGPD sur les données de mineurs. La conservation opt-in est utile pour re-segmentation ou debug. Communiqué clairement à l'onboarding. |
 | **Q3 — Niveau collège ciblé en premier ?** | **4e en priorité.** | La 4e couvre les chapitres pilotes HG (inégalités, féodale) et PC (masse-volume) dans les programmes officiels. Les rubriques de rédaction sont calibrées au niveau 4e. Extension 3e et 5e post-MVP en ajustant les paramètres de rubrique par pack. |
 | **Q4 — Gestion des synonymes ?** | **Pack + admin uniquement en MVP. Pas d'apprentissage progressif.** | L'apprentissage progressif des synonymes introduit un risque de dérive qualité non supervisée. En MVP, l'admin peut enrichir les synonymes par pack après analyse des tentatives. Une roadmap post-MVP inclura la suggestion de synonymes à valider par l'admin. |
@@ -1032,4 +1028,4 @@ UNKNOWN → FRAGILE → OK → SOLID
 
 ---
 
-*Fin du document — Révise Mieux PRD v1.4 · 7 mars 2026*
+*Fin du document — Révise Mieux PRD*

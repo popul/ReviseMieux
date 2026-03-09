@@ -12,8 +12,8 @@ Le dépôt contient actuellement les **spécifications complètes** du produit. 
 
 | Document | Description |
 |---|---|
-| [PRD v1.4](docs/PRD-v1.4.md) | Product Requirements Document complet — personas, parcours, pipeline, architecture, modèle de données, algorithmes, SLA |
-| [MVP Scope v1.6](docs/MVP-scope-v1.4.md) | Classification des 185 critères d'acceptation (MVP Core / Hardening / Post-MVP) et périmètre Lot 0 |
+| [PRD](docs/PRD.md) | Product Requirements Document complet — personas, parcours, pipeline, architecture, modèle de données, algorithmes, SLA |
+| [MVP Scope](docs/MVP-scope.md) | Classification des 185 critères d'acceptation (MVP Core / Hardening / Post-MVP) et périmètre Lot 0 |
 | [Critères d'acceptation](docs/ac/README.md) | 185 ACs en format Given/When/Then, répartis en 8 zones |
 
 ### Zones de critères d'acceptation
