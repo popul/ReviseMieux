@@ -33,6 +33,26 @@
 | Z8 | Onboarding & First Use Experience | Très élevé | 8 |
 | | **Total** | | **185** |
 
+### Lot 0 — Périmètre pré-MVP
+
+> **55 ACs retenus sur 185 (30%)** — Version locale pour un binôme père-fils, validant la boucle pédagogique fondamentale sur les 4 packs pilotes.
+
+| Zone | Retenus | Différés | Ratio |
+|---|---|---|---|
+| Z1 Mastery | 17 | 11 | 61% |
+| Z2 Pipeline | 10 | 4 | 71% |
+| Z3 HITL | 8 | 17 | 32% |
+| Z4 Lazy gen | 5 | 13 | 28% |
+| Z5 Revision | 3 | 9 | 25% |
+| Z6 Schedule | 5 | 49 | 9% |
+| Z7 Routine | 2 | 24 | 8% |
+| Z8 Onboarding | 5 | 3 | 63% |
+| **Total** | **55** | **130** | **30%** |
+
+**Priorités internes :** P1 (33 ACs) = la boucle fonctionne · P2 (22 ACs) = expérience quotidienne complète.
+
+**Coupé (reporté au MVP) :** multi-utilisateur, notifications push, emploi du temps, orchestration de soirée, RGPD J+30, admin backoffice, mode vacances, fiches PDF.
+
 ---
 
 ## Z1 — Transitions Mastery
@@ -46,17 +66,17 @@
 > **Convention timestamps :** Toute tentative met à jour `last_review_at = now`. Si la réponse est correcte (score ≥ 0.7), `last_success_at = now` est également mis à jour. Ces mises à jour s'appliquent indépendamment de la transition d'état. Les mentions explicites de `last_review_at` dans les AC individuels sont des rappels — la règle s'applique systématiquement.
 
 ### Z1-AC01 — Progression UNKNOWN → FRAGILE
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un item en état **UNKNOWN**. |
 | **WHEN** | L'élève répond correctement une fois à une question liée à cet item (score ≥ 0.7, sans aide). |
 | **THEN** | L'état passe à **FRAGILE**. `consecutive_successes = 1`. `next_due_at = now + 1 jour`. |
 
 ### Z1-AC02 — Progression FRAGILE → OK
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un item en état **FRAGILE** avec `consecutive_successes ≥ 1`. |
 | **WHEN** | L'élève répond correctement une fois à une question liée à cet item (score ≥ 0.7, sans aide). |
 | **THEN** | L'état passe à **OK**. `consecutive_successes = 2`. `next_due_at = now + 3 jours` (ajusté par Z1-AC08 si contrôle posé). |
@@ -66,25 +86,25 @@
 > **NOTE :** « Répond correctement » signifie un score ≥ seuil de réussite du pack. Pour les questions NUMERIC avec `unit_required = true`, l'unité fait partie intégrante de la réponse : une valeur juste sans unité est un **échec** (cf. Z1-AC11). Pour les RUBRIC, le seuil est ≥ `seuil_pack` (cf. Z1-AC10). Cette définition de « réponse correcte » s'applique uniformément à tous les AC Z1.
 
 ### Z1-AC03 — Progression OK → SOLID (espacement requis)
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un item en état **OK** avec `consecutive_successes ≥ 2` et `last_success_at` ≥ 24h avant la tentative actuelle. |
 | **WHEN** | L'élève répond correctement à une question liée à cet item (score ≥ 0.7, sans aide). |
 | **THEN** | L'état passe à **SOLID**. `consecutive_successes += 1`. `next_due_at = now + 7 jours` (ajusté par Z1-AC08 si contrôle posé). |
 
 ### Z1-AC04 — Blocage OK → SOLID sans espacement
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un item en état **OK** avec `last_success_at < 24h`. |
 | **WHEN** | L'élève répond correctement à une question liée à cet item dans la même session. |
 | **THEN** | L'état reste **OK**. `consecutive_successes` n'est PAS incrémenté. `next_due_at` n'est PAS modifié. Aucun feedback trompeur n'est affiché. Un message explicatif positif est affiché : « Bonne réponse ! Reviens demain pour verrouiller ce point — ton cerveau a besoin d'une nuit pour bien mémoriser. » Le message apparaît une seule fois par session (pas de spam si plusieurs items OK sont dans ce cas). |
 
 ### Z1-AC05 — Régression SOLID → OK sur échec unique
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un item en état **SOLID** avec `consecutive_successes ≥ 3`. |
 | **WHEN** | L'élève répond incorrectement une fois à une question liée à cet item. |
 | **THEN** | L'état passe à **OK** (pas FRAGILE). `consecutive_successes = 0`. `next_due_at = now + 2 jours` (ajusté par Z1-AC08 si contrôle posé). |
@@ -92,25 +112,25 @@
 > **NOTE :** La régression SOLID saute FRAGILE. Tomber directement en FRAGILE serait punitif et démotivant pour un élève ayant prouvé une maîtrise solide.
 
 ### Z1-AC06 — Régression OK → FRAGILE sur échec
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un item en état **OK**. |
 | **WHEN** | L'élève répond incorrectement à une question liée à cet item. |
 | **THEN** | L'état passe à **FRAGILE**. `consecutive_successes = 0`. `next_due_at = now + 1 jour`. |
 
 ### Z1-AC07 — Régression FRAGILE sur échec (pas de descente sous FRAGILE)
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un item en état **FRAGILE**. |
 | **WHEN** | L'élève répond incorrectement à une question liée à cet item. |
 | **THEN** | L'état reste **FRAGILE**. `consecutive_successes = 0`. `next_due_at = now + 1 jour`. Pas de retour à UNKNOWN. |
 
 ### Z1-AC07b — Récupération FRAGILE après régression (cs=0, réponse correcte)
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un item en état **FRAGILE** avec `consecutive_successes = 0` (suite à régression Z1-AC06/AC07 ou demi-succès Z1-AC26). |
 | **WHEN** | L'élève répond correctement à une question liée à cet item (score ≥ 0.7, sans aide). |
 | **THEN** | `consecutive_successes = 1`. L'état reste **FRAGILE**. `next_due_at = now + 1 jour` (ajusté par Z1-AC08 si contrôle posé). Au prochain succès, Z1-AC02 s'applique (FRAGILE→OK avec cs≥1). |
@@ -118,9 +138,9 @@
 > **NOTE :** Sans cet AC, un item FRAGILE avec cs=0 (après échec) ne matchait aucune règle sur réponse correcte : Z1-AC01 exige UNKNOWN, Z1-AC02 exigeait cs=1. L'élève réussissait et rien ne se passait — dead end. Cet AC comble la lacune en créant le chemin FRAGILE(cs=0) → FRAGILE(cs=1) → OK(cs=2).
 
 ### Z1-AC07c — Récupération OK après régression (cs<2, réponse correcte)
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un item en état **OK** avec `consecutive_successes < 2` (suite à régression Z1-AC05 ou demi-succès Z1-AC26). |
 | **WHEN** | L'élève répond correctement à une question liée à cet item (score ≥ 0.7, sans aide, `last_success_at` ≥ 24h ou cs < 2). |
 | **THEN** | `consecutive_successes += 1`. L'état reste **OK**. `next_due_at = now + 3 jours` (ajusté par Z1-AC08 si contrôle posé). Le chemin de récupération est : OK(cs=0) → OK(cs=1) → OK(cs=2) → SOLID (si `last_success_at` ≥ 24h, Z1-AC03). |
@@ -128,9 +148,9 @@
 > **NOTE :** Après une régression SOLID→OK (Z1-AC05), cs est remis à 0. Sans cet AC, l'item OK avec cs=0 ne matchait aucune règle sur réponse correcte : Z1-AC03 exige cs≥2. L'élève était dans un dead end. Le chemin de récupération est maintenant OK(cs=0) → OK(cs=1) → OK(cs=2) → SOLID — 3 succès espacés, conforme à l'intention SRS.
 
 ### Z1-AC08 — Resserrement proportionnel si contrôle posé
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Un item dont `next_due_at` vient d'être calculé par les règles Z1-AC01 à Z1-AC07. Au moins un `Exam` actif (non expiré) référence le chapitre de cet item via `chapter_ids[]`. Le temps restant `T = min(exam.exam_date) − now` (en jours), calculé sur l'exam le plus proche parmi tous les Exams liés au chapitre. |
 | **WHEN** | `next_due_at` est recalculé (après réponse ou lors de la composition de session). |
 | **THEN** | L'intervalle standard est remplacé par un intervalle proportionnel au temps restant : |
@@ -152,17 +172,17 @@
 > **Edge case T ≤ 0 :** Si tous les `exam_date` liés au chapitre sont passés (`T ≤ 0` pour chaque), le resserrement ne s'applique plus — les intervalles standard reprennent. Les Exams expirés sont ignorés (équivalent à « pas de contrôle posé »). Le système ne doit jamais produire un `next_due_at` dans le passé.
 
 ### Z1-AC09 — Indépendance des Mastery states entre items
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Deux items A et B dans le même chapitre, A en SOLID, B en UNKNOWN. |
 | **WHEN** | L'élève échoue sur B. |
 | **THEN** | Le Mastery state de A n'est pas modifié. Les states sont isolés par `(user_id, item_id)`. |
 
 ### Z1-AC10 — Score partiel ne déclenche pas de progression
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Un item en état **FRAGILE**. La question associée est de type RUBRIC (4 critères). |
 | **WHEN** | L'élève obtient un score partiel : 2/4 critères corrects. |
 | **THEN** | L'état reste **FRAGILE**. `consecutive_successes` n'est pas incrémenté. Le feedback affiche les critères manquants. Seul un score ≥ `seuil_pack` (défaut 3/4) compte comme réussite. |
@@ -170,9 +190,9 @@
 > **NOTE :** Le seuil de réussite pour les RUBRIC est paramétrable par pack. Défaut MVP : 3/4 critères.
 
 ### Z1-AC11 — Réponse NUMERIC sans unité = échec mastery
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Un item en état **FRAGILE** lié à une question NUMERIC avec `unit_required = true`. |
 | **WHEN** | L'élève donne la valeur correcte (dans la tolérance ± 2 %) mais omet l'unité. |
 | **THEN** | Le score est considéré comme un **échec**. L'état reste **FRAGILE** (pas de progression). `consecutive_successes` est remis à `0`. Le feedback indique explicitement que l'unité est manquante. |
@@ -180,9 +200,9 @@
 > **NOTE :** Ce AC formalise la règle PRD « Faux négatif si unité absente même si valeur correcte ». Il s'applique à tous les états de mastery, pas seulement FRAGILE — l'exemple FRAGILE est donné car c'est le cas le plus courant. La même logique vaut pour OK et SOLID (régression selon Z1-AC05 / Z1-AC06).
 
 ### Z1-AC12 — Score partiel KEYWORDS et progression mastery
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Un item en état **FRAGILE** lié à une question KEYWORDS exigeant N mots-clés. |
 | **WHEN** | L'élève fournit N-1 mots-clés corrects sur N (score partiel). |
 | **THEN** | Le score N-1 est considéré comme une **réussite**. `consecutive_successes` est incrémenté. La progression mastery s'applique normalement. Le feedback indique le mot-clé manquant à titre informatif. |
@@ -190,17 +210,17 @@
 > **NOTE :** Le seuil de réussite KEYWORDS est ≥ N-1 (tolérance d'un mot-clé manquant), conformément au PRD §17.3 « Score partiel si N-1 ». En dessous de N-1 (ex. N-2 ou moins), c'est un échec. Cette tolérance compense les variations de formulation naturelles en français. Ce AC complète Z1-AC10 (RUBRIC) et Z1-AC11 (NUMERIC) pour couvrir tous les types de scoring.
 
 ### Z1-AC13 — Échec sur item UNKNOWN (pas de descente sous UNKNOWN)
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un item en état **UNKNOWN** avec `consecutive_successes = 0`. |
 | **WHEN** | L'élève répond incorrectement à une question liée à cet item. |
 | **THEN** | L'état reste **UNKNOWN**. `consecutive_successes = 0`. `next_due_at = now + 1 jour`. Aucune régression n'est possible en dessous de UNKNOWN. |
 
 ### Z1-AC14 — Maintien SOLID sur réussite successive
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un item en état **SOLID** avec `consecutive_successes ≥ 3` et `last_review_at` ≥ 24h. |
 | **WHEN** | L'élève répond correctement à une question liée à cet item. |
 | **THEN** | L'état reste **SOLID**. `consecutive_successes += 1`. `next_due_at = now + 7 jours` (ajusté par Z1-AC08 si contrôle posé). `last_review_at` est mis à jour. |
@@ -208,9 +228,9 @@
 > **NOTE :** Un item SOLID qui continue d'être réussi reste SOLID avec un intervalle constant de J+7. L'incrémentation de `consecutive_successes` au-delà de 3 permet de distinguer un item « fraîchement SOLID » d'un item « profondément ancré » pour d'éventuelles heuristiques post-MVP.
 
 ### Z1-AC15 — Plafond maîtrise OK pour items restreints aux templates simples
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Un item avec `validation_required = true` qui ne reçoit que des gabarits simples (GEN.KNOW.DEF_SHORT, GEN.KNOW.FLASH_MCQ — cf. Z3-AC01). L'item est en état **OK** avec `consecutive_successes = 2`. |
 | **WHEN** | L'élève répond correctement à une question liée à cet item (gabarit simple). |
 | **THEN** | L'état reste **OK** (plafonné). L'item ne peut PAS passer **SOLID** tant que `validation_required = true`. `consecutive_successes` est incrémenté normalement mais la transition OK → SOLID est bloquée. Le dashboard affiche un badge « maîtrise partielle — vérification requise » sur cet item. |
@@ -218,9 +238,9 @@
 > **NOTE :** C'est le AC le plus critique pour l'intégrité de la maîtrise. Sans ce plafond, un item potentiellement hallucé (fidelity_score null ou < 0.5) peut atteindre SOLID via des QCM triviaux. Le parent voit alors une maîtrise à 80%+ qui ne reflète pas la réalité. Ce AC empêche structurellement la pollution du signal mastery par des items non vérifiés. La résolution de la ValidationTask (Z3-AC02/03) lève automatiquement le plafond.
 
 ### Z1-AC16 — Micro-célébration sur transitions de maîtrise positives
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un item vient de transiter vers un nouvel état positif (UNKNOWN → FRAGILE, FRAGILE → OK, OK → SOLID). |
 | **WHEN** | La transition est enregistrée en base (Mastery state update). |
 | **THEN** | L'interface affiche un feedback visuel de célébration adapté à la transition : — UNKNOWN → FRAGILE : message « Bien joué, tu commences à maîtriser [term] ! » (encouragement léger). — FRAGILE → OK : message « [term] est de mieux en mieux — continue comme ça ! » + animation subtile. — OK → SOLID : message « [term] est acquis — bravo ! 🎯 » + animation marquée + compteur d'items SOLID du chapitre incrémenté visiblement. Le feedback est affiché en fin de question (après le feedback de correction), pendant 2 secondes, et ne bloque pas la navigation vers la question suivante. |
@@ -228,9 +248,9 @@
 > **NOTE :** L'absence de célébration est le premier facteur de désengagement identifié chez les 11-15 ans. Le service valorise la qualité (« tu maîtrises ce concept ») plutôt que la quantité (pas de streak). Les animations sont légères et non-bloquantes — le but est un micro-shot de dopamine, pas une interruption. Ce AC complète Z6-AC18 (pas de streak) : on ne célèbre pas la régularité mais la progression réelle.
 
 ### Z1-AC17 — Débrief de fin de session
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève termine une session (toutes les questions répondues ou TTL expiré avec ≥ 1 question répondue). |
 | **WHEN** | La session passe en `status = COMPLETED`. |
 | **THEN** | Un écran de débrief est affiché avec : — Score global de la session (X/Y correctes). — Liste des items ayant progressé positivement (transitions vers un état supérieur) avec le nouveau badge. — 1 item prioritaire à revoir (le plus fragile encore, avec `next_due_at` le plus proche). — Message de fermeture contextuel : si session evening_first → « Super première prise de contact ! ». Si session pre_class → « Tu es prêt(e) pour demain ! ». Si session daily → « Bonne révision, à demain ! ». Si session **paper_report** (Z7-AC26) → variant simplifié : pas de score X/Y (l'auto-évaluation n'est pas un quiz noté). À la place : « Tu as reporté [X] réussites et [Y] points à revoir sur ta fiche [Chapitre]. [N] points seront vérifiés ce soir en session. » + liste des items ayant progressé (UNKNOWN→FRAGILE, FRAGILE→OK) + message « Bon travail en étude ! On consolide ce soir. » Le débrief paper_report ne mentionne PAS le plafond OK→SOLID (information technique inutile pour l'élève). — Bouton unique « Terminer » (pas de partage, pas de gamification complexe). Le débrief est optionnel : l'élève peut fermer l'app sans le lire (pas de blocage). |
@@ -238,9 +258,9 @@
 > **NOTE :** Le débrief est le moment le plus important pour la rétention. Un élève qui ne sait pas s'il a progressé ne reviendra pas. Ce écran doit être rapide (< 3 secondes de chargement), positif (mettre en avant les progrès, pas les échecs) et actionnable (montrer le prochain objectif). L'absence de débrief est le 2ème facteur de churn identifié après l'absence de célébration.
 
 ### Z1-AC18 — Score contrôle blanc : caveat qualité si items non validés
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève complète un contrôle blanc (`mock_exam`). Sur 20 questions, 6 portent sur des items avec `validation_required = true` (restreints aux templates simples, cf. Z3-AC01). |
 | **WHEN** | Le score du contrôle blanc est calculé et affiché (à l'élève et dans le résumé parent). |
 | **THEN** | Le score global est affiché normalement (ex. 14/20). Un sous-texte est ajouté : « Score basé sur [14] questions complètes et [6] questions simplifiées (contenu en cours de vérification) ». Le résumé envoyé au parent inclut la même mention. Le score est accompagné d'un indicateur de confiance : `score_confidence = (questions_full_templates / total_questions)` — ici 0.70. Si `score_confidence < 0.5`, un avertissement explicite est ajouté : « Plus de la moitié des questions étaient simplifiées — ce score est peu représentatif. Encouragez [Prénom] à vérifier les zones incertaines. » |
@@ -248,9 +268,9 @@
 > **NOTE :** Sans ce caveat, le parent voit « 14/20 » et pense que l'enfant est prêt. Mais 6 questions étaient des QCM simples au lieu d'exercices de calcul ou rédaction — le score est structurellement gonflé. Ce AC rend l'inflation visible et actionnable. Le `score_confidence` est également exploité par le digest (Z6-AC35).
 
 ### Z1-AC19 — Script 3 minutes : exclusion des items sous investigation
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le parent consulte le « script 3 minutes » pour un chapitre. 3 items sont les plus fragiles : Item A (FRAGILE, `validation_required = false`), Item B (FRAGILE, `validation_required = true`, `source = 'fidelity_check'`), Item C (UNKNOWN, `anomaly_flag = 'high_failure_rate'`). |
 | **WHEN** | Le système compose les 2–3 questions orales du script. |
 | **THEN** | Item B et Item C sont **exclus** du script (items sous investigation). Seul Item A est inclus. Si moins de 2 items sont éligibles après exclusion, le script est complété avec des items OK récemment révisés (consolidation orale). Le script n'inclut **jamais** un item avec `validation_required = true`, `anomaly_flag != null`, ou `is_demo = true` (Z8-AC01). Si le seul chapitre est le chapitre démo, le script affiche : « Pas encore de contenu pour le script — encouragez [Prénom] à capturer son premier cours ! » Un message est affiché si des items ont été exclus : « [N] point(s) sont en cours de vérification et ne sont pas inclus dans le script. » |
@@ -258,9 +278,9 @@
 > **NOTE :** Le script 3 minutes est le moment où le parent teste activement l'enfant à l'oral. Si le parent pose une question basée sur un item hallucé ou défectueux, et que l'enfant répond correctement selon le cours réel (pas l'item erroné), le parent conclut que l'app est défaillante. C'est un des moments de rupture de confiance les plus forts.
 
 ### Z1-AC20 — Modification de la date d'exam → recalcul des intervalles compressés
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un exam « Contrôle HG » est fixé au 20 mars. 12 items du chapitre sont en états variés (3 SOLID, 5 OK, 4 FRAGILE). Les `next_due_at` ont été compressés selon Z1-AC08 (cap = exam_date − 1 jour). L'élève modifie la date d'exam au 27 mars (+7 jours). |
 | **WHEN** | La mise à jour de l'exam est sauvegardée. |
 | **THEN** | Tous les `next_due_at` des items liés à cet exam sont **recalculés** avec la nouvelle `exam_date`. Les intervalles reprennent les valeurs standard (1j/3j/7j) si le nouveau `T` le permet, sinon la compression est recalculée proportionnellement au nouveau `T`. Le recalcul ne touche pas les items dont le `next_due_at` est déjà passé (ils restent dus immédiatement). Si la date est avancée (ex: 20 mars → 15 mars), les intervalles se compriment davantage et un avertissement s'affiche : « Tu as peu de temps — les sessions seront plus fréquentes pour ce chapitre. » Si la date est repoussée, un message positif : « Plus de temps pour bien réviser ! » Le digest parent suivant mentionne le changement de date. |
@@ -268,9 +288,9 @@
 > **NOTE :** Un contrôle reporté par le prof est un cas fréquent au collège. Si l'élève met à jour la date mais que les intervalles restent compressés sur l'ancienne date, il révisera inutilement de manière intensive pendant 7 jours de plus. Inversement, si le contrôle est avancé et que les intervalles ne se compriment pas, l'élève arrive sous-préparé. Le recalcul automatique maintient la cohérence du plan de révision.
 
 ### Z1-AC21 — Descente de difficulté après échecs répétés sur un item
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un item FRAGILE ou UNKNOWN a été présenté à l'élève 3 fois consécutives dans les 5 derniers jours, et l'élève a échoué les 3 fois. Les questions utilisaient des gabarits de difficulté ≥ 2 (ex: `GEN.KNOW.ASSOC_TERM_DEF`, `GEN.DOC.INTERPRET_WITH_CONCEPT`). |
 | **WHEN** | Le moteur de composition sélectionne cet item pour la session suivante. |
 | **THEN** | Le gabarit choisi est **rétrogradé** au niveau de difficulté 1 pour cet item (ex: `GEN.KNOW.FLASH_MCQ` ou `GEN.KNOW.DEF_SHORT`). Un indice est ajouté au feedback de la question : référence au passage pertinent de la carte de leçon (« Relis la section [titre_section] de ta leçon »). Si l'élève réussit avec le gabarit simplifié, la question suivante pour cet item remonte à difficulté 2. Si l'élève échoue même au gabarit simplifié (5ème échec consécutif), un message d'encouragement s'affiche : « Ce point est difficile — on va le revoir autrement. Regarde ta leçon et on réessaie demain. » L'item est reporté à J+2 au lieu de J+1 (pause pédagogique). La détection d'anomalie Z3-AC16/AC21 continue de fonctionner en parallèle. |
@@ -278,9 +298,9 @@
 > **NOTE :** Un élève qui échoue 3 fois de suite sur le même item à la même difficulté entre dans un cycle de frustration : il voit la même question, ne comprend pas, échoue encore, se sent nul. La descente de difficulté brise ce cycle en offrant un exercice plus accessible (MCQ vs question ouverte). Le renvoi vers la carte de leçon transforme un moment d'échec en moment d'apprentissage. La pause J+2 après 5 échecs évite l'acharnement contre-productif — le cerveau a besoin de temps pour consolider.
 
 ### Z1-AC22 — Détection et rattrapage des items UNKNOWN jamais révisés (starvation)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un chapitre a 20 items. 12 sont en état FRAGILE (tous dus quotidiennement). 8 sont en état UNKNOWN avec `next_due_at` dépassé depuis 7+ jours. La politique 70/20/10 sélectionne systématiquement les 12 items FRAGILE dans le bucket 70% (dues) car ils sont plus prioritaires. Les items UNKNOWN n'ont jamais été présentés en session depuis leur création. |
 | **WHEN** | Le moteur de composition crée une session `daily`. |
 | **THEN** | Un mécanisme anti-starvation garantit que chaque session inclut **au minimum 1 item UNKNOWN** s'il existe des items UNKNOWN non présentés depuis 7+ jours. Cet item est injecté dans le bucket 10% « découverte », même si le bucket 70% est plein. Si plusieurs items UNKNOWN sont en starvation, le plus ancien (plus grand écart `next_due_at - now`) est sélectionné en priorité. Un job hebdomadaire détecte les items UNKNOWN avec 0 tentatives depuis > 14 jours et crée une alerte admin `ITEM_STARVATION` (priorité `MEDIUM`). Le dashboard élève affiche un indicateur discret : « [N] points pas encore abordés » si des items UNKNOWN existent depuis > 7 jours sans tentative. |
@@ -288,9 +308,9 @@
 > **NOTE :** Un chapitre dense (30+ items) avec beaucoup de FRAGILE peut créer une file d'attente infinie pour les items UNKNOWN. Le 70/20/10 est optimal en régime stable mais pathologique en cas de dette : les items FRAGILE monopolisent le bucket et les UNKNOWN ne sont jamais vus. L'élève pense réviser tout le chapitre mais a des trous systématiques. Pire : le mock exam peut tester ces items jamais vus, et l'élève découvre un pan entier du cours le jour du contrôle blanc.
 
 ### Z1-AC23 — Bouton « Voir ma leçon » contextuel pendant une question
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève est en session (daily, evening_first, mock_exam…). Une question est affichée sur l'item « masse volumique ρ = m/V ». L'item appartient à la Notion « Masse volumique (ρ) » du chapitre « Densité et masse volumique ». L'élève hésite et ne se souvient plus de la formule. |
 | **WHEN** | L'élève tape sur le bouton « 📖 Voir ma leçon » (visible en permanence sous la zone de réponse, discret mais accessible). |
 | **THEN** | Un panneau coulissant (bottom sheet / drawer) s'ouvre et affiche **uniquement la section pertinente de la carte de leçon** : les blocs OCR correspondant à la Notion de l'item en cours (pas toute la leçon — juste la section liée). Le titre du panneau est « Ta leçon — [nom de la Notion] ». Si l'item a un `linked_doc_id` (document lié), le document est aussi affiché. Le panneau est scrollable si la section est longue. La question reste visible en arrière-plan (effet de transparence ou split-screen sur tablette). L'élève peut fermer le panneau et revenir à la question pour répondre. **Impact maîtrise** : la réponse est marquée `hint_used = true`. Si la réponse est correcte avec hint, elle compte comme un **demi-succès** : elle ne casse pas la série de `consecutive_successes` mais ne l'incrémente pas non plus (neutre). L'item ne peut pas passer de OK → SOLID sur une réponse avec hint (il faut une réussite « propre » pour SOLID). L'item peut passer de UNKNOWN → FRAGILE ou FRAGILE → OK avec hint (l'élève a quand même fait l'effort de chercher et répondre). Un indicateur discret « 📖 » apparaît sur la question dans le débrief de session pour les questions où le hint a été utilisé. |
@@ -298,9 +318,9 @@
 > **NOTE :** Ce bouton est conçu pour l'élève « orienté résultat » qui ne veut pas relire sa leçon de manière proactive mais a besoin d'un coup de pouce quand il est bloqué. La clé est la **contextualisation** : on ne montre pas toute la leçon (ennuyeux, trop long) mais uniquement la Notion pertinente (2-4 blocs OCR, ~30 secondes de lecture). C'est l'équivalent numérique de « demander au prof de répéter » — pas de la triche, mais un étayage (scaffolding). Le demi-succès est le bon compromis : on ne pénalise pas l'effort (l'élève a cherché, lu, compris, puis répondu) mais on ne le récompense pas autant qu'une réponse de mémoire (le passage SOLID exige la récupération sans aide, c'est le standard de la maîtrise réelle). **Pré-requis** : l'entité `Notion` (Z7-AC17) et le champ `Item.notion_id` doivent exister pour que le panneau affiche la bonne section. Si `notion_id` est absent (migration, chapitre ancien), le panneau affiche la carte de leçon complète du chapitre en fallback. Voir Z1-AC26 pour la matrice complète de transition maîtrise avec `hint_used`.
 
 ### Z1-AC24 — Bouton « Je ne comprends pas la question » : reformulation et clarification
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève est en session. La question affichée est : « Explique pourquoi un objet plus dense que l'eau coule » (gabarit `GEN.KNOW.DEF_SHORT`, item « densité et flottaison »). L'élève ne comprend pas ce qu'on lui demande : est-ce la définition de la densité ? La formule ? Le lien avec la flottaison ? |
 | **WHEN** | L'élève tape sur le bouton « ❓ Je ne comprends pas la question » (visible à côté du bouton « Voir ma leçon »). |
 | **THEN** | Le système affiche une **reformulation en 2 parties** (générée par template, pas LLM live) : **(1) Ce qu'on te demande** (intention de la question en langage simple) : « On te demande d'expliquer le lien entre la densité d'un objet et le fait qu'il coule dans l'eau. » **(2) Un indice de démarrage** (sans donner la réponse) : « Pense à comparer la densité de l'objet avec celle de l'eau (ρ_eau = 1 g/cm³). » La reformulation est pré-générée lors de l'instanciation de la question (étape 3 du moteur d'exploitation, PRD §7.2) : chaque question instanciée contient un champ `clarification { intent: string, starter_hint: string }` généré par le LLM au moment de la composition (coût marginal ~50 tokens par question). Si le champ `clarification` est absent (question ancienne, migration), un fallback textuel s'affiche : « Cette question porte sur : [item.term]. Essaie de répondre avec ce que tu sais, même partiellement ! » **Impact maîtrise** : l'utilisation de la clarification est marquée `clarification_used = true`. Même impact que `hint_used` (Z1-AC23) : demi-succès, pas de passage OK→SOLID. L'élève peut cumuler clarification + hint leçon sur la même question (les deux marqueurs sont indépendants). Le débrief affiche « ❓ » pour les questions où la clarification a été utilisée. |
@@ -308,9 +328,9 @@
 > **NOTE :** « Je ne comprends pas la question » est un signal d'UX fondamental qu'aucune app de révision ne gère correctement. Quand un élève ne comprend pas l'intention d'une question, il a trois options : (1) répondre au hasard → feedback non informatif, frustration, (2) passer → pas d'apprentissage, (3) demander à un parent → interruption. Le bouton ❓ offre une 4ème option : comprendre ce qu'on attend de lui, puis essayer. La reformulation en deux parties (intention + indice de démarrage) est inspirée des pratiques des bons profs : avant de donner la réponse, ils reformulent la question et donnent un « coup de pouce ». Le coût LLM est marginal car la clarification est pré-générée à la composition, pas en temps réel.
 
 ### Z1-AC25 — Réponse partielle encouragée : « Je ne sais pas tout mais je tente »
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève est face à une question SHORT_ANSWER ou KEYWORDS. Il a une vague idée mais n'est pas sûr de lui. Il n'a pas envie de voir la leçon (trop long) ni de passer la question (frustrant). |
 | **WHEN** | L'élève soumet une réponse partielle (pour KEYWORDS : 1 mot-clé sur 3 attendus ; pour SHORT_ANSWER : réponse incomplète mais contenant ≥ 1 élément correct). |
 | **THEN** | La correction reconnaît explicitement l'effort partiel : **(1) Score partiel** : pour KEYWORDS, chaque mot-clé correct vaut des points (ex: 1/3 = « Tu as trouvé 1 mot-clé sur 3 — c'est un début ! »). Pour SHORT_ANSWER, si ≥ 1 concept-clé est présent dans la réponse, le score est ≥ 0.3 (pas 0). **(2) Feedback différencié** : « Tu as trouvé [élément correct]. Il manquait [éléments manquants]. » au lieu d'un simple « Faux ». **(3) Impact maîtrise** : un score partiel (≥ 0.3 et < 0.7) est traité comme un « demi-échec » : l'item ne régresse pas (pas de OK→FRAGILE) mais ne progresse pas non plus (le `consecutive_successes` est remis à 0 sans pénalité supplémentaire). Un score ≥ 0.7 est traité comme une réussite. Un score < 0.3 est traité comme un échec. **(4) Le feedback affiche toujours la réponse complète** pour que l'élève voie ce qu'il manquait, même en cas de réponse partielle. Le message de feedback partiel utilise un ton encourageant : « Bien, tu y es presque ! » (score 0.5-0.7), « C'est un bon début ! » (score 0.3-0.5). |
@@ -318,9 +338,9 @@
 > **NOTE :** L'élève orienté résultat a besoin de voir que son effort est reconnu, même incomplet. Un système binaire « correct/incorrect » est frustrant car il met au même niveau « je n'avais aucune idée » et « j'avais 2 mots-clés sur 3 ». Le score partiel valorise la connaissance partielle et évite le découragement. C'est aussi pédagogiquement juste : en vrai contrôle, un élève qui donne 2 mots-clés sur 3 n'a pas 0 — il a une note intermédiaire. Le seuil 0.3 pour « demi-échec » (pas de régression) est un filet de sécurité : l'élève qui tente une réponse partielle ne doit pas être puni plus sévèrement que celui qui passe la question.
 
 ### Z1-AC26 — Matrice de transition maîtrise avec hint, clarification et score partiel
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève répond à une question sur un item. Il a potentiellement utilisé le hint leçon (`hint_used`), la clarification (`clarification_used`), ou les deux. Ou bien le résultat provient d'un report papier (`Attempt.source = 'paper_report'`, cf. Z7-AC26). Le score obtenu est dans l'une des 3 tranches : échec (< 0.3), partiel (0.3–0.7), réussite (≥ 0.7). Pour un report papier, ✓ = réussite (score 1.0) et ✗ = échec (score 0.0). |
 | **WHEN** | Le moteur de maîtrise calcule la transition d'état pour cet item. |
 | **THEN** | **Exception session `consolidation_optional` (Z4-AC18)** : les règles d'échec (A, score < 0.3) et de demi-échec (A/C, score 0.3–0.7) ne s'appliquent PAS dans une session `consolidation_optional`. Seuls les succès et demi-succès sont enregistrés. Les échecs et scores partiels sont enregistrés comme `Attempt` (audit) mais ne déclenchent ni régression ni reset de `consecutive_successes`. La matrice ci-dessous s'applique à tous les autres types de session. La matrice de transition est la suivante : **(A) Sans aide, session interactive (hint=false, clarification=false, source='interactive')** : score < 0.3 = échec (régression Z1-AC05/06/07, `consecutive_successes` = 0). Score 0.3–0.7 = demi-échec (`consecutive_successes` = 0, pas de régression). Score ≥ 0.7 = réussite (`consecutive_successes` += 1, progression Z1-AC01/02/03). **(B) Avec aide (hint=true et/ou clarification=true, source='interactive')** : score < 0.3 = échec standard (même que A). Score 0.3–0.7 = demi-échec standard (même que A). Score ≥ 0.7 = **demi-succès** : `consecutive_successes` inchangé (ni incrémenté, ni remis à 0). Pas de régression. L'item ne peut PAS passer OK→SOLID sur un demi-succès (exige réussite sans aide). L'item PEUT passer UNKNOWN→FRAGILE ou FRAGILE→OK sur un demi-succès (l'effort de chercher dans la leçon et de répondre correctement vaut progression). `Mastery.last_success_at` est mis à jour sur un demi-succès (car la réponse est correcte, même aidée). **(B') Report papier (source='paper_report')** : un report ✓ est traité exactement comme un demi-succès (B, score ≥ 0.7 avec aide) : UNKNOWN→FRAGILE et FRAGILE→OK autorisés, **OK→SOLID bloqué** (plafond papier, cf. Z7-AC26). `consecutive_successes` inchangé. `Mastery.last_success_at` mis à jour. Un report ✗ est traité comme un échec standard (A, score < 0.3) : régression normale Z1-AC05/06/07, `consecutive_successes` = 0. Le canal papier étant non vérifiable, il ne peut jamais produire une réussite « propre » (A, score ≥ 0.7 sans aide) — seule une session interactive vérifiée par le système le peut. **(C) Cumul aide + partiel** : si hint=true ET score 0.3–0.7, le résultat est un demi-échec (le score partiel domine). Le champ `Attempt.hint_used` et `Attempt.clarification_used` sont indépendants — l'utilisation des deux sur la même question n'aggrave pas le résultat vs un seul. **(D) Espacement 24h** (clarification Z1-AC03/AC04) : le passage OK→SOLID exige `last_success_at` datant de ≥ 24h avant la tentative actuelle. Une réponse correcte dans la même session qu'un passage FRAGILE→OK ne peut PAS déclencher OK→SOLID : le `last_success_at` vient d'être positionné à l'instant, l'écart est 0h < 24h. Cette règle est de toute façon redondante pour le papier (OK→SOLID bloqué par B'). |
@@ -336,9 +356,9 @@
 > Le pipeline J0 est le point d'entrée critique. Une erreur non gérée ici peut laisser le chapitre dans un état partiellement initialisé, invisiblement corrompu pour les sessions suivantes.
 
 ### Z2-AC01 — Carte de leçon partielle si OCR en cours
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | L'élève uploade 10 pages. Le traitement des pages 1–3 est terminé. Les pages 4–10 sont en cours de traitement (OCR worker en cours). |
 | **WHEN** | L'élève ouvre la carte de leçon. |
 | **THEN** | La carte affiche les items des pages 1–3. Un indicateur de progression (3/10 pages analysées) est visible. Les pages non traitées apparaissent comme placeholders. L'élève peut commencer un diagnostic sur les items disponibles. |
@@ -346,81 +366,81 @@
 > **NOTE :** La carte partielle est fonctionnelle. L'absence de pages ne bloque pas l'accès.
 
 ### Z2-AC02 — Timeout OCR sur une page intermédiaire
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Le pipeline traite 10 pages. La page 4 dépasse le timeout (10 s, après 3 retries). |
 | **WHEN** | Le worker abandonne la page 4. |
 | **THEN** | La page 4 est marquée `status = FAILED` avec `reason = 'ocr_timeout'`. Les pages 5–10 continuent leur traitement normalement. L'élève voit un badge 'Zone illisible · page 4' sur la carte. Le chapitre n'est PAS bloqué. Aucune exception non gérée n'est propagée. |
 
 ### Z2-AC03 — Photo floue détectée (confidence globale < 0.3)
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Une page uploadée a une confidence OCR globale < 0.3 sur tous ses blocs. |
 | **WHEN** | Le worker finalise l'analyse de cette page. |
 | **THEN** | Un message non-bloquant est affiché : 'Photo floue — vous pouvez reprendre cette photo pour de meilleurs résultats'. La page reste dans le chapitre avec ses blocs marqués UNCERTAIN. L'élève peut continuer sans reprendre la photo. |
 
 ### Z2-AC04 — Aucun item généré sur une page (page vide ou illisible)
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Une page OCRisée ne produit aucun Item après la phase de génération (texte vide ou uniquement des artefacts). |
 | **WHEN** | La génération d'items se termine pour cette page. |
 | **THEN** | Aucun Item n'est créé pour cette page. La page est marquée `status = 'no_items_extracted'`. La carte de leçon ne montre pas de section vide pour cette page. Le chapitre est valide si au moins une autre page a produit des items. |
 
 ### Z2-AC05 — Échec génération Items (erreur LLM)
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | L'OCR d'une page a réussi. L'appel LLM pour la génération d'items retourne une erreur (timeout, quota, ou réponse malformée). |
 | **WHEN** | Le worker LLM épuise ses retries (x2 avec back-off). |
 | **THEN** | Les blocs de cette page sont conservés avec leur texte OCR brut. Aucun Item n'est créé pour cette page. La page est marquée `status = 'items_generation_failed'`. Une ValidationTask admin est créée pour re-traitement manuel. Le reste du pipeline n'est pas affecté. |
 
 ### Z2-AC06 — Re-tentative pipeline après interruption (idempotence)
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Le pipeline J0 a été interrompu après les étapes 1–4 (upload, segmentation, OCR, plan). L'élève ou le système relance le traitement du chapitre. |
 | **WHEN** | Le pipeline redémarre. |
 | **THEN** | Les étapes déjà complétées ne sont pas ré-exécutées (les résultats OCR en cache permanent sont réutilisés). Le pipeline reprend à partir de l'étape non complétée. Aucun Item en double n'est créé. |
 
 ### Z2-AC07 — Diagnostic impossible si 0 items valides
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Le pipeline J0 se termine avec 0 items produits (toutes pages échouées ou illisibles). |
 | **WHEN** | L'élève tente de lancer le diagnostic initial. |
 | **THEN** | Le bouton diagnostic est désactivé. Un message explicite est affiché : 'Aucun contenu n'a pu être extrait — vérifiez la qualité des photos et ré-uploadez.' Le chapitre reste en état `PENDING_UPLOAD`. |
 
 ### Z2-AC08 — Bloc SCHEMA/MAP non OCRisé conservé comme Document image
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Un bloc de type MAP ou SCHEMA a une confidence OCR < 0.5. |
 | **WHEN** | L'étape OCR se termine pour ce bloc. |
 | **THEN** | Le bloc n'est PAS OCRisé. Un Document de type correspondant est créé avec `source_image_url = crop_url` et `tags = ['map']` ou `['schema']`. Ce Document est éligible aux gabarits `GEN.DOC.MAP.READ_ZONES` ou `GEN.DOC.IMAGE.DESCRIBE_INTERPRET`. Aucun texte OCR n'est stocké. |
 
 ### Z2-AC09 — File de validation non dépassée (max 8)
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Le pipeline J0 détecte 15 items avec `validation_required = true` sur un chapitre. |
 | **WHEN** | La file de validation est constituée. |
 | **THEN** | Seuls les 8 items avec la priorité la plus haute (score d'impact sur la note) sont inclus dans la ValidationTask. Les 7 autres items restent avec `validation_required = true` mais ne sont pas soumis à l'élève. Ils peuvent être traités par l'admin en backoffice. |
 
 ### Z2-AC10 — Streaming carte de leçon (première page disponible)
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Le chapitre a 8 pages en cours de traitement. La page 1 est la première traitée. |
 | **WHEN** | Le traitement de la page 1 se termine (OCR + items + tags). |
 | **THEN** | La carte de leçon est mise à jour en temps réel via SSE avec les items de la page 1. L'élève peut interagir avec ces items avant que les pages 2–8 soient traitées. Les pages suivantes s'ajoutent progressivement sans recharger la vue. |
 
 ### Z2-AC11 — Relance élève pour pages en échec de génération
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Une page du chapitre est en `status = 'items_generation_failed'` (erreur LLM après retries). Le texte OCR brut est conservé. |
 | **WHEN** | L'élève consulte la carte de leçon du chapitre. |
 | **THEN** | Un badge 'Exercices non générés · page X' est affiché avec un bouton 'Réessayer'. Le clic déclenche un nouveau passage par l'étape 7 du pipeline (génération items) en réutilisant le texte OCR en cache. Si le retry réussit, les items sont ajoutés à la carte et le badge disparaît. Si le retry échoue à nouveau, le badge réapparaît avec le message 'Génération toujours indisponible — réessaie plus tard'. Maximum 3 retries manuels par page. Au-delà, seul l'admin peut relancer. |
@@ -428,9 +448,9 @@
 > **NOTE :** Ce mécanisme complète Z2-AC05 en offrant une action côté élève. L'admin reste le fallback ultime mais l'élève n'est plus bloqué sans recours en cas d'indisponibilité temporaire du LLM.
 
 ### Z2-AC12 — Rétention crops et OCR alignée sur politique photos (RGPD)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Une page a été traitée par le pipeline. Les crops (Block.crop, Document.source_image_url) et le texte OCR brut sont stockés. La photo originale est supprimée à J+30 (politique par défaut). |
 | **WHEN** | Le job de nettoyage RGPD s'exécute à J+30 pour cette page. |
 | **THEN** | Si l'utilisateur n'a PAS opté pour la conservation : les crops d'image sont supprimés en même temps que la photo originale. Les `crop_url` des blocs sont remplacés par `null`. Les `source_image_url` des Documents sont remplacés par `null`. Le texte OCR brut est conservé (il ne contient pas l'image de l'écriture manuscrite). Les ValidationTasks en cours conservent un `crop_snapshot_text` (description textuelle du crop) mais pas l'image. Les gabarits de type `GEN.DOC.IMAGE.*` deviennent inéligibles pour les Documents dont le `source_image_url` est `null` — ces items sont restreints aux gabarits textuels. |
@@ -438,9 +458,9 @@
 > **NOTE :** Le PRD §20 Q2 mentionne la suppression des « photos originales » à J+30, mais les crops (fragments d'image) et les `source_image_url` des Documents n'avaient pas de politique de rétention explicite. Cela créait un trou RGPD : un parent pensait les photos supprimées alors que des fragments persistaient indéfiniment. Ce AC aligne la rétention des crops sur celle des photos originales.
 
 ### Z2-AC13 — Versioning du modèle LLM pour reproductibilité et détection de drift
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le pipeline J0 (segmentation, item generation, fidelity check) et la lazy generation utilisent des appels LLM. Le modèle LLM sous-jacent peut changer (mise à jour provider, bascule de modèle, changement de prompt). |
 | **WHEN** | Un appel LLM est effectué à n'importe quelle étape du pipeline ou de la génération. |
 | **THEN** | Chaque résultat LLM (Item, Question, fidelity_score) est taggé avec `llm_model_version` (identifiant du modèle, e.g. `gpt-4o-2024-08-06`) et `prompt_template_version` (hash ou version sémantique du prompt utilisé). Le champ `llm_model_version` est indexé. Un changement de modèle ou de prompt déclenche une alerte admin `LLM_VERSION_CHANGED`. Un job hebdomadaire compare les métriques qualité (taux fidelity_score < 0.6, taux signalements élève) entre l'ancienne et la nouvelle version. Si le taux de dégradation dépasse 15% sur l'un des indicateurs, l'admin reçoit une alerte `LLM_DRIFT_DETECTED` avec détail comparatif. |
@@ -448,9 +468,9 @@
 > **NOTE :** Sans versioning LLM, un changement de modèle silencieux (ex. le provider met à jour le modèle derrière la même API) peut dégrader la qualité des items générés sans qu'on puisse identifier la cause. Le versioning permet le diagnostic (« depuis quand les fidelity_score baissent-ils ? ») et le rollback informé. C'est aussi une exigence de traçabilité pour un produit éducatif destiné à des mineurs.
 
 ### Z2-AC14 — Pipeline incrémental pour ajout de pages (pas de re-traitement des pages existantes)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le chapitre « Mouvement et vitesse » a 3 pages existantes (pipeline déjà terminé, 8 items générés). L'élève ajoute les pages 4-6 via « Ajouter des pages » (Z5-AC11). |
 | **WHEN** | Le pipeline J0 se déclenche pour les pages ajoutées. |
 | **THEN** | Le pipeline s'exécute **uniquement** sur les pages 4-6. Les étapes sont : (1) segmentation des pages 4-6 en blocs, (2) OCR des blocs textuels, (3) génération d'items à partir des blocs, (4) fidelity check des nouveaux items, (5) cohérence cross-page : les nouveaux items sont comparés aux items **existants** du chapitre pour détecter doublons (similarité cosinus keywords > 0.9) et contradictions — mais les items existants ne sont **pas** comparés entre eux (déjà fait lors du pipeline initial). Le statut du pipeline au niveau chapitre passe à `processing_incremental` (distinct de `processing` pour un pipeline complet). En cas d'échec sur une page ajoutée, le retry élève Z2-AC11 est disponible. Un échec sur les pages 4-6 n'affecte pas les items des pages 1-3. Les pages ajoutées héritent de `revision_id = R1` (pas de nouvelle révision). L'idempotence Z2-AC06 s'applique : si le pipeline incrémental est interrompu et relancé, aucun doublon n'est créé. |
@@ -466,9 +486,9 @@
 > La validation HITL est optionnelle pour l'élève mais critique pour la qualité. Les comportements de skip/ignore doivent être explicites : un item non validé ne doit jamais générer un exercice trompeur.
 
 ### Z3-AC01 — Gabarits bloqués sur item validation_required non résolu
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Un item avec `validation_required = true`, `status = PENDING`, de type KNOWLEDGE avec tags `['calcul', 'unites']`. |
 | **WHEN** | Le moteur de lazy generation compose une session. |
 | **THEN** | Les gabarits `PC.FORMULA.APPLY`, `PC.UNITS.CONVERT`, `PC.FORMULA.ISOLATE` et tout gabarit avec `question_type = NUMERIC` sont exclus de l'éligibilité pour cet item. Seuls `GEN.KNOW.DEF_SHORT` et `GEN.KNOW.FLASH_MCQ` restent éligibles. |
@@ -476,33 +496,33 @@
 > **NOTE :** Un item non validé peut apparaître en session avec des gabarits simples (rappel/reconnaissance) mais jamais avec des gabarits exigeant précision numérique.
 
 ### Z3-AC02 — Action 'Confirmer' sur ValidationTask
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Une ValidationTask sur un item avec `suggestion = 'ρ = m / V'`, `status PENDING`. |
 | **WHEN** | L'élève (ou le parent actif) clique sur 'Confirmer'. |
 | **THEN** | L'item est mis à jour : `validation_required = false`, `confidence = max(item.confidence, 0.85)`. La ValidationTask passe en `status = RESOLVED_CONFIRMED`. Les Questions liées à cet item dans le cache sont invalidées → régénération lazy au prochain accès. |
 
 ### Z3-AC03 — Action 'Corriger' sur ValidationTask
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Une ValidationTask sur un item. L'élève saisit une correction. |
 | **WHEN** | L'élève soumet la correction. |
 | **THEN** | L'item est mis à jour avec le contenu corrigé. `validation_required = false`. `confidence = 1.0` (correction humaine explicite). La ValidationTask passe en `RESOLVED_CORRECTED`. Le cache questions de cet item est invalidé. |
 
 ### Z3-AC04 — Action 'Je ne sais pas' sur ValidationTask
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Une ValidationTask sur un item. L'élève choisit 'Je ne sais pas'. |
 | **WHEN** | L'action est soumise. |
 | **THEN** | `validation_required` reste `true`. `status = DEFERRED_BY_STUDENT`. L'item est retiré de la file de validation élève. Une ValidationTask admin est créée avec priorité haute. Les gabarits bloqués restent bloqués (cf. Z3-AC01). |
 
 ### Z3-AC05 — Action 'Ignorer' sur ValidationTask
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Une ValidationTask sur un item non critique (impact faible). L'élève choisit 'Ignorer'. |
 | **WHEN** | L'action est soumise. |
 | **THEN** | `validation_required` reste `true`. `status = IGNORED_BY_STUDENT`. L'item est exclu des sessions et des contrôles blancs tant que non résolu. Il n'apparaît PAS dans la carte de maîtrise de l'élève comme UNKNOWN (il est masqué pour éviter la confusion). |
@@ -510,97 +530,97 @@
 > **NOTE :** 'Ignorer' ≠ 'Je ne sais pas'. Ignorer exclut l'item du flux pédagogique. 'Je ne sais pas' le délègue à l'admin pour correction.
 
 ### Z3-AC06 — Chapitre utilisable si 0 validations effectuées
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un chapitre avec 6 ValidationTasks PENDING. L'élève n'en traite aucune. |
 | **WHEN** | L'élève lance le diagnostic initial. |
 | **THEN** | Le diagnostic est accessible. Les items avec `validation_required = true` ne génèrent que des gabarits de rappel simple (Z3-AC01). Un bandeau informatif indique '6 zones à vérifier — vos exercices seront plus précis après vérification' sans bloquer la progression. |
 
 ### Z3-AC07 — Résolution validation → régénération ciblée uniquement
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un chapitre avec 20 questions en cache. Une ValidationTask sur l'item X est résolue. |
 | **WHEN** | La résolution est enregistrée. |
 | **THEN** | Seules les questions dont `item_id = X` sont invalidées dans le cache. Les `20 − N` questions liées aux autres items ne sont pas invalidées. La régénération est lazy : les nouvelles questions pour X sont créées au prochain appel de composition de session. |
 
 ### Z3-AC08 — Parent actif : max 3 ValidationTasks par semaine
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un parent en mode actif. Le chapitre a 8 ValidationTasks PENDING. |
 | **WHEN** | Le système prépare les validations à soumettre au parent. |
 | **THEN** | Seules les 3 ValidationTasks avec le score d'impact le plus élevé sont envoyées au parent cette semaine. Les 5 autres sont gardées en file pour la semaine suivante. Le parent ne reçoit jamais plus de 3 demandes de validation par semaine. |
 
 ### Z3-AC09 — Aucune ValidationTask si confiance > seuil sur tous les blocs
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Un chapitre dont tous les blocs ont `confidence ≥ 0.85` et aucun terme du lexique pack critique n'est détecté comme ambigu. |
 | **WHEN** | Le pipeline J0 finalise la détection d'incertitudes. |
 | **THEN** | Aucune ValidationTask n'est créée. La file de validation est vide. L'élève passe directement au diagnostic sans étape de validation. Tous les items ont `validation_required = false`. |
 
 ### Z3-AC10 — Vérification croisée LLM : item fidèle au texte OCR
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Le pipeline J0 a généré un item KNOWLEDGE avec `term = "photosynthèse"` et `keywords = ["chloroplaste", "lumière", "CO2"]` à partir d'un bloc OCR contenant « La photosynthèse est le processus par lequel les plantes utilisent la lumière, le CO2 et l'eau pour produire de la matière organique dans les chloroplastes ». |
 | **WHEN** | L'étape 7b (vérification croisée LLM) s'exécute. |
 | **THEN** | Le `fidelity_score` est `≥ 0.7` (item fidèle au texte source). `fidelity_flag = null`. L'item n'est pas ajouté à la file de validation pour cette raison. |
 
 ### Z3-AC11 — Vérification croisée LLM : item déformé par le LLM
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le pipeline J0 a généré un item KNOWLEDGE avec `term = "respiration cellulaire"` à partir d'un bloc OCR qui parle uniquement de photosynthèse (hallucination LLM — le terme n'apparaît pas dans le texte source). |
 | **WHEN** | L'étape 7b (vérification croisée LLM) s'exécute. |
 | **THEN** | Le `fidelity_score` est `< 0.5`. `fidelity_flag = 'low'`. `validation_required = true`. Une `ValidationTask` est créée avec `source = 'fidelity_check'` et `suggestion = "L'item ne correspond pas au texte source — vérifier"`. L'item est restreint aux templates simples (GEN.KNOW.DEF_SHORT, GEN.KNOW.FLASH_MCQ). |
 
 ### Z3-AC12 — Vérification croisée LLM : timeout du service
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'étape 7b est lancée mais le service LLM de vérification ne répond pas dans le délai imparti (timeout). |
 | **WHEN** | Le timeout expire. |
 | **THEN** | L'item est conservé avec `fidelity_score = null` et `fidelity_flag = null`. Le pipeline continue normalement (comportement dégradé = confiance OCR seule, pas de blocage). L'incident est loggé pour monitoring. |
 
 ### Z3-AC13 — Cohérence intra-chapitre : détection de doublons
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le pipeline a généré deux items dans le même chapitre : Item A (`term = "chloroplaste"`, `confidence = 0.9`) et Item B (`term = "chloroplaste"`, `confidence = 0.7`). |
 | **WHEN** | L'étape 7c (cohérence intra-chapitre) s'exécute. |
 | **THEN** | Les deux items sont identifiés comme doublons (même `term`). L'item de plus faible confidence (Item B, 0.7) est archivé automatiquement (`archived = true`). L'item A est conservé. Aucune `ValidationTask` n'est créée (résolution automatique). Le Mastery associé à Item B, s'il existe, est transféré à Item A. |
 
 ### Z3-AC14 — Cohérence intra-chapitre : détection de contradictions
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le pipeline a généré deux items dans le même chapitre : Item A (`term = "densité"`, définition = « masse divisée par le volume ») et Item B (`term = "masse volumique"`, définition = « volume divisé par la masse »). La détection LLM identifie une contradiction. |
 | **WHEN** | L'étape 7c s'exécute. |
 | **THEN** | Les deux items sont flaggés `coherence_flag = 'contradiction'` et `validation_required = true`. Une `ValidationTask` est créée pour chacun avec `source = 'coherence_check'` et `suggestion = "Contradiction détectée avec l'item [autre_item_id] — vérifier les définitions"`. Les deux items sont restreints aux templates simples jusqu'à résolution. |
 
 ### Z3-AC15 — Feedback élève : signalement d'erreur sur un item
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève est en session de révision. Une question affiche « La photosynthèse produit du méthane » (item mal extrait). |
 | **WHEN** | L'élève appuie sur « Signaler une erreur » et saisit optionnellement « C'est de l'O2, pas du méthane ». |
 | **THEN** | Une `ValidationTask` est créée avec `source = 'student_report'`, `student_note = "C'est de l'O2, pas du méthane"`, `priority = HIGH` (signalement élève toujours prioritaire). L'item reste utilisable en mode dégradé (templates simples uniquement). Si une `ValidationTask` existe déjà pour cet item, le signalement est ajouté comme note complémentaire sur la tâche existante (pas de doublon). La réponse de l'élève à cette question n'est **pas** comptée dans le score Mastery (item sous investigation). |
 
 ### Z3-AC16 — Détection par taux d'échec anormal
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un item en état FRAGILE a reçu 6 tentatives sur les 7 derniers jours, dont 5 échecs (taux d'échec = 83%). |
 | **WHEN** | Le job quotidien de détection d'anomalies s'exécute. |
 | **THEN** | `anomaly_flag = 'high_failure_rate'` est positionné. `validation_required = true`. Une `ValidationTask` est créée avec `source = 'anomaly_detection'` et `suggestion = "Taux d'échec anormal (83%) — vérifier l'item"`. L'item est restreint aux templates simples jusqu'à vérification. |
 
 ### Z3-AC17 — Détection par taux d'échec : exclusion des items UNKNOWN
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un item en état UNKNOWN a reçu 5 tentatives, toutes en échec (taux = 100%). |
 | **WHEN** | Le job quotidien de détection d'anomalies s'exécute. |
 | **THEN** | L'item n'est **pas** flaggé `anomaly_flag` car il est en état UNKNOWN (taux d'échec élevé attendu à la première exposition). Aucune `ValidationTask` créée. L'item continue à être proposé normalement pour permettre l'apprentissage. Le job ne considère que les items en état FRAGILE, OK ou SOLID. |
@@ -608,9 +628,9 @@
 > **NOTE :** Ces 4 mécanismes (vérification croisée, cohérence, feedback élève, détection anomalie) forment une boucle de qualité continue : la vérification croisée et la cohérence agissent en amont (pipeline J0), le feedback élève en temps réel, et la détection par taux d'échec en aval (post-usage). Un item peut cumuler plusieurs flags simultanément.
 
 ### Z3-AC18 — Re-vérification fidelity différée (rattrapage timeout)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un item a `fidelity_score = null` et `fidelity_flag = null` suite à un timeout de l'étape 7b (cf. Z3-AC12). |
 | **WHEN** | Le job quotidien de maintenance qualité s'exécute. |
 | **THEN** | L'item est automatiquement soumis à une nouvelle vérification fidelity (étape 7b). Si le service LLM répond : le `fidelity_score` et `fidelity_flag` sont mis à jour normalement. Si `fidelity_score < 0.5`, l'item passe en `validation_required = true` avec création de ValidationTask (cf. Z3-AC11). Si le timeout se reproduit 3 jours consécutifs, l'item est flaggé `validation_required = true` avec `source = 'fidelity_timeout_persistent'` et restreint aux templates simples. |
@@ -618,9 +638,9 @@
 > **NOTE :** Ce mécanisme empêche les hallucinations LLM de rester indéfiniment non vérifiées. L'item ne peut pas rester en `fidelity_score = null` plus de 3 jours sans action corrective.
 
 ### Z3-AC19 — UX clarification "Ignorer" vs "Je ne sais pas"
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève consulte une ValidationTask avec les actions disponibles : 'Confirmer', 'Corriger', 'Je ne sais pas', 'Ignorer'. |
 | **WHEN** | L'écran de validation s'affiche. |
 | **THEN** | Chaque action affiche un sous-texte explicatif permanent (pas un tooltip) : — 'Confirmer' → « C'est correct, je valide » — 'Corriger' → « Je corrige moi-même » — 'Je ne sais pas' → « Mon prof ou un adulte vérifiera » — 'Ignorer' → « Retirer de mes révisions ». Le sous-texte de 'Ignorer' précise en rouge atténué : « Cet élément ne sera plus proposé en exercice tant qu'il n'est pas résolu ». |
@@ -628,9 +648,9 @@
 > **NOTE :** Ce AC adresse le risque de confusion sémantique entre "Ignorer" et "Je ne sais pas" identifié comme source de perte de confiance. La clarification permanente (pas hover/tooltip) est essentielle pour un public collégien.
 
 ### Z3-AC20 — Escalade admin : SLA 7 jours sur ValidationTasks non résolues
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Une ValidationTask est en statut `PENDING` ou `DEFERRED_BY_STUDENT` depuis 7 jours. L'item associé a `validation_required = true`. |
 | **WHEN** | Le job quotidien de suivi qualité s'exécute. |
 | **THEN** | La ValidationTask est promue en priorité `CRITICAL`. Une alerte admin est créée dans le backoffice avec le tag `sla_breach`. Si la tâche reste non résolue à J+14, l'item est automatiquement restreint aux templates de type QCM uniquement (`GEN.KNOW.FLASH_MCQ`) et un compteur `unresolved_validation_days` est incrémenté dans le dashboard admin. Le KPI « % ValidationTasks résolues < 7j » est tracké. |
@@ -638,9 +658,9 @@
 > **NOTE :** Sans SLA, les ValidationTasks admin s'accumulent silencieusement. Ce mécanisme garantit une dégradation progressive plutôt qu'un oubli. Le passage en QCM-only à J+14 protège l'élève d'exercices trompeurs sur des items non vérifiés.
 
 ### Z3-AC21 — Détection anomalie précoce sur items validation_required
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un item avec `validation_required = true` (templates restreints) a reçu 3 tentatives, dont 3 échecs (taux = 100%). |
 | **WHEN** | Le job quotidien de détection d'anomalies s'exécute. |
 | **THEN** | L'item est flaggé `anomaly_flag = 'high_failure_rate'` malgré le seuil normal de 5 tentatives (cf. Z3-AC16). Le seuil est abaissé à **3 tentatives** pour les items `validation_required = true` car la probabilité que l'item soit défectueux est plus élevée. La ValidationTask existante est promue en priorité `HIGH` si elle ne l'est pas déjà. |
@@ -648,9 +668,9 @@
 > **NOTE :** Les items non validés sont plus susceptibles d'être défectueux. Attendre 5 échecs sur un item déjà suspect fait subir à l'élève des échecs évitables qui érodent sa confiance. Ce seuil abaissé ne s'applique qu'aux items `validation_required = true`.
 
 ### Z3-AC22 — Rétractation d'une validation erronée (parent ou élève)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un parent (ou un élève) a confirmé un item via Z3-AC02 (confidence boostée à 0.85). Trois jours plus tard, l'élève signale une erreur sur ce même item (Z3-AC15) ou le taux d'échec dépasse le seuil (Z3-AC16/AC21). |
 | **WHEN** | Une nouvelle ValidationTask est créée pour un item déjà `RESOLVED_CONFIRMED`. |
 | **THEN** | L'item repasse en `validation_required = true`. La confidence est ramenée à `min(item.confidence, 0.7)` (annulation du boost). Les gabarits sont re-restreints aux templates simples. La ValidationTask originale est marquée `REOPENED` avec une note « Rouvert suite à [source : signalement élève / anomalie détectée] ». L'admin est notifié avec priorité `HIGH`. Les Mastery updates effectués entre la confirmation et la réouverture ne sont **pas** annulés (pas de rétroactivité). |
@@ -658,9 +678,9 @@
 > **NOTE :** C'est le filet de sécurité pour les validations erronées. Un parent qui confirme « ρ = m/V » alors que l'OCR a mal lu « ρ = m × V » verrouille une erreur en base. Sans rétractation, l'enfant étudie du contenu faux avec une confidence de 0.85. Le signalement élève (Z3-AC15) ou la détection d'anomalie (Z3-AC16) servent de second regard. La non-rétroactivité des Mastery est un compromis pragmatique : corriger le contenu suffit, recalculer le passé serait trop complexe et déstabilisant.
 
 ### Z3-AC23 — Détection de réponses trop rapides (anti-clicking aveugle)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève répond à une question MCQ en moins de **2 secondes** (temps entre affichage de la question et soumission de la réponse). |
 | **WHEN** | La réponse est soumise. |
 | **THEN** | La réponse est **acceptée et corrigée normalement** (pas de blocage UX). Mais elle est marquée `rapid_response = true` dans l'Attempt. Le Mastery state est mis à jour **uniquement si la réponse est incorrecte** (régression appliquée normalement). Si la réponse est correcte : `consecutive_successes` n'est **pas** incrémenté et la transition mastery n'est **pas** appliquée. L'item reste dans l'état actuel et sera re-proposé à la prochaine session. Un compteur `rapid_correct_count` est maintenu par session. Si `rapid_correct_count ≥ 3` dans une même session, un message non-bloquant apparaît : « Prends ton temps pour bien lire les questions — tes réponses rapides ne comptent pas pour ta progression. » |
@@ -668,9 +688,9 @@
 > **NOTE :** Un élève qui clique random sur des MCQ a 25% de chance de répondre juste (4 options). Sans ce AC, 2 MCQ correctes par chance suffisent pour passer de UNKNOWN à OK (Z1-AC01/AC02). Ce AC neutralise les réponses trop rapides côté progression sans bloquer l'UX (l'élève peut toujours cliquer, mais ça ne "compte" pas positivement). La régression sur réponse incorrecte est maintenue car elle incite à réfléchir plutôt qu'à cliquer au hasard. Le seuil de 2 secondes est calibré sur le temps minimum de lecture d'une question MCQ (titre + 4 options).
 
 ### Z3-AC24 — Récupération des items « Ignoré » par l'élève
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a cliqué « Ignorer » sur 4 items lors de la validation HITL (Z3-AC05). Ces items sont en `status = IGNORED` et exclus des sessions. L'élève réalise plus tard (ou après explication du parent) que ces items étaient utiles. |
 | **WHEN** | L'élève accède à la carte de leçon du chapitre et consulte les items « ignorés » (section dédiée en bas de la carte, libellée « Points non vérifiés »). |
 | **THEN** | Chaque item ignoré est affiché avec son `term` ou résumé et un bouton « Réactiver ». En cliquant « Réactiver », l'élève revoit la suggestion de l'IA et peut choisir : « C'est bon » (→ Z3-AC02, confidence boostée), « À corriger » (→ Z3-AC03, correction), ou « Je ne sais pas » (→ Z3-AC04, admin). L'item réactivé repasse en circuit normal (éligible aux sessions). Si les 4 items sont ignorés, un nudge discret apparaît dans la carte de leçon : « 4 points n'ont pas été vérifiés — ils ne seront pas dans tes exercices. » Ce nudge disparaît si l'élève réactive ou confirme son choix de les laisser ignorés. Un bouton « Tout laisser ignoré » masque le nudge définitivement pour ce chapitre. |
@@ -678,9 +698,9 @@
 > **NOTE :** Un ado de 13 ans qui ne comprend pas la validation HITL va cliquer « Ignorer » sur tout (le réflexe « fermer la pop-up »). Sans récupération, ces items sont perdus à jamais sauf intervention admin. L'élève ne s'en rend compte que quand il réalise que des points du cours ne sont pas dans ses exercices. La section « Points non vérifiés » rend le problème visible et offre une voie de retour autonome, sans dépendre de l'admin.
 
 ### Z3-AC25 — Garde-fou template vs type d'item pour items restreints
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un item de type **PROCEDURE** (ex: calcul de densité, `tags = [calcul, unites]`) a `validation_required = true`. La restriction Z3-AC01 le limite aux templates simples : `GEN.KNOW.DEF_SHORT` et `GEN.KNOW.FLASH_MCQ`. Mais ces templates sont des gabarits de type KNOWLEDGE (rappel de définition), pas de type PROCEDURE (application de calcul). |
 | **WHEN** | Le moteur de composition sélectionne cet item pour une session. |
 | **THEN** | Le moteur vérifie la compatibilité entre le `type` de l'item et les templates restreints disponibles. Si aucun template restreint n'est compatible avec le type de l'item (ex: pas de template PROCEDURE en difficulté 1), le moteur sélectionne le template restreint le **plus proche** du type d'item : pour un PROCEDURE, `GEN.KNOW.FLASH_MCQ` avec une formulation adaptée (« Quelle est la formule de [concept] ? » plutôt que « Définis [concept] »). Le `prompt_template` restreint pour items PROCEDURE est spécifique : il teste la reconnaissance de la formule/méthode (pas la définition). Si un template `GEN.CALC.MCQ_FORMULA` existe en difficulté 1 dans le pack, il est préféré aux templates KNOWLEDGE. Le mismatch est loggé comme `template_type_mismatch` pour suivi admin (KPI « % items avec mismatch template/type »). |
@@ -696,17 +716,17 @@
 > La génération lazy avec cache partagé est le principal vecteur de bugs silencieux en contexte concurrent (plusieurs sessions ouvertes, re-upload, résolution HITL).
 
 ### Z4-AC01 — Pas de doublons si deux sessions composées simultanément
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Deux sessions pour le même `(user_id, chapter_id)` sont composées en parallèle (ex : onglets multiples ou race condition réseau). |
 | **WHEN** | Les deux requêtes de composition de session arrivent dans un intervalle < 500 ms. |
 | **THEN** | Une seule session est créée (idempotence via lock ou check `session_id` existante). La deuxième requête retourne la session existante si elle est < 30 min. Aucune question en double n'est générée pour la même session. |
 
 ### Z4-AC02 — Pool question candidates non partagé entre sessions actives
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a une session active S1 avec 10 questions issues du pool. Il ouvre une nouvelle session S2 (contrôle blanc) sur le même chapitre. |
 | **WHEN** | S2 est composée. |
 | **THEN** | S2 pioche dans le pool de candidats mais les questions déjà assignées à S1 (en `status = IN_PROGRESS`) sont exclues de S2 si le pool le permet. Si le pool est insuffisant (< 5 candidats uniques disponibles), S2 peut réutiliser des questions de S1 — ceci doit être loggué. |
@@ -714,17 +734,17 @@
 > **NOTE :** En MVP, l'exhaustion de pool est acceptable si loggée. Post-MVP : régénération auto.
 
 ### Z4-AC03 — Invalidation cache après résolution HITL (atomicité)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le cache `question_candidates:{chapter_id}` contient 25 entrées. Une ValidationTask sur l'item X est résolue. |
 | **WHEN** | La résolution est persistée en base. |
 | **THEN** | L'invalidation du cache pour les questions liées à X est effectuée dans la même transaction (ou dans un job immédiat < 1 s). Aucune fenêtre de temps ne doit exister où la base dit 'validé' mais le cache sert encore l'ancienne version. |
 
 ### Z4-AC04 — Renouvellement TTL sur lecture (read-through)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le cache `item_pool:{chapter_id}` a un TTL de 24h. Il a été créé il y a 23h. |
 | **WHEN** | Une session est composée et lit le pool. |
 | **THEN** | Le TTL est **prolongé** de 24h à partir de la lecture (sliding window). Le pool n'expire pas pendant qu'il est activement utilisé. |
@@ -732,41 +752,41 @@
 > **NOTE :** Le TTL sliding évite l'expiration pendant une session active longue.
 
 ### Z4-AC05 — Invalidation complète sur mise à jour de pack_version
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le pack PC-MVD est mis à jour (ajout d'un concept tag). Trois chapitres actifs utilisent ce pack. |
 | **WHEN** | L'admin sauvegarde la nouvelle version du pack. |
 | **THEN** | Les caches `item_pool` et `question_candidates` des 3 chapitres sont invalidés. Les Mastery states ne sont **pas** invalidés. Les sessions en cours (`status = IN_PROGRESS`) continuent avec les questions déjà générées — pas d'interruption. |
 
 ### Z4-AC06 — Session interrompue reprise depuis le dernier état connu
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Une session S1 avec 10 questions. L'élève répond à 4 questions puis ferme l'application. |
 | **WHEN** | L'élève rouvre la session (TTL session = 72h). |
 | **THEN** | La session reprend à la question 5. Les Mastery states des items 1–4 sont déjà mis à jour. L'état de session (`current_question_index = 4`) est persisté en base et non uniquement en cache. |
 
 ### Z4-AC07 — Contraintes pack respectées lors de la composition lazy
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Chapitre HG-INEG avec 5 items document disponibles et 8 items knowledge. Pack : `max_writing_per_session = 1`, `session_must_include_doc = true`. |
 | **WHEN** | Une session quotidienne est composée. |
 | **THEN** | La session inclut exactement 1 exercice de type document (parmi les 5 disponibles). La session inclut au maximum 1 exercice de rédaction (`GEN.WRITE.*`). Ces contraintes sont respectées même si l'algorithme 70/20/10 sélectionnerait autrement. |
 
 ### Z4-AC08 — Pool vide : comportement dégradé gracieux
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Le cache du pool est expiré et le LLM est indisponible (timeout). L'élève tente de démarrer une session. |
 | **WHEN** | La composition de session échoue à générer des questions. |
 | **THEN** | L'interface affiche : 'Préparation de tes exercices en cours… réessaie dans quelques secondes.' Aucune session vide n'est créée en base. La page n'affiche pas d'erreur 500. Si après **10 secondes** le LLM n'est toujours pas disponible, le fallback Z4-AC16 est déclenché. |
 
 ### Z4-AC09 — OCR cache permanent (hash photo)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève re-uploade exactement la même photo (même contenu binaire) lors d'une révision de chapitre. |
 | **WHEN** | Le pipeline J0 traite cette photo. |
 | **THEN** | L'OCR n'est PAS ré-exécuté. Le résultat en cache (clé = hash SHA-256 de l'image) est réutilisé directement. Le pipeline passe à l'étape de génération d'items. |
@@ -774,17 +794,17 @@
 > **NOTE :** Cache permanent sur le hash évite la re-facturation OCR sur photos identiques.
 
 ### Z4-AC10 — Contrôle blanc non affecté par une session quotidienne en cours
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | L'élève a une session quotidienne S1 en cours (non terminée). Il lance un contrôle blanc CB1. |
 | **WHEN** | CB1 est composé. |
 | **THEN** | CB1 est une session indépendante avec son propre pool de questions. CB1 n'est pas bloqué par S1. Les deux sessions coexistent. Les Mastery updates de CB1 sont appliqués indépendamment de S1. |
 
 ### Z4-AC11 — Variété de gabarits dans une session (anti-monotonie)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Une session `daily` est composée avec 10 questions. Le pool contient des questions de types FLASH_MCQ, DEF_SHORT, CLOZE_KEYWORDS, ASSOC_TERM_DEF, et DOC.EXTRACT_EVIDENCE. |
 | **WHEN** | Le moteur de composition ordonne les questions dans la session. |
 | **THEN** | Aucun gabarit identique (`template_id`) ne peut apparaître plus de **2 fois consécutives**. Si la contrainte ne peut pas être respectée (pool trop petit), elle est relaxée mais loggée. La session alterne les types de questions (`question_type`) autant que possible : pas 3 MCQ d'affilée si des SHORT_ANSWER sont disponibles. L'ordonnancement est déterministe (pas random) : il alterne les types par round-robin sur les types disponibles. |
@@ -792,9 +812,9 @@
 > **NOTE :** 5 flashcards consécutives rendent la session monotone et mécanique. L'alternance des types de questions maintient l'attention et active différents circuits cognitifs (reconnaissance ≠ rappel ≠ production). Cette contrainte n'affecte pas la sélection des items (qui reste 70/20/10), seulement l'ordonnancement des questions dans la session.
 
 ### Z4-AC12 — Feedback enrichi après réponse incorrecte
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | L'élève répond incorrectement à une question de type KEYWORDS sur l'item « photosynthèse » (keywords attendus : chloroplaste, lumière, CO2). L'élève a répondu « les plantes font de la nourriture ». |
 | **WHEN** | La correction est affichée. |
 | **THEN** | Le feedback contient **3 éléments obligatoires** : — **1. La réponse correcte** : « Les mots-clés attendus étaient : chloroplaste, lumière, CO2 ». — **2. Ce qui manquait** (spécifique au type) : KEYWORDS → mots-clés manquants listés. NUMERIC → valeur attendue + unité + formule utilisée. MCQ → explication du distractor choisi (« Tu as choisi X — en réalité, X est faux car... »). — **3. Un indice pour la prochaine fois** (1 phrase max) : « Retiens que la photosynthèse se passe dans les chloroplastes grâce à la lumière et au CO2. ». Le feedback est généré par template (pas par LLM en temps réel) pour garantir la cohérence et la vitesse (< 200 ms). Le feedback est toujours factuel, jamais culpabilisant. |
@@ -802,9 +822,9 @@
 > **NOTE :** Un feedback qui dit juste « Faux — la bonne réponse est X » n'enseigne rien. L'indice en 1 phrase est le micro-moment d'apprentissage le plus puissant de la session. Le contenu est templaté (pas LLM live) pour garantir la rapidité et éviter les hallucinations dans le feedback lui-même.
 
 ### Z4-AC13 — Bouton « Passer » sur une question (sans pénalité mastery)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève est bloqué sur une question de type NUMERIC. Il ne connaît pas la formule. |
 | **WHEN** | L'élève appuie sur « Passer cette question ». |
 | **THEN** | La question est marquée `status = SKIPPED`. Le Mastery state de l'item n'est **PAS modifié** (ni progression, ni régression). `consecutive_successes` n'est pas remis à 0. La question est placée en fin de session (si la session a encore ≥ 3 questions restantes) pour une seconde chance. Si l'élève la passe à nouveau, elle est comptée comme non répondue. Le feedback de la réponse correcte est affiché après le 2ème passage (l'élève voit la solution même s'il n'a pas répondu). Maximum 2 « Passer » par session (au-delà, le bouton est grisé). |
@@ -812,9 +832,9 @@
 > **NOTE :** Sans mécanisme « Passer », un élève bloqué sur une question de calcul reste immobile → frustration → fermeture de l'app. Le « Passer » sans pénalité mastery est cohérent avec le principe « seule une réponse incorrecte déclenche une régression » (Z1-AC05 à Z1-AC07). La limite de 2 passes par session empêche l'abus (tout passer sans réfléchir). La solution affichée après le 2ème passage transforme un moment de blocage en moment d'apprentissage.
 
 ### Z4-AC14 — Session viable sur petit chapitre (< 5 items)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un chapitre n'a que 3 items valides. Le moteur de composition doit créer une session `daily`. |
 | **WHEN** | La composition est lancée. |
 | **THEN** | La session est composée avec **au minimum 4 questions** : chaque item génère au moins 1 question, et l'item le plus fragile en génère 2 (gabarits différents sur le même item). La durée cible est réduite à 3–5 min (au lieu de 10–20 min). Si le pool de gabarits éligibles est épuisé (tous les gabarits déjà utilisés pour ces 3 items), la session utilise des reformulations : même item + même gabarit mais avec des distractors différents (MCQ) ou un ordre de keywords différent (CLOZE). Le message d'introduction adapte les attentes : « Petite session rapide — [N] questions sur ce chapitre ». |
@@ -822,9 +842,9 @@
 > **NOTE :** Un chapitre avec 3 items est courant (élève qui n'a photographié qu'une seule page, ou cours très court). Sans ce AC, la session serait de 2 questions identiques à la veille — l'élève sent qu'il tourne en rond. La reformulation (distractors différents, ordre différent) crée une illusion de nouveauté tout en testant les mêmes connaissances sous des angles différents.
 
 ### Z4-AC15 — Anti-lassitude : renouvellement des questions vues fréquemment
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un item FRAGILE a été présenté 4 fois à l'élève dans les 7 derniers jours. Le pool contient 3 questions pour cet item, toutes déjà vues (identifiées via `question_id` dans les Attempts récents). |
 | **WHEN** | Le moteur de composition sélectionne cet item pour la session suivante. |
 | **THEN** | Le pool vérifie si l'élève a déjà vu toutes les questions disponibles pour cet item au cours des 5 dernières sessions. Si oui, une **régénération ciblée** est déclenchée pour cet item uniquement : le LLM génère 1–2 nouvelles questions avec des gabarits ou des angles différents (distractors variés, reformulation de la consigne). Les anciennes questions restent dans le pool (elles redeviennent éligibles après 14 jours sans vue). La régénération est **lazy** et non bloquante : si le LLM est indisponible, une question déjà vue est réutilisée plutôt que de bloquer la session. Un compteur `times_seen` est maintenu par `(user_id, question_id)` pour informer l'algorithme de sélection (préférence aux questions les moins vues). |
@@ -832,9 +852,9 @@
 > **NOTE :** Un item FRAGILE en spaced repetition est revu toutes les 24h. Avec un pool de 3 questions, l'élève voit la même MCQ au bout de 3 jours. Au 7ème jour, il reconnaît la question et la réponse par mémoire photographique — il ne révise plus le concept, il reconnaît le pattern visuel. C'est une forme de mastery inflation silencieuse. Le renouvellement ciblé force le cerveau à réengager avec le concept sous un angle neuf.
 
 ### Z4-AC16 — Fallback contenu quand le LLM est indisponible
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève tente de démarrer une session. Le LLM est indisponible depuis > 10 secondes (Z4-AC08 épuisé). Le chapitre a une carte de leçon avec des blocs de texte et des items existants (même sans questions générées). |
 | **WHEN** | Le fallback est déclenché. |
 | **THEN** | L'interface propose un mode « Relecture active » au lieu de laisser l'élève sans rien faire. Ce mode affiche la carte de leçon du chapitre le plus urgent (items dues en priorité) avec des **flashcards textuelles statiques** : pour chaque item KNOWLEDGE, afficher le `term` en recto et la définition extraite de l'OCR en verso (pas de génération LLM nécessaire). L'élève peut « retourner » chaque flashcard. Un bouton « Je savais » / « Je ne savais pas » permet un auto-évaluation (sans impact mastery — marqué `self_assessment = true`). Le message affiché est : « Les exercices ne sont pas disponibles pour le moment — en attendant, révise ta leçon avec ces flashcards ! » Le mode fallback se désactive automatiquement dès que le LLM redevient disponible (vérification toutes les 30s). Si aucun item n'est disponible du tout (chapitre vide), un message s'affiche : « Tes exercices arrivent bientôt — reviens dans quelques minutes. » |
@@ -842,9 +862,9 @@
 > **NOTE :** Un élève motivé qui ouvre l'app pour réviser et se retrouve face à un mur « réessaie plus tard » ferme l'app et ne revient pas. Le mode relecture active est un filet de sécurité minimal : il ne remplace pas les exercices adaptatifs mais il offre une activité pédagogique en attendant. Les flashcards textuelles ne nécessitent aucun appel LLM (données OCR déjà en base). L'auto-évaluation sans impact mastery évite la corruption des données tout en gardant l'élève engagé.
 
 ### Z4-AC17 — Invalidation cache sur création/modification/suppression d'Exam
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un élève a un chapitre PC-TRANSF avec un pool de questions en cache (TTL 24h). Le cache a été composé sans prise en compte d'un exam. L'élève crée un Exam « Contrôle PC » prévu dans 5 jours, lié à ce chapitre. |
 | **WHEN** | L'Exam est créé, modifié (`exam_date` changée), ou supprimé. |
 | **THEN** | Le cache `question_candidates` des chapitres liés à cet Exam est **invalidé immédiatement**. La prochaine composition de session recalcule les priorités avec les intervalles compressés (Z1-AC08) ou décompressés (Z1-AC20). Le cache `item_pool` n'est pas invalidé (les items ne changent pas, seule la priorité change). Si l'Exam est supprimé, les `next_due_at` des items liés sont **recalculés** aux intervalles standard (annulation de la compression Z1-AC08). Un log `EXAM_CACHE_INVALIDATION` est créé avec `exam_id`, `chapter_ids[]`, et le nombre d'entrées cache invalidées. |
@@ -852,9 +872,9 @@
 > **NOTE :** Le PRD §12.2 liste 4 triggers d'invalidation cache (re-upload, résolution HITL, pack version, mastery change) mais omet le CRUD Exam. Or la création d'un exam est l'événement qui change le plus radicalement la priorité des items (compression des intervalles). Sans invalidation, la première session après création d'un exam utilise un cache composé sans urgence exam — les items sous-prioritaires ne sont pas remontés, et l'élève perd un jour de révision optimale.
 
 ### Z4-AC18 — État « tout est à jour » : session optionnelle quand aucun item n'est dû
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a 15 items, tous en état OK ou SOLID. Aucun `next_due_at` n'est ≤ aujourd'hui. Aucun exam dans les 7 prochains jours. L'élève ouvre l'app et tente de lancer une session. |
 | **WHEN** | Le moteur de composition ne trouve aucun item éligible pour le bucket 70% (dues) ni le bucket 20% (consolidation récente). |
 | **THEN** | L'interface affiche un message positif : « Bravo — tu es à jour sur tous tes chapitres ! Prochaine révision prévue [date du prochain next_due_at]. » Un bouton optionnel « Session de consolidation » est proposé. S'il clique, une session courte (5 questions) est composée à partir des items SOLID les plus anciennement révisés (anti-oubli long terme). Cette session est de type `consolidation_optional` et n'a aucun impact négatif sur le mastery en cas d'échec ou de score partiel : pas de régression SOLID→OK, pas de reset de `consecutive_successes` (cf. Z1-AC26, exception consolidation_optional). Seuls les succès sont comptabilisés positivement. En cas d'exam dans les 7 jours, le message change : « Tu es bien préparé pour [nom exam] ! Tu peux refaire un contrôle blanc ou une session de consolidation. » |
@@ -870,9 +890,9 @@
 > Le versioning de chapitre protège l'historique de maîtrise lors d'un re-upload. La clé d'identité d'un Item détermine si on hérite ou recrée un Mastery state — une erreur ici remet à zéro silencieusement tout le travail de l'élève.
 
 ### Z5-AC01 — Clé d'identité d'un Item (définition canonique)
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Deux items provenant de révisions différentes du même chapitre. |
 | **WHEN** | Le système évalue si ces deux items sont le même item logique. |
 | **THEN** | Deux items sont considérés identiques si et seulement si : `normalized(item.term) == normalized(item2.term)` ET `item.pack_id == item2.pack_id` ET `item.type == item2.type`. La normalisation inclut : lowercase, trim, suppression des accents. Aucun autre champ (`confidence`, `tags`, `revision_id`) n'entre dans la clé. |
@@ -880,25 +900,25 @@
 > **NOTE :** La clé volontairement simple évite les faux négatifs dus à l'OCR. Un terme légèrement différent (ex. 'IDH' vs 'I.D.H.') doit être géré par la normalisation, pas en créant un doublon.
 
 ### Z5-AC02 — Héritage Mastery sur re-upload (item identique retrouvé)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'item `IDH` (pack HG-INEG, type KNOWLEDGE) est en état SOLID dans la révision R1. L'élève uploade de nouvelles pages (révision R2). L'item `IDH` est re-détecté dans R2 avec une clé identique. |
 | **WHEN** | La révision R2 est finalisée. |
 | **THEN** | L'item `IDH` dans R2 hérite du Mastery state SOLID de R1. `next_due_at`, `consecutive_successes` et `last_review_at` sont copiés. L'item R1 est archivé (`archived = true`) mais non supprimé. |
 
 ### Z5-AC03 — Pas d'héritage si clé différente (item nouveau)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'item `PIB/habitant` est en état OK dans R1. Dans la révision R2, l'OCR produit `PIB par habitant` (terme légèrement différent, normalisation identique → même clé normalisée). |
 | **WHEN** | La révision R2 est finalisée. |
 | **THEN** | Les deux formes sont reconnues comme le même item (normalisation). L'héritage Mastery s'applique (cf. Z5-AC02). Aucun doublon dans la carte de maîtrise. |
 
 ### Z5-AC04 — Conflit OCR : terme ambigu entre révisions
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'item `vassal` est en état FRAGILE dans R1. Dans R2, l'OCR produit `vassalle` (erreur d'OCR). Après normalisation : `vassal ≠ vassalle` → clés différentes. |
 | **WHEN** | La révision R2 est finalisée. |
 | **THEN** | L'item `vassalle` est créé comme NOUVEL item avec state UNKNOWN. L'item `vassal` de R1 est archivé. Une ValidationTask est créée automatiquement pour `vassalle` (clé non trouvée dans lexique pack → suspect). |
@@ -906,41 +926,41 @@
 > **NOTE :** Ce cas illustre pourquoi la ValidationTask pour les termes hors-lexique est critique. Le lexique pack sert de filet de sécurité contre les erreurs OCR sur les concepts clés.
 
 ### Z5-AC05 — Révision courante unique par chapitre
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un chapitre avec deux révisions R1 et R2 créées. |
 | **WHEN** | L'élève ouvre la carte de leçon du chapitre. |
 | **THEN** | Seuls les items de la révision `current_revision_id` (R2) sont affichés. Les items archivés de R1 ne sont pas visibles dans la carte. Les Mastery states hérités sont bien ceux affichés dans le dashboard. |
 
 ### Z5-AC06 — Sessions en cours non affectées par une nouvelle révision
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a une session S1 active (IN_PROGRESS) avec des questions issues de R1. Il uploade de nouvelles pages → création de R2. |
 | **WHEN** | R2 est finalisée et `current_revision_id` est mis à jour. |
 | **THEN** | La session S1 continue avec les questions de R1 jusqu'à sa fin. Les Mastery updates de S1 sont appliqués normalement. La prochaine session sera composée avec les items de R2. |
 
 ### Z5-AC07 — Items de R1 archivés non proposés en session
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un item I1 archivé de R1 a un Mastery state FRAGILE. La révision courante est R2 (I1 non re-détecté dans R2). |
 | **WHEN** | Une session est composée. |
 | **THEN** | L'item I1 archivé n'est PAS inclus dans la sélection de session. `archived = true` l'exclut de toutes les requêtes de composition. Le dashboard affiche uniquement les items de la révision courante. |
 
 ### Z5-AC08 — Historique Mastery préservé entre révisions (audit trail)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'item `IDH` a eu 5 tentatives dans R1 (3 réussites, 2 échecs). Dans R2, l'item est hérité avec state SOLID. |
 | **WHEN** | L'élève consulte l'historique de maîtrise de l'item `IDH`. |
 | **THEN** | L'historique affiche les 5 tentatives de R1 + les nouvelles tentatives de R2. L'interface indique que les tentatives anciennes proviennent d'une révision archivée. Aucune tentative n'est supprimée lors de l'archivage. |
 
 ### Z5-AC09 — Normalisation insensible à la ponctuation et aux abréviations
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'item `I.D.H.` existe dans R1 (état OK). Dans R2, l'OCR produit `IDH` (sans points). |
 | **WHEN** | La normalisation de clé d'identité est appliquée (cf. Z5-AC01). |
 | **THEN** | La normalisation supprime les points (`.`), tirets (`-`), barres obliques (`/`), espaces multiples et apostrophes typographiques avant comparaison. `normalized("I.D.H.") == normalized("IDH") == "idh"`. L'héritage Mastery s'applique (cf. Z5-AC02). La liste des caractères supprimés est configurable par pack (pour les cas où le tiret est sémantique, ex. `demi-vie`). |
@@ -948,9 +968,9 @@
 > **NOTE :** Ce AC complète Z5-AC01 et Z5-AC03 pour couvrir les variations OCR fréquentes sur les sigles et abréviations (IDH/I.D.H., PIB/P.I.B., pH/p.H.). Sans cette normalisation étendue, chaque variation OCR crée un doublon et orpheline le Mastery existant — c'est la source principale de régression silencieuse sur les re-uploads. La configurabilité par pack permet de préserver les cas où la ponctuation est sémantique.
 
 ### Z5-AC10 — Alerte items à haute maîtrise non retrouvés dans la nouvelle révision
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le chapitre a 12 items dans R1. 3 items sont en état SOLID (« chloroplaste », « photosynthèse », « stomate »). L'élève re-uploade ses photos (R2). L'OCR de R2 produit 10 items. L'item « chloroplaste » n'est pas retrouvé dans R2 (page manquante ou OCR raté sur ce mot). |
 | **WHEN** | L'héritage Mastery de R1→R2 est calculé (Z5-AC02 à Z5-AC04). |
 | **THEN** | Les items de R1 qui étaient en état **OK ou SOLID** et qui n'ont pas de correspondance dans R2 sont listés dans une alerte in-app à l'élève : « Attention — [N] point(s) bien maîtrisés n'ont pas été retrouvés dans ta nouvelle version : [liste des terms]. Vérifie que toutes les pages sont bien uploadées. » L'alerte propose deux actions : (1) « Re-uploader les pages manquantes » (relance le pipeline J0 avec des pages additionnelles), (2) « C'est normal, ce contenu n'est plus au programme » (confirme l'archivage). Les items archivés sans confirmation restent visibles dans la section « Points non retrouvés » pendant 14 jours avant archivage définitif. Le parent est informé dans le prochain digest si des items SOLID ont été perdus. |
@@ -958,9 +978,9 @@
 > **NOTE :** Un re-upload qui fait disparaître silencieusement des items SOLID est une régression invisible. L'élève qui a travaillé pendant 2 semaines pour amener « chloroplaste » à SOLID ne doit pas découvrir sa disparition par hasard. L'alerte explicite transforme un échec silencieux en action corrective (re-upload de la page manquante). Le délai de 14 jours avant archivage définitif laisse le temps de réagir.
 
 ### Z5-AC11 — Ajout incrémental de pages à un chapitre existant (sans nouvelle révision)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le chapitre « Mouvement et vitesse » existe avec une révision R1 contenant les pages 1-3 (uploadées lundi soir). L'élève a cours de physique mercredi. Mercredi soir, il photographie les pages 4-6 (suite du chapitre). |
 | **WHEN** | L'élève utilise l'action « Ajouter des pages » sur un chapitre existant (distinct de « Re-uploader »). |
 | **THEN** | Les pages 4-6 sont **ajoutées** à la révision courante R1 (les champs `Page.order` sont incrémentés : 4, 5, 6). **Aucune nouvelle ChapterRevision n'est créée.** Les pages 1-3 ne sont pas re-traitées : leurs résultats OCR, items, et mastery restent intacts. Seules les pages 4-6 entrent dans le pipeline J0 (segmentation → OCR → items → fidelity check). Les nouveaux items sont créés en état UNKNOWN avec `revision_id = R1`. L'étape de cohérence 7c compare les nouveaux items aux items existants (détection doublons/contradictions cross-pages) mais ne re-vérifie pas les items existants entre eux. La carte de leçon est mise à jour pour inclure les nouvelles pages (streaming, Z2-AC10). La file de validation (Z2-AC09) est recalculée sur l'ensemble des items du chapitre (existants + nouveaux) mais les items déjà validés ne repassent pas en validation. |
@@ -968,9 +988,9 @@
 > **NOTE :** C'est le cas d'usage #1 en fréquence pour un collégien : un cours se déroule sur 2-3 séances par semaine, et l'élève photographie ses notes au fur et à mesure. Forcer un re-upload complet (nouvelle ChapterRevision) pour ajouter 3 pages crée un risque de perte de maîtrise par drift OCR sur les pages existantes, une latence inutile (re-OCR de pages déjà traitées), et une UX confuse (alertes Z5-AC10 sur des items « disparus » qui sont en fait sur les anciennes pages non re-uploadées). L'action « Ajouter des pages » est la voie par défaut ; « Re-uploader » est réservé aux corrections (photo floue, restructuration).
 
 ### Z5-AC12 — Pas de re-OCR des pages existantes lors d'un ajout incrémental
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le chapitre a 3 pages existantes (pages 1-3) avec des résultats OCR stables et 8 items dont 4 en état OK ou SOLID. L'élève ajoute les pages 4-6 via « Ajouter des pages ». |
 | **WHEN** | Le pipeline J0 s'exécute pour les nouvelles pages. |
 | **THEN** | Les résultats OCR des pages 1-3 sont **conservés tels quels** — aucune ré-extraction, aucune invalidation de cache OCR pour ces pages. Les items issus des pages 1-3 ne sont pas recalculés, pas re-matchés, pas soumis à un nouveau fidelity check. Leurs `Mastery` (states, `consecutive_successes`, `next_due_at`) restent inchangés. Le cache de questions (`QuestionCandidate`) des items existants reste valide. Seul le cache au niveau « session composition » est invalidé (pour intégrer les nouveaux items UNKNOWN dans le pool de sélection). Le hash OCR (Z4-AC09) n'est calculé que pour les pages 4-6. |
@@ -986,9 +1006,9 @@
 > L'emploi du temps est le socle de toute la couche proactive. Une notification mal ciblée fatigue l'élève. Une session evening_first ou pre_class mal composée dilue la valeur du rappel. Un exam multi-chapitres mal borné explose le temps de session.
 
 ### Z6-AC01 — Saisie de l'emploi du temps contextuelle au premier upload d'une matière
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève uploade son premier chapitre d'une matière (ex : Physique-Chimie). Aucun `ScheduleSlot` n'existe pour cette matière. |
 | **WHEN** | Le formulaire de création de chapitre est validé (matière + nom + photos). |
 | **THEN** | Avant de lancer le pipeline J0, l'app affiche un écran inline : « Quand as-tu [Physique-Chimie] dans la semaine ? » avec une **grille jour × période** (Lu–Ve, matin/après-midi). L'élève coche les créneaux (ex : mardi matin + jeudi matin + vendredi après-midi). Un bouton « Plus tard » permet de sauter (l'app fonctionne sans, cf. Z6-AC47). À la confirmation, les `ScheduleSlot` correspondants sont créés en batch (un par case cochée). La contrainte d'unicité `(user_id, subject, day_of_week, period)` s'applique. Si l'élève uploade un 2ème chapitre de la même matière plus tard, cet écran n'apparaît **pas** (les ScheduleSlots existent déjà). La modification et la suppression restent possibles à tout moment dans les paramètres (CRUD standard). |
@@ -996,113 +1016,113 @@
 > **NOTE :** La saisie contextuelle au moment de l'upload résout le problème principal de l'onboarding : un élève de 12 ans ne connaît pas son emploi du temps par cœur et abandonne un formulaire abstrait. Mais au moment où il photographie son cours de Physique, il sait **exactement** quand il a cette matière — la question est naturelle, la réponse immédiate. L'emploi du temps se construit progressivement, matière par matière, au rythme des uploads. Après 2-3 captures (première semaine d'usage), l'agenda est complet sans que l'élève ait eu l'impression de « remplir un formulaire ».
 
 ### Z6-AC02 — Notification capture_reminder déclenchée par emploi du temps
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a un `ScheduleSlot` mardi matin pour Physique-Chimie. Il est mardi 18h30 (heure de notification par défaut). Aucun chapitre Physique-Chimie n'a été saisi aujourd'hui. |
 | **WHEN** | Le scheduler de notifications s'exécute. |
 | **THEN** | Une notification `capture_reminder` est envoyée : 'Tu as eu Physique-Chimie aujourd'hui — saisis ton cours pour réviser ce soir !' L'heure d'envoi est `user.notification_hour` (défaut 18h30). La notification est loggée avec `scheduled_at`, `sent_at`. |
 
 ### Z6-AC03 — Notification review_reminder si chapitre déjà saisi
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a un `ScheduleSlot` mardi matin pour Physique-Chimie. Il est mardi 18h30. Un chapitre Physique-Chimie a été saisi aujourd'hui (ou un chapitre existant a des items FRAGILE/OK dues). |
 | **WHEN** | Le scheduler de notifications s'exécute. |
 | **THEN** | Une notification `review_reminder` est envoyée : 'Révise tes points fragiles en Physique-Chimie — 10 min ce soir'. La notification `capture_reminder` n'est PAS envoyée (le chapitre est déjà saisi). |
 
 ### Z6-AC04 — Max 2 notifications par soir
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a 4 matières le mardi : Physique-Chimie, Maths, SVT, Français. 3 cours n'ont pas été saisis. 1 chapitre a des items FRAGILE. |
 | **WHEN** | Le scheduler prépare les notifications du mardi soir. |
 | **THEN** | Seules **2 notifications** sont envoyées. La priorité est : (1) matière avec Exam le plus proche, (2) matière avec le plus d'items FRAGILE/UNKNOWN. Les 2 notifications restantes sont supprimées (pas reportées). L'élève ne reçoit jamais plus de 2 notifications par soir. |
 
 ### Z6-AC05 — Session evening_first déclenchée après upload
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | L'élève uploade un nouveau chapitre de Physique-Chimie. Le pipeline J0 produit 12 items. |
 | **WHEN** | Le pipeline J0 se termine avec ≥ 1 item valide. |
 | **THEN** | Une session de type `evening_first` est automatiquement proposée (pas lancée de force). `trigger = 'scheduled'`. Durée cible : 5–10 min. La session est proposée **immédiatement**, quelle que soit l'heure. Si l'élève ne la fait pas, elle reste disponible 72h (TTL session standard). |
 
 ### Z6-AC06 — evening_first : contenu 100% UNKNOWN, gabarits difficulté 1
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Une session `evening_first` est composée pour un chapitre fraîchement uploadé avec 12 items UNKNOWN. |
 | **WHEN** | Le moteur de composition sélectionne les questions. |
 | **THEN** | 100% des items sont issus du chapitre uploadé. Tous sont en état UNKNOWN. Seuls les gabarits de difficulté 1 sont éligibles : `GEN.KNOW.FLASH_MCQ`, `GEN.KNOW.DEF_SHORT`, `GEN.KNOW.CLOZE_KEYWORDS`. Aucun gabarit NUMERIC, RUBRIC, ou de rédaction n'est inclus. Le nombre de questions est calibré pour 5–10 min (typiquement 6–10 questions). |
 
 ### Z6-AC07 — Session pre_class la veille de chaque cours
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a un `ScheduleSlot` mercredi matin pour Histoire-Géo. Il est mardi soir. L'élève a 3 chapitres actifs en Histoire-Géo avec des items aux états variés (UNKNOWN, FRAGILE, OK, SOLID). |
 | **WHEN** | Le scheduler de sessions évalue les sessions à proposer pour mardi soir. |
 | **THEN** | Une session `pre_class` est proposée. Durée cible : 5 min. La justification affichée est : 'Tu as Histoire-Géo demain — prépare-toi en cas d'interro surprise'. `trigger = 'scheduled'`. |
 
 ### Z6-AC08 — Fusion pre_class dans daily si session daily prévue le même soir
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a mardi soir : une session `daily` prévue (items dues de Maths + Physique) ET une session `pre_class` pour Histoire-Géo (cours mercredi matin). |
 | **WHEN** | Le moteur de composition prépare les sessions du mardi soir. |
 | **THEN** | Les items `pre_class` d'Histoire-Géo sont **injectés en priorité** dans la session `daily`. L'élève ne voit qu'une seule session. Les items pre_class apparaissent dans les premières questions. Le type de la session reste `daily`. L'attribut `includes_pre_class = true` est positionné pour le tracking. |
 
 ### Z6-AC09 — pre_class : scope multi-chapitres de la matière
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a 3 chapitres actifs en Histoire-Géo : 'Inégalités' (8 items, 3 FRAGILE), 'Mondialisation' (6 items, 1 UNKNOWN), 'Urbanisation' (10 items, 2 OK dues). |
 | **WHEN** | La session `pre_class` est composée. |
 | **THEN** | La sélection puise dans **tous les chapitres actifs** de la matière. Priorité : (1) items FRAGILE/OK dont `next_due_at ≤ now`, (2) items UNKNOWN jamais vus. Gabarits : difficulté 1–2 uniquement (rappel rapide, pas de problèmes longs). Durée cible : 5 min (typiquement 4–6 questions). |
 
 ### Z6-AC10 — Exam multi-chapitres : mock_exam couvre tous les chapitres liés
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un `Exam` 'Contrôle séquence 1' avec `chapter_ids = [ch1, ch2, ch3]`. ch1 a 10 items, ch2 a 15 items, ch3 a 8 items. |
 | **WHEN** | L'élève lance un contrôle blanc (`mock_exam`) pour cet Exam. |
 | **THEN** | La session `mock_exam` inclut des items des **3 chapitres**. La sélection est proportionnelle au nombre d'items par chapitre (≈ 30% ch1, 45% ch2, 25% ch3). Tous les niveaux de difficulté sont éligibles. La durée est cappée à **30 min maximum**. Si le pool total dépasse 30 min, un échantillon représentatif est sélectionné. |
 
 ### Z6-AC11 — Exam multi-chapitres : création et liaison
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | L'élève crée un Exam 'Interro chapitre 3' avec `exam_date = 2026-03-15` et sélectionne le chapitre 'Inégalités'. |
 | **WHEN** | L'Exam est sauvegardé. |
 | **THEN** | L'entité `Exam` est créée avec `chapter_ids = ['ch_inegalites']`. Le chapitre 'Inégalités' référence cet Exam. Le resserrement Z1-AC08 s'active pour tous les items du chapitre lié. Un Exam peut être modifié (ajout/retrait de chapitres, changement de date) à tout moment. |
 
 ### Z6-AC12 — Mode dégradé sans emploi du temps
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | L'élève n'a saisi aucun `ScheduleSlot`. |
 | **WHEN** | Le système évalue les sessions et notifications à planifier. |
 | **THEN** | Aucune notification `capture_reminder` ou `pre_class` n'est envoyée. Aucune session `pre_class` n'est planifiée. Les sessions `daily`, `diagnostic`, `mock_exam`, et `evening_first` fonctionnent normalement. La révision espacée standard s'applique sans modification. Un nudge 'Saisis ton emploi du temps pour des révisions plus ciblées' est affiché à J+3 puis au début de chaque trimestre. |
 
 ### Z6-AC13 — Notifications désactivables sans impact sessions
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a un emploi du temps saisi mais désactive les notifications dans ses paramètres. |
 | **WHEN** | Le scheduler de notifications s'exécute. |
 | **THEN** | Aucune notification n'est envoyée. Les sessions `pre_class` et `evening_first` restent **disponibles** (composées normalement) — l'élève peut les lancer manuellement. Seul le push notification est supprimé, pas la logique de composition. |
 
 ### Z6-AC14 — Pas de session pre_class si aucun chapitre actif dans la matière
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a un `ScheduleSlot` mercredi matin pour SVT. Aucun chapitre SVT n'a été créé (ou tous sont archivés). |
 | **WHEN** | Le scheduler évalue les sessions pre_class pour mardi soir. |
 | **THEN** | Aucune session `pre_class` n'est créée pour SVT. Aucune notification `pre_class` n'est envoyée. Le système n'affiche pas d'erreur. |
 
 ### Z6-AC15 — Items dues non révisés : aucune pénalité mastery
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Un item en état **OK** avec `next_due_at = 2 mars`. L'élève ne révise pas du 2 au 5 mars (3 jours de retard). |
 | **WHEN** | L'élève ouvre une session le 5 mars. |
 | **THEN** | L'item est toujours en état **OK**. `consecutive_successes` n'a pas changé. `next_due_at` est resté au 2 mars (non modifié par l'inaction). L'item apparaît en priorité dans les 70% « items dus » de la session (car `next_due_at < now`). Aucune régression n'a eu lieu. |
@@ -1110,9 +1130,9 @@
 > **NOTE :** Le Mastery state n'est JAMAIS modifié par l'inaction. Seule une réponse incorrecte déclenche une régression (Z1-AC05 à Z1-AC07). Un élève qui revient après une pause retrouve ses acquis intacts et reprend là où il en était. Cette règle s'applique à tous les états (FRAGILE, OK, SOLID).
 
 ### Z6-AC16 — Rappel unique le lendemain pour session evening_first manquée
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Une session `evening_first` a été proposée lundi soir à 18h30. L'élève n'a répondu à aucune question. Il est mardi 08h00 (heure de rappel par défaut). |
 | **WHEN** | Le scheduler de notifications s'exécute mardi matin. |
 | **THEN** | Une notification `missed_session_reminder` est envoyée : « Tu avais une révision en attente — on s'y remet ? ». `source_session_id` référence la session manquée. **Aucun second rappel** n'est envoyé si l'élève ignore ce rappel. La session originale reste disponible jusqu'à expiration (TTL 72h). |
@@ -1120,17 +1140,17 @@
 > **NOTE :** Seules les sessions `evening_first` et `pre_class` non commencées (0 questions répondues) déclenchent un rappel. Les sessions `daily` non commencées ne génèrent PAS de rappel pour éviter la sur-sollicitation. Les sessions partiellement complétées (≥ 1 question répondue) ne déclenchent pas non plus de rappel.
 
 ### Z6-AC17 — Rappel unique le lendemain pour session pre_class manquée
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Une session `pre_class` a été proposée mardi soir. L'élève n'a répondu à aucune question. Il est mercredi 08h00. |
 | **WHEN** | Le scheduler de notifications s'exécute mercredi matin. |
 | **THEN** | Une notification `missed_session_reminder` est envoyée : « Tu avais une révision en attente — on s'y remet ? ». Le rappel est envoyé même si le cours a déjà eu lieu (mercredi matin). **Un seul rappel**, jamais de relance. |
 
 ### Z6-AC18 — Aucune mécanique de streak
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a révisé 5 jours consécutifs puis ne révise pas pendant 3 jours. |
 | **WHEN** | L'élève revient le 9e jour et ouvre l'application. |
 | **THEN** | Aucun compteur de « série » ou de « streak » n'est affiché. Aucun message de type « Tu as perdu ta série » n'apparaît. L'interface affiche l'état actuel de la carte de maîtrise sans référence à la régularité passée. Le message d'accueil est neutre ou positif : « Tes révisions t'attendent — on continue ? ». |
@@ -1138,9 +1158,9 @@
 > **NOTE :** L'absence de streak est un choix produit délibéré. La gamification par streak culpabilise les élèves en cas de rupture et peut être contre-productive pour les collégiens (11–15 ans). Le service valorise la qualité de la révision, pas la quantité de jours consécutifs.
 
 ### Z6-AC19 — Annulation ponctuelle d'un cours
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a un `ScheduleSlot` mardi matin pour Physique-Chimie. Il crée une `ScheduleException` de type `cancelled` pour le mardi 11 mars. |
 | **WHEN** | Le scheduler de notifications et de sessions s'exécute le lundi 10 mars soir et le mardi 11 mars soir. |
 | **THEN** | **Lundi soir :** aucune session `pre_class` n'est proposée pour Physique-Chimie (le cours du lendemain est annulé). **Mardi soir :** aucune notification `capture_reminder` ni `review_reminder` n'est envoyée pour Physique-Chimie. Le créneau récurrent du mardi matin reste inchangé pour les semaines suivantes (le mardi 18 mars fonctionne normalement). |
@@ -1148,33 +1168,33 @@
 > **NOTE :** L'exception est ponctuelle. Elle ne modifie pas le `ScheduleSlot` récurrent. Le scheduler résout les créneaux effectifs d'une semaine en combinant `ScheduleSlot` + `ScheduleException` du même `(user_id, subject)`.
 
 ### Z6-AC20 — Déplacement ponctuel d'un cours
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a un `ScheduleSlot` mardi matin pour Physique-Chimie. Il déplace le cours du mardi 11 mars vers jeudi 13 mars après-midi. |
 | **WHEN** | Le système enregistre le déplacement. |
 | **THEN** | Une `ScheduleException` est créée : `type = 'moved'`, `original_date = 2026-03-11`, `moved_to_date = 2026-03-13`, `moved_to_period = 'afternoon'`. **Mardi 11 :** aucune notification ni session `pre_class` pour PC (cours annulé ce jour). **Mercredi 12 soir :** une session `pre_class` est proposée pour PC (veille du cours déplacé à jeudi). **Jeudi 13 soir :** une notification `capture_reminder` ou `review_reminder` est envoyée pour PC. Le créneau récurrent mardi matin reprend normalement le mardi 18 mars. |
 
 ### Z6-AC21 — Exception sans impact sur les autres matières
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a un `ScheduleSlot` mardi matin pour PC et un `ScheduleSlot` mardi après-midi pour SVT. Le cours de PC du mardi 11 mars est annulé. |
 | **WHEN** | Le scheduler s'exécute le mardi 11 mars soir. |
 | **THEN** | La notification pour PC n'est PAS envoyée (cours annulé). La notification pour SVT EST envoyée normalement (pas d'exception sur SVT). L'exception est isolée par `(user_id, subject, original_date)`. |
 
 ### Z6-AC22 — Nettoyage automatique des exceptions passées
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a 5 `ScheduleException` dont 3 ont une `original_date` de plus de 30 jours. |
 | **WHEN** | Le job de nettoyage s'exécute (quotidien). |
 | **THEN** | Les 3 exceptions de plus de 30 jours sont supprimées. Les 2 exceptions récentes sont conservées. Aucune exception future n'est supprimée. |
 
 ### Z6-AC23 — Déplacement vers un jour déjà occupé (même matière)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a un `ScheduleSlot` mardi matin pour PC et un `ScheduleSlot` jeudi matin pour PC. Il déplace le cours de mardi 11 mars vers jeudi 13 mars. |
 | **WHEN** | Le scheduler évalue jeudi 13 mars. |
 | **THEN** | Le cours PC du jeudi 13 mars existe déjà (créneau récurrent). Le déplacement ajoute un deuxième créneau PC le même jour. Les notifications ne sont envoyées qu'**une seule fois** pour PC ce jour-là (déduplication par `(user_id, subject, date)`). La session `pre_class` du mercredi soir couvre PC une seule fois (pas de doublon). |
@@ -1182,33 +1202,33 @@
 > **NOTE :** Le déplacement vers un jour où la matière est déjà prévue est autorisé (l'élève peut avoir 2h de PC le même jour). Le système déduplique les notifications et sessions mais ne bloque pas la saisie.
 
 ### Z6-AC24 — Notification parent : annulation / déplacement de cours (temps réel)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a un parent lié (`linked_student_id`). Le parent a `schedule_change_enabled = true` dans ses `ParentNotificationPref`. L'élève annule son cours de PC du mardi 11 mars. |
 | **WHEN** | L'élève confirme l'annulation. |
 | **THEN** | Une notification push est envoyée **immédiatement** au parent : « [Prénom] a annulé son cours de Physique-Chimie du mardi 11 mars ». L'événement apparaît dans le tableau de bord parent (section « 7 derniers jours »). L'élève n'est **pas** notifié que son parent a reçu l'alerte. Si le parent a `schedule_change_enabled = false`, aucune notification n'est envoyée mais l'événement reste visible dans le tableau de bord. |
 
 ### Z6-AC25 — Notification parent : session de révision manquée (lendemain matin)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève avait une session `pre_class` planifiée le lundi 10 mars soir pour PC. La session n'a pas été commencée à 23h59. Le parent a `missed_session_enabled = true`. |
 | **WHEN** | Le scheduler parent s'exécute le mardi 11 mars matin (même heure que le rappel élève). |
 | **THEN** | Notification push parent : « [Prénom] n'a pas fait sa session de révision de Physique-Chimie hier soir ». L'événement apparaît dans le tableau de bord parent. **Exception** : si l'élève a terminé la session entre 00h00 et 06h00 le mardi, la notification parent n'est **pas** envoyée (session comptée comme faite en retard). |
 
 ### Z6-AC26 — Notification parent : inactivité prolongée (3 jours)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève n'a eu aucune activité (capture, session, review) depuis 3 jours consécutifs. Le parent a `inactivity_enabled = true` et `inactivity_threshold_days = 3`. |
 | **WHEN** | Le job d'inactivité s'exécute le matin du 4ème jour sans activité. |
 | **THEN** | Notification push parent : « [Prénom] n'a pas utilisé ReviseMieux depuis 3 jours ». L'alerte est envoyée **une seule fois** par période d'inactivité. Aucune nouvelle notification tant que l'élève n'a pas repris une activité puis recommencé une nouvelle période d'inactivité. Le seuil est configurable par le parent (`inactivity_threshold_days`). |
 
 ### Z6-AC27 — Opt-out parent par catégorie
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le parent désactive `missed_session_enabled` dans ses paramètres mais laisse `schedule_change_enabled` et `inactivity_enabled` activés. |
 | **WHEN** | L'élève manque une session ET annule un cours le même jour. |
 | **THEN** | Le parent reçoit **uniquement** la notification d'annulation de cours (schedule_change). Aucune notification pour la session manquée. Les deux événements restent visibles dans le tableau de bord parent (le tableau de bord n'est pas filtré par les préférences de notification). |
@@ -1216,9 +1236,9 @@
 > **NOTE :** Les notifications parent respectent l'autonomie de l'élève. L'objectif est d'informer les parents sans créer une dynamique de surveillance. L'élève ne voit jamais « ton parent a été prévenu ». Le parent ne peut pas agir sur l'emploi du temps de l'élève depuis son compte.
 
 ### Z6-AC28 — Ré-engagement progressif après inactivité prolongée (7+ jours)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève n'a eu aucune activité depuis 7 jours consécutifs. Le rappel d'inactivité parent (Z6-AC26) a déjà été envoyé à J+3. |
 | **WHEN** | Le job de ré-engagement s'exécute le matin du 8ème jour. |
 | **THEN** | Une notification unique est envoyée à l'élève : « Tes révisions t'attendent — [N] points à consolider en [matière]. On reprend doucement ? ». La notification inclut un deep link vers une session courte (3–5 min, gabarits faciles, priorité items FRAGILE). Si l'élève ne réagit pas, **aucune relance** supplémentaire n'est envoyée (respect du choix). Le système ne relance qu'au prochain changement de contexte : nouvel Exam créé, nouveau chapitre uploadé, ou début de trimestre. |
@@ -1226,9 +1246,9 @@
 > **NOTE :** Ce AC complète Z6-AC26 (alerte parent) et Z6-AC18 (pas de streak) en ajoutant un seul point de contact côté élève. L'approche "1 notification + deep link facile" respecte le principe anti-culpabilisation tout en offrant un chemin de retour à faible friction. Le déclencheur contextuel (exam, upload, trimestre) évite le harcèlement tout en maintenant des occasions naturelles de reprise.
 
 ### Z6-AC29 — Alerte dates d'exams simultanées sur même journée
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève crée un Exam pour Physique-Chimie le 15 mars. Un Exam pour Maths existe déjà le 15 mars. |
 | **WHEN** | L'élève sauvegarde le nouvel Exam. |
 | **THEN** | Un avertissement non-bloquant est affiché : « Tu as déjà un contrôle de Maths le 15 mars — les deux révisions seront planifiées en parallèle ». L'Exam est créé normalement. Le moteur de planification répartit les sessions de révision en alternant les matières les jours précédant le 15 mars (pas de soirée 100% PC + soirée 100% Maths, mais un mix). Le contrôle blanc multi-exam n'est **pas** fusionné (chaque Exam garde son propre mock_exam). |
@@ -1236,9 +1256,9 @@
 > **NOTE :** Sans cette détection, l'élève peut se retrouver avec deux contrôles blancs le même jour sans préparation équilibrée. L'alternance des matières dans les sessions pré-exam est plus efficace pour la mémorisation (interleaving effect) et évite la saturation cognitive sur une seule matière.
 
 ### Z6-AC30 — Session « retour en douceur » après absence prolongée
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève n'a eu aucune activité depuis ≥ 5 jours. Il a 15 items en retard (`next_due_at < now`), dont 8 FRAGILE et 7 OK. Il ouvre l'app et lance une session. |
 | **WHEN** | Le moteur de composition prépare la session. |
 | **THEN** | La session est composée en mode « retour en douceur » : — Durée réduite : 5 min max (au lieu de 10–20 min). — Sélection : uniquement les 4–6 items les plus anciens en retard (pas les 15). — Gabarits : difficulté 1–2 uniquement (rappel, pas d'exercice long). — Message d'accueil : « Content de te revoir ! On reprend doucement avec quelques rappels. ». — Les items non sélectionnés restent en retard et seront proposés dans les sessions suivantes (étalement sur 3–5 jours). Le mode « retour en douceur » se désactive automatiquement après 2 sessions complétées consécutivement. |
@@ -1246,9 +1266,9 @@
 > **NOTE :** Sans ce mécanisme, un élève qui revient après une semaine voit une session de 20 min bourrée d'items qu'il a oubliés → cascade d'échecs → sentiment d'incompétence → décrochage définitif. Le « retour en douceur » étale la dette sur plusieurs jours et utilise des gabarits faciles pour reconstruire la confiance avant de monter en difficulté. C'est le premier anti-pattern de churn identifié dans les apps de spaced repetition (cf. problème connu d'Anki).
 
 ### Z6-AC31 — Cycle de vie post-exam : archivage automatique
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un Exam avec `exam_date = 10 mars` couvre les chapitres ch1 et ch2. La date est dépassée (`now > exam_date + 1 jour`). |
 | **WHEN** | Le job quotidien de maintenance s'exécute le 12 mars. |
 | **THEN** | L'Exam passe en `status = 'past'`. Les chapitres ch1 et ch2 ne sont **plus** soumis au resserrement de planning Z1-AC08 (les intervalles reviennent aux valeurs standard sans exam). Les items SOLID de ch1/ch2 passent en intervalle J+14 (repos long terme au lieu de J+7). Les items FRAGILE/OK gardent leurs intervalles standard (J+1, J+3). Les chapitres restent actifs et révisables mais ne sont plus prioritaires dans la session quotidienne. Un message « Contrôle passé — tes acquis sont en maintenance longue » est affiché sur la carte du chapitre. L'élève peut relancer un contrôle blanc à tout moment (utile pour un futur brevet ou examen global). |
@@ -1256,9 +1276,9 @@
 > **NOTE :** Sans ce AC, les items post-exam continuent de saturer les sessions quotidiennes avec le même rythme qu'avant l'exam. L'élève a mentalement tourné la page mais l'app insiste. C'est la 3ème cause de désinstallation identifiée. Le passage en « maintenance longue » (J+14 pour SOLID) maintient l'ancrage sans fatiguer.
 
 ### Z6-AC32 — Diagnostic initial : rampe de difficulté progressive
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève lance son premier diagnostic sur un chapitre avec 12 items UNKNOWN. |
 | **WHEN** | Le moteur de composition prépare le diagnostic initial. |
 | **THEN** | Les 2–3 premières questions sont des gabarits de difficulté 1 (FLASH_MCQ, DEF_SHORT) sur les items les plus simples (confidence la plus haute). Les questions suivantes montent progressivement en difficulté (2, puis 3 si disponible). Si l'élève enchaîne 3 échecs consécutifs, le moteur redescend en difficulté 1 pour les 2 questions suivantes avant de remonter. Le diagnostic ne commence jamais par un gabarit NUMERIC, RUBRIC ou ORDERING. En fin de diagnostic, le message de clôture est toujours positif : « Bonne première exploration ! Tu as [X] points acquis et [Y] à travailler — on s'y met dès ce soir ! ». |
@@ -1266,9 +1286,9 @@
 > **NOTE :** La première impression détermine la rétention. Un diagnostic qui commence par un exercice de calcul complexe sur un chapitre jamais vu → échec → l'élève pense « cette app est trop dure ». La rampe progressive garantit 2–3 réussites rapides en début de session (effet psychologique de compétence perçue) avant d'augmenter le challenge.
 
 ### Z6-AC33 — Notification parent : digest hebdo calé sur calendrier d'exams
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un Exam est prévu le mercredi 12 mars. Le digest hebdo parent est normalement envoyé le dimanche. |
 | **WHEN** | Le scheduler prépare le digest de la semaine contenant un exam à J-5 ou moins. |
 | **THEN** | Un digest supplémentaire « pré-contrôle » est envoyé **3 jours avant l'exam** (samedi 9 mars) en plus du digest hebdo standard. Ce digest inclut : — Titre : « Contrôle [Matière] dans 3 jours ». — Maîtrise par chapitre concerné (% items OK+SOLID). Si l'exam a `notion_ids[]` (Z7-AC19), le calcul de maîtrise et la liste d'items ne portent que sur les Notions sélectionnées (pas le chapitre entier). — Items encore FRAGILE/UNKNOWN dans le périmètre de l'exam (liste courte, max 5). — Recommandation : « Encouragez [Prénom] à faire un dernier contrôle blanc ce week-end ». Le digest standard du dimanche inclut une section « Contrôle dans 3 jours » en haut si non envoyé samedi. Aucun digest supplémentaire si le parent a opt-out de la catégorie. |
@@ -1276,9 +1296,9 @@
 > **NOTE :** Le digest hebdo à date fixe ne suffit pas : un parent qui reçoit le récap dimanche pour un contrôle lundi n'a plus le temps d'agir. Le digest pré-contrôle à J-3 donne une fenêtre d'action (week-end). C'est le moment où le parent a le plus besoin du signal et où la valeur perçue du service est la plus haute.
 
 ### Z6-AC34 — Notification parent : résumé hebdo sessions manquées (anti alert-fatigue)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a manqué 3 sessions cette semaine (lundi pre_class, mercredi evening_first, vendredi daily). Le parent a `missed_session_enabled = true`. |
 | **WHEN** | Le scheduler parent prépare les notifications de session manquée. |
 | **THEN** | Le parent ne reçoit **PAS** 3 notifications individuelles. À la place : — **Première session manquée de la semaine** : notification push individuelle (cf. Z6-AC25). — **Sessions manquées suivantes (2ème et 3ème)** : regroupées dans le digest hebdo sous la section « Sessions manquées cette semaine : 3 ». Pas de notification push supplémentaire. Maximum **1 notification push « session manquée » par semaine** pour le parent. Le détail complet reste visible dans le tableau de bord parent (Z6-AC27). |
@@ -1286,9 +1306,9 @@
 > **NOTE :** Un parent qui reçoit 3+ notifications « session manquée » par semaine désactive les alertes. L'alert fatigue est la première cause de désactivation des notifications parent dans les apps éducatives. La règle « 1 push/semaine + résumé dans le digest » maintient le signal sans créer de bruit. Le tableau de bord reste exhaustif pour les parents qui veulent le détail.
 
 ### Z6-AC35 — Digest parent hebdo : contenu standardisé avec indicateur qualité
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le parent est en mode passif. Le scheduler prépare le digest hebdomadaire. L'élève a 2 chapitres actifs : 'Photosynthèse' (15 items, 3 validation_required, 80% OK+SOLID) et 'Densité' (10 items, 0 validation_required, 60% OK+SOLID). |
 | **WHEN** | Le digest est généré. |
 | **THEN** | Le digest contient **obligatoirement** les sections suivantes, dans cet ordre : — **1. Résumé activité** : « [Prénom] a révisé [X] fois cette semaine, [Y] min au total ([Y₁] min en session + [Y₂] min en étude papier) ». Si des fiches papier ont été reportées (Z7-AC26, `session_type = 'paper_report'`), le temps en étude papier (estimé : nb questions × 90s) est affiché séparément du temps en session interactive. Si aucun report papier : le détail n'est pas affiché (juste « [Y] min au total »). Si aucune activité : « [Prénom] n'a pas révisé cette semaine » (pas de données masquées). — **2. Maîtrise par chapitre** : pour chaque chapitre actif, le % d'items OK+SOLID et le nombre d'items restants (FRAGILE+UNKNOWN). Si des items ont `validation_required = true`, mention « [N] point(s) en vérification — exercices simplifiés en attendant ». — **3. Alertes** (si applicable) : items à risque (FRAGILE + prochain exam < 5j), sessions manquées (résumé, cf. Z6-AC34), inactivité. — **4. Prochaine action** : « Encouragez [Prénom] à [action concrète] ». Ex. « faire le contrôle blanc de Physique-Chimie ce week-end ». — **5. Score dernier contrôle blanc** (si complété cette semaine) : score + `score_confidence` (cf. Z1-AC18). Le digest est lisible en < 30 secondes (max 150 mots hors titres). |
@@ -1296,9 +1316,9 @@
 > **NOTE :** Le digest est le touchpoint principal des parents passifs (mode par défaut). Son contenu était sous-spécifié — un vague « couverture, maîtrise, risques » sans format. Ce AC standardise les 5 sections obligatoires et surtout rend visible le statut de qualité des items (section 2). Un parent qui voit « 3 points en vérification » comprend que la maîtrise affichée est provisoire, ce qui évite la fausse confiance.
 
 ### Z6-AC36 — Digest parent : signalement capture incomplète (pages OCR échouées)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a uploadé 10 pages pour le chapitre 'Photosynthèse'. 2 pages sont en `status = FAILED` ou `items_generation_failed`. Le parent reçoit le digest hebdomadaire. |
 | **WHEN** | Le digest est généré pour ce chapitre. |
 | **THEN** | La section maîtrise du chapitre inclut une mention : « ⚠ 2 pages sur 10 n'ont pas pu être analysées — le cours est partiellement couvert. [Prénom] peut reprendre les photos pour compléter. ». Si le nombre de pages échouées représente > 30% du total, la mention est promue en alerte (section 3) : « Attention : plus de 30% du cours de [Matière] n'a pas été analysé. Les exercices et le contrôle blanc ne couvrent pas tout le programme. ». L'alerte est envoyée **une seule fois** (pas répétée chaque semaine si l'élève ne corrige pas). |
@@ -1306,9 +1326,9 @@
 > **NOTE :** C'est un gap critique identifié : le parent ne savait pas que la capture était incomplète. Il voyait « 80% de maîtrise sur Photosynthèse » sans savoir que 20% du contenu manquait. Le contrôle blanc sur contenu incomplet donne un score trompeur. Ce AC ferme la boucle entre « problème pipeline » et « parent informé ».
 
 ### Z6-AC37 — Feedback après résolution d'une ValidationTask admin
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un item avait `validation_required = true`. L'élève a cliqué « Je ne sais pas » (Z3-AC04). La ValidationTask a été résolue par l'admin (corrigée ou confirmée). |
 | **WHEN** | L'admin résout la tâche. |
 | **THEN** | L'élève reçoit une notification in-app (pas push) la prochaine fois qu'il ouvre l'app : « Un point que tu avais signalé a été vérifié : [term] — [action : confirmé / corrigé]. Tes exercices sont mis à jour. ». Si le parent est en mode actif et avait vu l'item dans sa file, le prochain digest mentionne « [N] vérification(s) résolue(s) cette semaine ». Les templates complets sont débloqués pour cet item (cf. Z3-AC01 levé). |
@@ -1316,9 +1336,9 @@
 > **NOTE :** Sans ce feedback, les items disparaissent dans une boîte noire. L'élève signale un problème et n'a jamais de retour. Le parent valide des items et ne sait pas si ça a servi. Ce AC ferme la boucle de feedback et renforce la confiance dans le système de qualité.
 
 ### Z6-AC38 — Labels de maîtrise traduits pour le parent
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le digest ou le tableau de bord parent affiche les états de maîtrise des items. |
 | **WHEN** | Le parent consulte les données de maîtrise. |
 | **THEN** | Les labels techniques sont traduits en langage parent : — UNKNOWN → « Pas encore vu ». — FRAGILE → « En cours d'apprentissage ». — OK → « Compris, à consolider ». — SOLID → « Bien acquis ». — Un item avec `validation_required = true` affiche « En vérification » à la place de son état mastery. Le tooltip (ou sous-texte au premier affichage) explique brièvement ce que signifie chaque niveau. Le % de maîtrise du digest est calculé sur les items OK + SOLID uniquement (FRAGILE et UNKNOWN ne comptent pas comme « maîtrisés »). |
@@ -1326,9 +1346,9 @@
 > **NOTE :** Les labels internes (UNKNOWN, FRAGILE, OK, SOLID) sont du jargon développeur. Un parent qui voit « 3 items FRAGILE » peut paniquer (« fragile = mauvais ») alors que ça signifie « en cours d'apprentissage, normal après 1 session ». La traduction en langage naturel et l'explication au premier affichage éliminent cette source de confusion.
 
 ### Z6-AC39 — Vue progression globale cross-chapitres
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a 3 chapitres actifs (HG-INEG avec 12 items, HG-FEOD avec 8 items, PC-TRANSF avec 15 items). Les états de maîtrise sont variés (mix UNKNOWN/FRAGILE/OK/SOLID). |
 | **WHEN** | L'élève accède à son tableau de bord principal. |
 | **THEN** | Un indicateur de progression globale est affiché : **% maîtrise global** = nombre d'items OK+SOLID / nombre total d'items actifs (non archivés). Chaque chapitre est listé avec sa propre barre de progression visuelle (proportionnelle au nombre d'items). Les chapitres avec un exam à venir dans les 7 jours sont marqués visuellement (badge ou couleur). Un message d'encouragement contextuel est affiché basé sur la tendance (ex: « +12% cette semaine, continue ! » ou « Tu reprends bien après ta pause »). Les items avec `validation_required = true` sont comptés dans le total mais marqués visuellement comme « en vérification ». |
@@ -1336,9 +1356,9 @@
 > **NOTE :** Un élève de 13 ans a besoin de voir sa progression globale, pas juste chapitre par chapitre. Sans cet indicateur, l'élève qui a 3 chapitres en cours ne perçoit pas qu'il progresse (« j'ai SOLID sur 2 trucs en HG mais je sais pas où j'en suis au total »). La barre de progression visuelle + le message contextuel exploitent le biais d'engagement de la progression : un % qui monte motive à continuer.
 
 ### Z6-AC40 — Suppression (archivage) d'un chapitre par l'élève
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a un chapitre 'La société féodale' avec 8 items (3 SOLID, 3 OK, 2 FRAGILE) et un exam passé le 3 mars (status = `past`). |
 | **WHEN** | L'élève demande à « supprimer » ce chapitre. |
 | **THEN** | Le chapitre passe en `archived = true` (soft delete, jamais de suppression physique). Tous les items associés passent en `archived = true`. Les sessions en cours incluant ce chapitre sont recalculées sans ses items (les questions déjà répondues sont conservées). Le chapitre n'apparaît plus dans le tableau de bord ni dans la composition de sessions. L'historique de maîtrise et les Attempts sont conservés (consultables dans un onglet « Archives »). Les exams liés au chapitre ne déclenchent plus de notifications. Une confirmation est demandée avant l'archivage : « Tu veux archiver ce chapitre ? Tes progrès seront conservés et tu pourras le réactiver plus tard. » Le parent est informé dans le prochain digest (« Chapitre archivé : La société féodale »). |
@@ -1346,9 +1366,9 @@
 > **NOTE :** Après un contrôle, l'élève veut « faire le ménage ». Sans mécanisme de suppression, les vieux chapitres encombrent le dashboard et continuent d'injecter des items dans les sessions (même post-exam via Z6-AC31, les items ne disparaissent pas tous). Le soft delete (archivage) est préférable à une suppression physique : l'élève peut réactiver en cas d'erreur, et les données de maîtrise sont préservées pour les analytics parent.
 
 ### Z6-AC41 — Résilience réseau : persistance optimiste des réponses en session
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève est en session et répond à une question. La connexion réseau est instable ou momentanément perdue. |
 | **WHEN** | La réponse est soumise par le client. |
 | **THEN** | La réponse est immédiatement persistée localement (storage client) avec un statut `pending_sync`. Le feedback de correction est affiché instantanément (calcul client pour MCQ/NUMERIC, grading local basé sur `expected_answer`). La session continue sans attendre la confirmation serveur. Un indicateur discret « synchronisation en cours… » est visible si la connexion est perdue. Dès que la connexion revient, les Attempts `pending_sync` sont envoyés au serveur en FIFO. En cas de conflit (Attempt déjà existant côté serveur pour la même question), le client gagne (last-write-wins sur le même `question_id + user_id`). Si la synchronisation échoue après 3 retries espacés (5s, 15s, 45s), l'Attempt reste `pending_sync` et un message s'affiche : « Certaines réponses n'ont pas pu être enregistrées. Elles seront synchronisées à la prochaine connexion. » Les Mastery updates côté serveur sont appliqués **uniquement** à la réception des Attempts synchronisés (pas de mise à jour optimiste du mastery, seul le feedback est optimiste). |
@@ -1356,9 +1376,9 @@
 > **NOTE :** Un collégien utilise l'app en transport en commun, dans sa chambre avec du wifi instable, ou en zone blanche. Sans persistance optimiste, une déconnexion de 10 secondes = réponse perdue + l'élève doit recommencer = frustration maximale → fermeture de l'app. Le feedback optimiste local permet une UX fluide. Le mastery serveur reste cohérent car il n'est mis à jour qu'à la synchro confirmée.
 
 ### Z6-AC42 — Support multi-exam par chapitre et resserrement sur l'exam le plus proche
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le chapitre « Les inégalités » est lié à deux exams : une interrogation chapitre le 15 mars (`exam_interro`) et un contrôle de séquence le 22 mars (`exam_sequence`). Le modèle utilise `Chapter.exam_ids[]` (pluriel). Le resserrement Z1-AC08 doit choisir une date de référence. |
 | **WHEN** | Le moteur de composition calcule les intervalles pour les items de ce chapitre. |
 | **THEN** | Le resserrement utilise **l'exam actif (`status = active`) le plus proche** comme référence pour `T = exam_date - now`. Si `exam_interro` est le 15 mars et `exam_sequence` le 22 mars, `T` est calculé sur le 15 mars. Après le 15 mars, `exam_interro` passe en `status = past` (Z6-AC31), et le resserrement bascule automatiquement sur `exam_sequence` (T recalculé sur le 22 mars). Le digest parent pré-contrôle (Z6-AC33) est envoyé à J-3 de **chaque** exam actif (deux digests distincts si les dates sont espacées de > 3 jours). Le mock exam (Z6-AC10) est composé pour l'exam le plus proche. Si l'élève supprime un exam, les `next_due_at` sont recalculés sur l'exam actif suivant, ou décompressés si aucun exam actif ne reste (cohérent avec Z4-AC17). |
@@ -1366,9 +1386,9 @@
 > **NOTE :** Le modèle initial avait `Chapter.exam_id` (singulier) — un chapitre ne pouvait référencer qu'un seul exam. Or au collège, un chapitre peut être interrogé en interro de chapitre PUIS en contrôle de séquence/brevet blanc. Sans le pluriel, l'élève devait choisir quel exam lier, et le resserrement ne fonctionnait que pour un seul. La bascule automatique entre exams évite une rupture de révision entre l'interro et le contrôle de séquence.
 
 ### Z6-AC43 — Session evening_first incrémentale après ajout de pages
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le chapitre « Mouvement et vitesse » existe depuis lundi avec 8 items (4 FRAGILE, 4 OK). Mercredi soir, l'élève ajoute les pages 4-6 (Z5-AC11). Le pipeline incrémental (Z2-AC14) génère 6 nouveaux items en état UNKNOWN. Le chapitre a maintenant 14 items au total (4 FRAGILE + 4 OK + 6 UNKNOWN). |
 | **WHEN** | Le pipeline incrémental se termine avec ≥ 1 nouvel item valide. |
 | **THEN** | Une session de type `evening_first_incremental` est proposée (pas lancée de force). La session contient **uniquement les nouveaux items UNKNOWN** issus des pages ajoutées (pas les items FRAGILE/OK existants — ceux-ci seront couverts par la session daily normale). Les gabarits sont limités à la difficulté 1 (identique à Z6-AC06 : `GEN.KNOW.FLASH_MCQ`, `GEN.KNOW.DEF_SHORT`, `GEN.KNOW.CLOZE_KEYWORDS`). Durée cible : proportionnelle au nombre de nouveaux items (3-5 min pour 6 items). Si l'élève a déjà une session daily composée pour la soirée, la session `evening_first_incremental` est **fusionnée** dans la daily : les nouveaux items UNKNOWN sont insérés dans le bucket 20% (nouveaux) de la politique 70/20/10 (Z6-AC08 étendu). Le message de notification est contextualisé : « 6 nouveaux points ajoutés à Mouvement et vitesse — révise-les ce soir ! » (et non « Nouveau chapitre uploadé »). |
@@ -1376,9 +1396,9 @@
 > **NOTE :** La session evening_first standard (Z6-AC05/06) est conçue pour un chapitre fraîchement uploadé où tous les items sont UNKNOWN. Dans le cas incrémental, proposer une evening_first « classique » incluant les items existants FRAGILE/OK briserait la logique 70/20/10 et re-proposerait des items déjà vus avec des gabarits trop simples. La session incrémentale cible uniquement le contenu frais pour le premier contact, puis laisse la session daily intégrer les nouveaux items dans le flux normal dès le lendemain.
 
 ### Z6-AC44 — Dashboard : explication de dilution de maîtrise après ajout de pages
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le chapitre « Mouvement et vitesse » avait 8 items (4 OK + 4 SOLID = 100% maîtrise affichée). L'élève ajoute les pages 4-6 et le pipeline génère 6 nouveaux items UNKNOWN. La maîtrise affichée passe à 8/14 = 57%. |
 | **WHEN** | L'élève consulte son dashboard ou la vue chapitre après l'ajout de pages. |
 | **THEN** | Un message contextuel s'affiche au-dessus de la barre de progression du chapitre : « +6 nouveaux points ajoutés — ta maîtrise va remonter au fil des révisions. » Le message est accompagné d'une micro-animation (apparition des 6 nouveaux points en état UNKNOWN dans la barre de progression, visuellement distincts des points existants). Le message disparaît après 72h ou après que l'élève a répondu à au moins une question sur un des nouveaux items (premier contact effectué). La vue progression globale (Z6-AC39) affiche une annotation similaire au niveau matière si la maîtrise globale a baissé de > 10 points de pourcentage suite à l'ajout. Le digest parent (Z6-AC35) mentionne l'ajout de pages dans la section « Activité de la semaine » : « [N] nouveaux points ajoutés à [chapitre] le [date]. » |
@@ -1386,9 +1406,9 @@
 > **NOTE :** Sans cette explication, la baisse brutale de pourcentage est anxiogène pour l'élève (« j'ai régressé ? ») et le parent (« il ne révise plus ? »). La dilution de maîtrise est un artefact arithmétique normal — de nouveaux points UNKNOWN font baisser la moyenne — mais elle ressemble visuellement à une régression. Le message contextuel transforme une surprise négative en confirmation positive (« tu as ajouté du contenu, bravo »).
 
 ### Z6-AC45 — Onboarding parent : création de compte et liaison à l'élève
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a créé son compte et renseigné son emploi du temps. Il souhaite inviter un parent. |
 | **WHEN** | L'élève tape sur « Inviter un parent » (accessible dans les paramètres ou proposé en fin d'onboarding). |
 | **THEN** | Un **code d'invitation** à 6 caractères est généré (alphanumériques, validité 48h, usage unique). L'élève peut le partager par SMS, messagerie, ou affichage à l'écran. Le parent ouvre l'app, crée un compte (email + mot de passe, ou OAuth) avec `role = parent`, puis saisit le code d'invitation. Le système lie les deux comptes : `user.linked_student_id` est positionné sur le compte parent. Le parent accède immédiatement au dashboard parent simplifié (digest, progression globale, script 3 minutes). Un parent peut lier plusieurs élèves (saisie de plusieurs codes). L'élève peut voir quel parent est lié (paramètres) et révoquer le lien. La liaison est **unidirectionnelle** : le parent voit les données de l'élève, l'élève ne voit pas le compte parent. Si aucun parent n'est lié, les fonctionnalités parent (digests, notifications) sont inactives — pas d'erreur, simplement pas de destinataire. L'onboarding élève mentionne l'invitation parent mais ne la rend pas obligatoire : « Invite un parent pour qu'il suive tes progrès — tu peux le faire plus tard. » |
@@ -1396,9 +1416,9 @@
 > **NOTE :** L'absence totale de spécification de l'onboarding parent était le trou fonctionnel le plus critique : tous les ACs parent (Z6-AC24 à Z6-AC35, Z7-AC15) supposent un parent lié mais aucun ne définit comment cette liaison se crée. Le code d'invitation est le pattern le plus simple et le plus sécurisé pour un mineur : pas de partage d'email de l'enfant, pas de recherche par nom, lien explicitement initié par l'élève.
 
 ### Z6-AC46 — Comportement le jour de l'examen
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un Exam « Contrôle Physique » a `exam_date = 2026-03-15`. Nous sommes le 15 mars. L'Exam couvre 2 chapitres (14 items). |
 | **WHEN** | L'élève ouvre l'app le jour de l'examen. |
 | **THEN** | **(1) Le matin (avant 14h)** : le dashboard affiche un message d'encouragement : « Contrôle de Physique aujourd'hui — tu es prêt ! Bonne chance ! 🍀 » Aucune session de révision n'est proposée pour les items de cet Exam (trop tard pour la révision espacée, risque d'anxiété). Les items des chapitres liés à l'Exam sont temporairement exclus du daily. Un lien optionnel « Relire ma leçon » ouvre la carte de leçon en mode lecture seule (pas d'exercices). **(2) Le soir** : l'EveningPlan exclut les items de l'Exam (pas de révision le soir même du contrôle — l'effort cognitif post-exam est contre-productif). Les autres matières sont proposées normalement. **(3) Le lendemain (J+1)** : l'Exam passe en `status = past`. Les items liés passent en mode maintenance longue : `next_due_at` recalculé à J+14 pour les SOLID, J+7 pour les OK, J+3 pour les FRAGILE (au lieu des intervalles compressés Z1-AC08). Le message dans le dashboard : « Contrôle de Physique passé ! Les révisions de ce chapitre sont allégées. » **(4) Notification parent le jour J** : « [Prénom] a son contrôle de Physique aujourd'hui. » (si `parent_schedule_change_enabled = true`). |
@@ -1406,9 +1426,9 @@
 > **NOTE :** Le jour de l'exam est un non-lieu pédagogique pour la révision espacée : réviser le matin même n'améliore pas significativement la rétention (l'encodage est déjà consolidé ou pas) et génère de l'anxiété. L'app doit passer du mode « coach de révision » au mode « supporteur » le jour J. L'exclusion des items exam du daily évite le cas absurde où l'app propose « Révise la masse volumique ce soir » alors que l'élève vient de passer le contrôle dessus.
 
 ### Z6-AC47 — Matière sans emploi du temps : mode dégradé par matière
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a capturé un chapitre de Physique mais a sauté l'écran « Quand as-tu Physique ? » (bouton « Plus tard » de Z6-AC01). Aucun `ScheduleSlot` n'existe pour la matière Physique. Il a aussi capturé un chapitre de Maths avec emploi du temps renseigné. |
 | **WHEN** | L'élève ouvre l'app dans la fenêtre de soirée. |
 | **THEN** | L'app fonctionne en **mode dégradé par matière** (pas globalement) : (1) **Physique (sans schedule)** : pas de `capture_reminder` (Z6-AC02), pas de `pre_class` (Z6-AC07) pour cette matière. Le `daily` fonctionne normalement (basé sur les items dues, pas sur le schedule). L'EveningPlan inclut les sessions daily Physique mais sans guidage contextuel (« Tu as eu Physique aujourd'hui »). (2) **Maths (avec schedule)** : toutes les fonctionnalités proactives actives — `capture_reminder`, `pre_class`, guidage par matière. (3) **Bandeau par matière** : un bandeau contextuel s'affiche sur la carte de leçon Physique : « Ajoute tes créneaux de Physique pour des rappels avant chaque cours ! » avec bouton direct vers la grille jour/période (réutilise l'écran de Z6-AC01). Le bandeau est dismissible mais réapparaît à chaque upload d'un nouveau chapitre de cette matière. (4) Le mode dégradé n'empêche pas l'usage — l'élève peut capturer, faire des sessions, créer des exams en Physique. Il perd uniquement le guidage proactif lié au schedule pour cette matière. |
@@ -1416,9 +1436,9 @@
 > **NOTE :** Le mode dégradé par matière (et non global) est la conséquence directe de la saisie contextuelle (Z6-AC01) : l'emploi du temps se construit matière par matière, donc le mode dégradé est aussi matière par matière. Un élève qui a renseigné 3 matières sur 5 bénéficie du guidage proactif pour ces 3 matières, pas d'un mode « tout ou rien ». Le bandeau contextuel sur la carte de leçon est plus efficace qu'un bandeau global car il rappelle la valeur au moment où l'élève interagit avec la matière concernée.
 
 ### Z6-AC48 — Multi-exam overlapping : reset + recompression entre exams
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a Exam1 « Interro Densité » (15 mars, chapitre Densité) et Exam2 « Contrôle séquence » (22 mars, chapitres Densité + Forces). Nous sommes le 16 mars — Exam1 vient de passer (`status = past`). Les items Densité étaient compressés (intervalles J+1 via Z1-AC08). |
 | **WHEN** | Exam1 passe en `status = past` (J+1 après `exam_date`). |
 | **THEN** | **(1) Phase de repos** : les items du chapitre Densité passent temporairement en intervalles de maintenance : SOLID → `next_due_at = J+3`, OK → `next_due_at = J+2`, FRAGILE → `next_due_at = J+1`. Ce « repos cognitif » dure le temps que le prochain exam (Exam2) entre dans la fenêtre de resserrement. **(2) Recompression** : dès que `exam2_date - now ≤ 7 jours` (soit le 15 mars, qui coïncide ici avec le passage d'Exam1), le resserrement Z1-AC08 se réactive pour les items Densité puisqu'Exam2 les référence aussi. Les items Densité reprennent des intervalles compressés. **(3) Items non partagés** : les items Forces (uniquement dans Exam2) restent compressés sans interruption si `exam2_date - now ≤ 7j`. **(4) Règle générale** : un item ne passe en maintenance longue (Z6-AC46) que lorsque **aucun exam actif** ne référence son chapitre (ou ses notions si `notion_ids[]` est renseigné). Le champ `Mastery.next_due_at` est recalculé à chaque changement de `status` d'un Exam. |
@@ -1426,9 +1446,9 @@
 > **NOTE :** Le pattern reset + recompression respecte la science cognitive : après un contrôle, le cerveau bénéficie d'un bref repos avant de reprendre la compression. Ce repos est court (2-3 jours max, le temps que la fenêtre J-7 de l'exam suivant s'ouvre) et automatique. L'alternative « compression continue » (pas de repos) risque la fatigue ; l'alternative « maintenance définitive » risque l'oubli si Exam2 reteste le même contenu. Le reset + recompression est le juste milieu.
 
 ### Z6-AC49 — Proposition de contrôle blanc : J-3 automatique + à la demande
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un Exam « Contrôle Physique » a `exam_date = 2026-03-20`. L'Exam couvre 2 chapitres (18 items). L'élève n'a encore fait aucun mock_exam pour cet Exam. Nous sommes le 17 mars (J-3). |
 | **WHEN** | Le système évalue les exams à venir lors du calcul quotidien. |
 | **THEN** | **(1) Proposition J-3** : une notification push est envoyée : « Contrôle de Physique dans 3 jours — fais un contrôle blanc pour te tester ! (~15 min) ». Le dashboard soirée (Z7-AC02) affiche un badge « Contrôle blanc disponible » sur l'exam avec un bouton direct « Lancer le contrôle blanc ». L'EveningPlan du soir intègre le mock_exam comme étape optionnelle (après le daily, pas en remplacement). **(2) Rappel J-1** : si l'élève n'a pas fait de mock_exam, un rappel est envoyé : « Dernier soir pour un contrôle blanc avant le contrôle de Physique demain ! » Pas de rappel si le mock a déjà été fait. **(3) À la demande** : un bouton « Lancer un contrôle blanc » est toujours visible sur la page de chaque Exam actif, dès sa création (pas besoin d'attendre J-3). L'élève peut faire plusieurs mock_exams pour le même Exam (les questions varient grâce à la sélection aléatoire pondérée Z6-AC10). **(4) Jour J** : le mock_exam n'est plus proposé le jour de l'examen (Z6-AC46). **(5) Durée** : le mock_exam est cappé à 30 min max (Z6-AC10). La notification J-3 compte dans le plafond de 2 notifications par soirée (Z6-AC04). |
@@ -1436,9 +1456,9 @@
 > **NOTE :** J-3 est le sweet spot : assez tôt pour identifier les faiblesses et avoir 2 jours pour les corriger, assez tard pour que le contenu soit frais. J-7 est trop tôt (l'élève n'a pas encore tout révisé et le résultat serait décourageant). J-1 est trop tard (pas le temps de corriger). Le bouton « à la demande » depuis la page exam couvre les élèves proactifs qui veulent s'entraîner sans attendre la notification.
 
 ### Z6-AC50 — Parent multi-enfants : une notification par enfant
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Un parent a deux élèves liés : Lucas (4ème) et Emma (6ème). Lucas termine sa routine à 19h42 (3 matières, 15 min). Emma termine sa routine à 20h15 (2 matières, 10 min). |
 | **WHEN** | Les événements `routine_completed` sont émis pour chaque élève (Z7-AC05). |
 | **THEN** | Le parent reçoit **une notification distincte par enfant**, au moment où chaque routine est complétée. **Multi-enfants + digest anticipé (Z8-AC06)** : si le parent lie plusieurs enfants le même jour, un seul digest anticipé fusionné est envoyé (sections par enfant), pas un digest par enfant. Le champ `parent.first_digest_sent_at` est global au parent (pas par liaison) : 19h42 → « ✅ Lucas a terminé sa révision du soir : 3 matières, 15 min. » 20h15 → « ✅ Emma a terminé sa révision du soir : 2 matières, 10 min. » Chaque notification est envoyée indépendamment (pas d'agrégation, pas d'attente). Les préférences de notification (Z6-AC27) s'appliquent globalement (pas par enfant en MVP) : si le parent désactive `routine_completed_enabled`, c'est désactivé pour tous les enfants. Le digest hebdomadaire (Z6-AC35) contient une **section par enfant** avec le résumé individuel. Le dashboard parent affiche un sélecteur d'enfant pour naviguer entre les progressions. Si un seul enfant est lié, le comportement est identique (pas de sélecteur). |
@@ -1446,9 +1466,9 @@
 > **NOTE :** Une notification par enfant est plus simple à implémenter et plus claire pour le parent : chaque signal est autonome et complet. L'agrégation en fin de soirée retarderait l'info (« Est-ce que Lucas a révisé ? ») et complexifierait la logique (attendre que tous aient fini, gérer les cas partiels). Le sélecteur d'enfant dans le dashboard est le seul point d'agrégation nécessaire en MVP.
 
 ### Z6-AC51 — Timezone locale : détection automatique et configuration
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève crée son compte depuis un appareil en timezone `Europe/Paris` (UTC+1 hiver, UTC+2 été). Un autre élève crée son compte depuis La Réunion (`Indian/Reunion`, UTC+4). |
 | **WHEN** | Le compte est créé (onboarding). |
 | **THEN** | Le système détecte automatiquement le timezone de l'appareil via l'API système (Intl.DateTimeFormat sur le client) et le stocke dans `user.timezone` (ex : `Europe/Paris`). Toutes les heures sont calculées en heure locale de l'utilisateur : `notification_hour` (défaut 18h30 locale), fenêtre de soirée `evening_window_start/end` (défaut 17h-22h locale), `weekend_notification_hour` (défaut 10h locale), digest parent (dimanche 9h locale), calcul de `next_due_at` (minuit local pour le « jour »). Le champ `user.timezone` est modifiable dans les paramètres (« Fuseau horaire »). Le serveur stocke toutes les dates en UTC et convertit à l'affichage et pour le scheduling des notifications. Si le timezone n'est pas détectable (cas rare), le fallback est `Europe/Paris`. |
@@ -1456,9 +1476,9 @@
 > **NOTE :** La France métropolitaine est le marché principal, mais les DOM-TOM représentent ~3% de la population scolaire française et les lycées français à l'étranger sont un segment premium. Un élève à La Réunion qui reçoit sa notification à 18h30 heure de Paris (21h30 locale) ne révisera pas. Le coût d'implémentation est faible (détection auto + stockage d'un string timezone) et évite un problème UX silencieux mais fatal pour ces utilisateurs.
 
 ### Z6-AC52 — Zone scolaire et calendrier de vacances intégré
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève crée son compte (onboarding) ou uploade son premier chapitre (si la zone n'a pas encore été renseignée). |
 | **WHEN** | L'app détecte que `user.school_zone` est null. |
 | **THEN** | Un écran inline s'affiche : « Tu es en zone ? » avec les options : Zone A, Zone B, Zone C, DOM-TOM / Autre. La zone sélectionnée est stockée dans `user.school_zone`. Le système charge le calendrier des vacances scolaires correspondant pour l'année scolaire en cours (table `SchoolHolidayPeriod` : `zone`, `name`, `start_date`, `end_date`). Le calendrier est pré-intégré (données statiques ou API `data.education.gouv.fr`) et couvre : Toussaint, Noël, Hiver, Printemps, Été. Pour les zones A/B/C, les dates diffèrent pour Hiver et Printemps. Pour DOM-TOM, un calendrier spécifique par académie est intégré (Réunion, Guadeloupe, Martinique, Guyane, Mayotte). La zone est modifiable dans les paramètres (« Zone scolaire »). Le calendrier est mis à jour annuellement (arrêté ministériel publié ~2 ans à l'avance). Pendant une période de vacances (`SchoolHolidayPeriod` active) : (1) les `capture_reminder` et `pre_class` sont **suspendus** (pas de cours), (2) les `daily` sont maintenus selon la configuration vacances (Z6-AC53), (3) le dashboard affiche un bandeau « Mode vacances » avec la date de reprise des cours. |
@@ -1466,9 +1486,9 @@
 > **NOTE :** Le calendrier scolaire français est prévisible et officiel — les dates sont publiées 2-3 ans à l'avance par le Ministère. L'intégrer (plutôt que de laisser l'élève activer/désactiver manuellement un « mode vacances ») est un gain UX majeur : aucune action requise de l'élève, le système sait quand sont les vacances. Le seul input nécessaire est la zone (3 options pour la métropole). Les vacances de Toussaint et Noël sont nationales (même dates, toutes zones) ; seuls Hiver et Printemps varient par zone. Le coût est une table de ~20 lignes/an, mise à jour une fois par an.
 
 ### Z6-AC53 — Mode vacances : l'élève choisit ses jours et créneau de révision
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | La période de vacances de Toussaint commence (détectée via `SchoolHolidayPeriod` active pour la zone de l'élève). L'élève n'a pas encore configuré ses préférences vacances. |
 | **WHEN** | L'élève ouvre l'app le premier jour des vacances (ou la veille au soir). |
 | **THEN** | Un écran s'affiche : « C'est les vacances ! Quand veux-tu réviser ? » avec : (1) **Sélection des jours** : grille Lu–Di avec cases à cocher. Pré-coché : lundi, mercredi, vendredi (3 jours, recommandation par défaut). L'élève peut modifier librement (0 à 7 jours). (2) **Créneau préféré** : slider 8h–20h (défaut : 10h). Ce créneau remplace `notification_hour` et `evening_window` pendant les vacances. (3) Bouton « C'est parti ! » pour confirmer ou « Pas maintenant » pour reporter (rappel le lendemain). Les préférences sont stockées dans `VacationPreference` : `user_id`, `holiday_period_id`, `revision_days[]` (tableau de `day_of_week`), `preferred_hour`, `created_at`. Pendant les vacances actives : les notifications de rappel de révision sont envoyées uniquement les jours sélectionnés, à l'heure choisie. Le concept de « soirée » disparaît : l'EveningPlan devient un « RevisionPlan » sans contrainte horaire soirée. Les jours sans révision prévue : aucune notification, aucune culpabilisation. Les items dues sont reportées au prochain jour de révision prévu. Si l'élève ne configure rien (« Pas maintenant » × 3) : fallback = notification quotidienne à `weekend_notification_hour` (10h), douce et non insistante. Les préférences vacances sont **réutilisées** pour la prochaine période de vacances (suggestion « Mêmes jours que la dernière fois ? » avec modification possible). |
@@ -1476,9 +1496,9 @@
 > **NOTE :** Pendant les vacances, le rythme scolaire qui structure la soirée disparaît. Sans adaptation, l'app envoie des notifications « Tu as eu Maths aujourd'hui » un 28 décembre — incohérent et irritant. Le mode vacances respecte le rythme de l'élève (il choisit ses jours) tout en maintenant le lien avec l'app (les items dues continuent d'évoluer). La recommandation 3 jours/semaine est un bon compromis : assez fréquent pour maintenir la mémoire, assez espacé pour que ce soit des « vraies vacances ». Le fallback doux (notification quotidienne 10h) garantit que même un élève qui n'a pas configuré ses vacances reçoit un signal minimal sans agression.
 
 ### Z6-AC54 — Créneaux d'indisponibilité récurrents (sport, activités)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a entraînement de foot le mardi et le jeudi soir. Il configure ses **créneaux d'indisponibilité** dans les paramètres : mardi soir + jeudi soir marqués « indisponible ». |
 | **WHEN** | Le scheduler de notifications et l'EveningPlan s'exécutent un mardi soir. |
 | **THEN** | **(1) Silence total** : aucune notification (`capture_reminder`, `review_reminder`, `mock_exam`) n'est envoyée les soirs indisponibles. Aucun `EveningPlan` n'est calculé. Le dashboard affiche « Bon entraînement ! 🏃 Ta prochaine révision est prévue [mercredi/demain]. » **(2) Redistribution** : les items qui auraient été dues mardi sont automatiquement reportées au prochain soir disponible (mercredi). Le calcul de `next_due_at` tient compte des soirs indisponibles : si un item passe en `next_due_at = mardi` mais que mardi est bloqué, `next_due_at` est avancé à mercredi (pas de retard de plus de 1 jour). Les sessions des soirs disponibles sont légèrement allongées pour compenser (~3-5 min de plus par soir d'indispo supplémentaire). **(3) Configuration** : stockée dans `UnavailabilitySlot` : `user_id`, `day_of_week`, `label?` (ex : « Football »), `recurring` (boolean). Les soirs bloqués sont affichés dans la vue agenda partiel (grisés). **(4) Exception ponctuelle** : bouton « Pas d'entraînement ce soir » sur le dashboard (si soir normalement indisponible). Réactive l'EveningPlan pour cette soirée uniquement. L'exception inverse est aussi possible : « Ce soir je ne peux pas » sur un soir normalement disponible (crée une `UnavailabilityException` ponctuelle). **(5) Impact parent** : le digest parent (Z6-AC35) mentionne les soirs sautés pour cause d'activité (pas de signal d'alarme — c'est prévu et normal). |
@@ -1492,9 +1512,9 @@
 > EveningPlan · Dashboard soirée · Séquencement multi-matières · Budget temps · Complétion · Guidage capture · Onboarding routine · Notions & hiérarchie contenu · Périmètre exam par notion · Angles morts · Prédiction interro surprise · S'avancer le weekend · Fiches PDF hors-téléphone · Report papier
 
 ### Z7-AC01 — Calcul automatique du plan de soirée (EveningPlan)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a un emploi du temps renseigné. Aujourd'hui (mardi), il a eu Physique-Chimie (créneau 10h-11h) et Histoire-Géo (créneau 14h-15h). Le chapitre « Mouvement et vitesse » (Physique) existe avec des items FRAGILE/OK dues. Le chapitre « Les inégalités » (Histoire) n'existe pas encore (cours non capturé). Un chapitre de Maths « Pythagore » a des items FRAGILE dues depuis 2 jours. Demain (mercredi), l'élève a SVT (un chapitre actif avec items UNKNOWN). |
 | **WHEN** | L'élève ouvre l'app entre 17h et 22h (fenêtre configurable dans `user.evening_window_start` / `user.evening_window_end`, défaut 17h-22h). |
 | **THEN** | Le système calcule un `EveningPlan` pour ce soir, composé d'étapes ordonnées : (1) **Capture** : « Saisis ton cours d'Histoire-Géo » (matière détectée comme non capturée via schedule + absence de chapitre actif récent). (2) **evening_first** : session premier contact pour Histoire-Géo si la capture est faite (~5 min). (3) **daily** : session de révision quotidienne couvrant Physique (items FRAGILE/OK dues) + Maths (items FRAGILE dues) (~10 min). Les items pre_class pour SVT de demain sont fusionnés dans le daily (Z6-AC08). Chaque étape a un `type` (capture / evening_first / daily), un `estimated_duration_min` calculé (nombre de questions × durée moyenne par type de gabarit : MCQ ~30s, SHORT ~60s, NUMERIC ~90s, RUBRIC ~180s), un `status` (pending / in_progress / completed / skipped), et un `subject_label` pour l'affichage. L'`EveningPlan` est recalculé si un événement survient en cours de soirée (nouvelle capture, session terminée). Le plan est éphémère (TTL = fin de la fenêtre de soirée ou 6h après calcul). |
@@ -1502,9 +1522,9 @@
 > **NOTE :** L'`EveningPlan` est la pièce manquante qui transforme un ensemble d'outils en assistant de soirée. Les sessions (evening_first, daily, pre_class) existent déjà et sont bien spécifiées — ce qui manque est l'orchestrateur qui les assemble en une checklist ordonnée avec estimation de durée et suivi de progression. L'EveningPlan ne modifie pas le moteur de composition des sessions ; il séquence et présente les sessions que le moteur produit déjà.
 
 ### Z7-AC02 — Dashboard soirée contextuel (écran d'accueil du soir)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève ouvre l'app à 19h30. L'`EveningPlan` a été calculé (Z7-AC01) avec 3 étapes : capture Histoire, evening_first Histoire (~5 min), daily Physique+Maths (~10 min). |
 | **WHEN** | L'heure actuelle est dans la fenêtre de soirée (`evening_window_start` ≤ now ≤ `evening_window_end`). |
 | **THEN** | L'écran d'accueil affiche le **dashboard soirée** (distinct du dashboard progression global Z6-AC39, accessible via un toggle). Le dashboard soirée contient : (1) Un en-tête contextuel : « Bonsoir [prénom] ! Ce soir : 3 activités, ~15 min. » (2) La liste des étapes du plan, chaque étape affichant : icône matière + libellé (« Capture tes notes d'Histoire », « Première révision Histoire », « Révision quotidienne ») + durée estimée + statut visuel (à faire / en cours / fait ✓). (3) Un bouton « C'est parti ! » sur la première étape non complétée. (4) Si l'élève revient après avoir complété une étape, le dashboard est mis à jour (étape cochée, bouton sur l'étape suivante). En dehors de la fenêtre de soirée, le dashboard par défaut reste le dashboard progression (Z6-AC39). L'élève peut basculer manuellement entre les deux vues à tout moment. |
@@ -1512,9 +1532,9 @@
 > **NOTE :** Le dashboard soirée EST l'assistant. Un élève de 12 ans qui ouvre l'app a besoin de voir UNE chose : « voilà ce que tu dois faire ce soir ». Le dashboard progression (Z6-AC39) répond à la question « où en suis-je globalement ? » ; le dashboard soirée répond à « qu'est-ce que je fais maintenant ? ». Les deux sont complémentaires mais le dashboard soirée est l'écran primaire pendant la fenêtre du soir.
 
 ### Z7-AC03 — Séquencement multi-matières dans le plan de soirée
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a eu Physique et Histoire aujourd'hui. Il capture les deux cours (2 chapitres créés). Il a aussi des items Maths dues (daily). Et demain il a SVT (pre_class). L'EveningPlan contient potentiellement : 2 captures + 2 evening_firsts + 1 daily (avec pre_class SVT fusionné). |
 | **WHEN** | L'EveningPlan est calculé (Z7-AC01). |
 | **THEN** | L'ordre des étapes suit la priorité pédagogique : **(1) Captures** en premier (sans capture, pas de contenu frais). Si plusieurs captures, l'ordre est : matière avec exam le plus proche d'abord, puis par ordre chronologique du créneau de la journée. **(2) evening_first** pour chaque chapitre fraîchement capturé (premier contact le soir même = encodage optimal). Si deux evening_firsts, ils sont **fusionnés en une seule session multi-chapitres** : les items UNKNOWN des deux chapitres sont mélangés, alternant entre matières pour éviter la monotonie. Durée cible de la session fusionnée : min(somme des durées individuelles, 10 min). **(3) daily** en dernier : révision des items dues (70/20/10) avec items pre_class SVT intégrés (Z6-AC08). Le nombre total d'étapes affichées à l'élève est ≤ 4 (captures groupées si > 2 matières). La durée totale estimée du plan ne dépasse pas 25 min ; si elle dépasse, le daily est raccourci (moins de questions, items les plus urgents d'abord). |
@@ -1522,9 +1542,9 @@
 > **NOTE :** La fusion des evening_firsts évite le problème du « 3 sessions de 5 min = 3 démarrages, 3 débriefs, friction x3 ». Un seul flux continu avec alternance de matières est plus engageant et fidèle au modèle du « coach qui fait réviser ». L'ordre capture → evening_first → daily suit la logique pédagogique : encoder le neuf d'abord (mémoire de travail fraîche), puis consolider l'ancien (récupération espacée).
 
 ### Z7-AC04 — Estimation de durée visible avant le début
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'EveningPlan contient 3 étapes : capture (~2 min estimée sur la base du nombre moyen de pages), evening_first 8 questions (~5 min), daily 12 questions (~8 min). |
 | **WHEN** | Le dashboard soirée s'affiche (Z7-AC02). |
 | **THEN** | Chaque étape affiche sa durée estimée (« ~5 min »). L'en-tête affiche la durée totale (« ~15 min au total »). Les estimations sont calculées à partir du nombre et type de questions composées : MCQ/CLOZE ~30s, SHORT_ANSWER/DEF_SHORT ~60s, NUMERIC ~90s, RUBRIC ~180s, plus 15s de transition entre questions. Le temps de capture est estimé à 1 min par page (basé sur la médiane historique de l'élève, ou 1 min/page par défaut). Si l'élève a un historique de sessions, les estimations sont calibrées sur son rythme réel (médiane des 10 dernières sessions). L'estimation est affichée avec un arrondi à 5 min près au-dessus de 10 min (« ~15 min ») et à la minute près en dessous (« ~7 min »). |
@@ -1532,9 +1552,9 @@
 > **NOTE :** La prévisibilité du temps est le facteur #1 de démarrage pour un adolescent. « Ce soir ~15 min » est la différence entre « j'y vais » et « je procrastine ». Sans estimation, l'engagement est perçu comme ouvert et indéfini — un frein psychologique majeur. Le calibrage sur le rythme réel de l'élève améliore la précision au fil du temps.
 
 ### Z7-AC05 — État « fini pour ce soir » et écran de clôture
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a complété toutes les étapes de son EveningPlan : capture Histoire (✓), evening_first Histoire+Physique (✓), daily Maths+SVT (✓). |
 | **WHEN** | La dernière session du plan se termine (débrief Z1-AC17 affiché puis fermé). |
 | **THEN** | L'écran de **clôture de soirée** s'affiche (distinct du débrief par session Z1-AC17). Il contient : (1) Message de félicitations : « Bravo [prénom] ! Soirée terminée en [durée réelle] min. » (2) Résumé de la soirée : nombre de matières couvertes, nombre d'items révisés, progressions de maîtrise (items passés FRAGILE→OK, OK→SOLID). (3) Aperçu de demain : « Demain tu as SVT et Français. À demain soir ! » (ou « Demain c'est mercredi, pas de cours — profite ! »). (4) Un seul bouton « Fermer » qui ramène au dashboard progression (Z6-AC39). L'`EveningPlan.completed_at` est horodaté. L'événement `routine_completed` est émis (consommé par Z7-AC15 pour la notification parent). Si l'élève rouvre l'app dans la fenêtre de soirée après clôture, le dashboard soirée affiche « Tout est fait pour ce soir ! 🎉 » avec le résumé, et un lien optionnel vers une session de consolidation (Z4-AC18) sans risque de régression. |
@@ -1542,9 +1562,9 @@
 > **NOTE :** L'écran de clôture est le « payoff émotionnel » de toute la routine. Il donne à l'élève la permission explicite de fermer l'app sans culpabilité. Sans ce signal, l'élève ne sait jamais s'il devrait en faire plus — anxiété incompatible avec un usage durable. Le résumé de soirée (et non de session) valorise l'effort global et pas seulement le dernier exercice.
 
 ### Z7-AC06 — Guidage capture in-app (matières du jour non capturées)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a eu Physique et Histoire aujourd'hui (schedule). Le chapitre « Mouvement et vitesse » (Physique) existe déjà (capturé la semaine dernière, pages 1-3). L'élève n'a pas de chapitre actif lié à l'Histoire-Géo de ce créneau. |
 | **WHEN** | L'élève ouvre l'app dans la fenêtre de soirée. L'EveningPlan est calculé. |
 | **THEN** | Le plan de soirée affiche en première position : « 📸 Saisis ton cours d'Histoire-Géo » avec un bouton « Capturer » qui ouvre directement le flux de création de chapitre (ou d'ajout de pages si un chapitre HG existe). Pour la Physique, le plan détecte que le chapitre existe mais vérifie si de nouvelles pages sont attendues (cours aujourd'hui + dernière capture antérieure à aujourd'hui). Si oui : « 📸 Ajoute les nouvelles pages de Physique à ton chapitre » avec bouton « Ajouter des pages » (Z5-AC11). Si l'élève a déjà capturé/ajouté les pages aujourd'hui, l'étape de capture est marquée ✓ automatiquement. L'étape de capture indique la matière, le créneau horaire (« cours de 14h »), et un rappel du nombre de pages moyen pour ce type de cours (basé sur l'historique de l'élève ou « ~3-5 pages » par défaut). Si aucune matière n'a de capture en attente, l'étape de capture n'apparaît pas dans le plan. |
@@ -1552,9 +1572,9 @@
 > **NOTE :** La notification push `capture_reminder` (Z6-AC02) est le premier signal, mais elle est éphémère (taux d'ouverture ~40%). Le guidage in-app est le deuxième filet : quand l'élève ouvre l'app (de lui-même ou après relance parentale), il voit immédiatement quoi capturer. Sans ce guidage, l'élève qui a ignoré la notification ouvre l'app et voit… le dashboard progression, sans aucune indication qu'il a eu cours aujourd'hui.
 
 ### Z7-AC07 — Règles de séquencement des types de session
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a capturé un nouveau chapitre ce soir (evening_first disponible). Il a aussi 15 items FRAGILE/OK dues dans d'autres chapitres (daily disponible). Et il a SVT demain avec un chapitre actif (pre_class pertinent). |
 | **WHEN** | L'EveningPlan compose les sessions de la soirée. |
 | **THEN** | L'ordre déterministe est : **(1) evening_first** (si applicable) — le contenu frais bénéficie de l'encodage initial le soir même (effet de récence + sommeil consolidateur). **(2) daily** — révision espacée des items dues, avec items pre_class fusionnés dans le bucket 20% (Z6-AC08). La session evening_first d'un chapitre **complet** (premier upload, pas incrémental) n'est **pas fusionnée** dans le daily — elle reste une session distincte avec ses propres règles (100% UNKNOWN, difficulté 1, Z6-AC06). La session evening_first **incrémentale** (ajout de pages, Z6-AC43) est fusionnée dans le daily si un daily existe (comportement existant). Si l'élève ne fait que l'evening_first et quitte l'app, le daily reste disponible pendant 72h (TTL session standard). Le plan marque l'evening_first comme « prioritaire » et le daily comme « recommandé ». Le plan ne propose jamais plus de 2 sessions distinctes par soirée (hors capture). Si un pre_class ne peut pas être fusionné dans le daily (pas de daily dû ce soir), il est proposé comme session distincte de 5 min maximum. |
@@ -1562,9 +1582,9 @@
 > **NOTE :** La distinction « evening_first reste séparé, evening_first_incremental fusionne » s'explique par la nature du contenu. Un chapitre entièrement nouveau mérite un premier contact dédié (100% UNKNOWN, gabarits simples, contexte « découverte »). Des pages ajoutées à un chapitre existant s'insèrent naturellement dans le flux daily car l'élève connaît déjà le contexte du chapitre. Limiter à 2 sessions max par soirée évite l'effet « encore une session ? » qui tue l'engagement.
 
 ### Z7-AC08 — Mode express pour soirée courte (budget temps réduit)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'EveningPlan estime 20 min pour la soirée complète (capture + evening_first + daily). L'élève a beaucoup de devoirs ce soir. |
 | **WHEN** | L'élève tape sur « Je n'ai pas beaucoup de temps ce soir » (bouton visible sur le dashboard soirée, sous l'estimation de durée). Ce bouton est accessible **à tout moment** tant que le plan n'est pas terminé — y compris après avoir complété une ou plusieurs étapes. |
 | **THEN** | Le plan bascule en **mode express** (`EveningPlan.mode = 'express'`). La durée cible **des étapes restantes** passe à ≤ 10 min. Les étapes déjà complétées ne sont pas affectées (elles restent marquées ✓). Les étapes restantes sont re-priorisées : (1) **Capture** : conservée si non faite (l'élève peut toujours photographier ses notes rapidement, ~2 min). (2) **Révision express** : une session unique fusionnant les items les plus urgents — items FRAGILE dues en premier (risque de régression si pas revus), puis items UNKNOWN du chapitre frais (si capture faite) avec gabarits difficulté 1 uniquement. Nombre de questions réduit à 6-8 max. Les items OK dues sont reportés à demain sans pénalité (Z6-AC15). Si l'élève a déjà fait l'evening_first et active express, seul le daily est raccourci. Le débrief express mentionne : « Soirée express terminée en [X] min. Les points restants seront intégrés demain. » L'élève peut aussi saisir une durée libre (« Combien de temps ? ») via un slider 5-15 min, et le plan s'adapte. Le mode express n'affecte pas le calcul des `next_due_at` : les items non revus ce soir restent dues et seront reproposés demain (pas de pénalité). |
@@ -1572,9 +1592,9 @@
 > **NOTE :** Un adolescent qui a 45 min de devoirs plus la révision va choisir les devoirs (conséquence immédiate : le prof vérifie demain). Si l'app ne propose pas de mode court, l'élève saute entièrement la révision. 5 minutes de révision ciblée valent infiniment mieux que 0 minute. Le mode express maintient l'habitude vivante les soirs chargés — c'est un anti-churn majeur.
 
 ### Z7-AC09 — Complétion partielle et reprise le lendemain
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'EveningPlan de mardi avait 3 étapes. L'élève a complété la capture et l'evening_first (2/3 étapes) mais n'a pas fait le daily. Il ferme l'app à 21h. |
 | **WHEN** | Le lendemain matin (mercredi), l'EveningPlan de mardi est expiré (fin de fenêtre de soirée). Le daily non fait contenait 12 questions. |
 | **THEN** | Les items dues du daily de mardi restent dues (pas de pénalité, Z6-AC15). Ils sont intégrés dans l'EveningPlan de mercredi avec priorité haute (bucket 70% du daily, items en retard). Le dashboard soirée de mardi soir, si l'élève revient avant la fin de la fenêtre, affiche les étapes complétées (✓) et le daily restant avec « Continue ta révision quand tu veux ». L'écran de clôture partielle (si l'élève ferme après 2/3 étapes) affiche : « 2 activités sur 3 terminées — bien joué ! Ta révision quotidienne sera intégrée demain. » Le ton est positif, jamais culpabilisant. Le parent reçoit un signal de complétion partielle (Z7-AC15) : « [Prénom] a capturé son cours et fait sa première révision (2/3 activités). » La complétion partielle est comptabilisée comme « routine partielle » dans les métriques (ni « complète » ni « manquée »). |
@@ -1582,9 +1602,9 @@
 > **NOTE :** La complétion partielle est la norme, pas l'exception. Un collégien ne fera pas systématiquement 100% de son plan. Le design doit valoriser l'effort fait (2/3 = bien joué !) plutôt que culpabiliser le manque (1/3 pas fait). Les items non revus ne sont pas perdus — ils passent dans le daily du lendemain. Cette approche est cohérente avec Z6-AC15 (pas de pénalité mastery pour items en retard) et Z6-AC18 (pas de streak).
 
 ### Z7-AC10 — État « rien à faire ce soir »
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève ouvre l'app un mercredi soir. Il n'a pas eu cours mercredi (pas de ScheduleSlot ce jour). Tous ses items sont en état OK ou SOLID avec `next_due_at` > aujourd'hui. Aucun exam dans les 3 prochains jours. |
 | **WHEN** | L'EveningPlan est calculé et ne contient aucune étape (aucune capture nécessaire, aucun item dû, aucun pre_class). |
 | **THEN** | Le dashboard soirée affiche un état positif : « Tout est à jour ! Profite de ta soirée 😊 ». Le message mentionne le contexte emploi du temps : « Pas de cours aujourd'hui, et toutes tes révisions sont faites. » Un lien optionnel propose : « Envie de t'avancer ? » → session de consolidation (Z4-AC18) sans risque de régression (items SOLID reproposés en mode « renforcement »). Si l'élève a un exam dans les 7 prochains jours mais > 3 jours : suggestion douce « Tu as un contrôle de [matière] dans [N] jours — tu peux faire un entraînement si tu veux. » Le parent ne reçoit pas de notification « routine manquée » pour les soirées sans plan (pas de faux négatif). Le digest hebdomadaire (Z6-AC35) mentionne : « Mercredi : pas de révision prévue (pas de cours). » |
@@ -1592,9 +1612,9 @@
 > **NOTE :** Un écran vide est un moment de vérité UX. Si l'élève voit un dashboard vide sans explication, il conclut que l'app est cassée ou inutile. L'état « rien à faire » doit être explicite et positif — c'est une récompense pour l'élève qui est à jour. La mention du contexte emploi du temps (« pas de cours ») valide le fait qu'il n'y a rien à faire et évite la confusion avec « l'app ne fonctionne pas ».
 
 ### Z7-AC11 — Comportement week-end (samedi/dimanche)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Samedi matin. L'élève n'a pas cours le week-end (ScheduleSlots uniquement lundi-vendredi). Il a 8 items dues (FRAGILE/OK avec `next_due_at` ≤ samedi). Un exam de Physique est prévu lundi. |
 | **WHEN** | L'élève ouvre l'app le samedi. |
 | **THEN** | Le dashboard soirée est remplacé par un **dashboard week-end** (même composant, ton différent). (1) Pas d'étape « capture » (pas de cours). (2) Si items dues : proposition d'une session daily standard (pas de durée augmentée par défaut — le week-end n'est pas une excuse pour surcharger). (3) Si exam ≤ lundi : suggestion renforcée « Contrôle de Physique lundi — un mock exam ce week-end ? (~15 min) » avec bouton vers le mock exam (Z6-AC10). (4) La fenêtre de notification week-end utilise un horaire distinct (`user.weekend_notification_hour`, défaut 10h00 au lieu de 18h30) — les week-ends se révisent le matin, pas le soir. (5) Le dimanche soir : le plan inclut les pre_class pour lundi (Z6-AC07), présentés avec le message « Demain tu reprends avec [matières]. Prépare-toi ! » (6) Si rien n'est dû le week-end et pas d'exam proche : état « rien à faire » (Z7-AC10) avec suggestion consolidation optionnelle. Le digest parent (Z6-AC35) distingue « activité week-end » de « activité semaine ». |
@@ -1602,9 +1622,9 @@
 > **NOTE :** Le week-end est un moment pédagogique différent : pas de pression de capture, plus de temps disponible, et souvent la seule fenêtre pour un mock exam complet. L'horaire de notification décalé au matin reflète la réalité des familles : un ado ne va pas réviser samedi soir. Le dimanche soir est stratégique car il prépare la semaine — les pre_class pour lundi doivent être bien mis en avant.
 
 ### Z7-AC12 — Guidage de capture lié au cours de demain
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a SVT demain (mercredi). Il a eu SVT lundi mais n'a jamais capturé ce cours (pas de chapitre SVT actif, ou chapitre SVT existant sans pages récentes). |
 | **WHEN** | L'EveningPlan de mardi soir est calculé. |
 | **THEN** | Le plan inclut une étape de capture contextualisée par le cours de demain : « Tu as SVT demain — saisis ton cours de lundi pour pouvoir le réviser avant ! » Cette étape est positionnée **avant** les étapes de capture des matières du jour (priorité = cours de demain non capturé > cours d'aujourd'hui non capturé, car le pre_class de demain a besoin du contenu). Si l'élève capture le cours SVT, un pre_class est immédiatement composable pour ce soir (intégré dans le daily ou proposé en session courte). Si l'élève ignore l'étape, elle passe en « skippée » sans conséquence. La notification pre_class (Z6-AC07) mentionne aussi le cours non capturé : « Tu as SVT demain — tu n'as pas encore saisi ton cours de lundi. Saisis-le pour réviser ce soir ! » |
@@ -1612,9 +1632,9 @@
 > **NOTE :** Aujourd'hui la notification pre_class (Z6-AC07) se contente de proposer une session de révision sur les items existants. Mais si le cours de lundi n'a jamais été capturé, le pre_class n'a rien à proposer. Le guidage de capture lié au cours de demain connecte deux moments qui sont actuellement déconnectés : « tu as SVT demain » + « tu n'as pas capturé lundi ». C'est exactement le comportement d'un coach qui dit « tu as un cours demain, prépare-toi ».
 
 ### Z7-AC13 — Reconnaissance des devoirs (coexistence avec la routine)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'app ne gère pas les devoirs (hors scope PRD). Cependant, l'élève a systématiquement des devoirs à faire chaque soir en plus de la révision. |
 | **WHEN** | Le dashboard soirée s'affiche avec un plan estimé à 15 min. |
 | **THEN** | Le dashboard soirée inclut un message contextuel léger sous l'estimation de durée : « ~15 min de révision — à faire avant ou après tes devoirs ! » Ce message n'est pas lié à une fonctionnalité de gestion des devoirs (hors scope) mais reconnaît leur existence. Si l'élève active le mode express (Z7-AC08), le message adapté est : « Session express ~7 min — parfait pour les soirs chargés en devoirs. » Le message n'apparaît que les soirs de semaine (lundi-vendredi). Il est désactivable dans les préférences (« Ne plus afficher cette mention »). Aucune donnée sur les devoirs n'est collectée ou stockée — c'est un message d'empathie UX, pas une feature. |
@@ -1622,9 +1642,9 @@
 > **NOTE :** Ignorer les devoirs, c'est ignorer la réalité de l'élève. Le message « avant ou après tes devoirs » positionne la révision comme complémentaire, pas concurrente. Un adolescent qui perçoit l'app comme « encore un truc à faire en plus de mes devoirs » la désinstalle. Un adolescent qui perçoit l'app comme « un truc rapide que je peux caser entre mes devoirs et ma série » l'adopte. La mention des devoirs est un acte d'empathie, pas une fonctionnalité.
 
 ### Z7-AC14 — Arc émotionnel de la soirée (accueil, transitions, clôture)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève ouvre l'app un mardi soir. Il a 3 étapes dans son plan. |
 | **WHEN** | L'élève progresse dans les étapes de son EveningPlan. |
 | **THEN** | Chaque moment-clé de la soirée a un message personnalisé et contextuel : **(1) Accueil** (ouverture de l'app) : « Bonsoir [prénom] ! Ce soir : [N] activités, ~[X] min. » Variantes contextuelles : « Grosse journée — 3 matières ! On s'y met ? » (si ≥ 3 matières), « Soirée tranquille — juste une petite révision ! » (si ≤ 1 session, < 10 min), « Dernière ligne droite avant ton contrôle de [matière] ! » (si exam ≤ 3 jours). **(2) Transitions** (entre étapes) : après la capture → « Super, tes notes sont enregistrées ! Maintenant, un premier contact rapide avec ce que tu as appris. » Après evening_first → « Bien joué, premier contact fait ! Encore [X] min de révision et c'est fini. » **(3) Clôture** : gérée par Z7-AC05. Les messages utilisent le prénom de l'élève et varient (pas de répétition exacte deux soirs de suite — rotation d'au moins 5 variantes par moment). Le ton est encourageant, jamais culpabilisant, et adapté à l'âge (tutoiement, phrases courtes, langage courant). |
@@ -1632,9 +1652,9 @@
 > **NOTE :** L'arc émotionnel accueil → progression → clôture est le fil narratif de l'assistant. Les micro-célébrations (Z1-AC16) et le débrief session (Z1-AC17) couvrent le niveau « question » et « session » — mais le niveau « soirée » est le niveau auquel l'élève s'identifie. « J'ai fait ma routine de ce soir » est plus significatif que « j'ai répondu à 12 questions ». Les transitions entre étapes sont les moments où l'élève risque de décrocher (« est-ce que j'ai fini ? ») — les messages de transition éliminent cette incertitude.
 
 ### Z7-AC15 — Notification parent « routine terminée » (signal positif)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a complété son EveningPlan (toutes les étapes en statut « completed »). L'événement `routine_completed` est émis (Z7-AC05). Le parent a activé les notifications (`routine_completed_enabled = true`, activé par défaut). |
 | **WHEN** | L'événement `routine_completed` est traité par le service de notification. |
 | **THEN** | Le parent reçoit une notification push : « ✅ [Prénom] a terminé sa révision du soir : [N] matières, [X] min. [résumé court : ex. "3 points progressent en Physique"]. » En cas de complétion partielle (Z7-AC09, ≥ 50% des étapes) : « [Prénom] a fait une partie de sa révision ce soir ([N]/[M] activités, [X] min). » En cas de complétion < 50% ou routine non commencée : pas de notification positive — la notification « session manquée » existante (Z6-AC25) prend le relais le lendemain matin. La notification `routine_completed` est envoyée maximum 1 fois par soir. Elle n'est pas envoyée les soirs où l'EveningPlan est vide (Z7-AC10 — rien à faire). Le parent peut désactiver cette notification dans ses préférences (Z6-AC27 étendu avec `routine_completed_enabled`). Le digest hebdomadaire (Z6-AC35) inclut un compteur de routines complétées : « Cette semaine : [N]/[M] routines de soirée complétées. » |
@@ -1642,9 +1662,9 @@
 > **NOTE :** Les parents ne reçoivent actuellement des signaux que quand ça se passe mal (session manquée Z6-AC25, inactivité Z6-AC26). Un parent qui ne reçoit que des alertes négatives développe une association anxieuse avec l'app. La notification « routine terminée » est le signal positif symétrique — elle répond à la question que chaque parent se pose le soir : « Est-ce qu'il a révisé ? » Sans cette notification, le parent doit soit demander à l'enfant (conflit), soit ouvrir l'app parent pour vérifier (friction). C'est aussi un moteur de rétention pour l'abonnement : la valeur perçue augmente quand le parent « voit » l'effort de l'enfant.
 
 ### Z7-AC16 — Onboarding de la première soirée
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève vient de terminer l'onboarding initial (création de compte + saisie emploi du temps). Le chapitre démo (Z8-AC01) est présent mais l'élève n'a uploadé aucun vrai chapitre. C'est sa première soirée avec l'app. |
 | **WHEN** | L'élève ouvre l'app dans la fenêtre de soirée pour la première fois. Si l'élève a déjà complété une capture + evening_first avant la première fenêtre de soirée (ex : compte créé à 10h le samedi), le tutoriel saute les étapes déjà faites et reprend à l'étape suivante du tutoriel progressif (jour 2+). |
 | **THEN** | Le dashboard soirée affiche un **mode tutoriel première soirée** (overlay guidé) : (1) « Bienvenue dans ta routine du soir ! Chaque soir, l'app te dit quoi faire en ~10-15 min. » (2) « Maintenant, capture ton vrai cours. Prends en photo les pages de ton cours de [matière du jour si schedule renseigné / "ta matière préférée" sinon]. » → bouton « Capturer mon premier chapitre ». (3) Après la capture + pipeline terminé : « Parfait ! Maintenant, un premier contact rapide avec ce que tu as noté. ~5 min. » → lancement de l'evening_first. (4) Après l'evening_first : écran de clôture spécial première soirée : « Bravo, ta première routine est terminée ! 🎉 Demain soir, l'app te proposera une nouvelle session pour renforcer ce que tu as appris. Chaque soir, ça prend 10-15 min — moins qu'un épisode de ta série. » (5) Le lendemain soir (jour 2) : le dashboard affiche un message de « jour 2 » : « Tu reviens ! Aujourd'hui, on révise ce que tu as appris hier. Tu vas voir, c'est rapide. » La session daily est proposée. (6) Le tutoriel progressif s'étend sur 5 jours : jour 1 = capture + evening_first, jour 2 = daily expliqué, jour 3 = pre_class expliqué (si applicable), jour 4 = mode express mentionné, jour 5 = « Tu as pris le rythme ! À partir de maintenant, l'app te guide automatiquement. » Chaque message tutoriel est affiché une seule fois et ne réapparaît plus après. |
@@ -1652,9 +1672,9 @@
 > **NOTE :** La première soirée est le moment de conversion critique. L'élève qui comprend le concept de « routine du soir » et qui vit une première expérience guidée et gratifiante reviendra demain. L'élève qui ouvre l'app et voit un dashboard vide ou un pipeline en cours sans contexte ne reviendra pas. Le tutoriel progressif sur 5 jours correspond au temps moyen de formation d'une micro-habitude chez les adolescents. L'analogie avec « un épisode de série » est intentionnelle : c'est le référentiel temporel naturel d'un collégien.
 
 ### Z7-AC17 — Notions : regroupement des items par concept_tag
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | Le chapitre « Densité et masse volumique » contient 14 items. Le pipeline a attribué les `concept_tags` suivants : `masse` (3 items), `volume` (2 items), `rho` (4 items), `deplacement_eau` (3 items), `materiaux` (2 items). |
 | **WHEN** | L'élève consulte la vue détaillée du chapitre. |
 | **THEN** | Les items sont regroupés en **Notions** — une Notion = un cluster de `concept_tags` sémantiquement proches (le pipeline LLM regroupe les tags en Notions nommées lors de la génération du pack). Affichage en accordéon : **Notion « Masse volumique (ρ) »** (items taggés `rho` + `masse` + `volume` = 9 items) avec barre de maîtrise (ex: 4/9 = 44%), **Notion « Mesure par déplacement d'eau »** (items taggés `deplacement_eau` = 3 items) avec barre de maîtrise (3/3 = 100%), **Notion « Matériaux et densité »** (items taggés `materiaux` = 2 items) avec barre de maîtrise (0/2 = 0%). Le regroupement est déterministe et stable (même contenu = mêmes Notions). Le nombre de Notions par chapitre est typiquement 3–7 (le pipeline cible ce range ; si < 3, pas de regroupement affiché ; si > 7, les Notions les plus petites sont fusionnées). Chaque Notion affiche : nom lisible (généré par le LLM, ex: « Les propriétés de l'eau »), nombre d'items, barre de maîtrise (% items OK+SOLID), et un indicateur de dernière révision (« révisé il y a 2 jours »). L'entité `Notion` est définie dans le data model : `id` · `chapter_id` · `name` · `concept_tags[]` · `item_ids[]` · `order (int)`. |
@@ -1662,9 +1682,9 @@
 > **NOTE :** Les `concept_tags` existent déjà dans le pipeline (PRD §6.1) mais ne sont pas exposés à l'élève. Le passage de tags plats à des Notions nommées et regroupées est la clé de voûte de la hiérarchisation : l'élève pense en « notions de cours » (masse volumique, déplacement d'eau), pas en tags atomiques (`rho`, `deplacement_eau`). Le LLM qui génère le pack est le mieux placé pour nommer ces regroupements car il a le contexte pédagogique du cours. Le coût est quasi nul (une instruction supplémentaire dans le prompt de génération).
 
 ### Z7-AC18 — Notions dans la vue chapitre : accordéon et maîtrise par notion
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | Le chapitre « Photosynthèse » a 4 Notions : « Chloroplastes et chlorophylle » (6 items, 5 OK/SOLID), « Équation de la photosynthèse » (4 items, 1 FRAGILE, 2 UNKNOWN), « Facteurs limitants » (3 items, 3 SOLID), « Rôle du CO₂ et de la lumière » (5 items, 3 OK). |
 | **WHEN** | L'élève ouvre la vue chapitre « Photosynthèse ». |
 | **THEN** | La vue chapitre affiche la barre de maîtrise globale du chapitre (11/18 = 61%) ET en dessous, les 4 Notions en accordéon, chacune avec : (1) Nom de la notion (« Équation de la photosynthèse »). (2) Mini-barre de maîtrise par notion (1/4 = 25%, couleur rouge/orange). (3) Indicateur d'état dominant (FRAGILE si ≥ 1 item FRAGILE, UNKNOWN si ≥ 1 UNKNOWN et 0 FRAGILE, OK sinon). (4) Au clic/tap sur une Notion → déplier pour voir la liste des items avec leur état individuel (UNKNOWN/FRAGILE/OK/SOLID). Les Notions sont triées par « besoin de révision » : FRAGILE d'abord, puis UNKNOWN, puis OK, puis SOLID. Cette vue permet à l'élève de comprendre **où** il est faible dans un chapitre, pas juste « combien » il maîtrise globalement. |
@@ -1672,9 +1692,9 @@
 > **NOTE :** Sans la granularité par Notion, la barre de maîtrise d'un chapitre à 61% ne dit rien d'actionnable. Avec les Notions, l'élève voit que « Facteurs limitants » est à 100% mais « Équation de la photosynthèse » est à 25% — il sait exactement quoi réviser. C'est aussi la base nécessaire pour la sélection du périmètre d'exam (Z7-AC19) : si l'élève ne peut pas voir les notions, il ne peut pas les sélectionner.
 
 ### Z7-AC19 — Sélection du périmètre d'exam : auto-scope + ajustement par notion
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève crée un Exam « Contrôle Physique — Séquence 2 » avec `exam_date = 2026-04-10`. Il sélectionne 2 chapitres : « Mouvement et vitesse » (5 Notions, 14 items) et « Forces » (4 Notions, 11 items). |
 | **WHEN** | L'écran de sélection du périmètre s'affiche après le choix des chapitres. |
 | **THEN** | Le système affiche un écran de **sélection par Notion** : pour chaque chapitre, la liste des Notions est affichée avec des toggles (activé/désactivé). **Auto-scope par défaut : toutes les Notions sont cochées.** L'élève peut décocher des Notions spécifiques (ex: « Forces de frottement » si le prof n'a pas encore fait ce cours). Chaque Notion affiche : nom, nombre d'items, mini-barre de maîtrise. Un compteur en bas indique le périmètre résultant : « 22 points de révision sur 25 sélectionnés ». Les items des Notions décochées sont **exclus** du resserrement Z1-AC08 (pas d'accélération inutile), du mock_exam (Z6-AC10), et du plan d'étude exam. L'Exam enregistre `notion_ids[]` en plus de `chapter_ids[]` pour tracer le périmètre exact. Si l'élève ne touche à rien (accepte l'auto-scope), le comportement est identique à l'existant (100% du chapitre). Un bouton « Tout sélectionner / Tout désélectionner » est disponible par chapitre. |
@@ -1682,9 +1702,9 @@
 > **NOTE :** L'auto-scope avec opt-out (tout coché par défaut, l'élève décoche ce qui n'est pas au programme) est le bon pattern UX pour un collégien. Le pattern inverse (opt-in, rien coché, l'élève doit tout cocher) serait trop fastidieux. La granularité par Notion est le juste milieu entre « tout le chapitre » (trop grossier) et « item par item » (trop fin, 25 checkboxes). 3-7 Notions par chapitre = 6-14 toggles pour 2 chapitres = décision en 30 secondes.
 
 ### Z7-AC20 — Auto-suggestion des chapitres et notions lors de la création d'exam
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève crée un nouvel Exam. Il sélectionne la matière « Histoire-Géo » et la date « 2026-03-20 ». Il a 4 chapitres actifs en Histoire-Géo : « Inégalités » (créé le 15/02), « Mondialisation » (créé le 01/03), « Urbanisation » (créé le 08/03), « Développement durable » (créé le 14/03). |
 | **WHEN** | L'écran de sélection des chapitres s'affiche. |
 | **THEN** | Le système propose un **auto-scope intelligent** basé sur : (1) **Chapitres récents de la matière** : les 4 chapitres actifs d'Histoire-Géo sont listés, triés du plus récent au plus ancien. (2) **Pré-sélection heuristique** : les chapitres créés dans les 6 dernières semaines avant la date d'exam sont pré-cochés (ici : « Urbanisation » et « Développement durable »). Les chapitres plus anciens sont affichés mais non cochés, avec mention « Créé il y a [N] semaines ». (3) Si un chapitre a déjà été couvert par un exam passé, il est marqué « Déjà au contrôle du [date] » pour éviter les doublons involontaires. (4) Si un chapitre a des pages ajoutées récemment (upload incrémental), il est signalé « Mis à jour le [date] — nouvelles pages ajoutées ». L'élève confirme ou ajuste la sélection. Après la sélection des chapitres, l'écran de sélection par Notion (Z7-AC19) s'affiche. Le parcours complet (matière → date → chapitres → notions → confirmer) prend < 90 secondes. |
@@ -1692,9 +1712,9 @@
 > **NOTE :** L'heuristique « chapitres des 6 dernières semaines » reflète le rythme du collège français : une séquence dure typiquement 4-6 semaines, et un contrôle de fin de séquence couvre les chapitres de cette période. La mention « Déjà au contrôle du [date] » évite un piège courant : l'élève qui re-sélectionne un chapitre déjà testé et gaspille du temps de révision. Le signal « pages ajoutées récemment » aide l'élève à repérer les chapitres en cours qui ont du contenu frais.
 
 ### Z7-AC21 — Vue « Angles morts » : contenu sans contrôle à venir
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a 8 chapitres actifs répartis sur 4 matières. 3 chapitres sont liés à des Exams à venir (dates futures). 5 chapitres n'ont aucun Exam à venir (dont 2 qui ont eu un exam passé, et 3 qui n'ont jamais été testés). |
 | **WHEN** | L'élève ouvre la vue « Angles morts » (accessible depuis le dashboard progression Z6-AC39, onglet ou filtre). |
 | **THEN** | La vue affiche les chapitres **sans exam à venir**, groupés par matière, chaque entrée montrant : (1) Nom du chapitre + matière. (2) Nombre de Notions et taux de maîtrise global. (3) Date du dernier contrôle lié (si existant) : « Dernier contrôle : 15/02 » ou « Jamais testé en contrôle ». (4) Temps écoulé depuis le dernier contrôle de la matière (pas juste du chapitre) : « Dernier contrôle d'Histoire-Géo : il y a 5 semaines ». (5) Un indicateur visuel de risque (vert/orange/rouge) basé sur : temps depuis dernier contrôle × volume de contenu non testé × taux de maîtrise faible. Les chapitres sont triés par risque décroissant. Un bouton « Créer un contrôle » est disponible pour chaque entrée, pré-rempli avec le chapitre. Un message contextuel en haut de la vue : « [N] chapitres n'ont pas de contrôle prévu. Vérifie avec ton prof si un contrôle est à venir ! » La vue est vide (avec message positif) si tous les chapitres ont un exam à venir. |
@@ -1702,9 +1722,9 @@
 > **NOTE :** Les « angles morts » ne sont pas un bug — c'est souvent simplement que l'élève n'a pas encore reçu la date du prochain contrôle. Mais la vue sert deux objectifs : (1) rappeler à l'élève de demander au prof, et (2) permettre au système de maintenir un niveau de révision de fond sur ces chapitres (le daily les inclut via les items dues, mais le resserrement Z1-AC08 ne s'active pas sans date d'exam). La vue devient le point d'entrée naturel pour la prédiction d'interro surprise (Z7-AC22).
 
 ### Z7-AC22 — Prédiction d'interro surprise : score de probabilité par matière
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a des cours de SVT le mardi et le vendredi. Historique des contrôles SVT : exam le 10/01, exam le 07/02, exam le 28/02. Nous sommes le 20/03 (3 semaines sans contrôle). L'élève a 2 chapitres SVT sans exam à venir, dont 1 avec des items FRAGILE. |
 | **WHEN** | L'EveningPlan du lundi soir est calculé (veille du cours de SVT mardi). |
 | **THEN** | Le système calcule un **score d'interro surprise** pour SVT, basé sur : (1) **Fréquence historique** des contrôles : 1 contrôle toutes les ~3.5 semaines en SVT (moyenne des intervalles 10/01→07/02 = 4 sem, 07/02→28/02 = 3 sem). (2) **Temps écoulé** depuis le dernier contrôle : 3 semaines (20/03 - 28/02). (3) **Ratio temps/fréquence** : 3/3.5 = 0.86 → probabilité croissante. (4) **Volume non testé** : 2 chapitres, ~15 items sans exam → facteur aggravant. Le score est affiché comme un signal qualitatif (pas un pourcentage, trop anxiogène) : 🟢 « Interro surprise peu probable » (ratio < 0.5), 🟡 « Interro surprise possible — reste prêt ! » (ratio 0.5–0.9), 🔴 « Attention, ça fait longtemps sans contrôle — interro surprise probable ! » (ratio > 0.9). Le signal est intégré dans : (a) le dashboard soirée la veille du cours (« Tu as SVT demain — 🟡 interro surprise possible »), (b) la notification pre_class (Z6-AC07) avec intensité adaptée, (c) la vue Angles morts (Z7-AC21) comme colonne supplémentaire. Le score n'est calculé que pour les matières avec ≥ 3 contrôles historiques (sinon données insuffisantes, pas de prédiction). Après un nouveau contrôle, le score se réinitialise. Le calcul ne nécessite aucun appel LLM — c'est une heuristique arithmétique sur les intervalles. |
@@ -1712,9 +1732,9 @@
 > **NOTE :** La prédiction d'interro surprise est un « wow factor » qui positionne l'app comme un vrai coach et pas juste un outil de flashcards. L'élève qui reçoit « Attention, ça fait longtemps sans contrôle de SVT — prépare-toi ! » la veille d'un cours et qui a effectivement une interro le lendemain développe une confiance profonde dans l'app. Le choix du signal qualitatif (🟢🟡🔴) plutôt que « 73% de chances » est délibéré : un pourcentage serait soit ignoré soit source d'anxiété. Un signal en 3 niveaux est actionnable. L'heuristique est simple (intervalle moyen vs temps écoulé) mais étonnamment efficace car les profs ont des rythmes réguliers.
 
 ### Z7-AC23 — Alerte croisée « notion fragile × jamais testée en contrôle »
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a le chapitre « Mondialisation » en Histoire-Géo avec 5 Notions. La Notion « Flux migratoires » (4 items) a 3 items FRAGILE et 1 UNKNOWN. Cette Notion n'a jamais été couverte par un Exam (aucun exam passé ou à venir ne référence les `notion_ids` correspondants). La Notion « Échanges commerciaux » (3 items) a 3 items SOLID — pas de risque. |
 | **WHEN** | Le système évalue les risques lors du calcul quotidien (même job que l'EveningPlan, Z7-AC01). |
 | **THEN** | Une **alerte proactive** est générée pour « Flux migratoires » car elle croise deux signaux de risque : **(1) Maîtrise faible** (≥ 50% items FRAGILE/UNKNOWN) ET **(2) Jamais testée** en contrôle (pas de lien avec un Exam passé ou futur). L'alerte est affichée : (a) Dans la vue chapitre, sous la Notion concernée : « ⚠️ Notion fragile et jamais au contrôle — entraîne-toi ! » avec bouton « Lancer un entraînement ciblé » → session ciblée sur les items de cette Notion uniquement (4 questions, gabarits difficulté 1-2). (b) Dans la vue Angles morts (Z7-AC21) : la Notion est mise en évidence en rouge. (c) Dans l'EveningPlan, si espace disponible (durée totale < 20 min) : suggestion optionnelle « +3 min : renforce "Flux migratoires" (notion fragile, jamais au contrôle) ». L'alerte disparaît quand la condition n'est plus remplie (maîtrise ≥ 50% OK/SOLID, ou Notion couverte par un exam). Le nombre max d'alertes actives simultanées est 3 (les plus critiques d'abord, par score de risque = % FRAGILE × ancienneté de la dernière révision). Pas de notification push pour ces alertes — elles sont in-app uniquement, pour éviter la surcharge. |
@@ -1722,9 +1742,9 @@
 > **NOTE :** Le croisement « fragile × non testée » identifie le pire scénario pour l'élève : une notion qu'il maîtrise mal et qui pourrait tomber en interro surprise puisqu'elle n'a jamais été au contrôle. C'est le genre de signal qu'un bon répétiteur humain détecterait en feuilletant les copies et l'emploi du temps — l'app le fait automatiquement. La session ciblée par Notion (4 questions sur un sous-ensemble) est un nouveau mode de révision complémentaire au daily (qui pioche transversalement) : ici on attaque chirurgicalement le point faible.
 
 ### Z7-AC24 — Bouton « S'avancer » : réviser les items des jours suivants
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève ouvre l'app un samedi matin. Son daily du jour contient 8 items (10 min). Il sait que lundi et mardi soirs il aura entraînement (soirs indisponibles, Z6-AC54) ou beaucoup de devoirs. |
 | **WHEN** | L'élève tape sur « Je veux m'avancer » (bouton visible sur le dashboard sous le plan du jour, présent les weekends et jours sans contrainte horaire). |
 | **THEN** | Le système calcule les items qui seraient dues lundi et mardi (basé sur les `next_due_at` projetés + la composition 70/20/10). Ces items sont **ajoutés** au plan du jour comme bloc supplémentaire : « +12 items de lundi-mardi (~15 min) ». L'élève voit la durée totale avant de confirmer (ex : « Aujourd'hui : 25 min au lieu de 10 min »). Il peut choisir combien de jours d'avance il veut prendre (1, 2 ou 3 jours max — au-delà, l'espacement SRS perd son sens). Les items révisés en avance ont leur `next_due_at` recalculé normalement après la session (comme s'ils avaient été révisés le jour prévu). L'EveningPlan des jours suivants est automatiquement allégé : les items déjà vus ne sont pas reproposés. Si tous les items de lundi sont couverts, l'EveningPlan de lundi affiche « Rien à réviser ce soir — tu t'es avancé samedi ! ✓ ». Le bouton « S'avancer » n'est **pas** affiché si l'élève est en mode vacances (Z6-AC53 gère son propre rythme) ni les soirs de semaine classiques (pour éviter les sessions trop longues). |
@@ -1732,9 +1752,9 @@
 > **NOTE :** S'avancer le weekend est un cas d'usage fréquent pour les collégiens sportifs ou ceux qui ont des semaines chargées. Le bouton explicite (vs « faire plus de sessions ») a deux avantages : (1) l'élève visualise l'impact sur sa semaine avant de commencer (« 25 min maintenant = 0 min lundi soir »), (2) le système sait que c'est de l'avance et ajuste les plans futurs en conséquence. La limite de 3 jours d'avance protège l'intégrité du SRS : réviser un item 5 jours trop tôt est pédagogiquement inutile (l'espacement est précisément calibré pour optimiser la rétention).
 
 ### Z7-AC25 — Fiches de révision PDF pour heures d'étude (hors téléphone)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a 2 chapitres actifs en Physique-Chimie avec 15 items dont 6 FRAGILE et 4 UNKNOWN. Il a une heure d'étude demain au collège où les téléphones sont interdits. |
 | **WHEN** | L'élève tape sur « Télécharger une fiche révision » (bouton disponible sur chaque chapitre et sur le dashboard, section « Outils »). |
 | **THEN** | Un **PDF** est généré contenant : **(1) En-tête** : matière, chapitre(s), date, nombre de questions. **(2) Questions** : les items les plus urgents (FRAGILE d'abord, puis UNKNOWN, puis OK dues), formatés en quiz papier. Chaque question a un numéro, un espace de réponse, et une indication de difficulté (★/★★/★★★). Les gabarits sont adaptés au papier : les MCQ conservent leurs options, les SHORT ont une ligne de réponse, les CLOZE ont des tirets, les NUMERIC ont un cadre « Valeur + Unité ». **(3) Réponses** : en dernière page (ou au verso si impression recto-verso), avec la réponse correcte + un indice mnémotechnique court pour chaque question. **(4) Paramètres** : nombre de questions configurable (défaut : 15, max : 30). Sélection par chapitre ou transversal (tous chapitres de la matière). Le PDF est généré côté serveur (pas de LLM — les questions sont déjà en cache, seul le formatage est nécessaire). Le téléchargement est loggé avec `pdf_generated_at` et `item_ids[]` inclus, pour le report ultérieur (Z7-AC26). Le PDF inclut un QR code en bas de page qui ouvre directement l'écran de report (Z7-AC26) dans l'app. |
@@ -1742,9 +1762,9 @@
 > **NOTE :** L'heure d'étude est un créneau de révision perdu pour 100% des élèves qui utilisent une app mobile. En France, les téléphones sont interdits au collège (loi de 2018). La fiche PDF transforme ce temps mort en temps de révision actif. Le QR code pour le report des résultats réduit la friction du retour dans l'app. Le coût de génération est quasi nul (formatage de données existantes en PDF, pas d'appel LLM). C'est un différenciateur fort vs les apps concurrentes qui sont 100% mobile-dépendantes.
 
 ### Z7-AC26 — Report des résultats papier (checklist post-étude)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a utilisé une fiche PDF (Z7-AC25) pendant son heure d'étude. La fiche contenait 12 questions sur le chapitre Densité. Il rentre chez lui le soir. |
 | **WHEN** | L'élève ouvre l'app (notification proactive : « Tu as utilisé ta fiche Densité en étude ? Dis-moi comment ça s'est passé ! ») ou scanne le QR code de la fiche, ou tape sur « Reporter mes résultats » dans la section du chapitre. |
 | **THEN** | Un écran de **checklist rapide** s'affiche avec la liste des questions de la fiche (identifiées par `item_ids[]` du PDF loggé). Pour chaque question, l'élève coche ✓ (réussi) ou ✗ (raté). Pas de saisie de texte — uniquement des taps. Le temps de report est < 1 min pour 12 questions. À la validation : **(1) Plafond de progression papier** : les reports papier sont traités comme des **réponses avec aide** (même logique que Z1-AC26 `hint_used = true`). Les transitions UNKNOWN → FRAGILE et FRAGILE → OK sont autorisées. La transition **OK → SOLID est bloquée** — un report papier ne peut jamais faire passer un item en SOLID. Pour atteindre SOLID, l'élève doit répondre correctement en **session interactive** (vérification par le système). Le champ `Attempt.source = 'paper_report'` distingue ces résultats des sessions interactives. Raté → régression normale (Z1-AC05/06/07), sans atténuation. **(2) Vérification croisée adaptative** : après chaque report, 2-3 items reportés ✓ sont re-proposés en session interactive le soir même (pas optionnel). Si l'élève reporte ≥ 80% de réussite sur des items FRAGILE/UNKNOWN, le message non-culpabilisant s'affiche : « Super résultat ! On vérifiera quelques points ce soir pour consolider. » **(3) Détection d'écart statistique** : le système compare le taux de réussite papier et le taux de réussite interactif par matière, sur une fenêtre glissante de 30 jours. Si l'écart est significatif (taux papier − taux interactif > 30% ET ≥ 3 fiches reportées), le nombre d'items re-vérifiés en session augmente silencieusement : 2-3 → 5-6 items. Aucun message accusateur, aucune notification parent — juste plus de vérification interactive. Si l'écart se réduit sous 15% sur les 2 semaines suivantes, le cross-check revient à 2-3 items. **(4) Statistiques** : le report compte comme une session dans les stats (`session_type = 'paper_report'`). Le temps passé en étude est estimé (nombre de questions × 90s en moyenne) et affiché dans le débrief parent. Le dashboard parent distingue « temps en étude » et « temps en session » (les deux sont valorisés). **(5) Expiration** : le report est possible pendant 48h après la génération du PDF. Au-delà, les items sont re-proposés en session interactive normalement (le PDF est considéré comme non utilisé). |
@@ -1762,9 +1782,9 @@
 > **NOTE :** Les zones Z6 (engagement) et Z7 (routine de soirée) couvrent le comportement du système *une fois que l'élève a du contenu actif*. Z8 couvre spécifiquement la transition entre « l'app est installée » et « l'élève a sa première session réussie + le parent a compris la valeur ». Sans Z8, les 175 AC précédents décrivent un produit excellent… auquel personne n'arrive.
 
 ### Z8-AC01 — Chapitre démo pré-chargé (cold start)
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | L'élève vient de créer son compte (email/OAuth). Il n'a encore uploadé aucun chapitre. L'app est vide. |
 | **WHEN** | L'élève arrive sur le dashboard pour la première fois. |
 | **THEN** | Un **chapitre démo** est automatiquement présent dans l'app : matière « Physique-Chimie », titre « Densité et masse volumique (démo) ». Ce chapitre contient 8 items pré-générés (2 MCQ, 2 CLOZE, 2 SHORT, 1 NUMERIC, 1 DEFINITION), tous en état UNKNOWN, difficulté 1. Le dashboard affiche un bandeau contextuel : « Essaie une session de révision avec ce chapitre d'exemple — 3 min ». L'élève peut lancer une `evening_first` sur le chapitre démo exactement comme sur un vrai chapitre (même moteur de session Z6-AC05/AC06, même débrief Z1-AC17, mêmes micro-célébrations Z1-AC16). Le chapitre démo est marqué `is_demo = true` dans la base. Il est **exclu** de la progression globale, du digest parent, du pool de composition des sessions `daily`/`pre_class`, et de l'`EveningPlan` (Z7-AC01). Seule la session `evening_first` initiale est proposée sur le chapitre démo. Quand le pipeline J0 du premier vrai chapitre se termine avec ≥ 1 item valide, le chapitre démo est automatiquement archivé (ne pollue plus le dashboard). L'élève peut le supprimer manuellement à tout moment. Si l'élève n'interagit pas avec le chapitre démo et uploade directement un vrai chapitre, aucune friction — le chapitre démo est archivé silencieusement. |
@@ -1772,9 +1792,9 @@
 > **NOTE :** Le chapitre démo résout le problème #1 d'adoption : le cold start. Un parent qui télécharge l'app à 22h un mardi peut voir son enfant faire un quiz en 3 minutes, sans cahier, sans photo, sans attente OCR. Le contenu « Densité et masse volumique » est volontairement un sujet de 5e/4e accessible, sans prérequis. Le coût technique est quasi nul : 8 items statiques injectés à la création du compte, traités par le même moteur. L'archivage automatique évite que le chapitre démo ne devienne du bruit une fois que l'élève a du vrai contenu.
 
 ### Z8-AC02 — Empty state guidé avant premier upload
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | L'élève a créé son compte. Le chapitre démo est visible (Z8-AC01) mais l'élève n'a encore uploadé aucun vrai chapitre. |
 | **WHEN** | L'élève ouvre le dashboard (après la session démo ou sans l'avoir faite). |
 | **THEN** | Le dashboard affiche un **empty state structuré** en 3 étapes visuelles : (1) « ✓ Compte créé » (coché, vert). (2) « Photographie ton premier cours » avec un bouton « Capturer » proéminent + indication « 30 secondes ». (3) « Ta première session de révision » (grisé, avec « ~5 min après la capture »). Chaque étape a une icône, un texte court, et un état (fait / à faire / à venir). L'empty state disparaît dès que le premier chapitre est uploadé avec succès (pipeline J0 terminé avec ≥ 1 item valide). Si l'élève a fait la session démo, l'étape (1) devient « ✓ Session démo réussie — maintenant avec ton vrai cours ! ». |
@@ -1782,9 +1802,9 @@
 > **NOTE :** L'empty state transforme le vide anxiogène (« cette app est cassée ? ») en checklist rassurante. Les 3 étapes numérotées créent un sentiment de progression immédiat. Le « 30 secondes » pour la capture et le « ~5 min » pour la session posent des attentes réalistes et désamorcent le « j'ai pas le temps ».
 
 ### Z8-AC03 — UX de recovery si le premier OCR échoue
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | L'élève vient de photographier son premier cours (1 à 5 pages). Le pipeline J0 échoue : OCR illisible (confidence < 0.3 sur toutes les pages) OU timeout (> 60s sans réponse) OU 0 items valides générés. |
 | **WHEN** | Le pipeline J0 retourne un statut d'échec ou un résultat vide (0 items). |
 | **THEN** | L'élève voit un **écran de recovery** (pas une erreur technique) : **(1) Message empathique** : « Les photos sont un peu difficiles à lire. Pas de panique, ça arrive souvent au début ! » **(2) Conseils visuels** : 3 mini-illustrations montrant (a) bonne luminosité vs ombre, (b) page bien cadrée vs coupée, (c) écriture lisible vs trop petite. **(3) Bouton primaire** : « Reprendre les photos » → rouvre la caméra avec les pages déjà prises visibles comme vignettes (pas de perte du travail précédent, l'élève peut re-photographier uniquement les pages problématiques). **(4) Bouton secondaire** : « Essayer quand même » → si le pipeline a produit au moins 1 item malgré la faible confidence, permettre de continuer en mode dégradé (les items générés sont marqués `validation_required = true`, Z3). **(5) Fallback chapitre démo** : si 0 items et c'est le tout premier upload, le message ajoute : « En attendant, tu peux t'entraîner sur le chapitre d'exemple ». Le nombre de retries n'est pas limité. Chaque retry relance le pipeline J0 normalement. L'écran de recovery est loggé (`event = 'j0_first_upload_recovery'`) pour monitorer le taux d'échec premier upload. |
@@ -1792,9 +1812,9 @@
 > **NOTE :** L'échec du premier OCR est le moment le plus dangereux du funnel : l'élève n'a aucune tolérance à l'erreur car il n'a pas encore construit de confiance dans l'app. Le ton empathique (« ça arrive souvent ») + les conseils visuels (pas un message d'erreur technique) + le fallback vers le chapitre démo (Z8-AC01) garantissent que l'élève n'est **jamais** dans un cul-de-sac. Le logging du recovery permet d'identifier si le problème est systémique (OCR défaillant) ou ponctuel (mauvaises photos).
 
 ### Z8-AC04 — Écran de progression pendant le traitement J0
-
 | | |
 |---|---|
+| **Lot 0** | P1 |
 | **GIVEN** | L'élève vient de soumettre ses photos (premier upload ou upload suivant). Le pipeline J0 est en cours de traitement. |
 | **WHEN** | Le traitement dure plus de 3 secondes. |
 | **THEN** | Un **écran de progression** s'affiche avec : (1) Animation de chargement engageante (pas un spinner technique — ex : une page qui se « scanne » visuellement). (2) Message contextuel en 3 phases : phase 1 (0-5s) « Lecture de tes pages… », phase 2 (5-15s) « Création des questions… », phase 3 (15s+) « Presque fini… ». (3) Si le traitement dépasse 30s, un message additionnel : « C'est un peu plus long que d'habitude. Tu peux fermer l'app — on te préviendra quand c'est prêt. » + l'app envoie une notification push quand le pipeline J0 termine (succès ou échec). L'élève peut quitter l'écran de progression à tout moment sans interrompre le pipeline. S'il revient dans l'app, l'écran de progression se réaffiche si le pipeline est toujours en cours, ou le résultat (session proposée ou recovery Z8-AC03) s'affiche si le pipeline est terminé. |
@@ -1802,9 +1822,9 @@
 > **NOTE :** Le silence pendant le traitement est anxiogène — l'élève ne sait pas si l'app a planté ou si elle travaille. Les messages en phases donnent une illusion de progression même si le backend est asynchrone. Le seuil de 30s pour le message « tu peux fermer » est basé sur les standards UX mobile : au-delà de 30s d'attente, le taux d'abandon dépasse 50%. La notification push de fin transforme l'attente passive en promesse active.
 
 ### Z8-AC05 — Onboarding parent : premiers écrans + digest anticipé
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le parent vient de créer son compte et de le lier à l'élève via le code 6 caractères (Z6-AC45). |
 | **WHEN** | Le parent accède au dashboard pour la première fois. |
 | **THEN** | Avant d'afficher le dashboard, le parent voit un **mini-onboarding en 3 écrans** (swipeable, skippable) : **(Écran 1) « Voici ce que fait [Prénom] »** : résumé visuel du principe (photo → questions → révision espacée → maîtrise). Durée de lecture : 10s. **(Écran 2) « Votre tableau de bord »** : aperçu annoté du dashboard avec 3 flèches : progression globale, matières actives, lien vers le script 3 minutes (Z1-AC19). **(Écran 3) « Restez informé sans effort »** : explication des notifications (routine terminée, digest hebdo, alerte inactivité) + bouton « Gérer mes préférences » (Z6-AC27). Après le 3e écran ou le skip, le parent arrive sur le dashboard réel. Si aucune session n'a été faite, l'Écran 1 utilise le futur (« Voici ce que fera [Prénom] ») et le dashboard affiche « [Prénom] n'a pas encore commencé — vous serez notifié dès sa première session. » |
@@ -1812,9 +1832,9 @@
 > **NOTE :** 3 écrans = 30 secondes. C'est le minimum pour que le parent comprenne (1) ce que fait l'app, (2) ce qu'il voit, (3) ce qu'il recevra. Sans ça, le parent voit un dashboard avec des % qu'il ne comprend pas et des boutons qu'il n'ose pas toucher.
 
 ### Z8-AC06 — Digest parent anticipé (J+2 après liaison)
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | Le parent a lié son compte à l'élève (Z6-AC45). Le prochain digest standard est dimanche 9h (Z6-AC35). |
 | **WHEN** | (48h se sont écoulées depuis la liaison OU l'élève a complété 3 sessions, ce qui arrive en premier) ET l'élève a fait au moins 1 session depuis la liaison. Si 0 sessions à 48h, le digest anticipé est reporté jusqu'à la première session complétée. |
 | **THEN** | Le parent reçoit un **digest anticipé** (notification push + email si activé) avec : (1) Nombre de sessions complétées depuis la liaison. (2) Temps total de révision. (3) Matières actives et nombre de chapitres. (4) Progression mastery globale (% FRAGILE → OK ou mieux). (5) Message d'encouragement contextualisé : « [Prénom] a révisé [X] min en [N] sessions depuis [jour]. Les premiers résultats arrivent vite — voici ce qu'on observe déjà. » Ce digest anticipé est **unique** — il n'est envoyé qu'une fois, après la première liaison. Les digests suivants reprennent le rythme hebdomadaire standard (dimanche 9h, Z6-AC35). Si le parent lie le compte un samedi, le digest anticipé est envoyé lundi (48h), et le digest standard dimanche suivant — pas de doublon si < 3 jours d'écart (le digest standard de ce dimanche est sauté, le prochain est le dimanche d'après). Le digest anticipé est également dédupliqué avec le digest pré-contrôle (Z6-AC33) : si les deux sont programmés dans un intervalle de 48h, ils sont fusionnés en un seul envoi. Le champ `parent.first_digest_sent_at` empêche les envois multiples. |
@@ -1822,9 +1842,9 @@
 > **NOTE :** Attendre 6 jours (mercredi → dimanche) pour le premier signal parent est un churn silencieux. Le parent oublie l'app, l'enfant perd son allié. Le digest anticipé dit « l'app marche, votre enfant l'utilise, voici les preuves ». Le trigger dual (48h OU 3 sessions) couvre les deux cas : l'enfant actif (3 sessions en 24h = digest dès le lendemain) et l'enfant occasionnel (digest à 48h même avec 2 sessions). Le coût technique est un cron conditionnel sur `parent.linked_at + 48h` — trivial.
 
 ### Z8-AC07 — Invitation parent : timing optimal dans l'onboarding
-
 | | |
 |---|---|
+| **Lot 0** | — |
 | **GIVEN** | L'élève a terminé sa première session `evening_first` sur un **vrai chapitre** (`is_demo = false`, cf. Z6-AC05). La session démo ne déclenche pas l'invitation. L'élève n'a pas encore invité de parent (aucun compte parent lié). |
 | **WHEN** | L'écran de débrief de la première session (Z1-AC17) est affiché. |
 | **THEN** | Après le débrief standard, un **écran d'invitation parent** s'affiche : « Bravo pour ta première session ! Invite un parent pour qu'il suive ta progression. » Avec deux boutons : (1) « Inviter maintenant » → déclenche le flow Z6-AC45 (génération code 6 caractères + partage). (2) « Plus tard » → ferme l'écran, l'invitation reste accessible dans les paramètres. L'écran d'invitation n'est montré qu'**une seule fois** (après la 1re session). Si l'élève tape « Plus tard », un rappel discret apparaît dans les paramètres (badge notification sur l'icône settings) mais **aucune** notification push ni pop-up de relance. Le timing « après la 1re session » est intentionnel : l'élève a vécu le produit, il peut expliquer à son parent « c'est une app qui me pose des questions sur mes cours ». Avant la 1re session, l'élève ne sait pas ce que fait l'app et ne peut pas la recommander. |
@@ -1832,9 +1852,9 @@
 > **NOTE :** Z6-AC45 spécifie le mécanisme de liaison mais pas le *quand*. Proposer l'invitation à la création du compte (avant toute session) est prématuré : l'élève ne sait pas encore ce qu'il recommande. Après la 1re session, l'élève vient de vivre le « moment magique » (ses propres questions de cours transformées en quiz) et a un pitch naturel. C'est aussi le moment où le parent voit son enfant excité par une app éducative — fenêtre d'opportunité maximale.
 
 ### Z8-AC08 — Séquence d'onboarding déterministe (orchestration Day 0)
-
 | | |
 |---|---|
+| **Lot 0** | P2 |
 | **GIVEN** | L'élève vient de créer son compte. Les composants d'onboarding sont répartis entre Z6 (schedule), Z7 (tutoriel soirée), et Z8 (démo, empty state, recovery, parent invite). |
 | **WHEN** | L'élève interagit avec l'app pour la première fois. |
 | **THEN** | La séquence d'onboarding est déterministe et suit cet ordre : **(1) Création de compte** → (2) **Chapitre démo** apparaît (Z8-AC01) + **Empty state** visible (Z8-AC02) → (3) **Session démo optionnelle** (evening_first sur le chapitre démo, ~3 min) → (4) **Première soirée** dans la fenêtre de soirée : tutoriel Z7-AC16 (overlay guidé vers capture du vrai cours) → (5) **Premier upload** : saisie emploi du temps contextuelle (Z6-AC01) → pipeline J0 avec écran de progression (Z8-AC04) → si échec : recovery (Z8-AC03) → (6) **evening_first sur vrai chapitre** (Z6-AC05/AC06) → (7) **Débrief** (Z1-AC17) → **Invitation parent** (Z8-AC07). Les étapes (3), (5), (6), (7) sont des transitions event-driven, pas des timers. Si l'élève fait les étapes hors ordre (ex : upload avant la fenêtre de soirée), le tutoriel Z7-AC16 s'adapte en sautant les étapes déjà complétées. À aucun moment deux overlays/écrans modaux ne sont affichés simultanément. |
