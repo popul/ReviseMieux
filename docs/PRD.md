@@ -106,11 +106,11 @@ Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schém
 | **Anticipation interros surprises** : révision ciblée la veille de chaque cours. | |
 | **Exams multi-chapitres** : un contrôle peut couvrir plusieurs leçons. | |
 
-Le MVP complet représente **162 ACs** répartis en 8 zones de risque, classifiés en MVP Core (105), MVP Hardening (47) et Post-MVP (10). Voir `MVP-scope.md` pour le détail par AC.
+Le MVP complet représente **166 ACs** répartis en 8 zones de risque, classifiés en MVP Core (105), MVP Hardening (47) et Post-MVP (10). Voir `MVP-scope.md` pour le détail par AC.
 
 ### 3.2 Lot 0 — Pré-MVP (version locale père-fils)
 
-> Version locale pour un binôme père-fils, validant la boucle pédagogique fondamentale sur les 4 packs pilotes. **53 ACs retenus sur 162 (33%)**, tous extraits de MVP Core.
+> Version locale pour un binôme père-fils, validant la boucle pédagogique fondamentale sur les 4 packs pilotes. **53 ACs retenus sur 166 (32%)**, tous extraits de MVP Core.
 
 | Zone | Retenus | Différés | Ratio |
 |---|---|---|---|
@@ -358,9 +358,15 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 | template_id | Type | Diff. | Tags requis |
 |---|---|---|---|
 | `GEN.DOC.MAP.READ_ZONES` | SHORT_ANSWER | 2 | `map` |
+| `GEN.DOC.MAP.LABEL_COMPLETION` | FILL_BLANK | 2 | `map` |
 | `GEN.DOC.GRAPH.READ_AXES` | SHORT_ANSWER | 1 | `graph` |
 | `GEN.DOC.GRAPH.READ_VALUE` | SHORT_ANSWER | 2 | `graph` |
+| `GEN.DOC.GRAPH.INTERPRET_TREND` | SHORT_ANSWER | 3 | `graph` |
 | `GEN.DOC.TABLE.READ_VALUE` | SHORT_ANSWER | 2 | `table` |
+| `GEN.DOC.TABLE.COMPLETE_CELL` | FILL_BLANK | 2 | `table` |
+| `GEN.DOC.SCHEMA.LABEL_COMPLETION` | FILL_BLANK | 2 | `schema` |
+| `GEN.DOC.SCHEMA.FUNCTION_MATCHING` | MATCHING | 3 | `schema` |
+| `GEN.DOC.CIRCUIT.IDENTIFY_COMPONENT` | SHORT_ANSWER | 2 | `circuit` |
 | `GEN.DOC.IMAGE.DESCRIBE_INTERPRET` | SHORT_ANSWER | 2 | `photo`, `schema` |
 
 ### Méthodes & rédaction
@@ -434,7 +440,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 | Étape | Entrée | Sortie | Bloquant ? | SLA cible |
 |---|---|---|---|---|
 | 1. Upload & validation | Photos (JPEG/PNG/HEIC) | URLs stockage, métadonnées | Oui | < 3 s/photo |
-| 2. Segmentation blocs | Photo | Crops + type + confidence | Non | < 1 s/page |
+| 2. Segmentation blocs | Photo | Crops + type + confidence + coordonnées + classification pédagogique | Non | < 1 s/page |
 | 3. OCR parallèle | Blocs TEXT/SCHEMA | Texte brut + confidence | Non | < 2 s/bloc |
 | 4. Reconstruction plan | Texte OCR | Plan hiérarchique JSON | Non | < 500 ms |
 | 5. Génération Items | Plan + blocs | Items KNOWLEDGE/PROC/DOC | Non | < 3 s/page |
@@ -448,6 +454,29 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 | 10. Diagnostic initial | Items validés | Questions instanciées (lazy) | Oui | < 1 s |
 
 **Parallélisation :** les étapes 2, 3, 4, 5, 6 peuvent être exécutées en parallèle par page (worker pool). La carte de leçon est affichée en streaming dès qu'une page est traitée. L'élève peut commencer un QCM flash pendant que les pages suivantes s'analysent.
+
+### 10.1 Détail étape 2 — Segmentation et classification visuelle
+
+> Les cahiers de collégiens contiennent typiquement 30-50% de contenu visuel (schémas SVT, graphiques, tableaux, circuits physique, cartes géographie). La segmentation doit distinguer et préserver ces éléments pour exploiter le dual coding (Paivio).
+
+**Détection et classification des blocs :**
+
+| Type de bloc | Exemples typiques | Traitement OCR | Sortie |
+|---|---|---|---|
+| TEXT | Paragraphe, définition, titre | OCR standard | `ocr_text` + confidence |
+| TABLE | Tableau dessiné ou imprimé | OCR + extraction structure (lignes/colonnes) | `ocr_text` + `table_structure` (JSON rows×cols) |
+| SCHEMA | Schéma annoté (cellule, circuit, cycle) | OCR légendes uniquement | `crop_url` + `labels[]` |
+| MAP | Carte géographique légendée | OCR légendes uniquement | `crop_url` + `labels[]` |
+| GRAPH | Graphique avec axes et courbes | OCR axes + valeurs-clés | `crop_url` + `labels[]` + `axis_labels{}` |
+| CIRCUIT | Circuit électrique, schéma de forces | OCR composants/valeurs | `crop_url` + `labels[]` |
+| PHOTO | Photographie collée (expérience, document historique) | Pas d'OCR | `crop_url` + description LLM |
+| DECORATIVE | Gribouillage, marge, rature | Ignoré | — |
+
+**Qualité des crops visuels :** chaque crop visuel (SCHEMA, MAP, GRAPH, TABLE, CIRCUIT, PHOTO) doit avoir une résolution minimale de 300×300 px (sinon redimensionné via upscaling conservatif) et un cadrage qui inclut les légendes et annotations environnantes (marge de 5% autour de la bounding box détectée). Les crops sont stockés en WebP (qualité 85, compression ~60% vs JPEG) avec l'URL dans `Block.crop_url`.
+
+**Association bloc→Item→VisualBlock :** les blocs visuels pédagogiques sont encapsulés dans une entité `VisualBlock` (voir §14 modèle de données) qui associe le crop, les labels extraits et le type visuel. Chaque Item peut référencer 0-N `VisualBlock` via `Item.visual_block_ids[]`. Le LLM de structuration (étape 5) reçoit les blocs visuels en contexte multimodal et génère des gabarits visuels spécifiques (cf. Z4-AC17).
+
+**Classification pédagogique vs décoratif :** le modèle de segmentation classe chaque bloc non-TEXT en pédagogique ou décoratif. En cas de doute (confidence classification < 0.6), le bloc est classé décoratif (faux négatif préférable au faux positif — un gribouillage classé « schéma » dégraderait l'expérience). La classification est vérifiable dans la carte leçon (Z2-AC15) : le parent/élève peut reclasser un bloc ignoré.
 
 ---
 
@@ -499,6 +528,9 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 | Bloc illisible après 3 tentatives | Item créé avec `content = null`, `flagged = true` | Message 'Zone illisible — à vérifier' |
 | Page entière confidence < 0.3 | Notifier l'élève : 'Photo floue — reprendre si possible' | Suggestion retake, non-bloquant |
 | confidence bloc SCHEMA/MAP < 0.5 | Conserver l'image brute comme `Document.source`, ne pas OCRiser | Document exploitable via gabarit image |
+| Bloc visuel trop petit (< 300×300 px) | Upscaling conservatif (bilinear) jusqu'à 300×300 px min. Si < 100×100 px après crop → classé DECORATIVE | Visuel ignoré si trop petit (probablement un symbole/icône) |
+| Bloc TABLE avec structure complexe (≥ 8 colonnes ou cellules fusionnées) | Fallback : capture comme image (SCHEMA) au lieu de table structurée | Tableau exploitable en mode image, pas en mode cellule |
+| Labels/légendes extraites avec confidence < 0.4 | Labels conservés comme `uncertain`, affichés avec badge dans carte leçon | Le parent peut corriger les labels via HITL |
 
 ### 13.1 Vérification croisée LLM (fidélité sémantique)
 
@@ -582,10 +614,14 @@ Création chapitre : matière, classe, nom, date contrôle. Saisie de l'emploi d
 
 ### Epic 2 — Upload & segmentation
 
-Upload 1–30 photos mobile/web. Segmentation en blocs typés (TEXT, PHOTO, SCHEMA, MAP, GRAPH, TABLE, CIRCUIT…). Streaming de la carte dès la première page.
+Upload 1–30 photos mobile/web. Segmentation en blocs typés (TEXT, PHOTO, SCHEMA, MAP, GRAPH, TABLE, CIRCUIT, DECORATIVE). Classification pédagogique vs décoratif. Extraction des légendes, labels d'axes, structures de tableaux. Stockage des crops visuels en WebP. Streaming de la carte dès la première page.
 
 **Critères d'acceptation :**
-- Crops avec type + confidence + coordonnées.
+- Crops avec type + confidence + coordonnées (bounding box).
+- Classification pédagogique/décoratif pour chaque bloc non-TEXT (cf. §10.1).
+- Extraction labels/légendes pour blocs SCHEMA, MAP, GRAPH, CIRCUIT (cf. Z2-AC15).
+- Extraction structure rows×cols pour blocs TABLE (cf. Z2-AC16).
+- Résolution minimale 300×300 px par crop visuel, marge 5% (cf. Z2-AC17).
 - Indicateur de progression temps réel.
 - Suggestion retake si page floue (confidence < 0.3).
 
@@ -737,13 +773,14 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 | **Chapter** | `id` · `subject` · `class_level` · `name` · `exam_ids[]` · `pack_id` · `current_revision_id` · `archived? (boolean, default false)` · `is_demo? (boolean, default false)` |
 | **ChapterRevision** | `id` · `chapter_id` · `revision_number` · `created_at` · `pages[]` · `status` |
 | **Page** | `id` · `revision_id` · `photo_url` · `order` · `ocr_status` |
-| **Block** | `id` · `page_id` · `type (TEXT\|PHOTO\|SCHEMA\|MAP\|GRAPH\|TABLE\|CIRCUIT)` · `crop` · `confidence` · `ocr_text?` |
+| **Block** | `id` · `page_id` · `type (TEXT\|PHOTO\|SCHEMA\|MAP\|GRAPH\|TABLE\|CIRCUIT\|DECORATIVE)` · `crop_url?` · `crop_bbox {x, y, w, h}` · `confidence` · `ocr_text?` · `pedagogical_classification (pedagogical\|decorative\|null)` · `classification_confidence?` |
+| **VisualBlock** | `id` · `block_id` · `chapter_id` · `type (diagram\|graph\|table\|figure\|map\|circuit\|photo)` · `image_url` · `thumbnail_url` · `width_px` · `height_px` · `labels[] { text, position {x, y} }` · `axis_labels? { x_label, y_label, x_unit?, y_unit? }` · `table_structure? { rows: int, cols: int, headers[]?, cells[][] }` · `caption?` (légende détectée sous/au-dessus du visuel) · `alt_text` (description textuelle générée par LLM pour accessibilité) · `retention_expires_at` (aligné sur RGPD J+30, cf. Z2-AC12) |
 | **Document** | `id` · `chapter_id` · `type` · `tags[]` · `blocks[]` · `source_image_url?` |
 | **Notion** | `id` · `chapter_id` · `name` (libellé lisible généré par le LLM) · `concept_tags[]` · `item_ids[]` · `order (int)` |
-| **Item** | `id` · `chapter_id` · `notion_id?` · `revision_id` · `type (KNOWLEDGE\|PROCEDURE\|DOCUMENT\|WRITING)` · `term?` · `keywords[]?` · `steps[]?` · `linked_doc_id?` · `tags[]` · `confidence` · `validation_required` · `archived` · `fidelity_score?` · `fidelity_flag? (low\|medium\|null)` · `coherence_flag? (contradiction\|orphan_reference\|null)` · `anomaly_flag? (high_failure_rate\|null)` · `llm_model_version?` · `prompt_template_version?` |
+| **Item** | `id` · `chapter_id` · `notion_id?` · `revision_id` · `type (KNOWLEDGE\|PROCEDURE\|DOCUMENT\|WRITING)` · `term?` · `keywords[]?` · `steps[]?` · `linked_doc_id?` · `visual_block_ids[]?` · `tags[]` · `confidence` · `validation_required` · `archived` · `fidelity_score?` · `fidelity_flag? (low\|medium\|null)` · `coherence_flag? (contradiction\|orphan_reference\|null)` · `anomaly_flag? (high_failure_rate\|null)` · `llm_model_version?` · `prompt_template_version?` |
 | **ValidationTask** | `id` · `item_id` · `crop_url` · `suggestion` · `priority` · `status` · `resolved_by?` · `source (uncertainty_detection\|student_report\|anomaly_detection\|coherence_check\|fidelity_check)` · `student_note?` |
-| **Template** | `id (template_id)` · `name` · `version` · `question_type` · `difficulty` · `eligibility{}` · `variables[]` · `prompt_template` · `grading{}` |
-| **Question** | `id` · `template_id` · `item_id` · `rendered_prompt` · `expected_answer{}` · `grading_policy` · `clarification? { intent: string, starter_hint: string }` · `llm_model_version?` · `prompt_template_version?` · `times_seen? (default 0)` (incrémenté à chaque présentation en session, utilisé par Z4-AC15 pour le renouvellement) |
+| **Template** | `id (template_id)` · `name` · `version` · `question_type` · `difficulty` · `eligibility{}` · `variables[]` · `prompt_template` · `grading{}` · `uses_visual? (boolean, default false)` · `visual_interaction_type? (label_completion\|describe\|matching\|read_value\|identify_zone\|null)` |
+| **Question** | `id` · `template_id` · `item_id` · `visual_block_id?` · `rendered_prompt` · `rendered_visual_url?` (URL du visuel transformé : légendes masquées, zones floutées, etc.) · `expected_answer{}` · `grading_policy` · `clarification? { intent: string, starter_hint: string }` · `llm_model_version?` · `prompt_template_version?` · `times_seen? (default 0)` (incrémenté à chaque présentation en session, utilisé par Z4-AC15 pour le renouvellement) |
 | **Attempt** | `id` · `question_id` · `user_id` · `answer` · `score` · `feedback` · `created_at` · `source (interactive\|paper_report)` (défaut interactive) · `rapid_response? (boolean, default false)` · `response_time_ms?` (mesuré côté client, du rendu de la question au tap « Valider ») · `hint_used? (boolean)` · `clarification_used? (boolean)` |
 | **Mastery** | `id` · `user_id` · `item_id` · `state (UNKNOWN\|FRAGILE\|OK\|SOLID)` · `next_due_at` · `last_review_at` · `last_success_at?` · `consecutive_successes` · `consecutive_failures? (default 0)` (pour Z1-AC21 descente difficulté) · `current_difficulty? (default null)` (override de difficulté par Z1-AC21, null = difficulté template standard) |
 | **Session** | `id` · `user_id` · `chapter_ids[]` · `type (daily\|diagnostic\|mock_exam\|evening_first\|pre_class\|paper_report\|consolidation_optional)` · `trigger (manual\|scheduled\|notification)` · `questions[]` · `started_at` · `completed_at?` · `current_question_index (default 0)` · `includes_pre_class? (boolean)` |
