@@ -227,7 +227,7 @@ Créer les artefacts d'ancrage **avant toute fonctionnalité** :
 - **Digest hebdo (5 sections standardisées, AC Z6-AC27) :**
   1. **Résumé activité** : sessions complétées, temps total. Mention explicite si aucune activité.
   2. **Maîtrise par chapitre** : % OK+SOLID, items restants. Mention si items en vérification ou pages OCR échouées (AC Z6-AC28).
-  3. **Alertes** : items à risque pré-exam, sessions manquées (résumé hebdo, AC Z6-AC18), inactivité.
+  3. **Alertes** : items à risque pré-exam, sessions manquées (notification lendemain AC Z6-AC18, résumé hebdo AC Z6-AC26), inactivité.
   4. **Prochaine action** : recommandation concrète et actionnable.
   5. **Score contrôle blanc** (si complété) : score + indicateur de confiance (AC Z1-AC16).
   - Labels de maîtrise traduits en langage parent : « Pas encore vu / En cours / Compris / Bien acquis » (AC Z6-AC29).
