@@ -2,7 +2,20 @@
 
 ## Projet
 
-Révise Mieux est un SaaS éducatif qui transforme des photos de cahier en assistant de révision pour collégiens. Le dépôt contient pour l'instant uniquement les spécifications (PRD + 171 critères d'acceptation). L'implémentation n'a pas encore démarré.
+Révise Mieux est un SaaS éducatif qui transforme des photos de cahier en assistant de révision pour collégiens.
+
+## Stack technique
+
+| Composant | Technologie |
+|-----------|-------------|
+| Backend API | Go + Gin |
+| Base de données | PostgreSQL (pgx, SQL brut) |
+| Mobile | React Native + Expo + Expo Router |
+| LLM | Anthropic API (Claude Sonnet) |
+| Cache | Redis |
+| Storage | S3 / Object storage |
+
+**Monorepo** : `backend/` (Go) + `mobile/` (Expo)
 
 ## Documents clés
 
