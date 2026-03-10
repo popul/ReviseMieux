@@ -106,25 +106,25 @@ Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schém
 | **Anticipation interros surprises** : révision ciblée la veille de chaque cours. | |
 | **Exams multi-chapitres** : un contrôle peut couvrir plusieurs leçons. | |
 
-Le MVP complet représente **185 ACs** répartis en 8 zones de risque, classifiés en MVP Core (122), MVP Hardening (48) et Post-MVP (15). Voir `MVP-scope.md` pour le détail par AC.
+Le MVP complet représente **171 ACs** répartis en 8 zones de risque, classifiés en MVP Core (106), MVP Hardening (55) et Post-MVP (10). Voir `MVP-scope.md` pour le détail par AC.
 
 ### 3.2 Lot 0 — Pré-MVP (version locale père-fils)
 
-> Version locale pour un binôme père-fils, validant la boucle pédagogique fondamentale sur les 4 packs pilotes. **55 ACs retenus sur 185 (30%)**, tous extraits de MVP Core.
+> Version locale pour un binôme père-fils, validant la boucle pédagogique fondamentale sur les 4 packs pilotes. **53 ACs retenus sur 171 (31%)**, tous extraits de MVP Core.
 
 | Zone | Retenus | Différés | Ratio |
 |---|---|---|---|
-| Z1 Mastery | 17 | 11 | 61% |
-| Z2 Pipeline | 10 | 4 | 71% |
-| Z3 HITL | 8 | 17 | 32% |
-| Z4 Lazy gen | 5 | 13 | 28% |
-| Z5 Revision | 3 | 9 | 25% |
-| Z6 Schedule | 5 | 49 | 9% |
+| Z1 Mastery | 15 | 13 | 54% |
+| Z2 Pipeline | 10 | 8 | 56% |
+| Z3 HITL | 8 | 9 | 47% |
+| Z4 Lazy gen | 5 | 12 | 29% |
+| Z5 Revision | 3 | 8 | 27% |
+| Z6 Schedule | 5 | 41 | 11% |
 | Z7 Routine | 2 | 24 | 8% |
 | Z8 Onboarding | 5 | 3 | 63% |
-| **Total** | **55** | **130** | **30%** |
+| **Total** | **53** | **118** | **31%** |
 
-**Priorités internes :** P1 (33 ACs) = la boucle fonctionne · P2 (22 ACs) = expérience quotidienne complète.
+**Priorités internes :** P1 (33 ACs) = la boucle fonctionne · P2 (20 ACs) = expérience quotidienne complète.
 
 **Coupé (reporté au MVP) :** multi-utilisateur, notifications push, emploi du temps, orchestration de soirée, RGPD J+30, admin backoffice, mode vacances, fiches PDF.
 
@@ -152,12 +152,12 @@ Créer les artefacts d'ancrage **avant toute fonctionnalité** :
 
 > **Critère de validation :** le fils peut jouer une session sur le chapitre démo et voir sa maîtrise évoluer correctement.
 
-#### Phase 2 — Le pipeline (Z2 + Z5 + Z7-AC17)
+#### Phase 2 — Le pipeline (Z2 + Z5 + Z7-AC15)
 
 1. Upload de photos → stockage
 2. OCR par page → texte brut + confidence
 3. Génération d'items par le LLM → Items structurés avec tags
-4. Regroupement en Notions (Z7-AC17)
+4. Regroupement en Notions (Z7-AC15)
 5. Streaming de la carte de leçon (Z2-AC10)
 6. Gestion des erreurs : page en échec (Z2-AC02/04/05), 0 items (Z2-AC07)
 7. Identité canonique des items (Z5-AC01)
@@ -167,12 +167,12 @@ Créer les artefacts d'ancrage **avant toute fonctionnalité** :
 #### Phase 3 — L'expérience complète (P2)
 
 1. Validation HITL (Z3-AC01→AC05, AC09, AC10)
-2. Plafond mastery items non validés (Z1-AC15)
-3. Scoring avancé : RUBRIC (Z1-AC10), NUMERIC avec unité (Z1-AC11), KEYWORDS N-1 (Z1-AC12)
-4. Exam + resserrement (Z1-AC08, Z6-AC11)
-5. Mock exam (Z4-AC10)
+2. Plafond mastery items non validés (Z1-AC13)
+3. Scoring avancé (Z1-AC10 : RUBRIC, NUMERIC avec unité, KEYWORDS N-1)
+4. Exam + resserrement (Z1-AC08, Z6-AC10)
+5. Mock exam (Z6-AC09, Z6-AC38)
 6. Session evening_first (Z6-AC05/AC06)
-7. Vue par notion (Z7-AC18)
+7. Vue par notion (Z7-AC16)
 8. Onboarding complet (Z8-AC01→AC04, AC08)
 
 > **Critère de validation :** le fils utilise l'app quotidiennement pendant 1 semaine sur un vrai chapitre, avec un exam posé.
@@ -224,15 +224,15 @@ Créer les artefacts d'ancrage **avant toute fonctionnalité** :
 
 ### 5.2 Parcours parent passif (défaut)
 
-- **Digest hebdo (5 sections standardisées, AC Z6-AC35) :**
+- **Digest hebdo (5 sections standardisées, AC Z6-AC27) :**
   1. **Résumé activité** : sessions complétées, temps total. Mention explicite si aucune activité.
-  2. **Maîtrise par chapitre** : % OK+SOLID, items restants. Mention si items en vérification ou pages OCR échouées (AC Z6-AC36).
-  3. **Alertes** : items à risque pré-exam, sessions manquées (résumé hebdo, AC Z6-AC34), inactivité.
+  2. **Maîtrise par chapitre** : % OK+SOLID, items restants. Mention si items en vérification ou pages OCR échouées (AC Z6-AC28).
+  3. **Alertes** : items à risque pré-exam, sessions manquées (notification lendemain AC Z6-AC18, résumé hebdo AC Z6-AC26), inactivité.
   4. **Prochaine action** : recommandation concrète et actionnable.
-  5. **Score contrôle blanc** (si complété) : score + indicateur de confiance (AC Z1-AC18).
-  - Labels de maîtrise traduits en langage parent : « Pas encore vu / En cours / Compris / Bien acquis » (AC Z6-AC38).
+  5. **Score contrôle blanc** (si complété) : score + indicateur de confiance (AC Z1-AC16).
+  - Labels de maîtrise traduits en langage parent : « Pas encore vu / En cours / Compris / Bien acquis » (AC Z6-AC29).
   - Lisible en < 30 s (max 150 mots hors titres).
-- **Digest pré-contrôle (AC Z6-AC33) :** envoyé à J-3 avant chaque exam. Maîtrise par chapitre + items fragiles + recommandation.
+- **Digest pré-contrôle (AC Z6-AC25) :** envoyé à J-3 avant chaque exam. Maîtrise par chapitre + items fragiles + recommandation.
 - **Veille contrôle :** alerte 5 jours avant si maîtrise insuffisante sur des items critiques (définis par pack).
 - **Score contrôle blanc :** résumé envoyé automatiquement après chaque contrôle blanc complété, avec caveat qualité si items non validés.
 
@@ -358,9 +358,15 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 | template_id | Type | Diff. | Tags requis |
 |---|---|---|---|
 | `GEN.DOC.MAP.READ_ZONES` | SHORT_ANSWER | 2 | `map` |
+| `GEN.DOC.MAP.LABEL_COMPLETION` | FILL_BLANK | 2 | `map` |
 | `GEN.DOC.GRAPH.READ_AXES` | SHORT_ANSWER | 1 | `graph` |
 | `GEN.DOC.GRAPH.READ_VALUE` | SHORT_ANSWER | 2 | `graph` |
+| `GEN.DOC.GRAPH.INTERPRET_TREND` | SHORT_ANSWER | 3 | `graph` |
 | `GEN.DOC.TABLE.READ_VALUE` | SHORT_ANSWER | 2 | `table` |
+| `GEN.DOC.TABLE.COMPLETE_CELL` | FILL_BLANK | 2 | `table` |
+| `GEN.DOC.SCHEMA.LABEL_COMPLETION` | FILL_BLANK | 2 | `schema` |
+| `GEN.DOC.SCHEMA.FUNCTION_MATCHING` | MATCHING | 3 | `schema` |
+| `GEN.DOC.CIRCUIT.IDENTIFY_COMPONENT` | SHORT_ANSWER | 2 | `circuit` |
 | `GEN.DOC.IMAGE.DESCRIBE_INTERPRET` | SHORT_ANSWER | 2 | `photo`, `schema` |
 
 ### Méthodes & rédaction
@@ -434,7 +440,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 | Étape | Entrée | Sortie | Bloquant ? | SLA cible |
 |---|---|---|---|---|
 | 1. Upload & validation | Photos (JPEG/PNG/HEIC) | URLs stockage, métadonnées | Oui | < 3 s/photo |
-| 2. Segmentation blocs | Photo | Crops + type + confidence | Non | < 1 s/page |
+| 2. Segmentation blocs | Photo | Crops + type + confidence + coordonnées + classification pédagogique | Non | < 1 s/page |
 | 3. OCR parallèle | Blocs TEXT/SCHEMA | Texte brut + confidence | Non | < 2 s/bloc |
 | 4. Reconstruction plan | Texte OCR | Plan hiérarchique JSON | Non | < 500 ms |
 | 5. Génération Items | Plan + blocs | Items KNOWLEDGE/PROC/DOC | Non | < 3 s/page |
@@ -448,6 +454,29 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 | 10. Diagnostic initial | Items validés | Questions instanciées (lazy) | Oui | < 1 s |
 
 **Parallélisation :** les étapes 2, 3, 4, 5, 6 peuvent être exécutées en parallèle par page (worker pool). La carte de leçon est affichée en streaming dès qu'une page est traitée. L'élève peut commencer un QCM flash pendant que les pages suivantes s'analysent.
+
+### 10.1 Détail étape 2 — Segmentation et classification visuelle
+
+> Les cahiers de collégiens contiennent typiquement 30-50% de contenu visuel (schémas SVT, graphiques, tableaux, circuits physique, cartes géographie). La segmentation doit distinguer et préserver ces éléments pour exploiter le dual coding (Paivio).
+
+**Détection et classification des blocs :**
+
+| Type de bloc | Exemples typiques | Traitement OCR | Sortie |
+|---|---|---|---|
+| TEXT | Paragraphe, définition, titre | OCR standard | `ocr_text` + confidence |
+| TABLE | Tableau dessiné ou imprimé | OCR + extraction structure (lignes/colonnes) | `ocr_text` + `table_structure` (JSON rows×cols) |
+| SCHEMA | Schéma annoté (cellule, circuit, cycle) | OCR légendes uniquement | `crop_url` + `labels[]` |
+| MAP | Carte géographique légendée | OCR légendes uniquement | `crop_url` + `labels[]` |
+| GRAPH | Graphique avec axes et courbes | OCR axes + valeurs-clés | `crop_url` + `labels[]` + `axis_labels{}` |
+| CIRCUIT | Circuit électrique, schéma de forces | OCR composants/valeurs | `crop_url` + `labels[]` |
+| PHOTO | Photographie collée (expérience, document historique) | Pas d'OCR | `crop_url` + description LLM |
+| DECORATIVE | Gribouillage, marge, rature | Ignoré | — |
+
+**Qualité des crops visuels :** chaque crop visuel (SCHEMA, MAP, GRAPH, TABLE, CIRCUIT, PHOTO) doit avoir une résolution minimale de 300×300 px (sinon redimensionné via upscaling conservatif) et un cadrage qui inclut les légendes et annotations environnantes (marge de 5% autour de la bounding box détectée). Les crops sont stockés en WebP (qualité 85, compression ~60% vs JPEG) avec l'URL dans `Block.crop_url`.
+
+**Association bloc→Item→VisualBlock :** les blocs visuels pédagogiques sont encapsulés dans une entité `VisualBlock` (voir §14 modèle de données) qui associe le crop, les labels extraits et le type visuel. Chaque Item peut référencer 0-N `VisualBlock` via `Item.visual_block_ids[]`. Le LLM de structuration (étape 5) reçoit les blocs visuels en contexte multimodal et génère des gabarits visuels spécifiques (cf. Z4-AC17).
+
+**Classification pédagogique vs décoratif :** le modèle de segmentation classe chaque bloc non-TEXT en pédagogique ou décoratif. En cas de doute (confidence classification < 0.6), le bloc est classé décoratif (faux négatif préférable au faux positif — un gribouillage classé « schéma » dégraderait l'expérience). La classification est vérifiable dans la carte leçon (Z2-AC15) : le parent/élève peut reclasser un bloc ignoré.
 
 ---
 
@@ -483,7 +512,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 - **Validation HITL d'un item** → invalide uniquement les Question candidates liées à cet item.
 - **Mise à jour de pack_version** → invalide Item pool + Question candidates de tous les chapters du pack.
 - **Changement de mastery state** → pas d'invalidation (in-place update).
-- **Création/modification/suppression d'Exam** → invalide Question candidates des chapters liés à l'Exam (AC Z4-AC17). Recalcul `next_due_at` si exam supprimé.
+- **Création/modification/suppression d'Exam** → invalide Question candidates des chapters liés à l'Exam (AC Z4-AC03). Recalcul `next_due_at` si exam supprimé.
 
 ---
 
@@ -499,6 +528,9 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 | Bloc illisible après 3 tentatives | Item créé avec `content = null`, `flagged = true` | Message 'Zone illisible — à vérifier' |
 | Page entière confidence < 0.3 | Notifier l'élève : 'Photo floue — reprendre si possible' | Suggestion retake, non-bloquant |
 | confidence bloc SCHEMA/MAP < 0.5 | Conserver l'image brute comme `Document.source`, ne pas OCRiser | Document exploitable via gabarit image |
+| Bloc visuel trop petit (< 300×300 px) | Upscaling conservatif (bilinear) jusqu'à 300×300 px min. Si < 100×100 px après crop → classé DECORATIVE | Visuel ignoré si trop petit (probablement un symbole/icône) |
+| Bloc TABLE avec structure complexe (≥ 8 colonnes ou cellules fusionnées) | Fallback : capture comme image (SCHEMA) au lieu de table structurée | Tableau exploitable en mode image, pas en mode cellule |
+| Labels/légendes extraites avec confidence < 0.4 | Labels conservés comme `uncertain`, affichés avec badge dans carte leçon | Le parent peut corriger les labels via HITL |
 
 ### 13.1 Vérification croisée LLM (fidélité sémantique)
 
@@ -582,10 +614,14 @@ Création chapitre : matière, classe, nom, date contrôle. Saisie de l'emploi d
 
 ### Epic 2 — Upload & segmentation
 
-Upload 1–30 photos mobile/web. Segmentation en blocs typés (TEXT, PHOTO, SCHEMA, MAP, GRAPH, TABLE, CIRCUIT…). Streaming de la carte dès la première page.
+Upload 1–30 photos mobile/web. Segmentation en blocs typés (TEXT, PHOTO, SCHEMA, MAP, GRAPH, TABLE, CIRCUIT, DECORATIVE). Classification pédagogique vs décoratif. Extraction des légendes, labels d'axes, structures de tableaux. Stockage des crops visuels en WebP. Streaming de la carte dès la première page.
 
 **Critères d'acceptation :**
-- Crops avec type + confidence + coordonnées.
+- Crops avec type + confidence + coordonnées (bounding box).
+- Classification pédagogique/décoratif pour chaque bloc non-TEXT (cf. §10.1).
+- Extraction labels/légendes pour blocs SCHEMA, MAP, GRAPH, CIRCUIT (cf. Z2-AC15).
+- Extraction structure rows×cols pour blocs TABLE (cf. Z2-AC16).
+- Résolution minimale 300×300 px par crop visuel, marge 5% (cf. Z2-AC17).
 - Indicateur de progression temps réel.
 - Suggestion retake si page floue (confidence < 0.3).
 
@@ -737,22 +773,23 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 | **Chapter** | `id` · `subject` · `class_level` · `name` · `exam_ids[]` · `pack_id` · `current_revision_id` · `archived? (boolean, default false)` · `is_demo? (boolean, default false)` |
 | **ChapterRevision** | `id` · `chapter_id` · `revision_number` · `created_at` · `pages[]` · `status` |
 | **Page** | `id` · `revision_id` · `photo_url` · `order` · `ocr_status` |
-| **Block** | `id` · `page_id` · `type (TEXT\|PHOTO\|SCHEMA\|MAP\|GRAPH\|TABLE\|CIRCUIT)` · `crop` · `confidence` · `ocr_text?` |
+| **Block** | `id` · `page_id` · `type (TEXT\|PHOTO\|SCHEMA\|MAP\|GRAPH\|TABLE\|CIRCUIT\|DECORATIVE)` · `crop_url?` · `crop_bbox {x, y, w, h}` · `confidence` · `ocr_text?` · `pedagogical_classification (pedagogical\|decorative\|null)` · `classification_confidence?` |
+| **VisualBlock** | `id` · `block_id` · `chapter_id` · `type (diagram\|graph\|table\|figure\|map\|circuit\|photo)` · `image_url` · `thumbnail_url` · `width_px` · `height_px` · `labels[] { text, position {x, y} }` · `axis_labels? { x_label, y_label, x_unit?, y_unit? }` · `table_structure? { rows: int, cols: int, headers[]?, cells[][] }` · `caption?` (légende détectée sous/au-dessus du visuel) · `alt_text` (description textuelle générée par LLM pour accessibilité) · `retention_expires_at` (aligné sur RGPD J+30, cf. Z2-AC12) |
 | **Document** | `id` · `chapter_id` · `type` · `tags[]` · `blocks[]` · `source_image_url?` |
 | **Notion** | `id` · `chapter_id` · `name` (libellé lisible généré par le LLM) · `concept_tags[]` · `item_ids[]` · `order (int)` |
-| **Item** | `id` · `chapter_id` · `notion_id?` · `revision_id` · `type (KNOWLEDGE\|PROCEDURE\|DOCUMENT\|WRITING)` · `term?` · `keywords[]?` · `steps[]?` · `linked_doc_id?` · `tags[]` · `confidence` · `validation_required` · `archived` · `fidelity_score?` · `fidelity_flag? (low\|medium\|null)` · `coherence_flag? (contradiction\|orphan_reference\|null)` · `anomaly_flag? (high_failure_rate\|null)` · `llm_model_version?` · `prompt_template_version?` |
+| **Item** | `id` · `chapter_id` · `notion_id?` · `revision_id` · `type (KNOWLEDGE\|PROCEDURE\|DOCUMENT\|WRITING)` · `term?` · `keywords[]?` · `steps[]?` · `linked_doc_id?` · `visual_block_ids[]?` · `tags[]` · `confidence` · `validation_required` · `archived` · `fidelity_score?` · `fidelity_flag? (low\|medium\|null)` · `coherence_flag? (contradiction\|orphan_reference\|null)` · `anomaly_flag? (high_failure_rate\|null)` · `llm_model_version?` · `prompt_template_version?` |
 | **ValidationTask** | `id` · `item_id` · `crop_url` · `suggestion` · `priority` · `status` · `resolved_by?` · `source (uncertainty_detection\|student_report\|anomaly_detection\|coherence_check\|fidelity_check)` · `student_note?` |
-| **Template** | `id (template_id)` · `name` · `version` · `question_type` · `difficulty` · `eligibility{}` · `variables[]` · `prompt_template` · `grading{}` |
-| **Question** | `id` · `template_id` · `item_id` · `rendered_prompt` · `expected_answer{}` · `grading_policy` · `clarification? { intent: string, starter_hint: string }` · `llm_model_version?` · `prompt_template_version?` · `times_seen? (default 0)` (incrémenté à chaque présentation en session, utilisé par Z4-AC15 pour le renouvellement) |
-| **Attempt** | `id` · `question_id` · `user_id` · `answer` · `score` · `feedback` · `created_at` · `source (interactive\|paper_report)` (défaut interactive) · `rapid_response? (boolean, default false)` · `response_time_ms?` (mesuré côté client, du rendu de la question au tap « Valider ») · `hint_used? (boolean)` · `clarification_used? (boolean)` |
-| **Mastery** | `id` · `user_id` · `item_id` · `state (UNKNOWN\|FRAGILE\|OK\|SOLID)` · `next_due_at` · `last_review_at` · `last_success_at?` · `consecutive_successes` · `consecutive_failures? (default 0)` (pour Z1-AC21 descente difficulté) · `current_difficulty? (default null)` (override de difficulté par Z1-AC21, null = difficulté template standard) |
+| **Template** | `id (template_id)` · `name` · `version` · `question_type` · `difficulty` · `eligibility{}` · `variables[]` · `prompt_template` · `grading{}` · `uses_visual? (boolean, default false)` · `visual_interaction_type? (label_completion\|describe\|matching\|read_value\|identify_zone\|null)` |
+| **Question** | `id` · `template_id` · `item_id` · `visual_block_id?` · `rendered_prompt` · `rendered_visual_url?` (URL du visuel transformé : légendes masquées, zones floutées, etc.) · `expected_answer{}` · `grading_policy` · `clarification? { intent: string, starter_hint: string }` · `llm_model_version?` · `prompt_template_version?` · `times_seen? (default 0)` (incrémenté à chaque présentation en session, utilisé par Z4-AC08 pour la variété et l'anti-monotonie) |
+| **Attempt** | `id` · `question_id` · `user_id` · `answer` · `score` · `feedback` · `created_at` · `source (interactive\|paper_report)` (défaut interactive) · `rapid_response? (boolean, default false)` · `response_time_ms?` (mesuré côté client, du rendu de la question au tap « Valider ») · `hint_used? (boolean)` · `clarification_used? (boolean)` · `confidence_level? (1\|2\|3\|null)` (jugement de confiance JOL, cf. Z1-AC25 ; null si non collecté — échantillonnage 1/3) |
+| **Mastery** | `id` · `user_id` · `item_id` · `state (UNKNOWN\|FRAGILE\|OK\|SOLID)` · `next_due_at` · `last_review_at` · `last_success_at?` · `consecutive_successes` · `consecutive_failures? (default 0)` (pour Z1-AC19 descente difficulté) · `current_difficulty? (default null)` (override de difficulté par Z1-AC19, null = difficulté template standard) |
 | **Session** | `id` · `user_id` · `chapter_ids[]` · `type (daily\|diagnostic\|mock_exam\|evening_first\|pre_class\|paper_report\|consolidation_optional)` · `trigger (manual\|scheduled\|notification)` · `questions[]` · `started_at` · `completed_at?` · `current_question_index (default 0)` · `includes_pre_class? (boolean)` |
 | **EveningPlan** | `id` · `user_id` · `date` · `steps[] { type (capture\|evening_first\|daily\|pre_class), subject_label, session_id?, estimated_duration_min, status (pending\|in_progress\|completed\|skipped) }` · `total_estimated_min` · `mode (full\|express)` · `completed_at?` · `completion_rate` · `expires_at` |
 | **Notification** | `id` · `user_id` · `type (capture_reminder\|review_reminder\|pre_class\|missed_session_reminder\|parent_schedule_change\|parent_missed_session\|parent_inactivity\|parent_routine_completed\|parent_digest_anticipated\|parent_exam_day\|paper_report_reminder\|pipeline_complete)` · `subject` · `scheduled_at` · `sent_at?` · `clicked_at?` · `source_session_id?` · `linked_student_id?` |
 | **ParentNotificationPref** | `id` · `parent_user_id` · `schedule_change_enabled (default true)` · `missed_session_enabled (default true)` · `inactivity_enabled (default true)` · `inactivity_threshold_days (default 3)` · `routine_completed_enabled (default true)` |
 
 > **Entités non persistées (vues calculées) :**
-> - **Script 3 minutes** (Z1-AC19, §5.3) : pas d'entité en base. Les 2–3 questions orales sont calculées à la volée lors de la consultation par le parent, en filtrant les items les plus fragiles éligibles (excluant `validation_required`, `anomaly_flag`, `is_demo`). Le résultat n'est pas mis en cache (le script doit refléter l'état courant de la maîtrise).
+> - **Script 3 minutes** (Z1-AC17, §5.3) : pas d'entité en base. Les 2–3 questions orales sont calculées à la volée lors de la consultation par le parent, en filtrant les items les plus fragiles éligibles (excluant `validation_required`, `anomaly_flag`, `is_demo`). Le résultat n'est pas mis en cache (le script doit refléter l'état courant de la maîtrise).
 > - **Carte de leçon** (pipeline étape 8) : vue composée à partir des Items + Notions + Blocks OCR du chapitre. Pas d'entité `LessonCard` persistée.
 
 ---
@@ -927,46 +964,46 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 | Exam multi-chapitres : explosion combinatoire items | Faible | Moyen | Contrôle blanc limité à 30 min, sélection représentative par chapitre (proportionnelle au nb d'items) |
 | RGPD mineurs / photos sensibles | Faible | Très élevé | Suppression J+30 par défaut, consent parental, chiffrement repos |
 | Session manquée / décrochage silencieux | Moyenne | Moyen | 1 rappel unique le lendemain matin (pas de harcèlement). Items dues re-priorisés automatiquement. Aucune pénalité mastery. KPI « taux complétion » pour détecter les décrochages à l'échelle. |
-| Items `fidelity_score = null` non re-vérifiés | Moyenne | Élevé | Job quotidien de re-vérification fidelity (AC Z3-AC18). Item restreint aux templates simples après 3 jours de timeout persistant. Empêche les hallucinations LLM de rester indéfiniment en usage sans vérification. |
-| ValidationTasks admin non résolues (accumulation silencieuse) | Moyenne | Élevé | SLA 7 jours avec escalade priorité CRITICAL (AC Z3-AC20). Restriction QCM-only à J+14 si non résolu. KPI « % résolution < 7j » trackée en dashboard admin. |
-| Confusion UX "Ignorer" vs "Je ne sais pas" (perte d'items utiles) | Moyenne | Moyen | Sous-textes explicatifs permanents sur chaque action de validation (AC Z3-AC19). Mention explicite de l'impact de "Ignorer" sur le flux pédagogique. |
-| Perte silencieuse Mastery sur re-upload (variations OCR sigles) | Haute | Élevé | Normalisation étendue insensible ponctuation/points/tirets (AC Z5-AC09). Configurable par pack pour cas sémantiques. Couvre I.D.H./IDH, P.I.B./PIB, etc. |
-| Exams simultanés même journée (préparation déséquilibrée) | Faible | Moyen | Avertissement non-bloquant à la création + planification alternée des matières en interleaving (AC Z6-AC29). Mock exams restent séparés. |
-| **Fausse maîtrise SOLID sur items non validés (mastery inflation)** | **Haute** | **Très élevé** | Plafond maîtrise OK tant que `validation_required = true` (AC Z1-AC15). L'item ne peut pas atteindre SOLID avec uniquement des QCM simples. Badge « maîtrise partielle » visible. Empêche la pollution du signal mastery pour l'élève ET le parent. |
-| Absence de feedback positif → churn élève | Haute | Élevé | Micro-célébrations sur transitions positives (AC Z1-AC16). Débrief de fin de session avec progrès et prochain objectif (AC Z1-AC17). Pas de streak mais valorisation de la progression réelle. |
-| Retour après absence = session écrasante → décrochage définitif | Haute | Élevé | Mode « retour en douceur » : session courte (5 min), gabarits faciles, étalement de la dette sur 3–5 jours (AC Z6-AC30). Se désactive après 2 sessions consécutives. |
-| Diagnostic initial trop dur → mauvaise première impression | Moyenne | Élevé | Rampe de difficulté progressive (AC Z6-AC32). Les 2–3 premières questions sont faciles. Redescente automatique après 3 échecs consécutifs. Message de clôture toujours positif. |
-| Items post-exam saturent les sessions → fatigue | Moyenne | Moyen | Archivage automatique post-exam (AC Z6-AC31). Items SOLID passent en maintenance longue (J+14). Chapitres post-exam restent actifs mais non prioritaires. |
-| Alert fatigue parent sur sessions manquées → désactivation totale | Moyenne | Moyen | Max 1 push « session manquée » / semaine (AC Z6-AC34). Sessions manquées suivantes résumées dans digest hebdo. Détail complet dans tableau de bord. |
-| Digest parent mal timé par rapport aux exams | Moyenne | Moyen | Digest supplémentaire « pré-contrôle » à J-3 avant chaque exam (AC Z6-AC33). Inclut maîtrise par chapitre + items fragiles + recommandation d'action. |
-| Score contrôle blanc gonflé par templates simplifiés | Haute | Élevé | Score accompagné d'un `score_confidence` + caveat explicite si items non validés (AC Z1-AC18). Parent voit la proportion de questions complètes vs simplifiées. |
-| Parent non informé de capture incomplète (pages OCR échouées) | Haute | Élevé | Digest inclut signalement des pages échouées par chapitre (AC Z6-AC36). Alerte si > 30% du contenu manque. |
+| Items `fidelity_score = null` non re-vérifiés | Moyenne | Élevé | Job quotidien de re-vérification fidelity (AC Z3-AC10 définit le fidelity check ; le job de re-tentative et le timeout 3 jours sont des détails d'implémentation au-delà du scope AC). Item restreint aux templates simples après 3 jours de timeout persistant. Empêche les hallucinations LLM de rester indéfiniment en usage sans vérification. |
+| ValidationTasks admin non résolues (accumulation silencieuse) | Moyenne | Élevé | SLA 7 jours avec escalade priorité CRITICAL. Restriction QCM-only à J+14 si non résolu. KPI « % résolution < 7j » trackée en dashboard admin. |
+| Confusion UX "Ignorer" vs "Je ne sais pas" (perte d'items utiles) | Moyenne | Moyen | Sous-textes explicatifs permanents sur chaque action de validation (AC Z3-AC04/AC05). Mention explicite de l'impact de "Ignorer" sur le flux pédagogique. Récupération possible (AC Z3-AC16). |
+| Perte silencieuse Mastery sur re-upload (variations OCR sigles) | Haute | Élevé | Normalisation étendue insensible ponctuation/points/tirets (AC Z5-AC07). Configurable par pack pour cas sémantiques. Couvre I.D.H./IDH, P.I.B./PIB, etc. |
+| Exams simultanés même journée (préparation déséquilibrée) | Faible | Moyen | Avertissement non-bloquant à la création + planification alternée des matières en interleaving (AC Z6-AC32). Mock exams restent séparés. |
+| **Fausse maîtrise SOLID sur items non validés (mastery inflation)** | **Haute** | **Très élevé** | Plafond maîtrise OK tant que `validation_required = true` (AC Z1-AC13). L'item ne peut pas atteindre SOLID avec uniquement des QCM simples. Badge « maîtrise partielle » visible. Empêche la pollution du signal mastery pour l'élève ET le parent. |
+| Absence de feedback positif → churn élève | Haute | Élevé | Micro-célébrations sur transitions positives (AC Z1-AC14). Débrief de fin de session avec progrès et prochain objectif (AC Z1-AC15). Pas de streak mais valorisation de la progression réelle. |
+| Retour après absence = session écrasante → décrochage définitif | Haute | Élevé | Mode « retour en douceur » : session courte (5 min), gabarits faciles, étalement de la dette sur 3–5 jours (AC Z6-AC22). Se désactive après 2 sessions consécutives. |
+| Diagnostic initial trop dur → mauvaise première impression | Moyenne | Élevé | Rampe de difficulté progressive (AC Z6-AC24). Les 2–3 premières questions sont faciles. Redescente automatique après 3 échecs consécutifs. Message de clôture toujours positif. |
+| Items post-exam saturent les sessions → fatigue | Moyenne | Moyen | Archivage automatique post-exam (AC Z6-AC23). Items SOLID passent en maintenance longue (J+14). Chapitres post-exam restent actifs mais non prioritaires. |
+| Alert fatigue parent sur sessions manquées → désactivation totale | Moyenne | Moyen | Max 1 push « session manquée » / semaine (AC Z6-AC26). Sessions manquées suivantes résumées dans digest hebdo. Détail complet dans tableau de bord. |
+| Digest parent mal timé par rapport aux exams | Moyenne | Moyen | Digest supplémentaire « pré-contrôle » à J-3 avant chaque exam (AC Z6-AC25). Inclut maîtrise par chapitre + items fragiles + recommandation d'action. |
+| Score contrôle blanc gonflé par templates simplifiés | Haute | Élevé | Score accompagné d'un `score_confidence` + caveat explicite si items non validés (AC Z1-AC16). Parent voit la proportion de questions complètes vs simplifiées. |
+| Parent non informé de capture incomplète (pages OCR échouées) | Haute | Élevé | Digest inclut signalement des pages échouées par chapitre (AC Z6-AC28). Alerte si > 30% du contenu manque. |
 | Crops d'image persistent au-delà de la suppression J+30 des photos | Moyenne | Très élevé | Rétention crops alignée sur photos originales (AC Z2-AC12). Suppression crops + source_image_url à J+30. RGPD conforme. |
-| Labels maîtrise incompréhensibles pour les parents | Moyenne | Moyen | Traduction UNKNOWN/FRAGILE/OK/SOLID en langage parent (AC Z6-AC38). % maîtrise calculé sur OK+SOLID uniquement. |
-| Items sous investigation proposés dans script 3 minutes | Moyenne | Élevé | Script exclut items avec `validation_required` ou `anomaly_flag` (AC Z1-AC19). Évite que le parent teste l'enfant sur du contenu potentiellement faux. |
-| Résolution admin sans feedback → boîte noire | Faible | Moyen | Notification in-app élève + mention dans digest parent après résolution admin (AC Z6-AC37). Ferme la boucle de feedback. |
-| Sessions monotones (5 MCQ consécutifs) → ennui | Haute | Moyen | Variété de gabarits imposée : max 2 consécutifs du même template, alternance round-robin des question_type (AC Z4-AC11). |
-| Feedback « Faux » sans explication → pas d'apprentissage | Haute | Élevé | Feedback structuré obligatoire : réponse correcte + ce qui manquait + indice 1 phrase. Templaté, pas LLM live (AC Z4-AC12). |
-| Élève bloqué sans pouvoir passer → frustration → fermeture app | Moyenne | Élevé | Bouton « Passer » sans pénalité mastery, max 2/session, question remise en fin de session (AC Z4-AC13). |
-| Petit chapitre (3 items) = session non viable | Moyenne | Moyen | Session minimum 4 questions, reformulation avec distractors/ordres différents, durée adaptée 3-5 min (AC Z4-AC14). |
-| **Validation erronée verrouillée en base (parent confirme un item OCR faux)** | **Moyenne** | **Très élevé** | Rétractation possible via signalement élève ou détection anomalie (AC Z3-AC22). Confidence ramenée à ≤0.7, item re-restreint aux templates simples, admin notifié priorité HIGH. Non-rétroactivité mastery (pragmatisme). |
-| **Clicking aveugle MCQ → progression artificielle** | **Haute** | **Élevé** | Réponse < 2s marquée `rapid_response`, progression bloquée si correcte, régression maintenue si incorrecte (AC Z3-AC23). Message non-bloquant après 3 réponses rapides/session. Seuil 2s calibré sur temps lecture minimum MCQ. |
+| Labels maîtrise incompréhensibles pour les parents | Moyenne | Moyen | Traduction UNKNOWN/FRAGILE/OK/SOLID en langage parent (AC Z6-AC29). % maîtrise calculé sur OK+SOLID uniquement. |
+| Items sous investigation proposés dans script 3 minutes | Moyenne | Élevé | Script exclut items avec `validation_required` ou `anomaly_flag` (AC Z1-AC17). Évite que le parent teste l'enfant sur du contenu potentiellement faux. |
+| Résolution admin sans feedback → boîte noire | Faible | Moyen | Notification in-app élève + mention dans digest parent après résolution admin. Ferme la boucle de feedback. |
+| Sessions monotones (5 MCQ consécutifs) → ennui | Haute | Moyen | Variété de gabarits imposée : max 2 consécutifs du même template, alternance round-robin des question_type (AC Z4-AC08). |
+| Feedback « Faux » sans explication → pas d'apprentissage | Haute | Élevé | Feedback structuré obligatoire : réponse correcte + ce qui manquait + indice 1 phrase. Templaté, pas LLM live (AC Z4-AC09). |
+| Élève bloqué sans pouvoir passer → frustration → fermeture app | Moyenne | Élevé | Bouton « Passer » sans pénalité mastery, max 2/session, question remise en fin de session (AC Z4-AC10). |
+| Petit chapitre (3 items) = session non viable | Moyenne | Moyen | Session minimum 4 questions, reformulation avec distractors/ordres différents, durée adaptée 3-5 min (AC Z4-AC11). |
+| **Validation erronée verrouillée en base (parent confirme un item OCR faux)** | **Moyenne** | **Très élevé** | Rétractation possible via signalement élève ou détection anomalie (AC Z3-AC14). Confidence ramenée à ≤0.7, item re-restreint aux templates simples, admin notifié priorité HIGH. Non-rétroactivité mastery (pragmatisme). |
+| **Clicking aveugle MCQ → progression artificielle** | **Haute** | **Élevé** | Réponse < 2s marquée `rapid_response`, progression bloquée si correcte, régression maintenue si incorrecte (AC Z3-AC15). Message non-bloquant après 3 réponses rapides/session. Seuil 2s calibré sur temps lecture minimum MCQ. |
 | **Drift LLM silencieux → dégradation qualité items sans diagnostic** | **Moyenne** | **Élevé** | Versioning modèle + prompt sur chaque résultat LLM (AC Z2-AC13). Job hebdomadaire de comparaison qualité entre versions. Alerte admin si dégradation > 15%. Traçabilité complète pour rollback informé. |
-| **Pas de vision globale progression → l'élève ne perçoit pas ses progrès** | **Haute** | **Élevé** | % maîtrise global cross-chapitres sur dashboard (AC Z6-AC39). Barre de progression par chapitre + message d'encouragement contextuel basé sur tendance hebdo. |
-| **Vieux chapitres encombrent le dashboard et les sessions** | **Moyenne** | **Moyen** | Archivage (soft delete) de chapitre à la demande de l'élève (AC Z6-AC40). Données de maîtrise conservées, sessions recalculées, réactivation possible. Parent informé dans digest. |
-| **Perte de connexion mid-session → réponses perdues → frustration** | **Haute** | **Très élevé** | Persistance optimiste côté client avec sync FIFO (AC Z6-AC41). Feedback correction instantané (calcul local MCQ/NUMERIC). Mastery mis à jour uniquement après sync confirmée. Retry exponentiel (5s/15s/45s). |
-| **Date d'exam modifiée → intervalles de révision incohérents** | **Haute** | **Élevé** | Recalcul automatique des `next_due_at` compressés sur modification de `exam_date` (AC Z1-AC20). Message contextuel adapté (avancé vs repoussé). Parent informé dans digest. |
-| **Mêmes questions vues en boucle → apprentissage de surface par reconnaissance** | **Haute** | **Élevé** | Régénération ciblée des questions vues > 5 sessions (AC Z4-AC15). Compteur `times_seen` pour prioriser les questions les moins vues. Renouvellement lazy non-bloquant. |
-| **Cycle d'échec répété sur un item → frustration → churn** | **Haute** | **Très élevé** | Descente automatique de difficulté après 3 échecs consécutifs (AC Z1-AC21). Indice avec renvoi vers carte de leçon. Pause pédagogique J+2 après 5 échecs. |
-| **LLM indisponible = rien à faire dans l'app → fermeture immédiate** | **Moyenne** | **Très élevé** | Mode « Relecture active » avec flashcards textuelles statiques (AC Z4-AC16). Données OCR en base, aucun LLM requis. Auto-évaluation sans impact mastery. |
-| **Items « Ignoré » en HITL = trou permanent dans la couverture de révision** | **Haute** | **Élevé** | Section « Points non vérifiés » dans carte de leçon avec Réactiver (AC Z3-AC24). Récupération autonome sans admin. |
+| **Pas de vision globale progression → l'élève ne perçoit pas ses progrès** | **Haute** | **Élevé** | % maîtrise global cross-chapitres sur dashboard (AC Z6-AC30). Barre de progression par chapitre + message d'encouragement contextuel basé sur tendance hebdo. |
+| **Vieux chapitres encombrent le dashboard et les sessions** | **Moyenne** | **Moyen** | Archivage (soft delete) de chapitre à la demande de l'élève. Données de maîtrise conservées, sessions recalculées, réactivation possible. Parent informé dans digest. |
+| **Perte de connexion mid-session → réponses perdues → frustration** | **Haute** | **Très élevé** | Persistance optimiste côté client avec sync FIFO (AC Z6-AC31). Feedback correction instantané (calcul local MCQ/NUMERIC). Mastery mis à jour uniquement après sync confirmée. Retry exponentiel (5s/15s/45s). |
+| **Date d'exam modifiée → intervalles de révision incohérents** | **Haute** | **Élevé** | Recalcul automatique des `next_due_at` compressés sur modification de `exam_date` (AC Z1-AC18). Message contextuel adapté (avancé vs repoussé). Parent informé dans digest. |
+| **Mêmes questions vues en boucle → apprentissage de surface par reconnaissance** | **Haute** | **Élevé** | Variété de gabarits et anti-monotonie en session (AC Z4-AC08). Compteur `times_seen` pour prioriser les questions les moins vues. Renouvellement lazy non-bloquant. |
+| **Cycle d'échec répété sur un item → frustration → churn** | **Haute** | **Très élevé** | Descente automatique de difficulté après 3 échecs consécutifs (AC Z1-AC19). Indice avec renvoi vers carte de leçon. Pause pédagogique J+2 après 5 échecs. |
+| **LLM indisponible = rien à faire dans l'app → fermeture immédiate** | **Moyenne** | **Très élevé** | Mode « Relecture active » avec flashcards textuelles statiques (AC Z4-AC12). Données OCR en base, aucun LLM requis. Auto-évaluation sans impact mastery. |
+| **Items « Ignoré » en HITL = trou permanent dans la couverture de révision** | **Haute** | **Élevé** | Section « Points non vérifiés » dans carte de leçon avec Réactiver (AC Z3-AC16). Récupération autonome sans admin. |
 | **Blocage OK→SOLID sans explication → élève ne comprend pas** | **Haute** | **Élevé** | Message explicatif positif sur repos cognitif (AC Z1-AC04 enrichi). Affiché 1x/session max. |
-| **Items UNKNOWN jamais présentés en session (starvation par file FRAGILE)** | **Haute** | **Élevé** | Minimum 1 item UNKNOWN/session si starvation > 7 jours (AC Z1-AC22). Alerte admin si 0 tentatives depuis > 14 jours. Indicateur « N points pas encore abordés » sur dashboard élève. |
-| **Mismatch template/type d'item → échecs injustes sur items restreints** | **Moyenne** | **Élevé** | Garde-fou template adaptant la formulation au type d'item PROCEDURE (AC Z3-AC25). Log `template_type_mismatch` pour suivi admin. Template MCQ formule préféré aux templates KNOWLEDGE. |
-| **Création d'exam pas dans les triggers d'invalidation cache → priorités stale** | **Haute** | **Élevé** | Invalidation `question_candidates` sur CRUD Exam (AC Z4-AC17). Recalcul next_due_at sur suppression exam (annulation compression). Log `EXAM_CACHE_INVALIDATION`. |
-| **Élève diligent = rien à faire dans l'app → perte d'habitude** | **Moyenne** | **Élevé** | Message positif « à jour » + session consolidation optionnelle sans risque de régression (AC Z4-AC18). |
-| **Items SOLID perdus silencieusement sur re-upload (page manquante)** | **Haute** | **Très élevé** | Alerte explicite listant les items OK/SOLID non retrouvés dans R2 (AC Z5-AC10). Option re-upload pages manquantes. Délai 14 jours avant archivage définitif. |
-| **Chapter.exam_id singulier → un seul exam par chapitre, resserrement cassé** | **Haute** | **Élevé** | Modèle corrigé : `Chapter.exam_ids[]` (pluriel). Resserrement sur exam actif le plus proche, bascule automatique après exam passé (AC Z6-AC42). |
+| **Items UNKNOWN jamais présentés en session (starvation par file FRAGILE)** | **Haute** | **Élevé** | Minimum 1 item UNKNOWN/session si starvation > 7 jours (AC Z1-AC20). Alerte admin si 0 tentatives depuis > 14 jours. Indicateur « N points pas encore abordés » sur dashboard élève. |
+| **Mismatch template/type d'item → échecs injustes sur items restreints** | **Moyenne** | **Élevé** | Garde-fou template adaptant la formulation au type d'item PROCEDURE (AC Z3-AC17). Log `template_type_mismatch` pour suivi admin. Template MCQ formule préféré aux templates KNOWLEDGE. |
+| **Création d'exam pas dans les triggers d'invalidation cache → priorités stale** | **Haute** | **Élevé** | Invalidation `question_candidates` sur CRUD Exam (AC Z4-AC03). Recalcul next_due_at sur suppression exam (annulation compression). Log `EXAM_CACHE_INVALIDATION`. |
+| **Élève diligent = rien à faire dans l'app → perte d'habitude** | **Moyenne** | **Élevé** | Message positif « à jour » + session consolidation optionnelle sans risque de régression (AC Z4-AC13). |
+| **Items SOLID perdus silencieusement sur re-upload (page manquante)** | **Haute** | **Très élevé** | Alerte explicite listant les items OK/SOLID non retrouvés dans R2 (AC Z5-AC08). Option re-upload pages manquantes. Délai 14 jours avant archivage définitif. |
+| **Chapter.exam_id singulier → un seul exam par chapitre, resserrement cassé** | **Haute** | **Élevé** | Modèle corrigé : `Chapter.exam_ids[]` (pluriel). Resserrement sur exam actif le plus proche, bascule automatique après exam passé (AC Z6-AC32). |
 
 ---
 
