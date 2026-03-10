@@ -577,17 +577,15 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 
 ### 14.1 Vue d'ensemble des composants
 
-| Composant | Techno suggérée | Rôle |
+| Composant | Techno | Rôle |
 |---|---|---|
-| API Gateway / BFF | Node.js / Go | Auth, routing, rate-limit, streaming SSE pour pipeline J0 |
-| OCR Service | Async worker (Python) | Segmentation + OCR parallèle par page (worker pool) |
+| Backend API | Go + Gin | Auth, routing, rate-limit, streaming SSE pour pipeline J0 |
+| OCR Service | Go (async worker) | Segmentation + OCR parallèle par page (worker pool) |
 | LLM Service | Anthropic API (claude-sonnet) | Génération items, tagging, instanciation questions (lazy) |
 | Cache Layer | Redis | OCR results, item pool, question candidates, sessions |
-| Queue | BullMQ / SQS | Pipeline J0 asynchrone, retry/dead-letter |
-| Base de données | PostgreSQL | Users, Chapters, Items, Mastery, Attempts |
+| Base de données | PostgreSQL (pgx, SQL brut) | Users, Chapters, Items, Mastery, Attempts |
 | Storage | S3 / Object storage | Photos originales (opt-in), crops indexés |
-| Frontend | React / React Native | Mobile-first, SSE pour affichage streaming carte leçon |
-| Admin backoffice | React + API | CRUD packs, lexiques, analytics template_id/tag |
+| Mobile | React Native + Expo + Expo Router | Mobile-first, SSE pour affichage streaming carte leçon |
 
 ### 14.2 Versioning des chapitres
 
