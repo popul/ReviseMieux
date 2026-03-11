@@ -96,14 +96,24 @@ func (m *Mastery) RecordAttempt(score float64, now time.Time) error {
 		if success {
 			if m.CappedAtOK {
 				// validation_required items cannot go beyond OK
+				due := now.Add(3 * 24 * time.Hour)
+				m.NextDueAt = &due
 				return nil
 			}
 			if m.ConsecutiveSuccesses >= 2 && m.spacingMet(now) {
 				m.State = Solid
+				due := now.Add(7 * 24 * time.Hour)
+				m.NextDueAt = &due
+			} else {
+				// Z1-AC07c: stay OK, accumulate cs
+				due := now.Add(3 * 24 * time.Hour)
+				m.NextDueAt = &due
 			}
-			// else stay OK, accumulate cs
 		} else {
+			// Z1-AC06: OK → FRAGILE
 			m.State = Fragile
+			due := now.Add(24 * time.Hour)
+			m.NextDueAt = &due
 		}
 
 	case Solid:
