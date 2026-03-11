@@ -502,3 +502,39 @@ func TestZ1AC04_OKBlockedWithoutSpacing(t *testing.T) {
 		t.Errorf("next_due_at: got %v, want %v (should NOT change without spacing)", *m.NextDueAt, originalDue)
 	}
 }
+
+// Z1-AC13 — Plafond maîtrise OK pour items validation_required
+// GIVEN: Un item avec CappedAtOK=true en état OK avec cs=2.
+// WHEN:  L'élève répond correctement (gabarit simple).
+// THEN:  État reste OK (plafonné), cs s'incrémente, pas de transition vers SOLID.
+func TestZ1AC13_CappedAtOKBlocksSolid(t *testing.T) {
+	m := newTestMastery(t)
+
+	// Setup: OK, capped, cs=2, spacing would be met
+	day1 := time.Date(2026, 3, 10, 18, 0, 0, 0, time.UTC)
+	m.State = OK
+	m.ConsecutiveSuccesses = 2
+	m.CappedAtOK = true
+	m.LastSuccessAt = &day1
+
+	now := day1.Add(25 * time.Hour)
+	err := m.RecordAttempt(0.9, now)
+	if err != nil {
+		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
+	}
+
+	if m.State != OK {
+		t.Errorf("state: got %q, want %q (CappedAtOK should block SOLID)", m.State, OK)
+	}
+	// cs still increments normally per AC spec
+	if m.ConsecutiveSuccesses != 3 {
+		t.Errorf("consecutive_successes: got %d, want 3", m.ConsecutiveSuccesses)
+	}
+	if m.NextDueAt == nil {
+		t.Fatal("next_due_at: got nil, want non-nil")
+	}
+	wantDue := now.Add(3 * 24 * time.Hour)
+	if !m.NextDueAt.Equal(wantDue) {
+		t.Errorf("next_due_at: got %v, want %v", *m.NextDueAt, wantDue)
+	}
+}
