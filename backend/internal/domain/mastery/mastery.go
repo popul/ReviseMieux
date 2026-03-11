@@ -58,7 +58,7 @@ func NewMastery(idGen event.IDGenerator, userID, itemID uuid.UUID, now time.Time
 //   SOLID   + success → SOLID
 //   SOLID   + fail    → OK
 func (m *Mastery) RecordAttempt(score float64, now time.Time) error {
-	success := score >= 0.5
+	success := score >= 0.7
 	m.LastReviewAt = &now
 	m.UpdatedAt = now
 
@@ -76,7 +76,8 @@ func (m *Mastery) RecordAttempt(score float64, now time.Time) error {
 		if success {
 			m.State = Fragile
 		}
-		// fail → stay UNKNOWN
+		due := now.Add(24 * time.Hour)
+		m.NextDueAt = &due
 
 	case Fragile:
 		if success {
