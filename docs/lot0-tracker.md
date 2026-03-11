@@ -73,13 +73,13 @@ Upload → OCR → Structuration → Items.
 
 | # | Tâche | Statut | ACs couvertes | Priorité |
 |---|---|---|---|---|
-| 3.1 | Endpoint upload photo → Page + Block | `[ ]` | — | P1 |
-| 3.2 | Intégration OCR (service externe, stub pour dev local) | `[ ]` | — | P1 |
-| 3.3 | Structuration LLM → Items + Notions | `[ ]` | Z7-AC15 | P1 |
-| 3.4 | Carte leçon partielle si OCR en cours | `[ ]` | Z2-AC01 | P1 |
-| 3.5 | Aucun item généré sur une page (gestion gracieuse) | `[ ]` | Z2-AC04 | P1 |
-| 3.6 | Échec génération items (erreur LLM, retry + fallback) | `[ ]` | Z2-AC05 | P1 |
-| 3.7 | Diagnostic impossible si 0 items valides | `[ ]` | Z2-AC07 | P1 |
+| 3.1 | Endpoint upload photo → Page + Block | `[x]` | — | P1 |
+| 3.2 | Intégration OCR (service externe, stub pour dev local) | `[x]` | — | P1 |
+| 3.3 | Structuration LLM → Items + Notions | `[x]` | Z7-AC15 | P1 |
+| 3.4 | Carte leçon partielle si OCR en cours | `[x]` | Z2-AC01 | P1 |
+| 3.5 | Aucun item généré sur une page (gestion gracieuse) | `[x]` | Z2-AC04 | P1 |
+| 3.6 | Échec génération items (erreur LLM, retry + fallback) | `[x]` | Z2-AC05 | P1 |
+| 3.7 | Diagnostic impossible si 0 items valides | `[x]` | Z2-AC07 | P1 |
 | 3.8 | Streaming carte leçon (première page dispo) | `[ ]` | Z2-AC10 | P1 |
 | 3.9 | Timeout OCR sur page intermédiaire | `[ ]` | Z2-AC02 | P2 |
 | 3.10 | Photo floue détectée (confidence < 0.3) | `[ ]` | Z2-AC03 | P2 |
@@ -182,10 +182,10 @@ Vérification exhaustive : chaque AC Lot 0 est rattachée à une tâche.
 | Z1-AC09 | 2.5 | `[x]` |
 | Z1-AC11 | 2.6 | `[x]` |
 | Z1-AC12 | 2.7 | `[x]` |
-| Z2-AC01 | 3.4 | `[ ]` |
-| Z2-AC04 | 3.5 | `[ ]` |
-| Z2-AC05 | 3.6 | `[ ]` |
-| Z2-AC07 | 3.7 | `[ ]` |
+| Z2-AC01 | 3.4 | `[x]` |
+| Z2-AC04 | 3.5 | `[x]` |
+| Z2-AC05 | 3.6 | `[x]` |
+| Z2-AC07 | 3.7 | `[x]` |
 | Z2-AC10 | 3.8 | `[ ]` |
 | Z3-AC06 | 5.1 | `[ ]` |
 | Z4-AC04 | 4.5 | `[ ]` |

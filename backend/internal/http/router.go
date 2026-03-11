@@ -11,8 +11,9 @@ import (
 
 // RouterConfig holds dependencies needed to build the router.
 type RouterConfig struct {
-	JWTSecret string
-	Version   string
+	JWTSecret       string
+	Version         string
+	PipelineHandler *handler.Pipeline
 }
 
 // NewRouter creates and configures the Gin router with all routes.
@@ -31,8 +32,10 @@ func NewRouter(cfg RouterConfig) *gin.Engine {
 	api := r.Group("/api/v1")
 	api.Use(middleware.Auth(cfg.JWTSecret))
 	{
-		// Phase 2+: mastery, sessions, chapters, validation endpoints
-		// will be registered here as they are implemented.
+		// Pipeline
+		if cfg.PipelineHandler != nil {
+			api.POST("/chapters/:chapter_id/upload", cfg.PipelineHandler.Upload)
+		}
 	}
 
 	return r

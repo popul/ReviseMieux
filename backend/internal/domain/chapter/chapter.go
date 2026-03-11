@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	ErrNotFound   = errors.New("chapter: not found")
 	ErrItemArchived = errors.New("item is archived")
 	ErrNoRevision   = errors.New("chapter has no current revision")
 )
