@@ -163,3 +163,35 @@ func TestZ1AC02_FragileToOK(t *testing.T) {
 		t.Errorf("next_due_at: got %v, want %v", *m.NextDueAt, wantDue)
 	}
 }
+
+// Z1-AC07b — Récupération FRAGILE après régression (cs=0, réponse correcte)
+// GIVEN: Un item en état FRAGILE avec cs=0 (suite à régression).
+// WHEN:  L'élève répond correctement (score ≥ 0.7).
+// THEN:  cs = 1, état reste FRAGILE, next_due_at = now + 1 jour.
+func TestZ1AC07b_FragileRecoveryFromCS0(t *testing.T) {
+	m := newTestMastery(t)
+	now := time.Date(2026, 3, 11, 18, 0, 0, 0, time.UTC)
+
+	// Setup: put into FRAGILE with cs=0 (simulates post-regression state)
+	m.State = Fragile
+	m.ConsecutiveSuccesses = 0
+
+	err := m.RecordAttempt(0.8, now)
+	if err != nil {
+		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
+	}
+
+	if m.State != Fragile {
+		t.Errorf("state: got %q, want %q (should stay FRAGILE when cs was 0)", m.State, Fragile)
+	}
+	if m.ConsecutiveSuccesses != 1 {
+		t.Errorf("consecutive_successes: got %d, want 1", m.ConsecutiveSuccesses)
+	}
+	if m.NextDueAt == nil {
+		t.Fatal("next_due_at: got nil, want non-nil")
+	}
+	wantDue := now.Add(24 * time.Hour)
+	if !m.NextDueAt.Equal(wantDue) {
+		t.Errorf("next_due_at: got %v, want %v", *m.NextDueAt, wantDue)
+	}
+}

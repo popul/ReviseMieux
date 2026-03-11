@@ -80,11 +80,14 @@ func (m *Mastery) RecordAttempt(score float64, now time.Time) error {
 		m.NextDueAt = &due
 
 	case Fragile:
-		if success {
+		if success && m.ConsecutiveSuccesses >= 2 {
+			// Z1-AC02: cs was ≥1 before this attempt → transition to OK
 			m.State = OK
 			due := now.Add(3 * 24 * time.Hour)
 			m.NextDueAt = &due
 		} else {
+			// Z1-AC07b: cs was 0 (post-regression) → stay FRAGILE, accumulate cs
+			// Z1-AC07: fail → stay FRAGILE
 			due := now.Add(24 * time.Hour)
 			m.NextDueAt = &due
 		}
