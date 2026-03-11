@@ -134,6 +134,63 @@ backend/
 - `infra/` → importe `domain/` (implémente les interfaces)
 - `domain/` → **n'importe rien** du projet
 
+### Architecture Hexagonale (Ports & Adapters)
+
+Le projet suit strictement l'architecture hexagonale. Le domaine est au centre, protégé de toute dépendance technique par des **ports** (interfaces) et des **adaptateurs** (implémentations).
+
+```
+                         ┌──────────────────────────────┐
+                         │      Adaptateurs Driving      │
+                         │  (HTTP handlers, CLI, tests)  │
+                         └──────────┬───────────────────┘
+                                    │ appelle
+                                    ▼
+                         ┌──────────────────────────────┐
+                         │     Application Services      │
+                         │  (use cases, orchestration)   │
+                         │  Dépend des PORTS (interfaces)│
+                         └──────────┬───────────────────┘
+                                    │ utilise
+                                    ▼
+┌───────────────────┐   ┌──────────────────────────────┐   ┌───────────────────┐
+│ Adaptateurs Driven│◄──│         DOMAINE               │──►│ Adaptateurs Driven│
+│  (postgres, redis │   │  Entités, Value Objects,      │   │  (S3, Anthropic,  │
+│   implémentent    │   │  Règles métier, PORTS         │   │   OCR)            │
+│   les ports)      │   │  (Repository, Clock, etc.)    │   │                   │
+└───────────────────┘   └──────────────────────────────┘   └───────────────────┘
+```
+
+#### Principes stricts
+
+1. **Le domaine est le centre.** Les packages `domain/` ne connaissent aucune technologie (pas de Gin, pgx, Redis, S3, HTTP). Ils définissent les **ports** (interfaces) que les adaptateurs implémentent.
+
+2. **Ports = interfaces dans `domain/`.** Chaque bounded context expose ses ports :
+   - `mastery.Repository` — persistance des Mastery
+   - `chapter.Repository` — persistance de l'agrégat Chapter
+   - `session.Repository` — persistance de l'agrégat Session
+   - `event.Publisher` — publication des domain events
+   - Les ports techniques (`Clock`, `IDGenerator`) vivent aussi dans `domain/`
+
+3. **Adaptateurs = implémentations dans `infra/`.** Chaque technologie a son package :
+   - `infra/postgres/` implémente les `Repository` interfaces avec pgx
+   - `infra/redis/` implémente le cache
+   - `infra/s3/` implémente le storage
+   - `infra/anthropic/` implémente le client LLM
+
+4. **Sens des dépendances : toujours vers l'intérieur.** Jamais `domain/` n'importe `infra/` ou `http/`. Le wiring (injection des adaptateurs dans les services) se fait uniquement dans `cmd/server/main.go`.
+
+5. **Application services (`app/`) orchestrent.** Ils reçoivent les ports par injection de constructeur et coordonnent les appels entre domaine et infrastructure. Ils ne contiennent pas de logique métier — celle-ci vit dans les entités du domaine.
+
+6. **Handlers HTTP (`http/handler/`) sont des adaptateurs driving.** Ils traduisent HTTP ↔ DTOs, appellent les services applicatifs, et mappent les erreurs domaine vers des status codes HTTP. Zéro logique métier.
+
+7. **Testabilité par design.** Grâce aux ports :
+   - Les tests unitaires du domaine n'ont besoin d'aucun mock (logique pure)
+   - Les tests des services `app/` mockent les ports (interfaces)
+   - Les tests d'intégration `infra/` utilisent une vraie DB
+   - Les tests HTTP mockent les services
+
+8. **Pas de fuite d'abstraction.** Les entités domaine ne sortent jamais dans les réponses HTTP — utiliser des DTOs (`http/dto/`). Les structures pgx ne remontent jamais au-delà de `infra/postgres/`.
+
 ---
 
 ## Test-Driven Development

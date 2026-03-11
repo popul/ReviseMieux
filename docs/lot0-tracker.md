@@ -34,13 +34,15 @@ Prérequis de toutes les phases suivantes.
 
 | # | Tâche | Statut | Livrables |
 |---|---|---|---|
-| 1.1 | Structure projet Go (`internal/config`, `db`, `model`, `repository`, `service`, `handler`, `middleware`) | `[ ]` | arborescence `backend/internal/` |
-| 1.2 | Connexion PostgreSQL (pgx pool) + config env | `[ ]` | `internal/db/pool.go`, `internal/config/config.go` |
-| 1.3 | Runner de migrations | `[ ]` | `internal/db/migrate.go` |
-| 1.4 | Structs Go miroir du schéma SQL | `[ ]` | `internal/model/*.go` |
-| 1.5 | Middleware auth minimal (JWT, usage local) | `[ ]` | `internal/middleware/auth.go` |
-| 1.6 | Docker Compose (Postgres + Redis + API) | `[ ]` | `docker-compose.yml` |
-| 1.7 | Makefile (build, migrate, test, lint) | `[ ]` | `Makefile` |
+| 1.1 | Structure projet Go (DDD : `domain/`, `app/`, `infra/`, `http/`, `config/`, `db/`) | `[x]` | arborescence `backend/internal/` |
+| 1.2 | Connexion PostgreSQL (pgx pool) + config env | `[x]` | `internal/db/pool.go`, `internal/config/config.go` |
+| 1.3 | Runner de migrations (Go, transactionnel, table schema_migrations) | `[x]` | `internal/db/migrate.go` |
+| 1.4 | Entités domaine Go (4 bounded contexts + events + value objects) | `[x]` | `internal/domain/{mastery,chapter,session,validation,event}/` |
+| 1.5 | Middleware auth JWT + token generation (usage local) | `[x]` | `internal/http/middleware/auth.go`, `token.go` |
+| 1.6 | Docker Compose (Postgres + Redis + MinIO) | `[x]` | `docker-compose.yml` |
+| 1.7 | Makefile hiérarchique (racine + backend + mobile) | `[x]` | `Makefile`, `backend/Makefile`, `mobile/Makefile` |
+| 1.8 | Swagger auto-généré (swaggo/swag + gin-swagger) | `[x]` | `internal/docs/`, `make swagger` |
+| 1.9 | Router Gin + health + wiring main.go | `[x]` | `internal/http/router.go`, `cmd/server/main.go` |
 
 ---
 

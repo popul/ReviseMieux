@@ -3,7 +3,7 @@
 # ============================================================
 
 .PHONY: help deps build run dev test test-unit test-integration \
-        lint fmt vet db-migrate db-create-migration clean
+        lint fmt vet db-migrate db-create-migration swagger clean
 
 .DEFAULT_GOAL := help
 
@@ -59,16 +59,22 @@ deps: ## Installe les dépendances Go
 	@$(GOMOD) tidy
 	@echo "$(GREEN)Deps OK$(RESET)"
 
-tools: ## Installe les outils de dev (golangci-lint)
-	@echo "$(CYAN)Installation golangci-lint...$(RESET)"
+tools: ## Installe les outils de dev (golangci-lint, swag)
+	@echo "$(CYAN)Installation golangci-lint + swag...$(RESET)"
 	@go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
+	@go install github.com/swaggo/swag/cmd/swag@latest
 	@echo "$(GREEN)Tools OK$(RESET)"
 
 # ------------------------------------------------------------
 # Build
 # ------------------------------------------------------------
 
-build: ## Compile le binaire
+swagger: ## Génère la doc Swagger depuis les annotations
+	@echo "$(CYAN)swag init...$(RESET)"
+	@swag init -g cmd/server/main.go -o internal/docs --parseDependency --parseInternal
+	@echo "$(GREEN)Swagger OK$(RESET) — http://localhost:$(or $(PORT),8080)/swagger/index.html"
+
+build: swagger ## Compile le binaire (regénère swagger)
 	@mkdir -p $(BUILD_DIR)
 	@echo "$(CYAN)Build $(BINARY)...$(RESET)"
 	@CGO_ENABLED=0 $(GO) build -o $(BINARY) $(CMD_DIR)
