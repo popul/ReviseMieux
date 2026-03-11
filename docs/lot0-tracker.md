@@ -52,18 +52,18 @@ Coeur du produit. Machine à états + espacement.
 
 | # | Tâche | Statut | ACs couvertes | Priorité |
 |---|---|---|---|---|
-| 2.1 | `MasteryService` : transitions UNKNOWN→FRAGILE→OK→SOLID | `[ ]` | Z1-AC01, Z1-AC02, Z1-AC03 | P1 |
-| 2.2 | Blocage OK→SOLID sans espacement 24h | `[ ]` | Z1-AC04 | P1 |
-| 2.3 | Régressions SOLID→OK, OK→FRAGILE, FRAGILE reste FRAGILE | `[ ]` | Z1-AC05, Z1-AC06, Z1-AC07 | P1 |
-| 2.4 | Récupération après régression (cs=0 et cs<2) | `[ ]` | Z1-AC07b, Z1-AC07c | P1 |
-| 2.5 | Indépendance mastery entre items | `[ ]` | Z1-AC09 | P1 |
-| 2.6 | Échec sur item UNKNOWN | `[ ]` | Z1-AC11 | P1 |
-| 2.7 | Maintien SOLID sur succès continu | `[ ]` | Z1-AC12 | P1 |
-| 2.8 | Resserrement proportionnel si exam posé | `[ ]` | Z1-AC08 | P2 |
-| 2.9 | Scoring par type de question (RUBRIC, NUMERIC, KEYWORDS) | `[ ]` | Z1-AC10 | P2 |
-| 2.10 | Plafond maîtrise OK pour items restreints | `[ ]` | Z1-AC13 | P2 |
-| 2.11 | Tests unitaires exhaustifs (≥ 12 cas de transition) | `[ ]` | Z1-AC01→AC13 | P1 |
-| 2.12 | Repository `masteries` (CRUD + requêtes due/state) | `[ ]` | — | P1 |
+| 2.1 | `MasteryService` : transitions UNKNOWN→FRAGILE→OK→SOLID | `[x]` | Z1-AC01, Z1-AC02, Z1-AC03 | P1 |
+| 2.2 | Blocage OK→SOLID sans espacement 24h | `[x]` | Z1-AC04 | P1 |
+| 2.3 | Régressions SOLID→OK, OK→FRAGILE, FRAGILE reste FRAGILE | `[x]` | Z1-AC05, Z1-AC06, Z1-AC07 | P1 |
+| 2.4 | Récupération après régression (cs=0 et cs<2) | `[x]` | Z1-AC07b, Z1-AC07c | P1 |
+| 2.5 | Indépendance mastery entre items | `[x]` | Z1-AC09 | P1 |
+| 2.6 | Échec sur item UNKNOWN | `[x]` | Z1-AC11 | P1 |
+| 2.7 | Maintien SOLID sur succès continu | `[x]` | Z1-AC12 | P1 |
+| 2.8 | Resserrement proportionnel si exam posé | `[—]` | Z1-AC08 | P2 |
+| 2.9 | Scoring par type de question (RUBRIC, NUMERIC, KEYWORDS) | `[—]` | Z1-AC10 | P2 |
+| 2.10 | Plafond maîtrise OK pour items restreints | `[x]` | Z1-AC13 | P2 |
+| 2.11 | Tests unitaires exhaustifs (≥ 12 cas de transition) | `[x]` | Z1-AC01→AC13 | P1 |
+| 2.12 | Repository `masteries` (CRUD + requêtes due/state) | `[x]` | — | P1 |
 
 ---
 
@@ -170,18 +170,18 @@ Vérification exhaustive : chaque AC Lot 0 est rattachée à une tâche.
 
 | AC | Phase.Tâche | Statut |
 |---|---|---|
-| Z1-AC01 | 2.1 | `[ ]` |
-| Z1-AC02 | 2.1 | `[ ]` |
-| Z1-AC03 | 2.1 | `[ ]` |
-| Z1-AC04 | 2.2 | `[ ]` |
-| Z1-AC05 | 2.3 | `[ ]` |
-| Z1-AC06 | 2.3 | `[ ]` |
-| Z1-AC07 | 2.3 | `[ ]` |
-| Z1-AC07b | 2.4 | `[ ]` |
-| Z1-AC07c | 2.4 | `[ ]` |
-| Z1-AC09 | 2.5 | `[ ]` |
-| Z1-AC11 | 2.6 | `[ ]` |
-| Z1-AC12 | 2.7 | `[ ]` |
+| Z1-AC01 | 2.1 | `[x]` |
+| Z1-AC02 | 2.1 | `[x]` |
+| Z1-AC03 | 2.1 | `[x]` |
+| Z1-AC04 | 2.2 | `[x]` |
+| Z1-AC05 | 2.3 | `[x]` |
+| Z1-AC06 | 2.3 | `[x]` |
+| Z1-AC07 | 2.3 | `[x]` |
+| Z1-AC07b | 2.4 | `[x]` |
+| Z1-AC07c | 2.4 | `[x]` |
+| Z1-AC09 | 2.5 | `[x]` |
+| Z1-AC11 | 2.6 | `[x]` |
+| Z1-AC12 | 2.7 | `[x]` |
 | Z2-AC01 | 3.4 | `[ ]` |
 | Z2-AC04 | 3.5 | `[ ]` |
 | Z2-AC05 | 3.6 | `[ ]` |
@@ -208,9 +208,9 @@ Vérification exhaustive : chaque AC Lot 0 est rattachée à une tâche.
 
 | AC | Phase.Tâche | Statut |
 |---|---|---|
-| Z1-AC08 | 2.8 | `[ ]` |
-| Z1-AC10 | 2.9 | `[ ]` |
-| Z1-AC13 | 2.10 | `[ ]` |
+| Z1-AC08 | 2.8 | `[—]` |
+| Z1-AC10 | 2.9 | `[—]` |
+| Z1-AC13 | 2.10 | `[x]` |
 | Z2-AC02 | 3.9 | `[ ]` |
 | Z2-AC03 | 3.10 | `[ ]` |
 | Z2-AC06 | 3.11 | `[ ]` |

@@ -11,6 +11,7 @@ import (
 var (
 	ErrTransitionBlocked = errors.New("transition blocked: spacing requirement not met")
 	ErrInvalidState      = errors.New("invalid mastery state")
+	ErrNotFound          = errors.New("mastery not found")
 )
 
 // SpacingHours defines the minimum hours between OK and SOLID transition.
