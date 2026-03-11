@@ -2,6 +2,7 @@ package session
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -9,7 +10,7 @@ import (
 
 var (
 	ErrSessionNotResumable = errors.New("session cannot be resumed from current status")
-	ErrSessionCompleted    = errors.New("session is already completed")
+	ErrSessionNotCompletable = errors.New("session cannot be completed from current status")
 	ErrNoQuestions         = errors.New("session has no questions")
 )
 
@@ -25,6 +26,24 @@ const (
 	TypePreClass     SessionType = "pre_class"
 )
 
+// Valid returns true if the session type is one of the known values.
+func (s SessionType) Valid() bool {
+	switch s {
+	case TypeDaily, TypeDiagnostic, TypeMockExam, TypeEveningFirst, TypePreClass:
+		return true
+	}
+	return false
+}
+
+// ParseSessionType converts a string to a SessionType, returning an error if invalid.
+func ParseSessionType(s string) (SessionType, error) {
+	st := SessionType(s)
+	if !st.Valid() {
+		return "", fmt.Errorf("session.ParseSessionType: invalid type %q", s)
+	}
+	return st, nil
+}
+
 type SessionStatus string
 
 const (
@@ -34,6 +53,15 @@ const (
 	StatusExpired    SessionStatus = "EXPIRED"
 	StatusAbandoned  SessionStatus = "ABANDONED"
 )
+
+// Valid returns true if the session status is one of the known values.
+func (s SessionStatus) Valid() bool {
+	switch s {
+	case StatusComposing, StatusInProgress, StatusCompleted, StatusExpired, StatusAbandoned:
+		return true
+	}
+	return false
+}
 
 type SessionTrigger string
 
@@ -113,7 +141,7 @@ func (s *Session) Resume() error {
 // Complete marks the session as completed.
 func (s *Session) Complete(now time.Time) error {
 	if s.Status != StatusInProgress {
-		return ErrSessionCompleted
+		return ErrSessionNotCompletable
 	}
 	s.Status = StatusCompleted
 	s.CompletedAt = &now

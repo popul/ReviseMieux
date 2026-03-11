@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 
 	"github.com/gin-gonic/gin"
 
@@ -58,17 +60,29 @@ func main() {
 		Version:   Version,
 	})
 
-	// --- Graceful shutdown ---
+	// --- HTTP server with graceful shutdown ---
+	srv := &http.Server{
+		Addr:    ":" + cfg.Port,
+		Handler: r,
+	}
+
 	go func() {
 		sigCh := make(chan os.Signal, 1)
 		signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 		<-sigCh
 		log.Println("Shutting down...")
+
+		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer shutdownCancel()
+
+		if err := srv.Shutdown(shutdownCtx); err != nil {
+			log.Printf("HTTP server shutdown error: %v", err)
+		}
 		cancel()
 	}()
 
 	log.Printf("Starting Révise Mieux API on :%s (version %s)", cfg.Port, Version)
-	if err := r.Run(":" + cfg.Port); err != nil {
+	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Server error: %v", err)
 	}
 }

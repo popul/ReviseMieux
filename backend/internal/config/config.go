@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -58,12 +57,6 @@ func MustLoad() *Config {
 		panic(err)
 	}
 	return cfg
-}
-
-// PortInt returns the port as an integer.
-func (c *Config) PortInt() int {
-	p, _ := strconv.Atoi(c.Port)
-	return p
 }
 
 func envOrDefault(key, fallback string) string {

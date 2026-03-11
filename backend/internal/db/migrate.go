@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
-	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -31,18 +30,27 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool, migrationsDir string) erro
 	}
 	sort.Strings(files)
 
+	// Load all applied versions in one query to avoid N+1.
+	applied := make(map[string]bool)
+	rows, err := pool.Query(ctx, "SELECT version FROM schema_migrations")
+	if err != nil {
+		return fmt.Errorf("db.Migrate: load applied versions: %w", err)
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var v string
+		if err := rows.Scan(&v); err != nil {
+			return fmt.Errorf("db.Migrate: scan version: %w", err)
+		}
+		applied[v] = true
+	}
+	if err := rows.Err(); err != nil {
+		return fmt.Errorf("db.Migrate: iterate versions: %w", err)
+	}
+
 	for _, f := range files {
 		version := filepath.Base(f)
-
-		var exists bool
-		err := pool.QueryRow(ctx,
-			"SELECT EXISTS(SELECT 1 FROM schema_migrations WHERE version = $1)",
-			version,
-		).Scan(&exists)
-		if err != nil {
-			return fmt.Errorf("db.Migrate: check %s: %w", version, err)
-		}
-		if exists {
+		if applied[version] {
 			continue
 		}
 
@@ -58,12 +66,7 @@ func Migrate(ctx context.Context, pool *pgxpool.Pool, migrationsDir string) erro
 
 		if _, err := tx.Exec(ctx, string(sql)); err != nil {
 			_ = tx.Rollback(ctx)
-			// Extract a short error context
-			errMsg := err.Error()
-			if idx := strings.Index(errMsg, "\n"); idx > 0 {
-				errMsg = errMsg[:idx]
-			}
-			return fmt.Errorf("db.Migrate: apply %s: %s", version, errMsg)
+			return fmt.Errorf("db.Migrate: apply %s: %w", version, err)
 		}
 
 		if _, err := tx.Exec(ctx, "INSERT INTO schema_migrations (version) VALUES ($1)", version); err != nil {

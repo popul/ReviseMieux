@@ -1,6 +1,7 @@
 package event
 
 import (
+	"context"
 	"time"
 
 	"github.com/google/uuid"
@@ -12,47 +13,50 @@ type Event interface {
 	OccurredAt() time.Time
 }
 
+// BaseEvent provides the shared OccurredOn field and OccurredAt() implementation.
+type BaseEvent struct {
+	OccurredOn time.Time
+}
+
+func (e BaseEvent) OccurredAt() time.Time { return e.OccurredOn }
+
 // Publisher defines how domain events are dispatched.
 type Publisher interface {
-	Publish(events ...Event)
+	Publish(ctx context.Context, events ...Event) error
 }
 
 // ItemsGenerated is emitted when the pipeline produces items for a chapter.
 type ItemsGenerated struct {
-	ChapterID  uuid.UUID
-	ItemIDs    []uuid.UUID
-	OccurredOn time.Time
+	BaseEvent
+	ChapterID uuid.UUID
+	ItemIDs   []uuid.UUID
 }
 
-func (e ItemsGenerated) EventName() string    { return "items.generated" }
-func (e ItemsGenerated) OccurredAt() time.Time { return e.OccurredOn }
+func (e ItemsGenerated) EventName() string { return "items.generated" }
 
 // AttemptRecorded is emitted when a student records an attempt on a question.
 type AttemptRecorded struct {
-	UserID     uuid.UUID
-	ItemID     uuid.UUID
-	Score      float64
-	OccurredOn time.Time
+	BaseEvent
+	UserID uuid.UUID
+	ItemID uuid.UUID
+	Score  float64
 }
 
-func (e AttemptRecorded) EventName() string    { return "attempt.recorded" }
-func (e AttemptRecorded) OccurredAt() time.Time { return e.OccurredOn }
+func (e AttemptRecorded) EventName() string { return "attempt.recorded" }
 
 // ValidationResolved is emitted when a HITL validation task is resolved.
 type ValidationResolved struct {
-	ItemID     uuid.UUID
-	OccurredOn time.Time
+	BaseEvent
+	ItemID uuid.UUID
 }
 
-func (e ValidationResolved) EventName() string    { return "validation.resolved" }
-func (e ValidationResolved) OccurredAt() time.Time { return e.OccurredOn }
+func (e ValidationResolved) EventName() string { return "validation.resolved" }
 
 // ExamCreated is emitted when a new exam is linked to chapters.
 type ExamCreated struct {
+	BaseEvent
 	ExamID     uuid.UUID
 	ChapterIDs []uuid.UUID
-	OccurredOn time.Time
 }
 
-func (e ExamCreated) EventName() string    { return "exam.created" }
-func (e ExamCreated) OccurredAt() time.Time { return e.OccurredOn }
+func (e ExamCreated) EventName() string { return "exam.created" }

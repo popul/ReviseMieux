@@ -24,6 +24,7 @@ type Claims struct {
 
 // Auth returns a Gin middleware that validates JWT bearer tokens.
 func Auth(secret string) gin.HandlerFunc {
+	secretBytes := []byte(secret) // allocate once, reuse per request
 	return func(c *gin.Context) {
 		header := c.GetHeader("Authorization")
 		if header == "" {
@@ -41,7 +42,7 @@ func Auth(secret string) gin.HandlerFunc {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, jwt.ErrSignatureInvalid
 			}
-			return []byte(secret), nil
+			return secretBytes, nil
 		})
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "invalid token"})

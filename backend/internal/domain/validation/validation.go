@@ -62,48 +62,38 @@ func NewValidationTask(itemID uuid.UUID, source TaskSource, now time.Time) *Vali
 	}
 }
 
-// Confirm marks the task as confirmed by a validator.
-func (t *ValidationTask) Confirm(resolvedBy uuid.UUID, now time.Time) error {
+// Resolve transitions the task from PENDING to the given resolution status.
+func (t *ValidationTask) Resolve(status TaskStatus, resolvedBy uuid.UUID, now time.Time) error {
 	if t.Status != StatusPending {
 		return ErrAlreadyResolved
 	}
-	t.Status = StatusConfirmed
+	if status == StatusPending {
+		return errors.New("cannot resolve to PENDING status")
+	}
+	t.Status = status
 	t.ResolvedBy = &resolvedBy
 	t.UpdatedAt = now
 	return nil
+}
+
+// Confirm marks the task as confirmed by a validator.
+func (t *ValidationTask) Confirm(resolvedBy uuid.UUID, now time.Time) error {
+	return t.Resolve(StatusConfirmed, resolvedBy, now)
 }
 
 // Correct marks the task as corrected.
 func (t *ValidationTask) Correct(resolvedBy uuid.UUID, now time.Time) error {
-	if t.Status != StatusPending {
-		return ErrAlreadyResolved
-	}
-	t.Status = StatusCorrected
-	t.ResolvedBy = &resolvedBy
-	t.UpdatedAt = now
-	return nil
+	return t.Resolve(StatusCorrected, resolvedBy, now)
 }
 
 // MarkUnknown marks the validator as unsure.
 func (t *ValidationTask) MarkUnknown(resolvedBy uuid.UUID, now time.Time) error {
-	if t.Status != StatusPending {
-		return ErrAlreadyResolved
-	}
-	t.Status = StatusUnknownAnswer
-	t.ResolvedBy = &resolvedBy
-	t.UpdatedAt = now
-	return nil
+	return t.Resolve(StatusUnknownAnswer, resolvedBy, now)
 }
 
 // Ignore marks the task as ignored.
 func (t *ValidationTask) Ignore(resolvedBy uuid.UUID, now time.Time) error {
-	if t.Status != StatusPending {
-		return ErrAlreadyResolved
-	}
-	t.Status = StatusIgnored
-	t.ResolvedBy = &resolvedBy
-	t.UpdatedAt = now
-	return nil
+	return t.Resolve(StatusIgnored, resolvedBy, now)
 }
 
 // IsResolved returns true if the task is no longer pending.

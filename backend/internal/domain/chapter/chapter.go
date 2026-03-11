@@ -2,6 +2,7 @@ package chapter
 
 import (
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -27,6 +28,15 @@ const (
 	BlockDecorative BlockType = "DECORATIVE"
 )
 
+// Valid returns true if the block type is one of the known values.
+func (b BlockType) Valid() bool {
+	switch b {
+	case BlockText, BlockPhoto, BlockSchema, BlockMap, BlockGraph, BlockTable, BlockCircuit, BlockDecorative:
+		return true
+	}
+	return false
+}
+
 type ItemType string
 
 const (
@@ -35,6 +45,24 @@ const (
 	ItemDocument  ItemType = "DOCUMENT"
 	ItemWriting   ItemType = "WRITING"
 )
+
+// Valid returns true if the item type is one of the known values.
+func (i ItemType) Valid() bool {
+	switch i {
+	case ItemKnowledge, ItemProcedure, ItemDocument, ItemWriting:
+		return true
+	}
+	return false
+}
+
+// ParseItemType converts a string to an ItemType, returning an error if invalid.
+func ParseItemType(s string) (ItemType, error) {
+	it := ItemType(s)
+	if !it.Valid() {
+		return "", fmt.Errorf("chapter.ParseItemType: invalid type %q", s)
+	}
+	return it, nil
+}
 
 type PageStatus string
 
