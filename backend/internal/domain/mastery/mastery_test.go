@@ -87,3 +87,40 @@ func TestZ1AC01_ScoreExactThreshold(t *testing.T) {
 		t.Errorf("state: got %q, want %q (score 0.7 should be success)", m.State, Fragile)
 	}
 }
+
+// Z1-AC11 — Échec sur item UNKNOWN (pas de descente sous UNKNOWN)
+// GIVEN: Un item en état UNKNOWN avec consecutive_successes = 0.
+// WHEN:  L'élève répond incorrectement.
+// THEN:  État reste UNKNOWN, cs = 0, next_due_at = now + 1 jour.
+func TestZ1AC11_UnknownFailStaysUnknown(t *testing.T) {
+	m := newTestMastery(t)
+	now := time.Date(2026, 3, 11, 18, 0, 0, 0, time.UTC)
+
+	err := m.RecordAttempt(0.0, now)
+	if err != nil {
+		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
+	}
+
+	if m.State != Unknown {
+		t.Errorf("state: got %q, want %q", m.State, Unknown)
+	}
+	if m.ConsecutiveSuccesses != 0 {
+		t.Errorf("consecutive_successes: got %d, want 0", m.ConsecutiveSuccesses)
+	}
+	if m.ConsecutiveFailures != 1 {
+		t.Errorf("consecutive_failures: got %d, want 1", m.ConsecutiveFailures)
+	}
+	if m.NextDueAt == nil {
+		t.Fatal("next_due_at: got nil, want non-nil")
+	}
+	wantDue := now.Add(24 * time.Hour)
+	if !m.NextDueAt.Equal(wantDue) {
+		t.Errorf("next_due_at: got %v, want %v", *m.NextDueAt, wantDue)
+	}
+	if m.LastReviewAt == nil || !m.LastReviewAt.Equal(now) {
+		t.Errorf("last_review_at: got %v, want %v", m.LastReviewAt, now)
+	}
+	if m.LastSuccessAt != nil {
+		t.Errorf("last_success_at: got %v, want nil (failure should not set it)", m.LastSuccessAt)
+	}
+}
