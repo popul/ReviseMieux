@@ -62,6 +62,10 @@ func (m *Mastery) RecordAttempt(score float64, now time.Time) error {
 	m.LastReviewAt = &now
 	m.UpdatedAt = now
 
+	// Save previous values for Z1-AC04 (spacing check may need to revert)
+	prevCS := m.ConsecutiveSuccesses
+	prevLastSuccessAt := m.LastSuccessAt
+
 	if success {
 		m.ConsecutiveSuccesses++
 		m.ConsecutiveFailures = 0
@@ -95,17 +99,24 @@ func (m *Mastery) RecordAttempt(score float64, now time.Time) error {
 	case OK:
 		if success {
 			if m.CappedAtOK {
-				// validation_required items cannot go beyond OK
+				// Z1-AC13: validation_required items cannot go beyond OK
 				due := now.Add(3 * 24 * time.Hour)
 				m.NextDueAt = &due
 				return nil
 			}
-			if m.ConsecutiveSuccesses >= 2 && m.spacingMet(now) {
+			if m.ConsecutiveSuccesses >= 2 && m.spacingMet(prevLastSuccessAt, now) {
+				// Z1-AC03: OK → SOLID (cs ≥ 2 AND spacing met)
 				m.State = Solid
 				due := now.Add(7 * 24 * time.Hour)
 				m.NextDueAt = &due
+			} else if m.ConsecutiveSuccesses >= 2 && !m.spacingMet(prevLastSuccessAt, now) {
+				// Z1-AC04: spacing not met — revert cs, don't touch anything
+				m.ConsecutiveSuccesses = prevCS
+				m.LastSuccessAt = prevLastSuccessAt
+				// State stays OK, next_due_at unchanged
+				return nil
 			} else {
-				// Z1-AC07c: stay OK, accumulate cs
+				// Z1-AC07c: cs < 2, stay OK, accumulate cs normally
 				due := now.Add(3 * 24 * time.Hour)
 				m.NextDueAt = &due
 			}
@@ -135,22 +146,13 @@ func (m *Mastery) RecordAttempt(score float64, now time.Time) error {
 	return nil
 }
 
-// spacingMet checks if the required 24h spacing since last success before
-// the current streak is satisfied.
-func (m *Mastery) spacingMet(now time.Time) bool {
-	if m.LastSuccessAt == nil {
+// spacingMet checks if ≥ 24h have elapsed since the previous success.
+// prevSuccessAt is the LastSuccessAt value BEFORE the current attempt updated it.
+func (m *Mastery) spacingMet(prevSuccessAt *time.Time, now time.Time) bool {
+	if prevSuccessAt == nil {
 		return false
 	}
-	// The spacing is measured from the first success of the current streak.
-	// With cs=2, the first success set LastSuccessAt previously.
-	// We approximate: require 24h between now and the *previous* LastSuccessAt.
-	// Since LastSuccessAt was just updated to now, we need to check against
-	// the review before. A clean implementation uses a Clock + stored timestamp.
-	//
-	// For the current implementation: the service layer should pass the
-	// timestamp of the *previous* success for proper spacing check.
-	// Here we check the naive case: lastSuccessAt (set to now) - spacing.
-	return true // TODO: proper spacing check via stored previous_success_at
+	return now.Sub(*prevSuccessAt) >= time.Duration(SpacingHours)*time.Hour
 }
 
 // IsDue returns true if the mastery is due for review at the given time.

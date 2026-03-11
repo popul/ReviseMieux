@@ -324,24 +324,122 @@ func TestZ1AC07c_OKRecoveryFromCS0(t *testing.T) {
 	}
 }
 
-// Z1-AC07c — Recovery path: OK(cs=0) → OK(cs=1) → OK(cs=2) stays OK until spacing met
+// Z1-AC07c + Z1-AC04 — Recovery path: OK(cs=1) + success with prior success 25h ago → cs=2, stays OK
 func TestZ1AC07c_OKRecoveryPathCS1ToCS2(t *testing.T) {
 	m := newTestMastery(t)
 
-	// Setup: OK with cs=1 (one success into recovery)
+	// Setup: OK with cs=1, last success 25h ago (spacing met for accumulation)
+	prevSuccess := time.Date(2026, 3, 11, 17, 0, 0, 0, time.UTC)
 	m.State = OK
 	m.ConsecutiveSuccesses = 1
+	m.LastSuccessAt = &prevSuccess
 
-	now := time.Date(2026, 3, 12, 18, 0, 0, 0, time.UTC)
+	now := prevSuccess.Add(25 * time.Hour)
 	err := m.RecordAttempt(0.8, now)
 	if err != nil {
 		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
 	}
 
+	// cs reaches 2 and spacing is met → transitions to SOLID (AC03)
+	if m.State != Solid {
+		t.Errorf("state: got %q, want %q", m.State, Solid)
+	}
 	if m.ConsecutiveSuccesses != 2 {
 		t.Errorf("consecutive_successes: got %d, want 2", m.ConsecutiveSuccesses)
 	}
-	// Should stay OK because spacingMet is not satisfied yet (will be fixed in AC03/AC04)
-	// For now spacingMet returns true, so this will go to SOLID — we accept this
-	// and will fix when implementing AC03/AC04.
+}
+
+// Z1-AC04 — OK(cs=1) + success without spacing → cs blocked at 1
+func TestZ1AC04_OKRecoveryCS1BlockedBySpacing(t *testing.T) {
+	m := newTestMastery(t)
+
+	// Setup: OK with cs=1, last success 2h ago (spacing NOT met)
+	recentSuccess := time.Date(2026, 3, 12, 16, 0, 0, 0, time.UTC)
+	originalDue := time.Date(2026, 3, 15, 18, 0, 0, 0, time.UTC)
+	m.State = OK
+	m.ConsecutiveSuccesses = 1
+	m.LastSuccessAt = &recentSuccess
+	m.NextDueAt = &originalDue
+
+	now := recentSuccess.Add(2 * time.Hour)
+	err := m.RecordAttempt(0.8, now)
+	if err != nil {
+		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
+	}
+
+	if m.State != OK {
+		t.Errorf("state: got %q, want %q", m.State, OK)
+	}
+	// cs would reach 2, but spacing blocks → reverted to 1
+	if m.ConsecutiveSuccesses != 1 {
+		t.Errorf("consecutive_successes: got %d, want 1 (blocked by spacing)", m.ConsecutiveSuccesses)
+	}
+}
+
+// Z1-AC03 — Progression OK → SOLID (espacement requis)
+// GIVEN: Un item en état OK avec cs ≥ 2 et last_success_at ≥ 24h avant la tentative.
+// WHEN:  L'élève répond correctement (score ≥ 0.7, sans aide).
+// THEN:  État → SOLID, cs += 1, next_due_at = now + 7 jours.
+func TestZ1AC03_OKToSolidWithSpacing(t *testing.T) {
+	m := newTestMastery(t)
+
+	// Setup: OK with cs=2, last success was 25h ago
+	day1 := time.Date(2026, 3, 10, 18, 0, 0, 0, time.UTC)
+	m.State = OK
+	m.ConsecutiveSuccesses = 2
+	m.LastSuccessAt = &day1
+
+	// Attempt 25h later (spacing met)
+	now := day1.Add(25 * time.Hour)
+	err := m.RecordAttempt(0.8, now)
+	if err != nil {
+		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
+	}
+
+	if m.State != Solid {
+		t.Errorf("state: got %q, want %q", m.State, Solid)
+	}
+	if m.ConsecutiveSuccesses != 3 {
+		t.Errorf("consecutive_successes: got %d, want 3", m.ConsecutiveSuccesses)
+	}
+	if m.NextDueAt == nil {
+		t.Fatal("next_due_at: got nil, want non-nil")
+	}
+	wantDue := now.Add(7 * 24 * time.Hour)
+	if !m.NextDueAt.Equal(wantDue) {
+		t.Errorf("next_due_at: got %v, want %v", *m.NextDueAt, wantDue)
+	}
+}
+
+// Z1-AC04 — Blocage OK → SOLID sans espacement
+// GIVEN: Un item en état OK avec last_success_at < 24h.
+// WHEN:  L'élève répond correctement dans la même session.
+// THEN:  État reste OK. cs N'EST PAS incrémenté. next_due_at N'EST PAS modifié.
+func TestZ1AC04_OKBlockedWithoutSpacing(t *testing.T) {
+	m := newTestMastery(t)
+
+	// Setup: OK with cs=2, last success was 2h ago (spacing NOT met)
+	recentSuccess := time.Date(2026, 3, 11, 16, 0, 0, 0, time.UTC)
+	originalDue := time.Date(2026, 3, 14, 18, 0, 0, 0, time.UTC)
+	m.State = OK
+	m.ConsecutiveSuccesses = 2
+	m.LastSuccessAt = &recentSuccess
+	m.NextDueAt = &originalDue
+
+	// Attempt 2h later (spacing NOT met — only 2h, not 24h)
+	now := recentSuccess.Add(2 * time.Hour)
+	err := m.RecordAttempt(0.8, now)
+	if err != nil {
+		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
+	}
+
+	if m.State != OK {
+		t.Errorf("state: got %q, want %q (should stay OK without spacing)", m.State, OK)
+	}
+	if m.ConsecutiveSuccesses != 2 {
+		t.Errorf("consecutive_successes: got %d, want 2 (should NOT increment without spacing)", m.ConsecutiveSuccesses)
+	}
+	if !m.NextDueAt.Equal(originalDue) {
+		t.Errorf("next_due_at: got %v, want %v (should NOT change without spacing)", *m.NextDueAt, originalDue)
+	}
 }
