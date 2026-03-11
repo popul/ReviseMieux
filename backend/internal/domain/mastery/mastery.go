@@ -118,9 +118,15 @@ func (m *Mastery) RecordAttempt(score float64, now time.Time) error {
 
 	case Solid:
 		if !success {
+			// Z1-AC05: SOLID → OK, next_due_at = now + 2 jours
 			m.State = OK
+			due := now.Add(2 * 24 * time.Hour)
+			m.NextDueAt = &due
+		} else {
+			// Z1-AC12: stay SOLID, next_due_at = now + 7 jours
+			due := now.Add(7 * 24 * time.Hour)
+			m.NextDueAt = &due
 		}
-		// success → stay SOLID
 
 	default:
 		return ErrInvalidState

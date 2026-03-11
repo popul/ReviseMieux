@@ -259,3 +259,35 @@ func TestZ1AC06_OKToFragile(t *testing.T) {
 		t.Errorf("next_due_at: got %v, want %v", *m.NextDueAt, wantDue)
 	}
 }
+
+// Z1-AC05 — Régression SOLID → OK sur échec unique
+// GIVEN: Un item en état SOLID avec cs ≥ 3.
+// WHEN:  L'élève répond incorrectement.
+// THEN:  État → OK (pas FRAGILE), cs = 0, next_due_at = now + 2 jours.
+func TestZ1AC05_SolidToOK(t *testing.T) {
+	m := newTestMastery(t)
+
+	// Setup: SOLID state with cs=3
+	m.State = Solid
+	m.ConsecutiveSuccesses = 3
+
+	now := time.Date(2026, 3, 12, 18, 0, 0, 0, time.UTC)
+	err := m.RecordAttempt(0.2, now)
+	if err != nil {
+		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
+	}
+
+	if m.State != OK {
+		t.Errorf("state: got %q, want %q (SOLID regresses to OK, not FRAGILE)", m.State, OK)
+	}
+	if m.ConsecutiveSuccesses != 0 {
+		t.Errorf("consecutive_successes: got %d, want 0", m.ConsecutiveSuccesses)
+	}
+	if m.NextDueAt == nil {
+		t.Fatal("next_due_at: got nil, want non-nil")
+	}
+	wantDueAC05 := now.Add(2 * 24 * time.Hour)
+	if !m.NextDueAt.Equal(wantDueAC05) {
+		t.Errorf("next_due_at: got %v, want %v", *m.NextDueAt, wantDueAC05)
+	}
+}
