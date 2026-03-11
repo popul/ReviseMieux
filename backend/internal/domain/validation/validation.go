@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/popul/revisemieux/internal/domain/event"
 )
 
 var (
@@ -51,9 +52,9 @@ type ValidationTask struct {
 }
 
 // NewValidationTask creates a PENDING task.
-func NewValidationTask(itemID uuid.UUID, source TaskSource, now time.Time) *ValidationTask {
+func NewValidationTask(idGen event.IDGenerator, itemID uuid.UUID, source TaskSource, now time.Time) *ValidationTask {
 	return &ValidationTask{
-		ID:        uuid.Must(uuid.NewV7()),
+		ID:        idGen.New(),
 		ItemID:    itemID,
 		Status:    StatusPending,
 		Source:    source,

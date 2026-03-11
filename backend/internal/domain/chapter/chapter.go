@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/popul/revisemieux/internal/domain/event"
 )
 
 var (
@@ -105,9 +106,9 @@ type Chapter struct {
 }
 
 // NewChapter creates a new chapter.
-func NewChapter(userID uuid.UUID, subject, classLevel, name string, now time.Time) *Chapter {
+func NewChapter(idGen event.IDGenerator, userID uuid.UUID, subject, classLevel, name string, now time.Time) *Chapter {
 	return &Chapter{
-		ID:         uuid.Must(uuid.NewV7()),
+		ID:         idGen.New(),
 		UserID:     userID,
 		Subject:    subject,
 		ClassLevel: classLevel,

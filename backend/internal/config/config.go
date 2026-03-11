@@ -12,9 +12,10 @@ type Config struct {
 	GinMode     string
 	DatabaseURL string
 	RedisURL    string
-	JWTSecret   string
-	JWTExpiry   time.Duration
-	S3Endpoint  string
+	JWTSecret     string
+	JWTExpiry     time.Duration
+	MigrationsDir string
+	S3Endpoint    string
 	S3Bucket    string
 	S3AccessKey string
 	S3SecretKey string
@@ -28,8 +29,9 @@ func Load() (*Config, error) {
 		GinMode:     envOrDefault("GIN_MODE", "debug"),
 		DatabaseURL: envOrDefault("DATABASE_URL", "postgres://revisemieux:revisemieux@localhost:5432/revisemieux?sslmode=disable"),
 		RedisURL:    envOrDefault("REDIS_URL", "redis://localhost:6379/0"),
-		JWTSecret:   envOrDefault("JWT_SECRET", ""),
-		S3Endpoint:  envOrDefault("S3_ENDPOINT", "http://localhost:9000"),
+		JWTSecret:     envOrDefault("JWT_SECRET", ""),
+		MigrationsDir: envOrDefault("MIGRATIONS_DIR", "migrations"),
+		S3Endpoint:    envOrDefault("S3_ENDPOINT", "http://localhost:9000"),
 		S3Bucket:    envOrDefault("S3_BUCKET", "revisemieux"),
 		S3AccessKey: envOrDefault("S3_ACCESS_KEY", ""),
 		S3SecretKey: envOrDefault("S3_SECRET_KEY", ""),

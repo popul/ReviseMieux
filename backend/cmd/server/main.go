@@ -49,8 +49,7 @@ func main() {
 	defer pool.Close()
 
 	// --- Run migrations ---
-	migrationsDir := migrationsPath()
-	if err := db.Migrate(ctx, pool, migrationsDir); err != nil {
+	if err := db.Migrate(ctx, pool, cfg.MigrationsDir); err != nil {
 		log.Fatalf("Migrations failed: %v", err)
 	}
 
@@ -85,12 +84,4 @@ func main() {
 	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Server error: %v", err)
 	}
-}
-
-// migrationsPath returns the path to the migrations directory.
-func migrationsPath() string {
-	if dir := os.Getenv("MIGRATIONS_DIR"); dir != "" {
-		return dir
-	}
-	return "migrations"
 }

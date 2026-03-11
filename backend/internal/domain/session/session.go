@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/popul/revisemieux/internal/domain/event"
 )
 
 var (
@@ -107,9 +108,9 @@ type Session struct {
 }
 
 // NewSession creates a session in COMPOSING status.
-func NewSession(userID uuid.UUID, sessionType SessionType, trigger SessionTrigger, now time.Time) *Session {
+func NewSession(idGen event.IDGenerator, userID uuid.UUID, sessionType SessionType, trigger SessionTrigger, now time.Time) *Session {
 	return &Session{
-		ID:          uuid.Must(uuid.NewV7()),
+		ID:          idGen.New(),
 		UserID:      userID,
 		SessionType: sessionType,
 		Status:      StatusComposing,
@@ -190,9 +191,9 @@ type Attempt struct {
 }
 
 // NewAttempt creates a new attempt.
-func NewAttempt(sessionID, questionID, userID uuid.UUID, answer []byte, score float64, now time.Time) *Attempt {
+func NewAttempt(idGen event.IDGenerator, sessionID, questionID, userID uuid.UUID, answer []byte, score float64, now time.Time) *Attempt {
 	return &Attempt{
-		ID:         uuid.Must(uuid.NewV7()),
+		ID:         idGen.New(),
 		SessionID:  sessionID,
 		QuestionID: questionID,
 		UserID:     userID,

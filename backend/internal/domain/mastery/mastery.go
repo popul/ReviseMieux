@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/popul/revisemieux/internal/domain/event"
 )
 
 var (
@@ -33,9 +34,9 @@ type Mastery struct {
 }
 
 // NewMastery creates a new Mastery in UNKNOWN state.
-func NewMastery(userID, itemID uuid.UUID, now time.Time) *Mastery {
+func NewMastery(idGen event.IDGenerator, userID, itemID uuid.UUID, now time.Time) *Mastery {
 	return &Mastery{
-		ID:        uuid.Must(uuid.NewV7()),
+		ID:        idGen.New(),
 		UserID:    userID,
 		ItemID:    itemID,
 		State:     Unknown,
