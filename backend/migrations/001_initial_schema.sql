@@ -60,6 +60,10 @@ CREATE TYPE coherence_flag AS ENUM ('contradiction', 'orphan_reference');
 
 CREATE TYPE anomaly_flag AS ENUM ('high_failure_rate');
 
+CREATE TYPE visual_block_type AS ENUM (
+    'diagram', 'graph', 'table', 'figure', 'map', 'circuit', 'photo'
+);
+
 -- ============================================================
 -- Tables
 -- ============================================================
@@ -153,6 +157,28 @@ CREATE TABLE blocks (
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- Visual Blocks (dual coding — schémas, graphiques, tableaux, cartes, circuits, photos)
+CREATE TABLE visual_blocks (
+    id              UUID PRIMARY KEY,
+    block_id        UUID NOT NULL REFERENCES blocks(id) ON DELETE CASCADE,
+    chapter_id      UUID NOT NULL REFERENCES chapters(id) ON DELETE CASCADE,
+    visual_type     visual_block_type NOT NULL,
+    image_url       TEXT NOT NULL,
+    thumbnail_url   TEXT,
+    width_px        INTEGER NOT NULL,
+    height_px       INTEGER NOT NULL,
+    labels          JSONB NOT NULL DEFAULT '[]', -- [{text, position: {x, y}}]
+    axis_labels     JSONB, -- {x_label, y_label, x_unit?, y_unit?}
+    table_structure JSONB, -- {rows, cols, headers[]?, cells[][]}
+    caption         TEXT,
+    alt_text        TEXT,
+    retention_expires_at TIMESTAMPTZ, -- RGPD J+30
+    created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_visual_blocks_chapter ON visual_blocks(chapter_id);
+CREATE INDEX idx_visual_blocks_block ON visual_blocks(block_id);
+
 -- Notions
 CREATE TABLE notions (
     id          UUID PRIMARY KEY,
@@ -222,6 +248,13 @@ CREATE TABLE item_tags (
     PRIMARY KEY (item_id, tag)
 );
 
+-- Item <-> VisualBlock (N:N)
+CREATE TABLE item_visual_blocks (
+    item_id         UUID NOT NULL REFERENCES items(id) ON DELETE CASCADE,
+    visual_block_id UUID NOT NULL REFERENCES visual_blocks(id) ON DELETE CASCADE,
+    PRIMARY KEY (item_id, visual_block_id)
+);
+
 -- Notion <-> Item (via items.notion_id, pas besoin de table jointure)
 
 -- Templates
@@ -234,6 +267,8 @@ CREATE TABLE templates (
     eligibility     JSONB NOT NULL DEFAULT '{}',
     prompt_template TEXT NOT NULL,
     grading         JSONB NOT NULL DEFAULT '{}',
+    uses_visual     BOOLEAN NOT NULL DEFAULT false,
+    visual_interaction_type TEXT, -- label_completion, describe, matching, read_value, identify_zone
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -250,7 +285,9 @@ CREATE TABLE questions (
     id                  UUID PRIMARY KEY,
     template_id         TEXT NOT NULL REFERENCES templates(id),
     item_id             UUID NOT NULL REFERENCES items(id),
+    visual_block_id     UUID REFERENCES visual_blocks(id),
     rendered_prompt     TEXT NOT NULL,
+    rendered_visual_url TEXT, -- URL du visuel transformé (légendes masquées, zones floutées)
     expected_answer     JSONB NOT NULL,
     grading_policy      TEXT NOT NULL,
     clarification       JSONB, -- {intent, starter_hint}
