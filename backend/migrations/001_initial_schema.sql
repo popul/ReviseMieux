@@ -1,6 +1,7 @@
 -- Migration: 001_initial_schema.sql
 -- Schéma initial Lot 0 — Révise Mieux
--- Choix : UUID v7, CREATE TYPE enums, tables de jointure, JSONB pour champs structurés
+-- Choix : UUIDv7 généré côté Go (google/uuid), CREATE TYPE enums, tables de jointure, JSONB pour champs structurés
+-- Note : pgcrypto conservé comme fallback, mais les IDs primaires sont générés côté application
 
 -- ============================================================
 -- Extensions
@@ -59,6 +60,12 @@ CREATE TYPE fidelity_flag AS ENUM ('low', 'medium');
 CREATE TYPE coherence_flag AS ENUM ('contradiction', 'orphan_reference');
 
 CREATE TYPE anomaly_flag AS ENUM ('high_failure_rate');
+
+CREATE TYPE attempt_source AS ENUM ('interactive', 'paper_report');
+
+CREATE TYPE visual_interaction_type AS ENUM (
+    'label_completion', 'describe', 'matching', 'read_value', 'identify_zone'
+);
 
 CREATE TYPE visual_block_type AS ENUM (
     'diagram', 'graph', 'table', 'figure', 'map', 'circuit', 'photo'
@@ -140,7 +147,8 @@ CREATE TABLE pages (
     page_order  INTEGER NOT NULL,
     ocr_status  page_status NOT NULL DEFAULT 'UPLOADING',
     created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
-    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
+    updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (revision_id, page_order)
 );
 
 -- Blocks
@@ -263,12 +271,12 @@ CREATE TABLE templates (
     name            TEXT NOT NULL,
     version         INTEGER NOT NULL DEFAULT 1,
     question_type   question_type NOT NULL,
-    difficulty      INTEGER NOT NULL DEFAULT 1,
+    difficulty      INTEGER NOT NULL DEFAULT 1 CHECK (difficulty BETWEEN 1 AND 5),
     eligibility     JSONB NOT NULL DEFAULT '{}',
     prompt_template TEXT NOT NULL,
     grading         JSONB NOT NULL DEFAULT '{}',
     uses_visual     BOOLEAN NOT NULL DEFAULT false,
-    visual_interaction_type TEXT, -- label_completion, describe, matching, read_value, identify_zone
+    visual_interaction_type visual_interaction_type,
     created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
@@ -283,8 +291,8 @@ CREATE TABLE template_variables (
 -- Questions
 CREATE TABLE questions (
     id                  UUID PRIMARY KEY,
-    template_id         TEXT NOT NULL REFERENCES templates(id),
-    item_id             UUID NOT NULL REFERENCES items(id),
+    template_id         TEXT NOT NULL REFERENCES templates(id) ON DELETE CASCADE,
+    item_id             UUID NOT NULL REFERENCES items(id) ON DELETE CASCADE,
     visual_block_id     UUID REFERENCES visual_blocks(id),
     rendered_prompt     TEXT NOT NULL,
     rendered_visual_url TEXT, -- URL du visuel transformé (légendes masquées, zones floutées)
@@ -320,7 +328,7 @@ CREATE TABLE sessions (
     user_id         UUID NOT NULL REFERENCES users(id),
     session_type    session_type NOT NULL,
     status          session_status NOT NULL DEFAULT 'COMPOSING',
-    trigger         session_trigger NOT NULL DEFAULT 'manual',
+    trigger_type    session_trigger NOT NULL DEFAULT 'manual',
     started_at      TIMESTAMPTZ,
     completed_at    TIMESTAMPTZ,
     current_question_index INTEGER NOT NULL DEFAULT 0,
@@ -347,12 +355,13 @@ CREATE TABLE session_questions (
 -- Attempts
 CREATE TABLE attempts (
     id              UUID PRIMARY KEY,
+    session_id      UUID NOT NULL REFERENCES sessions(id),
     question_id     UUID NOT NULL REFERENCES questions(id),
     user_id         UUID NOT NULL REFERENCES users(id),
     answer          JSONB NOT NULL,
     score           REAL NOT NULL,
     feedback        TEXT,
-    source          TEXT NOT NULL DEFAULT 'interactive',
+    source          attempt_source NOT NULL DEFAULT 'interactive',
     rapid_response  BOOLEAN NOT NULL DEFAULT false,
     response_time_ms INTEGER,
     hint_used       BOOLEAN NOT NULL DEFAULT false,
@@ -391,7 +400,8 @@ CREATE INDEX idx_items_revision ON items(revision_id);
 -- Sessions actives par user
 CREATE INDEX idx_sessions_user_status ON sessions(user_id, status);
 
--- Attempts par question et par user
+-- Attempts par session, question et user
+CREATE INDEX idx_attempts_session ON attempts(session_id);
 CREATE INDEX idx_attempts_question ON attempts(question_id);
 CREATE INDEX idx_attempts_user ON attempts(user_id, created_at);
 
