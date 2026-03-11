@@ -376,6 +376,65 @@ func TestZ1AC04_OKRecoveryCS1BlockedBySpacing(t *testing.T) {
 	}
 }
 
+// Z1-AC12 — Maintien SOLID sur réussite successive
+// GIVEN: Un item en état SOLID avec cs ≥ 3.
+// WHEN:  L'élève répond correctement.
+// THEN:  État reste SOLID, cs += 1, next_due_at = now + 7 jours.
+func TestZ1AC12_SolidStaysSolid(t *testing.T) {
+	m := newTestMastery(t)
+
+	// Setup: SOLID with cs=3
+	m.State = Solid
+	m.ConsecutiveSuccesses = 3
+
+	now := time.Date(2026, 3, 12, 18, 0, 0, 0, time.UTC)
+	err := m.RecordAttempt(0.9, now)
+	if err != nil {
+		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
+	}
+
+	if m.State != Solid {
+		t.Errorf("state: got %q, want %q", m.State, Solid)
+	}
+	if m.ConsecutiveSuccesses != 4 {
+		t.Errorf("consecutive_successes: got %d, want 4", m.ConsecutiveSuccesses)
+	}
+	if m.NextDueAt == nil {
+		t.Fatal("next_due_at: got nil, want non-nil")
+	}
+	wantDue := now.Add(7 * 24 * time.Hour)
+	if !m.NextDueAt.Equal(wantDue) {
+		t.Errorf("next_due_at: got %v, want %v", *m.NextDueAt, wantDue)
+	}
+}
+
+// Z1-AC09 — Indépendance des Mastery states entre items
+// GIVEN: Deux items A et B dans le même chapitre, A en SOLID, B en UNKNOWN.
+// WHEN:  L'élève échoue sur B.
+// THEN:  Le Mastery state de A n'est pas modifié.
+func TestZ1AC09_MasteryIndependence(t *testing.T) {
+	now := time.Date(2026, 3, 12, 18, 0, 0, 0, time.UTC)
+
+	// Item A: SOLID
+	mA := newTestMastery(t)
+	mA.State = Solid
+	mA.ConsecutiveSuccesses = 3
+
+	// Item B: UNKNOWN
+	mB := newTestMastery(t)
+
+	// Fail on B
+	mB.RecordAttempt(0.0, now)
+
+	// A should be untouched
+	if mA.State != Solid {
+		t.Errorf("item A state: got %q, want %q (should be independent)", mA.State, Solid)
+	}
+	if mA.ConsecutiveSuccesses != 3 {
+		t.Errorf("item A cs: got %d, want 3 (should be independent)", mA.ConsecutiveSuccesses)
+	}
+}
+
 // Z1-AC03 — Progression OK → SOLID (espacement requis)
 // GIVEN: Un item en état OK avec cs ≥ 2 et last_success_at ≥ 24h avant la tentative.
 // WHEN:  L'élève répond correctement (score ≥ 0.7, sans aide).
