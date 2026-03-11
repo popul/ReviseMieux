@@ -82,8 +82,12 @@ func (m *Mastery) RecordAttempt(score float64, now time.Time) error {
 	case Fragile:
 		if success {
 			m.State = OK
+			due := now.Add(3 * 24 * time.Hour)
+			m.NextDueAt = &due
+		} else {
+			due := now.Add(24 * time.Hour)
+			m.NextDueAt = &due
 		}
-		// fail → stay FRAGILE (cs already reset above)
 
 	case OK:
 		if success {

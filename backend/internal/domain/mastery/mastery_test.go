@@ -124,3 +124,42 @@ func TestZ1AC11_UnknownFailStaysUnknown(t *testing.T) {
 		t.Errorf("last_success_at: got %v, want nil (failure should not set it)", m.LastSuccessAt)
 	}
 }
+
+// Z1-AC02 — Progression FRAGILE → OK
+// GIVEN: Un item en état FRAGILE avec consecutive_successes ≥ 1.
+// WHEN:  L'élève répond correctement (score ≥ 0.7, sans aide).
+// THEN:  État → OK, cs = 2, next_due_at = now + 3 jours.
+func TestZ1AC02_FragileToOK(t *testing.T) {
+	m := newTestMastery(t)
+	now := time.Date(2026, 3, 11, 18, 0, 0, 0, time.UTC)
+
+	// First: UNKNOWN → FRAGILE (AC01)
+	m.RecordAttempt(1.0, now)
+	if m.State != Fragile {
+		t.Fatalf("setup: expected FRAGILE after first success, got %q", m.State)
+	}
+	if m.ConsecutiveSuccesses != 1 {
+		t.Fatalf("setup: expected cs=1, got %d", m.ConsecutiveSuccesses)
+	}
+
+	// Now: FRAGILE(cs=1) + success → OK
+	now2 := now.Add(2 * time.Hour)
+	err := m.RecordAttempt(0.8, now2)
+	if err != nil {
+		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
+	}
+
+	if m.State != OK {
+		t.Errorf("state: got %q, want %q", m.State, OK)
+	}
+	if m.ConsecutiveSuccesses != 2 {
+		t.Errorf("consecutive_successes: got %d, want 2", m.ConsecutiveSuccesses)
+	}
+	if m.NextDueAt == nil {
+		t.Fatal("next_due_at: got nil, want non-nil")
+	}
+	wantDue := now2.Add(3 * 24 * time.Hour)
+	if !m.NextDueAt.Equal(wantDue) {
+		t.Errorf("next_due_at: got %v, want %v", *m.NextDueAt, wantDue)
+	}
+}
