@@ -743,11 +743,13 @@ L'approche actuelle utilise des **LLM vision** (modèles généralistes avec cap
 | Service | Type | Pricing | Manuscrit | Français | RGPD | Output structuré |
 |---------|------|---------|-----------|----------|------|-----------------|
 | **Google Cloud Vision** | API OCR cloud | $1.50/1000 pages | Oui (modéré) | Oui | US/EU, DPA | Blocs + positions |
-| **Google Document AI** | OCR enterprise | $1.50/1000 pages (OCR), $30/1000 (forms) | Oui (avancé, 50 langues) | Oui | US/EU | Blocs + layout + formules |
-| **AWS Textract** | API OCR cloud | $1.50/1000 pages | Oui (limité) | Oui (6 langues) | US/EU, DPA | Blocs + tables + forms |
+| **Google Document AI** | OCR enterprise | $1.50/1000 pages (OCR), $30/1000 (forms) | Oui (avancé, 50 langues) | Oui | US/EU | Blocs + layout + formules + **Math OCR (LaTeX)** |
+| ~~**AWS Textract**~~ | ~~API OCR cloud~~ | ~~$1.50/1000 pages~~ | ~~Manuscrit anglais only~~ | ~~Non (manuscrit)~~ | ~~US/EU, DPA~~ | ~~Blocs + tables + forms~~ |
 | **Azure Doc Intelligence** | API OCR cloud | $1.50/1000 pages | Oui (avancé) | Oui | US/EU/Global, DPA | Blocs + styles + positions |
 | **Apple Vision** | On-device (iOS) | Gratuit | Oui (modéré) | Oui | On-device (RGPD ++) | Texte + bounding boxes |
 | **LLM Vision** (actuel) | LLM généraliste | $0.001-$0.10/page | Oui (variable) | Oui | Selon provider | JSON structuré (prompt-dépendant) |
+
+> **AWS Textract éliminé** : la reconnaissance manuscrite de Textract est **anglais uniquement**. Les 5 autres langues supportées ne couvrent que le texte imprimé. C'est disqualifiant pour notre cas d'usage (manuscrit français de collégiens).
 
 ### 12.2 Comparaison qualitative
 
@@ -760,9 +762,11 @@ L'approche actuelle utilise des **LLM vision** (modèles généralistes avec cap
 | **Détection de structure** | Blocs géométriques | Blocs sémantiques | **LLM Vision** |
 | **Classification TEXT/DIAGRAM** | Limitée (heuristiques) | Native (comprend le contenu) | **LLM Vision** |
 | **Latence** | 1-3s | 3-15s | OCR dédié |
-| **Coût par page** | ~$0.0015 | $0.001-$0.10 | Variable |
+| **Coût par page** | ~$0.0015 | $0.001-$0.02 | Variable |
 | **Stabilité output** | Très stable | Variable (température) | OCR dédié |
 | **Bounding boxes** | Oui (pixel-level) | Non | OCR dédié |
+
+> **Données benchmark 2025** : les LLM vision **surpassent** désormais les OCR dédiés sur le manuscrit. Gemini 3 Pro atteint ~100% sur des benchmarks de cursive ; les OCR traditionnels plafonnent à ~64% sur le manuscrit (source : arXiv:2510.10138). L'avantage LLM vient de la compréhension contextuelle : un LLM utilise le contexte des mots voisins pour résoudre les lettres ambiguës, ce qu'un OCR dédié ne peut pas faire.
 
 ### 12.3 Approche hybride : OCR dédié + LLM structuration
 
@@ -825,6 +829,20 @@ Cela permettra de mesurer objectivement :
 3. La viabilité de l'approche hybride (OCR dédié pour le texte + LLM pour la classification)
 
 **Implémentation** : créer un `CloudVisionOCRProvider` et un `AppleVisionOCRProvider` (mock pour les tests serveur) implémentant `benchmark.OCRProvider`.
+
+### 12.6 Recommandation architecturale
+
+Étant donné le cas d'usage (manuscrit français de collégiens, contenu mixte texte/schéma/formules) :
+
+| Option | Architecture | Lot 0 (MVP) | À l'échelle | Risque |
+|--------|-------------|-------------|-------------|--------|
+| **A — LLM Vision pur** (actuel) | Photo → LLM Vision OCR → LLM IDP | **Recommandé** : simple, meilleur manuscrit | Coût élevé ($0.35-1.50/chapitre) | Pipeline simple, un seul point de défaillance |
+| **B — Hybride OCR+LLM** | Photo → Google Document AI → LLM IDP | Complexité non justifiée | Intéressant si qualité manuscrit OCR suffisante | Pipeline double, perte compréhension contextuelle |
+| **C — On-device + cloud** | Photo → Apple Vision (preview) → Cloud LLM | UX enhancement possible | Indépendant du choix backend | iOS only, qualité insuffisante seule |
+
+**Décision Lot 0** : **Option A** (LLM Vision pur). Le benchmark OCR validera ce choix. Si aucun LLM ne passe les seuils MVP (§14.4), basculer vers l'option B.
+
+**Bonus Option C** : indépendamment du choix backend, Apple Vision peut servir de **preview en temps réel** pendant la prise de photo (overlay du texte détecté), sans coût ni transfert de données. C'est un enhancement UX à considérer pour le Lot 1.
 
 ---
 
