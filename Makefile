@@ -18,7 +18,8 @@
 # ============================================================
 
 .PHONY: help setup dev stop test test-unit test-integration lint fmt clean \
-        backend-% mobile-% infra-up infra-down infra-reset db-migrate db-reset
+        backend-% mobile-% infra-up infra-down infra-reset db-migrate db-reset \
+        bench bench-all bench-report
 
 .DEFAULT_GOAL := help
 
@@ -141,6 +142,19 @@ check: lint test ## Lint + tests (CI gate)
 build: ## Build backend + mobile
 	@$(MAKE) -C $(BACKEND_DIR) build
 	@$(MAKE) -C $(MOBILE_DIR) build
+
+# ------------------------------------------------------------
+# Benchmark LLM
+# ------------------------------------------------------------
+
+bench: ## Lance le benchmark LLM (voir make backend-bench pour les options)
+	@$(MAKE) -C $(BACKEND_DIR) bench $(if $(ALL),ALL=$(ALL)) $(if $(PROVIDER),PROVIDER=$(PROVIDER)) $(if $(CASE),CASE=$(CASE)) $(if $(RUNS),RUNS=$(RUNS)) $(if $(OUTPUT),OUTPUT=$(OUTPUT))
+
+bench-all: ## Benchmark tous les providers
+	@$(MAKE) -C $(BACKEND_DIR) bench-all
+
+bench-report: ## Génère le rapport HTML depuis les derniers résultats
+	@$(MAKE) -C $(BACKEND_DIR) bench-report $(if $(RUN),RUN=$(RUN)) $(if $(REPORT_OUTPUT),REPORT_OUTPUT=$(REPORT_OUTPUT))
 
 # ------------------------------------------------------------
 # Clean

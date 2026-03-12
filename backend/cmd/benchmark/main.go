@@ -6,6 +6,8 @@
 //	go run ./cmd/benchmark/ --provider=anthropic
 //	go run ./cmd/benchmark/ --case=01_physique_densite
 //	go run ./cmd/benchmark/ --all --runs=3 --output=csv
+//	go run ./cmd/benchmark/ --report
+//	go run ./cmd/benchmark/ --report-run=2026-03-12_14h30
 //
 // Environment variables:
 //
@@ -38,7 +40,20 @@ func main() {
 	caseID := flag.String("case", "", "Run specific test case")
 	runs := flag.Int("runs", 1, "Number of runs per case (for variance measurement)")
 	output := flag.String("output", "console", "Output format: console, json, csv")
+	report := flag.Bool("report", false, "Generate HTML report from latest results (no benchmark run)")
+	reportRun := flag.String("report-run", "", "Generate report from a specific run directory")
+	reportOutput := flag.String("report-output", "", "Output path for the HTML report")
 	flag.Parse()
+
+	// Report-only mode
+	if *report || *reportRun != "" {
+		resultsDir := filepath.Join(testdataDir(), "benchmark", "results")
+		if err := generateReport(resultsDir, *reportRun, *reportOutput); err != nil {
+			fmt.Fprintf(os.Stderr, "Error generating report: %v\n", err)
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
 
 	if !*all && *provider == "" {
 		fmt.Fprintln(os.Stderr, "Usage: benchmark --all or benchmark --provider=<name>")
@@ -120,7 +135,7 @@ func main() {
 		outputConsole(summaries)
 	}
 
-	// Save results
+	// Save results and generate HTML report
 	saveResults(summaries)
 }
 

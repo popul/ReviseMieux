@@ -3,7 +3,8 @@
 # ============================================================
 
 .PHONY: help deps build run dev test test-unit test-integration \
-        lint fmt vet db-migrate db-create-migration swagger clean
+        lint fmt vet db-migrate db-create-migration swagger clean \
+        bench bench-all bench-report
 
 .DEFAULT_GOAL := help
 
@@ -165,6 +166,41 @@ endif
 
 db-psql: ## Ouvre psql sur la DB
 	@psql "$(DATABASE_URL)"
+
+# ------------------------------------------------------------
+# Benchmark LLM
+# ------------------------------------------------------------
+
+BENCH_CMD := ./cmd/benchmark
+
+bench: ## Lance le benchmark (usage: make bench PROVIDER=anthropic ou make bench ALL=1)
+ifdef ALL
+	@echo "$(CYAN)Benchmark — tous les providers...$(RESET)"
+	@$(GO) run $(BENCH_CMD) --all $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
+else ifdef PROVIDER
+	@echo "$(CYAN)Benchmark — $(PROVIDER)...$(RESET)"
+	@$(GO) run $(BENCH_CMD) --provider=$(PROVIDER) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
+else
+	@echo "$(YELLOW)Usage :$(RESET)"
+	@echo "  make bench ALL=1                     — tous les providers"
+	@echo "  make bench PROVIDER=anthropic         — un provider"
+	@echo "  make bench PROVIDER=anthropic CASE=01_physique_densite"
+	@echo "  make bench ALL=1 RUNS=3 OUTPUT=csv"
+	@echo ""
+	@echo "$(YELLOW)Variables :$(RESET)"
+	@echo "  PROVIDER  — anthropic, openai, google, mistral, deepseek"
+	@echo "  CASE      — ID du cas de test"
+	@echo "  RUNS      — nombre de runs par cas (défaut: 1)"
+	@echo "  OUTPUT    — console, json, csv (défaut: console)"
+endif
+
+bench-all: ## Benchmark tous les providers
+	@$(MAKE) bench ALL=1
+
+bench-report: ## Génère le rapport HTML depuis les derniers résultats
+	@echo "$(CYAN)Génération du rapport HTML...$(RESET)"
+	@$(GO) run $(BENCH_CMD) --report $(if $(RUN),--report-run=$(RUN)) $(if $(REPORT_OUTPUT),--report-output=$(REPORT_OUTPUT))
+	@echo "$(GREEN)Rapport généré.$(RESET)"
 
 # ------------------------------------------------------------
 # Clean
