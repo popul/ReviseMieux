@@ -119,14 +119,14 @@ Boucle de qualité parent/admin.
 
 | # | Tâche | Statut | ACs couvertes | Priorité |
 |---|---|---|---|---|
-| 5.1 | Chapitre utilisable avec 0 validations faites | `[ ]` | Z3-AC06 | P1 |
-| 5.2 | Gabarits bloqués sur item validation_required non résolu | `[ ]` | Z3-AC01 | P2 |
-| 5.3 | Action Confirmer sur ValidationTask | `[ ]` | Z3-AC02 | P2 |
-| 5.4 | Action Corriger sur ValidationTask | `[ ]` | Z3-AC03 | P2 |
-| 5.5 | Action « Je ne sais pas » sur ValidationTask | `[ ]` | Z3-AC04 | P2 |
-| 5.6 | Action Ignorer sur ValidationTask | `[ ]` | Z3-AC05 | P2 |
-| 5.7 | Pas de ValidationTask si confidence > 0.85 | `[ ]` | Z3-AC09 | P2 |
-| 5.8 | Vérification croisée LLM (fidelity check) | `[ ]` | Z3-AC10 | P2 |
+| 5.1 | Chapitre utilisable avec 0 validations faites | `[x]` | Z3-AC06 | P1 |
+| 5.2 | Gabarits bloqués sur item validation_required non résolu | `[x]` | Z3-AC01 | P2 |
+| 5.3 | Action Confirmer sur ValidationTask | `[x]` | Z3-AC02 | P2 |
+| 5.4 | Action Corriger sur ValidationTask | `[x]` | Z3-AC03 | P2 |
+| 5.5 | Action « Je ne sais pas » sur ValidationTask | `[x]` | Z3-AC04 | P2 |
+| 5.6 | Action Ignorer sur ValidationTask | `[x]` | Z3-AC05 | P2 |
+| 5.7 | Pas de ValidationTask si confidence > 0.85 | `[x]` | Z3-AC09 | P2 |
+| 5.8 | Vérification croisée LLM (fidelity check) | `[—]` | Z3-AC10 | P2 |
 
 ---
 
@@ -187,7 +187,7 @@ Vérification exhaustive : chaque AC Lot 0 est rattachée à une tâche.
 | Z2-AC05 | 3.6 | `[x]` |
 | Z2-AC07 | 3.7 | `[x]` |
 | Z2-AC10 | 3.8 | `[x]` |
-| Z3-AC06 | 5.1 | `[ ]` |
+| Z3-AC06 | 5.1 | `[x]` |
 | Z4-AC04 | 4.5 | `[x]` |
 | Z4-AC05 | 4.3 | `[—]` |
 | Z4-AC06 | 4.4 | `[x]` |
@@ -216,13 +216,13 @@ Vérification exhaustive : chaque AC Lot 0 est rattachée à une tâche.
 | Z2-AC06 | 3.11 | `[ ]` |
 | Z2-AC08 | 3.12 | `[ ]` |
 | Z2-AC09 | 3.13 | `[ ]` |
-| Z3-AC01 | 5.2 | `[ ]` |
-| Z3-AC02 | 5.3 | `[ ]` |
-| Z3-AC03 | 5.4 | `[ ]` |
-| Z3-AC04 | 5.5 | `[ ]` |
-| Z3-AC05 | 5.6 | `[ ]` |
-| Z3-AC09 | 5.7 | `[ ]` |
-| Z3-AC10 | 5.8 | `[ ]` |
+| Z3-AC01 | 5.2 | `[x]` |
+| Z3-AC02 | 5.3 | `[x]` |
+| Z3-AC03 | 5.4 | `[x]` |
+| Z3-AC04 | 5.5 | `[x]` |
+| Z3-AC05 | 5.6 | `[x]` |
+| Z3-AC09 | 5.7 | `[x]` |
+| Z3-AC10 | 5.8 | `[—]` |
 | Z4-AC07 | 4.10 | `[ ]` |
 | Z6-AC10 | 4.11 | `[ ]` |
 | Z7-AC16 | 4.12 | `[ ]` |
