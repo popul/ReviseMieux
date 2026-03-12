@@ -1,0 +1,24 @@
+{
+  "blocks": [
+    {
+      "text": "Chapitre 5 : Le théorème de Pythagore\n\nI. Énoncé du théorème\n\nDans un triangle rectangle, le carré de l'hypoténuse est égal à la somme des carrés des deux autres côtés.\n\nSi ABC est rectangle en A, alors BC² = AB² + AC²\n\nL'hypoténuse est le côté opposé à l'angle droit. C'est toujours le plus grand côté du triangle rectangle.",
+      "block_type": "TEXT",
+      "confidence": 0.93
+    },
+    {
+      "text": "II. Calculer une longueur\n\nPour calculer l'hypoténuse :\n1) Écrire l'égalité de Pythagore\n2) Remplacer par les valeurs connues\n3) Calculer la somme des carrés\n4) Prendre la racine carrée\n\nExemple : AB = 3 cm, AC = 4 cm\nBC² = 3² + 4² = 9 + 16 = 25\nBC = √25 = 5 cm",
+      "block_type": "TEXT",
+      "confidence": 0.90
+    },
+    {
+      "text": "Pour calculer un côté de l'angle droit :\n1) Écrire l'égalité de Pythagore\n2) Isoler le carré du côté cherché\n3) Calculer la différence\n4) Prendre la racine carrée\n\nExemple : BC = 13 cm, AB = 5 cm\nBC² = AB² + AC²\n13² = 5² + AC²\nAC² = 169 - 25 = 144\nAC = √144 = 12 cm",
+      "block_type": "TEXT",
+      "confidence": 0.88
+    },
+    {
+      "text": "III. Réciproque du théorème\n\nSi dans un triangle, le carré du plus grand côté est egal à la somme des carrés des deux autres côtés, alors ce triangle est rectangle.\n\nContraposée : Si BC² ≠ AB² + AC², alors le triangle n'est pas rectangle.",
+      "block_type": "TEXT",
+      "confidence": 0.85
+    }
+  ]
+}

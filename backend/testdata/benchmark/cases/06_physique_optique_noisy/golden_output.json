@@ -1,0 +1,48 @@
+{
+  "items": [
+    {
+      "type": "KNOWLEDGE",
+      "term": "Une source primaire produit sa propre lumière. Une source secondaire diffuse la lumière qu'elle reçoit.",
+      "keywords": ["source primaire", "source secondaire", "lumière", "diffuse"],
+      "notion": "Sources de lumière"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Dans un milieu transparent et homogène, la lumière se propage en ligne droite.",
+      "keywords": ["propagation rectiligne", "ligne droite", "milieu transparent"],
+      "notion": "Propagation de la lumière"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Une lentille convergente est plus épaisse au centre qu'aux bords. Elle fait converger les rayons lumineux vers un point : le foyer F'.",
+      "keywords": ["lentille convergente", "épaisse", "foyer", "F'"],
+      "notion": "Lentilles"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "La distance focale f' est la distance entre le centre de la lentille et le foyer F'.",
+      "keywords": ["distance focale", "f'", "centre", "foyer"],
+      "notion": "Lentilles"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "L'œil se comporte comme une lentille convergente. Le cristallin joue le rôle de lentille, la rétine joue le rôle d'écran.",
+      "keywords": ["œil", "cristallin", "rétine", "lentille convergente"],
+      "notion": "L'œil"
+    },
+    {
+      "type": "PROCEDURE",
+      "term": "Correction des défauts de l'œil : myopie par lentille divergente, hypermétropie par lentille convergente.",
+      "keywords": ["myopie", "hypermétropie", "correction", "lentille divergente", "lentille convergente"],
+      "steps": ["Identifier le défaut (myopie ou hypermétropie)", "Myopie : image avant la rétine → lentille divergente", "Hypermétropie : image après la rétine → lentille convergente"],
+      "notion": "L'œil"
+    },
+    {
+      "type": "DOCUMENT",
+      "term": "Schéma d'une lentille convergente : rayons parallèles convergent vers le foyer F', avec axe optique et centre optique O.",
+      "keywords": ["schéma", "lentille convergente", "foyer", "axe optique"],
+      "notion": "Lentilles"
+    }
+  ],
+  "notions": ["Sources de lumière", "Propagation de la lumière", "Lentilles", "L'œil"]
+}

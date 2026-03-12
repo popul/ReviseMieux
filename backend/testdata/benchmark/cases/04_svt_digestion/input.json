@@ -1,0 +1,29 @@
+{
+  "blocks": [
+    {
+      "text": "Chapitre 4 : La digestion des aliments\n\nI. Le trajet des aliments\n\nLes aliments suivent le tube digestif : bouche → œsophage → estomac → intestin grêle → gros intestin → rectum.\n\nLa digestion dure environ 24 heures au total.",
+      "block_type": "TEXT",
+      "confidence": 0.93
+    },
+    {
+      "text": "II. La transformation des aliments\n\nLa digestion est la transformation des aliments en nutriments suffisamment petits pour passer dans le sang.\n\nLes transformations mécaniques : les dents broient les aliments, l'estomac les malaxe (brassage).\n\nLes transformations chimiques : les enzymes digestives découpent les grosses molécules en petites molécules (nutriments). Ex : l'amylase transforme l'amidon en glucose.",
+      "block_type": "TEXT",
+      "confidence": 0.90
+    },
+    {
+      "text": "III. L'absorption intestinale\n\nL'absorption a lieu dans l'intestin grêle. Les nutriments passent à travers la paroi de l'intestin grêle pour rejoindre le sang.\n\nLa paroi de l'intestin grêle présente des villosités qui augmentent la surface d'échange (environ 200 m²).\n\nLes nutriments non absorbés forment les excréments évacués par le rectum.",
+      "block_type": "TEXT",
+      "confidence": 0.91
+    },
+    {
+      "text": "[Schéma : appareil digestif avec légendes]\nbouche — œsophage — estomac — foie — pancréas — intestin grêle — gros intestin — rectum\nFlèches indiquant le trajet des aliments",
+      "block_type": "DIAGRAM",
+      "confidence": 0.72
+    },
+    {
+      "text": "Expérience : mettre de l'amidon + amylase dans un tube à essai à 37°C pendant 10 min.\nRésultat : le test au lugol devient négatif (l'amidon a disparu) et le test à la liqueur de Fehling devient positif (du glucose est apparu).\nConclusion : l'amylase a transformé l'amidon en glucose.",
+      "block_type": "TEXT",
+      "confidence": 0.86
+    }
+  ]
+}

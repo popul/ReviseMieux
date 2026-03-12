@@ -1,0 +1,19 @@
+{
+  "blocks": [
+    {
+      "text": "Fiche méthode : L'argumentation\n\nI. Les éléments de l'argumentation\n\nUn texte argumentatif défend une thèse (= opinion, point de vue) à l'aide d'arguments et d'exemples.\n\nLa thèse est l'idée principale que l'auteur cherche à défendre ou à réfuter.\n\nUn argument est une raison, une idée qui soutient la thèse.\n\nUn exemple est un fait concret qui illustre l'argument.",
+      "block_type": "TEXT",
+      "confidence": 0.94
+    },
+    {
+      "text": "II. Les connecteurs logiques\n\nPour exprimer la cause : car, parce que, en effet, puisque\nPour exprimer la conséquence : donc, ainsi, par conséquent, c'est pourquoi\nPour ajouter : de plus, en outre, par ailleurs\nPour opposer : mais, cependant, toutefois, en revanche, néanmoins\nPour conclure : en conclusion, finalement, en somme",
+      "block_type": "TEXT",
+      "confidence": 0.92
+    },
+    {
+      "text": "III. Rédiger un paragraphe argumenté\n\nStructure du paragraphe argumenté :\n1) Énoncer la thèse clairement\n2) Développer 2 ou 3 arguments\n3) Illustrer chaque argument par un exemple\n4) Utiliser des connecteurs logiques\n5) Conclure en reformulant la thèse\n\nAttention : distinguer argument (idée abstraite) et exemple (fait concret, référence précise).",
+      "block_type": "TEXT",
+      "confidence": 0.88
+    }
+  ]
+}

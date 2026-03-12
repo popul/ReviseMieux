@@ -1,0 +1,49 @@
+{
+  "items": [
+    {
+      "type": "KNOWLEDGE",
+      "term": "Un texte argumentatif défend une thèse à l'aide d'arguments et d'exemples.",
+      "keywords": ["argumentatif", "thèse", "arguments", "exemples"],
+      "notion": "Éléments de l'argumentation"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "La thèse est l'idée principale que l'auteur cherche à défendre ou à réfuter.",
+      "keywords": ["thèse", "idée principale", "défendre", "réfuter"],
+      "notion": "Éléments de l'argumentation"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Un argument est une raison, une idée qui soutient la thèse. Un exemple est un fait concret qui illustre l'argument.",
+      "keywords": ["argument", "raison", "exemple", "fait concret"],
+      "notion": "Éléments de l'argumentation"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Connecteurs de cause : car, parce que, en effet. Conséquence : donc, ainsi, par conséquent. Opposition : mais, cependant, toutefois.",
+      "keywords": ["connecteurs", "cause", "conséquence", "opposition"],
+      "notion": "Connecteurs logiques"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Distinguer argument (idée abstraite) et exemple (fait concret, référence précise).",
+      "keywords": ["argument", "exemple", "abstraite", "concret"],
+      "notion": "Éléments de l'argumentation"
+    },
+    {
+      "type": "WRITING",
+      "term": "Rédiger un paragraphe argumenté",
+      "keywords": ["paragraphe argumenté", "thèse", "arguments", "exemples", "connecteurs"],
+      "steps": ["Énoncer la thèse clairement", "Développer 2 ou 3 arguments", "Illustrer chaque argument par un exemple", "Utiliser des connecteurs logiques", "Conclure en reformulant la thèse"],
+      "notion": "Rédaction"
+    },
+    {
+      "type": "WRITING",
+      "term": "Rédiger un texte argumentatif structuré avec thèse, arguments et exemples",
+      "keywords": ["texte argumentatif", "structuré", "thèse", "arguments"],
+      "steps": ["Identifier la thèse à défendre", "Trouver 2-3 arguments pertinents", "Trouver un exemple concret par argument", "Relier avec des connecteurs logiques", "Rédiger introduction et conclusion"],
+      "notion": "Rédaction"
+    }
+  ],
+  "notions": ["Éléments de l'argumentation", "Connecteurs logiques", "Rédaction"]
+}

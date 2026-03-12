@@ -1,0 +1,14 @@
+{
+  "id": "06_physique_optique_noisy",
+  "subject": "Physique-Chimie",
+  "level": "4e",
+  "topic": "Optique - Lentilles et vision",
+  "difficulty": "hard",
+  "expected_item_count": 7,
+  "expected_types": {
+    "KNOWLEDGE": 5,
+    "PROCEDURE": 1,
+    "DOCUMENT": 1
+  },
+  "notes": "Simulates noisy OCR with typos, misrecognized characters, low confidence blocks, and handwriting artifacts"
+}

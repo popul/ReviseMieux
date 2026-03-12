@@ -1,0 +1,24 @@
+{
+  "blocks": [
+    {
+      "text": "Chapitre 2 : La Révolution française (1789-1799)\n\nI. Les causes de la Révolution\n\nLa société française est divisée en trois ordres : le clergé (1er ordre), la noblesse (2e ordre) et le tiers état (98% de la population).\n\nLe tiers état paie la majorité des impôts alors que le clergé et la noblesse bénéficient de privilèges fiscaux.\n\nLa crise financière de l'État et les mauvaises récoltes de 1788 aggravent le mécontentement populaire.",
+      "block_type": "TEXT",
+      "confidence": 0.91
+    },
+    {
+      "text": "II. 1789, l'année de rupture\n\nLe 5 mai 1789, le roi Louis XVI convoque les États généraux à Versailles.\n\nLe 20 juin 1789, les députés du tiers état prêtent le serment du Jeu de Paume : ils jurent de ne pas se séparer avant d'avoir donné une Constitution à la France.\n\nLe 14 juillet 1789, la prise de la Bastille marque le début de la Révolution. C'est un symbole de la lutte contre l'arbitraire royal.",
+      "block_type": "TEXT",
+      "confidence": 0.89
+    },
+    {
+      "text": "Le 4 août 1789, l'Assemblée nationale vote l'abolition des privilèges. C'est la fin de la société d'ordres.\n\nLe 26 août 1789, la Déclaration des droits de l'homme et du citoyen (DDHC) est adoptée. Elle affirme que « Les hommes naissent et demeurent libres et égaux en droits » (article 1er).",
+      "block_type": "TEXT",
+      "confidence": 0.92
+    },
+    {
+      "text": "[Frise chronologique : 1789-1799]\n5 mai 1789 — États généraux\n14 juillet 1789 — Prise de la Bastille\n26 août 1789 — DDHC\n21 sept. 1792 — Proclamation de la République\n1793-1794 — La Terreur\n9 nov. 1799 — Coup d'État de Napoléon Bonaparte",
+      "block_type": "TABLE",
+      "confidence": 0.78
+    }
+  ]
+}

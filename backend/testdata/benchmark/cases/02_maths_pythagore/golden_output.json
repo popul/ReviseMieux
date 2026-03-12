@@ -1,0 +1,50 @@
+{
+  "items": [
+    {
+      "type": "KNOWLEDGE",
+      "term": "Dans un triangle rectangle, le carré de l'hypoténuse est égal à la somme des carrés des deux autres côtés.",
+      "keywords": ["triangle rectangle", "carré", "hypoténuse", "somme"],
+      "notion": "Théorème de Pythagore"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Si ABC est rectangle en A, alors BC² = AB² + AC²",
+      "keywords": ["BC²", "AB²", "AC²", "rectangle"],
+      "notion": "Théorème de Pythagore"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "L'hypoténuse est le côté opposé à l'angle droit. C'est toujours le plus grand côté du triangle rectangle.",
+      "keywords": ["hypoténuse", "angle droit", "plus grand côté"],
+      "notion": "Théorème de Pythagore"
+    },
+    {
+      "type": "PROCEDURE",
+      "term": "Pour calculer l'hypoténuse",
+      "keywords": ["calculer", "hypoténuse", "racine carrée"],
+      "steps": ["Écrire l'égalité de Pythagore", "Remplacer par les valeurs connues", "Calculer la somme des carrés", "Prendre la racine carrée"],
+      "notion": "Calcul de longueurs"
+    },
+    {
+      "type": "PROCEDURE",
+      "term": "Pour calculer un côté de l'angle droit",
+      "keywords": ["calculer", "côté", "angle droit", "isoler"],
+      "steps": ["Écrire l'égalité de Pythagore", "Isoler le carré du côté cherché", "Calculer la différence", "Prendre la racine carrée"],
+      "notion": "Calcul de longueurs"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Si dans un triangle, le carré du plus grand côté est égal à la somme des carrés des deux autres côtés, alors ce triangle est rectangle.",
+      "keywords": ["réciproque", "triangle", "rectangle", "plus grand côté"],
+      "notion": "Réciproque"
+    },
+    {
+      "type": "PROCEDURE",
+      "term": "Contraposée : Si BC² ≠ AB² + AC², alors le triangle n'est pas rectangle.",
+      "keywords": ["contraposée", "pas rectangle", "différent"],
+      "steps": ["Calculer le carré du plus grand côté", "Calculer la somme des carrés des deux autres côtés", "Comparer les deux résultats", "Conclure si rectangle ou non"],
+      "notion": "Réciproque"
+    }
+  ],
+  "notions": ["Théorème de Pythagore", "Calcul de longueurs", "Réciproque"]
+}
