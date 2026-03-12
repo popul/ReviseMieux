@@ -86,11 +86,56 @@ Le fichier `input.json` de chaque cas de test sert de **charnière** : c'est le 
 
 ### 3.2 Indicateurs de qualité — Benchmark OCR (extraction vision)
 
+#### Métriques principales (implémentées)
+
 | # | Indicateur | Description | Méthode de mesure | Poids |
 |---|-----------|-------------|-------------------|-------|
-| O1 | **Détection de blocs** | Ratio entre le nombre de blocs détectés et le nombre attendu | `min(trouvés, attendus) / max(trouvés, attendus)` | 30% |
-| O2 | **Précision textuelle** | Fidélité du texte extrait par rapport au golden | Word overlap : fraction des mots significatifs du golden retrouvés dans la sortie | 50% |
-| O3 | **Classification des blocs** | % de blocs avec le bon `block_type` (TEXT vs DIAGRAM) | Match exact après appariement des blocs | 20% |
+| O1 | **Détection de blocs** | Ratio entre le nombre de blocs détectés et le nombre attendu | `min(trouvés, attendus) / max(trouvés, attendus)` | 25% |
+| O2 | **Précision textuelle** | Fidélité du texte extrait par rapport au golden | Word overlap : fraction des mots significatifs du golden retrouvés dans la sortie | 35% |
+| O3 | **Classification des blocs** | % de blocs avec le bon `block_type` (TEXT vs DIAGRAM) | Match exact après appariement des blocs | 15% |
+| O4 | **Calibration de la confidence** | Corrélation entre le score `confidence` et la qualité réelle | Corrélation de Pearson entre confidence et word_overlap par bloc | 10% |
+| O5 | **Préservation de l'ordre** | Les blocs sont-ils dans l'ordre de lecture du cahier | Score de Kendall tau entre l'ordre golden et l'ordre produit | 10% |
+| O6 | **Diacritiques et caractères spéciaux** | Fidélité des accents, cédilles et caractères français | Levenshtein normalisé sur les mots contenant des diacritiques | 5% |
+
+#### O4 — Calibration de la confidence (nouveau)
+
+```
+score = pearson_correlation(confidence_scores, actual_quality_scores)
+
+actual_quality = word_overlap(golden_block, produced_block)
+                 pour chaque bloc apparié
+```
+
+**Pourquoi** : un modèle qui donne systématiquement `confidence: 0.95` même quand il se trompe est **dangereux** pour le pipeline. La confidence sert à décider si un bloc nécessite une validation humaine (HITL). Si elle n'est pas calibrée, le filtrage HITL ne fonctionne pas.
+
+**Interprétation** :
+- `> 0.7` : bien calibré — la confidence est utilisable pour le tri HITL
+- `0.3 - 0.7` : modérément calibré — utiliser avec prudence
+- `< 0.3` : mal calibré — ignorer le champ confidence, appliquer un seuil uniforme
+
+#### O5 — Préservation de l'ordre (nouveau)
+
+```
+score = (kendall_tau(ordre_golden, ordre_produit) + 1) / 2
+
+# Normalisé de [-1, 1] à [0, 1]
+# kendall_tau mesure la concordance entre deux rankings
+```
+
+**Pourquoi** : l'ordre des blocs reflète la structure du cours (titre → définition → exercice). Si l'OCR mélange l'ordre, la structuration IDP en aval produira des regroupements incohérents. Un modèle qui lit de droite à gauche ou mélange les pages est inutilisable.
+
+#### O6 — Diacritiques et caractères spéciaux (nouveau)
+
+```
+score = 1 - avg(levenshtein_norm(mot_golden, mot_produit))
+         pour chaque mot contenant un diacritique (é, è, ê, ë, à, ç, ô, û, î, ï, ù, œ, æ)
+
+levenshtein_norm(a, b) = levenshtein(a, b) / max(len(a), len(b))
+```
+
+**Pourquoi** : les accents sont critiques en français. "élève" ≠ "eleve", "matière" ≠ "matiere". Un OCR qui supprime systématiquement les accents produit du texte dégradé qui peut changer le sens ("ou" vs "où", "a" vs "à", "du" vs "dû"). Les collégiens écrivent souvent les accents de manière ambiguë — le modèle doit faire le bon choix.
+
+**Mots critiques en contexte scolaire** : température, matière, résumé, schéma, théorème, hypothèse, phénomène, expérience, équation, molécule, génétique, géographie, littérature.
 
 > **Note** : Le benchmark OCR est conçu pour des cas de test ayant un dossier `images/`. Les cas de test texte-only (pas de `"has_images": true` dans metadata.json) sont ignorés par le benchmark OCR.
 
@@ -212,7 +257,7 @@ cmd/benchmark/main.go --type=ocr
     │   │   ├── Envoie les images (images/*.jpeg) au LLM vision
     │   │   ├── Mesure latence, tokens, coût
     │   │   ├── Parse la réponse JSON (blocs OCR)
-    │   │   └── Évalue vs input.json (O1-O3)
+    │   │   └── Évalue vs input.json (O1-O6)
     │   └── Agrège les résultats
     ├── Calcule les scores composites
     └── Sauvegarde dans results/ocr/
@@ -386,20 +431,24 @@ Seuls les providers avec une clé configurée sont exécutés. Les autres sont i
 | DeepSeek chat | 10 × 1 | ~$0.005 |
 | **Total IDP** | | **~$0.40** |
 
-**Benchmark OCR** (1 cas avec 3 images, ~1500 tokens/image) :
+**Benchmark OCR** (1 cas avec 3 images de cahier ~1500×2000px) :
 
-| Provider | Cas × runs | Coût estimé |
-|----------|-----------|-------------|
-| Claude Sonnet 4.6 | 1 × 1 | ~$0.05 |
-| Claude Haiku 4.5 | 1 × 1 | ~$0.01 |
-| GPT-4o | 1 × 1 | ~$0.03 |
-| Gemini 2.5 Pro | 1 × 1 | ~$0.02 |
-| Gemini 2.5 Flash | 1 × 1 | ~$0.005 |
-| **Total OCR** | | **~$0.12** |
+> Voir §11 pour le détail de la tokenisation images par provider.
 
-Un run complet des deux benchmarks coûte ~$0.52. Avec 3 répétitions : ~$1.56.
+| Provider | Cas × runs | Tokens input estimés | Coût estimé |
+|----------|-----------|---------------------|-------------|
+| Claude Sonnet 4.6 | 1 × 1 | ~29 300 | ~$0.096 |
+| Claude Haiku 4.5 | 1 × 1 | ~29 300 | ~$0.032 |
+| GPT-4o (high detail) | 1 × 1 | ~6 875 | ~$0.022 |
+| GPT-4o Mini (high detail) | 1 × 1 | ~6 875 | ~$0.001 |
+| Gemini 2.5 Pro | 1 × 1 | ~1 274 | ~$0.007 |
+| Gemini 2.5 Flash | 1 × 1 | ~1 274 | ~$0.001 |
+| Mistral Pixtral Large | 1 × 1 | ~36 500 | ~$0.076 |
+| **Total OCR** | | | **~$0.24** |
 
-> **Note** : le coût OCR augmentera significativement à mesure qu'on ajoutera des cas de test avec images. L'envoi d'images en base64 consomme beaucoup de tokens input.
+Un run complet des deux benchmarks coûte ~$0.64. Avec 3 répétitions : ~$1.92.
+
+> **Attention** : le coût OCR varie d'un facteur **100x** entre providers à cause des différences de tokenisation images (voir §11). Le coût augmentera linéairement avec le nombre de cas de test images ajoutés (voir §13 pour le plan d'expansion).
 
 ---
 
@@ -415,6 +464,11 @@ score = min(blocs_trouvés, blocs_attendus) / max(blocs_trouvés, blocs_attendus
 
 **Pourquoi** : un modèle qui fusionne 5 blocs en 2, ou qui en segmente 2 en 10, perd de l'information structurelle. Le ratio symétrique pénalise à la fois la sur-segmentation et la sous-segmentation.
 
+**Cas limites** :
+- Un modèle qui retourne 0 blocs → score = 0 (échec complet)
+- Un modèle qui retourne exactement le bon nombre → score = 1 (mais le contenu peut être faux)
+- Un modèle qui retourne 10 blocs pour 5 attendus → score = 0.5 (sur-segmentation)
+
 #### O2 — Précision textuelle
 
 ```
@@ -426,6 +480,10 @@ word_overlap(golden, produced) = mots_significatifs_retrouvés / mots_significat
 
 **Pourquoi** : c'est la métrique la plus critique du benchmark OCR. Si le texte extrait ne correspond pas au texte réel du cahier, tout le pipeline aval (structuration, questions) sera faussé. L'OCR doit lire fidèlement l'écriture manuscrite d'un collégien, y compris les fautes d'orthographe.
 
+**Algorithme d'appariement** : le matching des blocs golden/produits utilise un algorithme glouton. Pour chaque bloc golden, on trouve le bloc produit non encore utilisé qui maximise le word_overlap (seuil minimum : 0.2). Ce n'est pas optimal (un algorithme hongrois donnerait le matching parfait), mais c'est suffisant pour nos cas avec 3-10 blocs.
+
+**Mots significatifs** : les stop words français sont retirés avant le calcul (le, la, les, de, du, des, un, une, et, en, dans, pour, sur, avec, par, est, sont, qui, que, ce, se, ne, pas, plus, tout, cette, ces, son, sa, ses, leur, leurs, autre, même, aussi, très, bien, peu, trop, mais, ou, donc, car, comme, quand, si). Le texte est normalisé en minuscules.
+
 #### O3 — Classification des blocs
 
 ```
@@ -435,7 +493,49 @@ correctly_typed = le bloc apparié a le même block_type (TEXT ou DIAGRAM)
                   que son correspondant dans le golden
 ```
 
-**Pourquoi** : distinguer un schéma (DIAGRAM) d'un texte (TEXT) est essentiel pour le traitement aval. Un schéma mal classifié en texte générera des items de révision absurdes.
+**Pourquoi** : distinguer un schéma (DIAGRAM) d'un texte (TEXT) est essentiel pour le traitement aval. Un schéma mal classifié en texte générera des items de révision absurdes (essayer de structurer la "légende d'un schéma" comme un fait à mémoriser).
+
+**Catégories actuelles** : `TEXT`, `DIAGRAM`. Extension future possible : `TABLE`, `FORMULA`, `HEADER`.
+
+#### O4 — Calibration de la confidence
+
+```
+score = max(0, pearson_r(confidence[], word_overlap[]))
+
+# pearson_r négatif ou NaN → score = 0
+# Nécessite au moins 3 blocs appariés pour être significatif
+```
+
+**Pourquoi** : le champ `confidence` retourné par le modèle doit être fiable pour alimenter le filtre HITL. Un modèle "surconfiant" (confidence toujours à 0.9 même sur du texte illisible) ne permet pas de prioriser la validation humaine.
+
+**Seuils d'action** :
+- Pearson > 0.7 → la confidence est fiable, on peut l'utiliser pour le seuil HITL
+- Pearson 0.3-0.7 → ajuster le seuil HITL conservativement (0.5 au lieu de 0.7)
+- Pearson < 0.3 → ignorer la confidence, envoyer tout en HITL
+
+#### O5 — Préservation de l'ordre
+
+```
+score = (kendall_tau + 1) / 2
+
+# kendall_tau(golden_order, produced_order) ∈ [-1, 1]
+# Normalisé en [0, 1] : 1.0 = ordre parfait, 0.5 = aléatoire, 0.0 = inversé
+```
+
+**Pourquoi** : l'ordre des blocs encode la structure pédagogique du cours (titre → contenu → exercice → correction). La structuration IDP en aval s'appuie sur cette séquence pour regrouper les items en notions cohérentes.
+
+**Calcul** : on compare l'indice de chaque bloc apparié dans l'ordre golden vs l'ordre produit. Un bloc golden[0] matché avec produced[2] et golden[1] matché avec produced[0] constitue une inversion.
+
+#### O6 — Diacritiques et caractères spéciaux
+
+```
+score = 1 - avg(levenshtein_norm(mot_golden, mot_produit))
+         restreint aux mots du golden contenant ≥1 diacritique
+
+# Si aucun mot avec diacritique → score = 1.0 (pas applicable)
+```
+
+**Pourquoi** : en français scolaire, les accents sont omniprésents et porteurs de sens. Un OCR qui les perd systématiquement dégrade la qualité perçue et peut causer des erreurs de compréhension pour l'élève.
 
 ---
 
@@ -526,6 +626,11 @@ Le benchmark ne donne pas un gagnant absolu. Il alimente des **décisions contex
 | Nouveau modèle sorti | Relancer le benchmark | `go run ./cmd/benchmark/ --models=new_model` |
 | Provider augmente ses prix | Relancer le benchmark | Vérifier si un switch est rentable |
 | Résultats très variables entre runs | Modèle instable | Augmenter `--runs=5`, vérifier `temperature=0` |
+| **OCR** : Modèle A a O2 < 0.70 (texte) | OCR inutilisable seul | Tester l'approche hybride (OCR dédié + LLM) — voir §12.3 |
+| **OCR** : Modèle A a O4 < 0.30 (confidence) | Confidence non fiable | Envoyer tout en HITL, ignorer le score de confidence |
+| **OCR** : Google Vision ≈ LLM Vision en O2 | OCR dédié aussi bon | Migrer vers Google Vision (100x moins cher) — voir §11 |
+| **OCR** : Manuscrit brouillon < 0.50 en O2 | Cas dégradé | Proposer la saisie manuelle comme fallback — voir §14 |
+| **OCR** : Coût OCR > 50% du pipeline total | Budget déséquilibré | Utiliser un modèle flash pour l'OCR, premium pour l'IDP |
 
 ---
 
@@ -539,3 +644,327 @@ Le benchmark ne donne pas un gagnant absolu. Il alimente des **décisions contex
 | Changement de prix | Recalcul des scores composites (pas besoin de re-run) |
 | Trimestriel | Run complet de routine |
 | Pré-production | Run complet avant chaque release majeure |
+
+---
+
+## 10. Deep dive OCR — Défis spécifiques aux cahiers de collégiens
+
+### 10.1 Caractéristiques du contenu à traiter
+
+Les photos de cahiers de collégiens présentent des défis uniques qui les distinguent radicalement des benchmarks OCR académiques (IAM Handwriting, MNIST, etc.) :
+
+| Défi | Description | Impact sur l'OCR |
+|------|-------------|-----------------|
+| **Écriture manuscrite adolescente** | Écriture en cours de maturation, souvent rapide, parfois brouillonne. Mélange de cursive et script. | Taux d'erreur caractère (CER) typiquement 15-30% vs 2-5% sur du texte imprimé |
+| **Contenu bilingue/mixte** | Termes scientifiques (latin, grec), formules mathématiques, noms propres | Le modèle doit gérer du vocabulaire hors distribution |
+| **Multi-encre** | Stylo bleu + rouge + crayon + surligneur. Corrections au blanc/barrés | Certaines encres sont peu contrastées, le surlignage masque le texte |
+| **Mélange imprimé/manuscrit** | Polycopiés collés + annotations manuscrites de l'élève | Le modèle doit traiter les deux modes dans la même image |
+| **Schémas annotés** | Schémas biologiques, circuits électriques, cartes avec légendes manuscrites | Frontière floue entre TEXT et DIAGRAM |
+| **Qualité photo variable** | Pris au téléphone, angle variable, éclairage non contrôlé, ombres, doigts | Flou, distorsion perspective, luminosité non uniforme |
+| **Pages multiples** | Un chapitre = 2-6 pages de cahier, parfois recto-verso | Cohérence cross-page, risque de duplication |
+
+### 10.2 Matrice de difficulté par matière
+
+| Matière | Difficulté OCR | Raison principale |
+|---------|---------------|-------------------|
+| SVT | Élevée | Schémas biologiques complexes + vocabulaire latin |
+| Physique-Chimie | Élevée | Formules (ρ = m/V), unités, schémas de circuits |
+| Mathématiques | Très élevée | Formules, symboles (√, ∑, ∫, ≤), graphiques, fractions |
+| Histoire-Géographie | Moyenne | Texte principalement, quelques cartes et frises |
+| Français | Faible-Moyenne | Texte majoritaire, citations, conjugaisons tabulaires |
+
+### 10.3 Modes de dégradation observés
+
+D'après l'analyse de notre cas pilote (10_SVT_cours_louis, 3 pages), les modèles LLM vision présentent les dégradations suivantes :
+
+1. **Hallucination de mots** : le modèle "devine" un mot illisible au lieu de signaler une faible confidence
+2. **Fusion de blocs** : deux sections distinctes fusionnées en un seul bloc (perte de structure)
+3. **Omission sélective** : les petites annotations marginales (corrections, flèches) sont ignorées
+4. **Normalisation excessive** : le modèle corrige l'orthographe de l'élève au lieu de la transcrire fidèlement
+5. **Confusion schéma/texte** : une légende de schéma est extraite comme texte sans le contexte visuel
+
+> **Risque critique** : la dégradation n°4 (normalisation) est la plus insidieuse. Le prompt OCR dit explicitement "extraire FIDÈLEMENT y compris les fautes", mais certains modèles ont un biais fort vers la correction. Cela fausse ensuite le score de fidélité Q3 du benchmark IDP.
+
+---
+
+## 11. Tokenisation des images par provider
+
+### 11.1 Comment chaque provider facture les images
+
+La tokenisation des images varie **drastiquement** d'un provider à l'autre. Cela impacte directement le coût OCR, qui est dominé par les tokens d'entrée (images).
+
+| Provider | Méthode de tokenisation | Tokens estimés pour 1 photo cahier (~1500×2000px, JPEG 500KB) | Coût input estimé |
+|----------|------------------------|--------------------------------------------------------------|-------------------|
+| **Anthropic** | Tiles de 768×768px. Image redimensionnée pour tenir dans les tiles. ~1600 tokens/tile. | ~6 tiles × 1600 = **~9 600 tokens** | $0.029 (Sonnet) / $0.010 (Haiku) |
+| **OpenAI** | `detail: low` = 85 tokens fixe. `detail: high` = tiles de 512×512 + 85. | High: ~12 tiles × 170 + 85 = **~2 125 tokens** | $0.005 (4o) / $0.0003 (4o-mini) |
+| **Google** | Nativement multimodal. Images tokenisées en ~258 tokens/image (fixe). | **~258 tokens** par image | $0.0003 (Pro) / $0.00004 (Flash) |
+| **Mistral** | Pixtral : découpe variable selon résolution. ~1 token/16px. | ~**12 000 tokens** estimés | $0.024 (Large) |
+
+### 11.2 Impact sur le coût OCR (3 images de cahier)
+
+| Provider | Modèle | Tokens input (3 images + prompt) | Coût input | Tokens output (~500) | Coût output | **Total** |
+|----------|--------|----------------------------------|-----------|---------------------|------------|-----------|
+| Anthropic | Sonnet 4.6 | ~29 300 | $0.088 | 500 | $0.008 | **$0.096** |
+| Anthropic | Haiku 4.5 | ~29 300 | $0.029 | 500 | $0.003 | **$0.032** |
+| OpenAI | GPT-4o (high) | ~6 875 | $0.017 | 500 | $0.005 | **$0.022** |
+| OpenAI | GPT-4o Mini (high) | ~6 875 | $0.001 | 500 | $0.0003 | **$0.001** |
+| Google | Gemini 2.5 Pro | ~1 274 | $0.002 | 500 | $0.005 | **$0.007** |
+| Google | Gemini 2.5 Flash | ~1 274 | $0.0002 | 500 | $0.0003 | **$0.001** |
+| Mistral | Pixtral Large | ~36 500 | $0.073 | 500 | $0.003 | **$0.076** |
+
+> **Constat majeur** : le coût OCR varie d'un facteur **100x** entre Gemini Flash ($0.001) et Anthropic Sonnet ($0.096) pour les mêmes 3 images. Si la qualité est comparable, Gemini est imbattable en OCR grâce à sa tokenisation native des images.
+
+### 11.3 Projections à l'échelle
+
+Pour un utilisateur typique (4 chapitres × 4 pages × 3 images/page = 48 images) :
+
+| Provider | Modèle | Coût pipeline OCR complet |
+|----------|--------|--------------------------|
+| Anthropic | Sonnet 4.6 | ~$1.54 |
+| Anthropic | Haiku 4.5 | ~$0.51 |
+| OpenAI | GPT-4o | ~$0.35 |
+| OpenAI | GPT-4o Mini | ~$0.02 |
+| Google | Gemini 2.5 Pro | ~$0.11 |
+| Google | Gemini 2.5 Flash | ~$0.01 |
+| Mistral | Pixtral Large | ~$1.22 |
+
+> **Conclusion** : le choix du modèle OCR a un impact budgétaire majeur. Un modèle "premium" (Sonnet) pour l'OCR est 150x plus cher qu'un modèle "flash" (Gemini Flash). Le benchmark doit déterminer si cette différence de prix se justifie par une différence de qualité.
+
+---
+
+## 12. Alternatives : services OCR dédiés vs LLM vision
+
+### 12.1 Vue d'ensemble
+
+L'approche actuelle utilise des **LLM vision** (modèles généralistes avec capacités vision) pour l'OCR. Il existe des **services OCR dédiés** potentiellement plus adaptés :
+
+| Service | Type | Pricing | Manuscrit | Français | RGPD | Output structuré |
+|---------|------|---------|-----------|----------|------|-----------------|
+| **Google Cloud Vision** | API OCR cloud | $1.50/1000 pages | Oui (modéré) | Oui | US/EU, DPA | Blocs + positions |
+| **Google Document AI** | OCR enterprise | $1.50/1000 pages (OCR), $30/1000 (forms) | Oui (avancé, 50 langues) | Oui | US/EU | Blocs + layout + formules |
+| **AWS Textract** | API OCR cloud | $1.50/1000 pages | Oui (limité) | Oui (6 langues) | US/EU, DPA | Blocs + tables + forms |
+| **Azure Doc Intelligence** | API OCR cloud | $1.50/1000 pages | Oui (avancé) | Oui | US/EU/Global, DPA | Blocs + styles + positions |
+| **Apple Vision** | On-device (iOS) | Gratuit | Oui (modéré) | Oui | On-device (RGPD ++) | Texte + bounding boxes |
+| **LLM Vision** (actuel) | LLM généraliste | $0.001-$0.10/page | Oui (variable) | Oui | Selon provider | JSON structuré (prompt-dépendant) |
+
+### 12.2 Comparaison qualitative
+
+| Critère | OCR dédié (Google/Azure) | LLM Vision | Gagnant |
+|---------|-------------------------|------------|---------|
+| **Précision texte imprimé** | 98-99% | 95-98% | OCR dédié |
+| **Précision manuscrit propre** | 85-92% | 80-95% | Variable |
+| **Précision manuscrit brouillon** | 60-75% | 70-90% | **LLM Vision** |
+| **Compréhension contextuelle** | Aucune | Forte (corrige par contexte) | **LLM Vision** |
+| **Détection de structure** | Blocs géométriques | Blocs sémantiques | **LLM Vision** |
+| **Classification TEXT/DIAGRAM** | Limitée (heuristiques) | Native (comprend le contenu) | **LLM Vision** |
+| **Latence** | 1-3s | 3-15s | OCR dédié |
+| **Coût par page** | ~$0.0015 | $0.001-$0.10 | Variable |
+| **Stabilité output** | Très stable | Variable (température) | OCR dédié |
+| **Bounding boxes** | Oui (pixel-level) | Non | OCR dédié |
+
+### 12.3 Approche hybride : OCR dédié + LLM structuration
+
+```
+┌──────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│  Photo   │────►│  OCR dédié   │────►│  Post-traite-│────►│  LLM IDP     │
+│  cahier  │     │  (Cloud      │     │  ment (merge, │     │  (structura- │
+│          │     │   Vision)    │     │  clean)       │     │  tion)       │
+└──────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+                  ~$0.0015/page        code local           ~$0.01-0.05/page
+                  ~2s                  ~50ms                 ~3-10s
+```
+
+**Avantages** :
+- Coût OCR quasi nul ($0.0015 vs $0.01-0.10 par page en LLM)
+- Latence OCR réduite (2s vs 5-15s)
+- Bounding boxes disponibles (utile pour surligner l'image dans l'app)
+- Plus stable (pas de variabilité liée à la température LLM)
+
+**Inconvénients** :
+- Perte de la compréhension contextuelle (l'OCR dédié ne comprend pas que "ρ = m/V" est une formule de physique)
+- Pas de classification TEXT/DIAGRAM intelligente
+- Nécessite un post-traitement pour fusionner les blocs géométriques en blocs sémantiques
+- Une dépendance de plus (Google Vision + LLM au lieu de LLM seul)
+- Le manuscrit brouillon est souvent mieux lu par les LLM (qui devinent par contexte)
+
+### 12.4 Approche on-device : Apple Vision + LLM
+
+```
+┌──────────┐     ┌──────────────┐     ┌──────────────┐
+│  Photo   │────►│  Apple Vision│────►│  API backend  │
+│  (prise  │     │  (on-device) │     │  LLM IDP     │
+│  sur iOS)│     │  OCR gratuit │     │  (structura-  │
+│          │     │              │     │  tion)         │
+└──────────┘     └──────────────┘     └──────────────┘
+                  gratuit, ~1s          ~$0.01-0.05
+                  RGPD parfait          ~3-10s
+```
+
+**Avantages** :
+- **Gratuit** et **zéro donnée transmise** pour l'étape OCR
+- Latence inférieure à 1s
+- Conformité RGPD maximale (aucune image envoyée à un service tiers)
+- Plugins React Native/Expo existants (`@bear-block/vision-camera-ocr`, `expo-ocr`)
+
+**Inconvénients** :
+- Qualité manuscrit inférieure aux LLM vision (pas de compréhension contextuelle)
+- iOS only (Android utilise ML Kit, qualité différente)
+- Pas de contrôle sur le format de sortie (texte brut, pas de JSON structuré)
+- Pas de classification TEXT/DIAGRAM
+- Pas de champ `confidence` granulaire
+
+### 12.5 Recommandation : intégrer les OCR dédiés dans le benchmark
+
+**Décision** : ajouter au minimum **Google Cloud Vision** et **Apple Vision (on-device)** comme providers OCR dans le benchmark, à côté des LLM vision.
+
+Cela permettra de mesurer objectivement :
+1. Le delta de qualité LLM vs OCR dédié sur nos images réelles
+2. Le ratio coût/qualité pour décider si le surcoût LLM est justifié
+3. La viabilité de l'approche hybride (OCR dédié pour le texte + LLM pour la classification)
+
+**Implémentation** : créer un `CloudVisionOCRProvider` et un `AppleVisionOCRProvider` (mock pour les tests serveur) implémentant `benchmark.OCRProvider`.
+
+---
+
+## 13. Stratégie d'expansion du dataset OCR
+
+### 13.1 État actuel : 1 cas de test avec images
+
+Le benchmark OCR ne dispose actuellement que d'**un seul cas de test avec images** (10_SVT_cours_louis, 3 photos de cahier). C'est insuffisant pour tirer des conclusions fiables.
+
+### 13.2 Plan de couverture cible
+
+| Phase | Cas | Matières couvertes | Type de contenu | Objectif |
+|-------|-----|-------------------|-----------------|----------|
+| **Phase 1** (actuel) | 1 cas, 3 images | SVT | Manuscrit + polycopié + schéma | Preuve de concept |
+| **Phase 2** (court terme) | 5 cas, ~15 images | SVT, Physique, Maths | Variété de contenus | Première comparaison fiable |
+| **Phase 3** (moyen terme) | 10 cas, ~30 images | Toutes matières | Variété complète | Benchmark représentatif |
+
+### 13.3 Axes de diversité à couvrir
+
+Chaque axe doit être représenté par au moins 2 cas de test :
+
+| Axe | Valeurs à couvrir | Priorité |
+|-----|-------------------|----------|
+| **Qualité écriture** | Soigné, Normal, Brouillon | Haute |
+| **Type d'encre** | Bleu, Noir, Rouge, Crayon, Mixte | Moyenne |
+| **Qualité photo** | Bonne (bien éclairé, droit), Moyenne (léger angle), Mauvaise (sombre, flou) | Haute |
+| **Contenu** | Texte seul, Texte + schéma, Formules, Tableaux, Cartes | Haute |
+| **Support** | Cahier manuscrit pur, Polycopié collé + annotations, Imprimé annoté | Moyenne |
+| **Matière** | SVT, Physique-Chimie, Maths, Histoire-Géo, Français | Haute |
+
+### 13.4 Protocole de création d'un cas OCR
+
+1. **Photographier** : 2-4 pages d'un cahier réel avec un smartphone (conditions réalistes)
+2. **Annoter manuellement** : créer le `input.json` (golden OCR output) en transcrivant fidèlement chaque bloc
+3. **Classifier** : attribuer `block_type` et `confidence` de référence à chaque bloc
+4. **Valider** : faire relire par une deuxième personne (cross-validation humaine)
+5. **Métadonnées** : renseigner `metadata.json` avec les caractéristiques (qualité écriture, type d'encre, etc.)
+
+### 13.5 Format metadata.json étendu pour les cas OCR
+
+```json
+{
+  "id": "11_physique_circuit",
+  "subject": "Physique-Chimie",
+  "level": "4e",
+  "topic": "Circuit électrique en série et en dérivation",
+  "difficulty": "high",
+  "has_images": true,
+  "expected_item_count": 10,
+  "ocr_metadata": {
+    "handwriting_quality": "normal",
+    "ink_types": ["blue_pen", "red_pen"],
+    "photo_quality": "good",
+    "content_types": ["text", "diagram", "formula"],
+    "support": "notebook_with_printout",
+    "pages": 3,
+    "notes": "Mix of handwritten notes and pasted circuit diagrams with handwritten labels"
+  }
+}
+```
+
+### 13.6 Variance et reproductibilité
+
+Contrairement au benchmark IDP (entrée texte déterministe), le benchmark OCR peut présenter de la **variance** même avec `temperature=0` car :
+- Les images sont riches en informations ambiguës
+- L'encodage base64 peut varier selon l'implémentation
+- Le padding/resize avant tokenisation peut différer
+
+**Mitigation** : exécuter chaque cas OCR avec `--runs=3` minimum et reporter l'écart-type en plus de la moyenne.
+
+---
+
+## 14. Stratégie de dégradation et plan B
+
+### 14.1 Scénarios de dégradation
+
+| Scénario | Seuil d'alerte | Action |
+|----------|---------------|--------|
+| **Aucun modèle > 0.7 en O2 (texte)** | Précision textuelle trop basse pour être exploitable | Passer à l'approche hybride (OCR dédié + LLM) |
+| **Manuscrit brouillon < 0.5 en O2** | Écriture trop difficile pour l'OCR automatique | Proposer à l'utilisateur de retaper le texte (fallback manuel) |
+| **Confidence mal calibrée (O4 < 0.3)** | Le filtre HITL ne fonctionne pas | Envoyer tout en HITL, ignorer le score de confidence |
+| **Coût OCR > 50% du coût total pipeline** | Budget déséquilibré | Migrer vers un modèle flash ou OCR dédié pour l'étape OCR |
+| **Formules mathématiques illisibles** | Maths = cas le plus difficile | Utiliser un OCR spécialisé maths (Google Document AI Math OCR, LaTeX) |
+| **Schémas non détectés** | Perte de contenu DOCUMENT | Ajouter une passe de détection d'objets avant l'OCR |
+
+### 14.2 Architecture de fallback progressive
+
+```
+Niveau 1 : LLM Vision (actuel)
+    ↓ si O2 < 0.7
+Niveau 2 : LLM Vision + prompt amélioré (few-shot avec exemples de cahier)
+    ↓ si O2 < 0.7
+Niveau 3 : Approche hybride (Google Cloud Vision + LLM post-traitement)
+    ↓ si O2 < 0.6
+Niveau 4 : OCR dédié + validation humaine systématique
+    ↓ si échec total
+Niveau 5 : Saisie manuelle (l'élève/parent retape le texte)
+```
+
+### 14.3 Optimisations du prompt OCR
+
+Si les résultats du benchmark montrent des faiblesses, voici les leviers d'optimisation du prompt :
+
+| Levier | Description | Quand l'utiliser |
+|--------|-------------|-----------------|
+| **Few-shot examples** | Ajouter 1-2 exemples de transcription (image → JSON) dans le prompt | Si le modèle ne comprend pas le format attendu |
+| **Subject-specific hints** | "Cette page contient des formules de physique, note-les en notation mathématique" | Si les formules sont mal transcrites |
+| **Multi-pass** | Premier pass = extraction brute, second pass = nettoyage/validation | Si le taux d'erreur est élevé mais le modèle comprend le contexte |
+| **Zoom regions** | Envoyer des crops zoomés sur les zones difficiles | Si les petites annotations sont manquées |
+| **Image preprocessing** | Binarisation, correction de perspective, augmentation de contraste | Si la qualité photo est systématiquement mauvaise |
+
+### 14.4 Seuils de qualité minimaux pour la production
+
+| Métrique | Seuil minimum (MVP) | Seuil cible (production) |
+|----------|---------------------|-------------------------|
+| O1 — Détection | ≥ 0.70 | ≥ 0.85 |
+| O2 — Précision texte | ≥ 0.75 | ≥ 0.90 |
+| O3 — Classification | ≥ 0.80 | ≥ 0.90 |
+| O4 — Confidence | ≥ 0.30 | ≥ 0.60 |
+| O5 — Ordre | ≥ 0.70 | ≥ 0.85 |
+| O6 — Diacritiques | ≥ 0.80 | ≥ 0.90 |
+| **QualityScore composite** | **≥ 0.70** | **≥ 0.85** |
+
+Si un modèle ne passe pas les seuils MVP, il est **éliminé** du benchmark pour la production.
+
+### 14.5 Métriques de bout en bout (OCR → IDP)
+
+Le vrai test est le **pipeline complet** : est-ce que des blocs OCR de qualité X produisent des items IDP de qualité Y ?
+
+```
+Pipeline_score = f(OCR_quality, IDP_quality)
+
+# Mesure proposée : exécuter le pipeline complet (images → OCR → IDP) sur les cas ayant des images
+# et comparer le golden_output.json IDP final vs ce que le pipeline complet produit.
+# Cela capture l'effet de propagation d'erreurs OCR vers l'IDP.
+```
+
+| OCR quality | IDP quality attendue | Commentaire |
+|-------------|---------------------|-------------|
+| O2 ≥ 0.90 | Q1 ~ Q1_baseline | Pas de dégradation visible |
+| O2 0.75-0.90 | Q1 réduit de 5-15% | Quelques items manqués à cause de texte mal lu |
+| O2 0.60-0.75 | Q1 réduit de 20-40% | Dégradation significative, HITL nécessaire |
+| O2 < 0.60 | Pipeline inutilisable | Fallback nécessaire |
+
+Ce test de bout en bout sera implémenté comme un troisième mode du benchmark : `--type=pipeline`.
