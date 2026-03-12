@@ -2,13 +2,13 @@
   "id": "10_SVT_cours_louis",
   "subject": "SVT",
   "level": "5e",
-  "topic": "Prélèvement de matière minérale, production de matière organique et utilisation de la matière par les végétaux",
-  "difficulty": "hard",
-  "expected_item_count": 18,
+  "topic": "Prélèvement de matière minérale par les végétaux : absorption racinaire et échanges gazeux",
+  "difficulty": "medium",
+  "expected_item_count": 7,
   "expected_types": {
-    "KNOWLEDGE": 12,
-    "PROCEDURE": 3,
-    "DOCUMENT": 3
+    "KNOWLEDGE": 4,
+    "PROCEDURE": 2,
+    "DOCUMENT": 1
   },
-  "notes": "Real handwritten notebook scans (22 pages). Mix of handwritten notes (blue/red ink), printed activity sheets, diagrams, and experiment tables. Covers plant nutrition: absorption, photosynthesis, sap transport, and cellular respiration."
+  "notes": "Real handwritten notebook scans (3 pages). Mix of handwritten notes (blue/red ink) and printed activity sheets. Covers plant nutrition: root absorption (root hairs) and leaf gas exchange (stomata, CO2)."
 }
