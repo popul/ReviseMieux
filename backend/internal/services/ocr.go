@@ -4,7 +4,6 @@ package services
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"image"
@@ -95,6 +94,7 @@ type ResultatOCRCours struct {
 	TitreSuggere     string               `json:"titre_suggere,omitempty"`
 	MatiereSuggeree  string               `json:"matiere_suggeree,omitempty"`
 	BlocsTexte       []BlocTexteParPage   `json:"blocs_texte,omitempty"`
+	ImagesCorrigees  map[int][]byte       `json:"-"` // page index → bytes pivotés (non sérialisé)
 }
 
 // ServiceOCR gère l'extraction de texte des images et PDF
@@ -167,6 +167,7 @@ func (s *ServiceOCR) TraiterFichiers(ctx context.Context, fichiers []*multipart.
 	var toutesZonesIncertaines []llm.ZoneIncertaine
 	var tousBlocsTexte []BlocTexteParPage
 	var confianceTotale float64
+	var titreSuggere, matiereSuggeree string
 	offsetTexte := 0
 
 	options := llm.OptionsOCRDefaut()
@@ -179,6 +180,12 @@ func (s *ServiceOCR) TraiterFichiers(ctx context.Context, fichiers []*multipart.
 
 		textesExtraits = append(textesExtraits, resultat.Texte)
 		confianceTotale += resultat.Confiance
+
+		// Utiliser les métadonnées de la première page
+		if i == 0 {
+			titreSuggere = resultat.TitreSuggere
+			matiereSuggeree = s.validerMatiere(resultat.MatiereSuggeree)
+		}
 
 		// Ajuster les indices des zones incertaines avec l'offset
 		for _, zone := range resultat.ZonesIncertaines {
@@ -207,9 +214,6 @@ func (s *ServiceOCR) TraiterFichiers(ctx context.Context, fichiers []*multipart.
 	// Combiner les textes avec des séparateurs
 	texteCombine := strings.Join(textesExtraits, "\n\n")
 	confianceMoyenne := confianceTotale / float64(len(images))
-
-	// Extraire le titre et la matière suggérés
-	titreSuggere, matiereSuggeree := s.extraireMetadonnees(ctx, texteCombine)
 
 	return &ResultatOCRCours{
 		Texte:            texteCombine,
@@ -254,6 +258,7 @@ func (s *ServiceOCR) TraiterFichiersAvecProgression(ctx context.Context, fichier
 	var toutesZonesIncertaines []llm.ZoneIncertaine
 	var tousBlocsTexte []BlocTexteParPage
 	var confianceTotale float64
+	var titreSuggere, matiereSuggeree string
 	offsetTexte := 0
 
 	options := llm.OptionsOCRDefaut()
@@ -266,6 +271,12 @@ func (s *ServiceOCR) TraiterFichiersAvecProgression(ctx context.Context, fichier
 
 		textesExtraits = append(textesExtraits, resultat.Texte)
 		confianceTotale += resultat.Confiance
+
+		// Utiliser les métadonnées de la première page
+		if i == 0 {
+			titreSuggere = resultat.TitreSuggere
+			matiereSuggeree = s.validerMatiere(resultat.MatiereSuggeree)
+		}
 
 		for _, zone := range resultat.ZonesIncertaines {
 			zoneAjustee := llm.ZoneIncertaine{
@@ -296,8 +307,6 @@ func (s *ServiceOCR) TraiterFichiersAvecProgression(ctx context.Context, fichier
 
 	texteCombine := strings.Join(textesExtraits, "\n\n")
 	confianceMoyenne := confianceTotale / float64(total)
-
-	titreSuggere, matiereSuggeree := s.extraireMetadonnees(ctx, texteCombine)
 
 	return &ResultatOCRCours{
 		Texte:            texteCombine,
@@ -601,12 +610,6 @@ func EstErreurOCR(err error) bool {
 	return errors.As(err, &errOCR)
 }
 
-// MetadonneesCours représente les métadonnées extraites du texte
-type MetadonneesCours struct {
-	Titre   string `json:"titre"`
-	Matiere string `json:"matiere"`
-}
-
 // Liste des matières valides
 var matiereValides = []string{
 	"mathematiques", "francais", "histoire", "geographie", "sciences",
@@ -614,80 +617,242 @@ var matiereValides = []string{
 	"espagnol", "allemand", "italien", "economie", "informatique",
 }
 
-// extraireMetadonnees extrait le titre et la matière suggérés du texte OCR
-func (s *ServiceOCR) extraireMetadonnees(ctx context.Context, texte string) (titre, matiere string) {
-	if s.gestionnaireLLM == nil || texte == "" {
-		return "", ""
-	}
-
-	// Limiter le texte pour le prompt (les 2000 premiers caractères suffisent)
-	texteAnalyse := texte
-	if len(texteAnalyse) > 2000 {
-		texteAnalyse = texteAnalyse[:2000]
-	}
-
-	prompt := fmt.Sprintf(`Analyse ce texte extrait d'un cours scolaire et déduis:
-1. Un titre court et descriptif pour ce cours (max 50 caractères)
-2. La matière scolaire parmi: %s
-
-Texte du cours:
----
-%s
----
-
-Réponds uniquement au format JSON:
-{"titre": "...", "matiere": "..."}
-
-Si tu ne peux pas déterminer le titre, utilise les premiers mots significatifs.
-Si tu ne peux pas déterminer la matière, utilise une chaîne vide.`,
-		strings.Join(matiereValides, ", "), texteAnalyse)
-
-	options := llm.OptionsGeneration{
-		Temperature:   0.3, // Basse température pour des réponses cohérentes
-		MaxTokens:     100,
-		FormatReponse: "json",
-	}
-
-	// Utiliser GenererJSON serait idéal mais GenererTexte fonctionne aussi
-	reponse, err := s.gestionnaireLLM.GenererTexte(ctx, prompt, options)
-	if err != nil {
-		// En cas d'erreur, retourner des valeurs vides (pas critique)
-		return "", ""
-	}
-
-	// Parser la réponse JSON
-	var metadonnees MetadonneesCours
-	// Nettoyer la réponse (enlever les éventuels backticks markdown)
-	reponse = strings.TrimSpace(reponse)
-	reponse = strings.TrimPrefix(reponse, "```json")
-	reponse = strings.TrimPrefix(reponse, "```")
-	reponse = strings.TrimSuffix(reponse, "```")
-	reponse = strings.TrimSpace(reponse)
-
-	if err := parseJSON([]byte(reponse), &metadonnees); err != nil {
-		return "", ""
-	}
-
-	// Valider la matière
-	matiereNormalisee := strings.ToLower(strings.TrimSpace(metadonnees.Matiere))
-	matiereValide := ""
+// validerMatiere normalise et valide une matière suggérée par l'OCR
+func (s *ServiceOCR) validerMatiere(matiere string) string {
+	matiereNormalisee := strings.ToLower(strings.TrimSpace(matiere))
 	for _, m := range matiereValides {
 		if m == matiereNormalisee {
-			matiereValide = m
-			break
+			return m
+		}
+	}
+	return ""
+}
+
+// ExtraireImagesMultipart extrait les bytes d'images depuis des FileHeaders multipart
+func (s *ServiceOCR) ExtraireImagesMultipart(fichiers []*multipart.FileHeader) ([][]byte, error) {
+	var images [][]byte
+	for _, fh := range fichiers {
+		imgs, err := s.extraireImages(fh)
+		if err != nil {
+			return nil, err
+		}
+		images = append(images, imgs...)
+	}
+
+	if len(images) > s.nombreMaxPages {
+		return nil, s.erreurTropDePages()
+	}
+	if len(images) == 0 {
+		return nil, ErrFichierVide
+	}
+
+	return images, nil
+}
+
+// CallbackPageTraitee est appelé après chaque page OCR traitée avec le résultat partiel accumulé.
+// pageIdx est l'index réel de la page traitée, imageCorrigee contient les bytes de l'image
+// pivotée si une rotation a été appliquée (nil sinon).
+type CallbackPageTraitee func(pagesTerminees int, resultatPartiel *ResultatOCRCours, pageIdx int, imageCorrigee []byte)
+
+// maxOCRConcurrent est le nombre max de pages OCR traitées en parallèle.
+// Limité pour ne pas surcharger l'API LLM (rate limits).
+const maxOCRConcurrent = 3
+
+// resultatPageOCR contient le résultat de l'OCR d'une page individuelle
+type resultatPageOCR struct {
+	resultat      *llm.ResultatOCR
+	imageCorrigee []byte // bytes de l'image pivotée si rotation appliquée, nil sinon
+	err           error
+}
+
+// TraiterImagesProgressif traite des bytes d'images en parallèle (max 3 simultanées)
+// et appelle onPageTraitee à chaque page terminée avec le résultat cumulé.
+func (s *ServiceOCR) TraiterImagesProgressif(ctx context.Context, images [][]byte, onPageTraitee CallbackPageTraitee) (*ResultatOCRCours, error) {
+	if s.gestionnaireLLM == nil {
+		return nil, ErrLLMNonDisponible
+	}
+	if len(images) == 0 {
+		return nil, ErrFichierVide
+	}
+
+	n := len(images)
+	options := llm.OptionsOCRDefaut()
+
+	// Résultat par page : chaque goroutine écrit dans son index, pas de race
+	resultats := make([]resultatPageOCR, n)
+
+	// Canal pour notifier la goroutine principale qu'une page est terminée (envoie l'index)
+	done := make(chan int, n)
+
+	// Sémaphore pour limiter la concurrence
+	sem := make(chan struct{}, maxOCRConcurrent)
+
+	// Contexte annulable : si une page échoue, on annule les autres
+	ctxCancel, cancel := context.WithCancel(ctx)
+	defer cancel()
+
+	// Lancer toutes les pages en parallèle
+	for i, img := range images {
+		go func(idx int, imgData []byte) {
+			sem <- struct{}{}        // acquérir un slot
+			defer func() { <-sem }() // libérer le slot
+
+			// Vérifier si le contexte a été annulé
+			if ctxCancel.Err() != nil {
+				resultats[idx] = resultatPageOCR{err: ctxCancel.Err()}
+				done <- idx
+				return
+			}
+
+			// Étape 1 : Détecter l'orientation avec le LLM (avant OCR)
+			var imageCorrigee []byte
+			imgPourOCR := imgData
+			rotation, errOr := s.gestionnaireLLM.DetecterOrientation(ctxCancel, imgData)
+			if errOr != nil {
+				log.Printf("⚠️ Détection orientation échouée page %d: %v", idx+1, errOr)
+			} else {
+				log.Printf("Détection orientation page %d: %d° (LLM)", idx+1, rotation)
+			}
+			if rotation != 0 {
+				pivoted, errPivot := PivoterImage(imgData, rotation)
+				if errPivot != nil {
+					log.Printf("⚠️ Impossible de pivoter l'image page %d: %v", idx+1, errPivot)
+				} else {
+					imageCorrigee = pivoted
+					imgPourOCR = pivoted
+					log.Printf("Image page %d pivotée de %d° (LLM)", idx+1, rotation)
+				}
+			}
+
+			// Étape 2 : OCR hybride (LLM + Tesseract) sur l'image correctement orientée
+			res, err := s.traiterImageHybride(ctxCancel, imgPourOCR, options)
+			if err != nil {
+				resultats[idx] = resultatPageOCR{err: err}
+				done <- idx
+				return
+			}
+
+			resultats[idx] = resultatPageOCR{resultat: res, imageCorrigee: imageCorrigee, err: nil}
+			done <- idx
+		}(i, img)
+	}
+
+	// Recevoir les notifications et assembler le résultat progressivement
+	pagesTerminees := 0
+	var premiereErreur error
+
+	for pagesTerminees < n {
+		idx := <-done
+		pagesTerminees++
+
+		// Si erreur sur cette page, annuler les autres et continuer à drainer
+		if resultats[idx].err != nil && premiereErreur == nil {
+			premiereErreur = fmt.Errorf("erreur OCR page %d: %w", idx+1, resultats[idx].err)
+			cancel()
+		}
+
+		// Appeler le callback avec le résultat cumulé (pages terminées dans l'ordre)
+		if onPageTraitee != nil && premiereErreur == nil {
+			partiel := s.assemblerResultatsPartiels(resultats, n, pagesTerminees)
+			onPageTraitee(pagesTerminees, partiel, idx, resultats[idx].imageCorrigee)
 		}
 	}
 
-	return strings.TrimSpace(metadonnees.Titre), matiereValide
+	if premiereErreur != nil {
+		return nil, premiereErreur
+	}
+
+	// Assembler le résultat final complet (toutes les pages dans l'ordre)
+	resultatFinal := s.assemblerResultatsPartiels(resultats, n, n)
+
+	// Collecter les images corrigées
+	resultatFinal.ImagesCorrigees = make(map[int][]byte)
+	for i := 0; i < n; i++ {
+		if resultats[i].imageCorrigee != nil {
+			resultatFinal.ImagesCorrigees[i] = resultats[i].imageCorrigee
+		}
+	}
+
+	return resultatFinal, nil
 }
 
-// parseJSON est une fonction helper pour parser du JSON
-func parseJSON(data []byte, v interface{}) error {
-	return json.Unmarshal(data, v)
+// assemblerResultatsPartiels construit un ResultatOCRCours à partir des pages terminées,
+// en respectant l'ordre des pages (seules les pages contiguës depuis le début sont incluses dans le texte).
+func (s *ServiceOCR) assemblerResultatsPartiels(resultats []resultatPageOCR, total int, pagesTerminees int) *ResultatOCRCours {
+	var textesExtraits []string
+	var toutesZonesIncertaines []llm.ZoneIncertaine
+	var tousBlocsTexte []BlocTexteParPage
+	var confianceTotale float64
+	var titreSuggere, matiereSuggeree string
+	offsetTexte := 0
+	nbPagesAssemblees := 0
+
+	for i := 0; i < total; i++ {
+		if resultats[i].resultat == nil {
+			break // Arrêter à la première page pas encore terminée (contiguïté)
+		}
+
+		resultat := resultats[i].resultat
+		textesExtraits = append(textesExtraits, resultat.Texte)
+		confianceTotale += resultat.Confiance
+		nbPagesAssemblees++
+
+		if i == 0 {
+			titreSuggere = resultat.TitreSuggere
+			matiereSuggeree = s.validerMatiere(resultat.MatiereSuggeree)
+		}
+
+		for _, zone := range resultat.ZonesIncertaines {
+			toutesZonesIncertaines = append(toutesZonesIncertaines, llm.ZoneIncertaine{
+				Debut:  zone.Debut + offsetTexte,
+				Fin:    zone.Fin + offsetTexte,
+				Texte:  zone.Texte,
+				Raison: zone.Raison,
+			})
+		}
+
+		if len(resultat.BlocsTexte) > 0 {
+			tousBlocsTexte = append(tousBlocsTexte, BlocTexteParPage{
+				Page:       i,
+				BlocsTexte: resultat.BlocsTexte,
+			})
+		}
+
+		offsetTexte += len(resultat.Texte) + 2
+	}
+
+	// Ajouter les blocs des pages non contiguës (terminées mais après un trou)
+	// pour que l'overlay fonctionne même si les pages arrivent dans le désordre
+	for i := nbPagesAssemblees; i < total; i++ {
+		if resultats[i].resultat != nil && len(resultats[i].resultat.BlocsTexte) > 0 {
+			tousBlocsTexte = append(tousBlocsTexte, BlocTexteParPage{
+				Page:       i,
+				BlocsTexte: resultats[i].resultat.BlocsTexte,
+			})
+		}
+	}
+
+	texteCombine := strings.Join(textesExtraits, "\n\n")
+	confianceMoyenne := float64(0)
+	if nbPagesAssemblees > 0 {
+		confianceMoyenne = confianceTotale / float64(nbPagesAssemblees)
+	}
+
+	return &ResultatOCRCours{
+		Texte:            texteCombine,
+		Confiance:        confianceMoyenne,
+		ZonesIncertaines: toutesZonesIncertaines,
+		NombrePages:      pagesTerminees,
+		TitreSuggere:     titreSuggere,
+		MatiereSuggeree:  matiereSuggeree,
+		BlocsTexte:       tousBlocsTexte,
+	}
 }
 
-// RetraiterOCRImages re-traite des images brutes pour re-générer les blocs de texte OCR
-func (s *ServiceOCR) RetraiterOCRImages(ctx context.Context, images [][]byte) (*ResultatOCRCours, error) {
+// RetraiterOCRImages re-traite des images brutes pour re-générer les blocs de texte OCR.
+// Si detecterOrientation est true, le LLM détecte l'orientation avant l'OCR.
+// Si false, l'image est traitée telle quelle (utile après rotation manuelle).
+func (s *ServiceOCR) RetraiterOCRImages(ctx context.Context, images [][]byte, detecterOrientation bool) (*ResultatOCRCours, error) {
 	if s.gestionnaireLLM == nil {
 		return nil, ErrLLMNonDisponible
 	}
@@ -703,17 +868,47 @@ func (s *ServiceOCR) RetraiterOCRImages(ctx context.Context, images [][]byte) (*
 	var toutesZonesIncertaines []llm.ZoneIncertaine
 	var tousBlocsTexte []BlocTexteParPage
 	var confianceTotale float64
+	var titreSuggere, matiereSuggeree string
 	offsetTexte := 0
 
 	options := llm.OptionsOCRDefaut()
 
+	imagesCorrigees := make(map[int][]byte)
+
 	for i, img := range images {
-		resultat, err := s.traiterImageHybride(ctx, img, options)
+		imgPourOCR := img
+
+		// Détecter l'orientation avec le LLM avant OCR (sauf si désactivé)
+		if detecterOrientation {
+			rotation, errOr := s.gestionnaireLLM.DetecterOrientation(ctx, img)
+			if errOr != nil {
+				log.Printf("⚠️ Détection orientation échouée page %d: %v", i+1, errOr)
+			} else {
+				log.Printf("Détection orientation page %d: %d° (LLM)", i+1, rotation)
+			}
+			if rotation != 0 {
+				pivoted, errPivot := PivoterImage(img, rotation)
+				if errPivot == nil {
+					imagesCorrigees[i] = pivoted
+					imgPourOCR = pivoted
+					log.Printf("Image page %d pivotée de %d° (LLM)", i+1, rotation)
+				}
+			}
+		}
+
+		resultat, err := s.traiterImageHybride(ctx, imgPourOCR, options)
 		if err != nil {
 			return nil, fmt.Errorf("erreur OCR page %d: %w", i, err)
 		}
+
 		textesExtraits = append(textesExtraits, resultat.Texte)
 		confianceTotale += resultat.Confiance
+
+		if i == 0 {
+			titreSuggere = resultat.TitreSuggere
+			matiereSuggeree = s.validerMatiere(resultat.MatiereSuggeree)
+		}
+
 		for _, zone := range resultat.ZonesIncertaines {
 			zoneAjustee := llm.ZoneIncertaine{
 				Debut:  zone.Debut + offsetTexte,
@@ -734,7 +929,6 @@ func (s *ServiceOCR) RetraiterOCRImages(ctx context.Context, images [][]byte) (*
 
 	texteCombine := strings.Join(textesExtraits, "\n\n")
 	confianceMoyenne := confianceTotale / float64(len(images))
-	titreSuggere, matiereSuggeree := s.extraireMetadonnees(ctx, texteCombine)
 
 	return &ResultatOCRCours{
 		Texte:            texteCombine,
@@ -744,5 +938,60 @@ func (s *ServiceOCR) RetraiterOCRImages(ctx context.Context, images [][]byte) (*
 		TitreSuggere:     titreSuggere,
 		MatiereSuggeree:  matiereSuggeree,
 		BlocsTexte:       tousBlocsTexte,
+		ImagesCorrigees:  imagesCorrigees,
 	}, nil
 }
+
+// PivoterImage pivote une image JPEG/PNG de 90, 180 ou 270 degrés dans le sens horaire.
+func PivoterImage(data []byte, degrees int) ([]byte, error) {
+	if degrees == 0 {
+		return data, nil
+	}
+
+	reader := bytes.NewReader(data)
+	src, _, err := image.Decode(reader)
+	if err != nil {
+		return data, fmt.Errorf("impossible de décoder l'image: %w", err)
+	}
+
+	bounds := src.Bounds()
+	srcW := bounds.Dx()
+	srcH := bounds.Dy()
+
+	var dst *image.RGBA
+
+	switch degrees {
+	case 90:
+		dst = image.NewRGBA(image.Rect(0, 0, srcH, srcW))
+		for x := 0; x < srcW; x++ {
+			for y := 0; y < srcH; y++ {
+				dst.Set(srcH-1-y, x, src.At(bounds.Min.X+x, bounds.Min.Y+y))
+			}
+		}
+	case 180:
+		dst = image.NewRGBA(image.Rect(0, 0, srcW, srcH))
+		for x := 0; x < srcW; x++ {
+			for y := 0; y < srcH; y++ {
+				dst.Set(srcW-1-x, srcH-1-y, src.At(bounds.Min.X+x, bounds.Min.Y+y))
+			}
+		}
+	case 270:
+		dst = image.NewRGBA(image.Rect(0, 0, srcH, srcW))
+		for x := 0; x < srcW; x++ {
+			for y := 0; y < srcH; y++ {
+				dst.Set(y, srcW-1-x, src.At(bounds.Min.X+x, bounds.Min.Y+y))
+			}
+		}
+	default:
+		return data, nil
+	}
+
+	var buf bytes.Buffer
+	if err := jpeg.Encode(&buf, dst, &jpeg.Options{Quality: qualiteJPEG}); err != nil {
+		return data, fmt.Errorf("impossible d'encoder l'image pivotée: %w", err)
+	}
+
+	log.Printf("Image pivotée de %d° (%dx%d → %dx%d)", degrees, srcW, srcH, dst.Bounds().Dx(), dst.Bounds().Dy())
+	return buf.Bytes(), nil
+}
+

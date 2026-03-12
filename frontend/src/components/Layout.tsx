@@ -293,7 +293,7 @@ export default function Layout() {
       </aside>
 
       {/* Main Content */}
-      <main id="main-content" className="flex-1 p-4 md:p-12 pt-16 md:pt-12" role="main" tabIndex={-1}>
+      <main id="main-content" className="flex-1 min-w-0 p-4 md:p-12 pt-16 md:pt-12" role="main" tabIndex={-1}>
         <Outlet />
       </main>
     </div>

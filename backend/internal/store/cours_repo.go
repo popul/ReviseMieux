@@ -24,6 +24,10 @@ type Cours struct {
 	Images             []string          `json:"images"`
 	BlocsTexte         json.RawMessage   `json:"blocsTexte,omitempty"`
 	Resume             json.RawMessage   `json:"resume,omitempty"`
+	StatutOCR          string            `json:"statutOCR"`
+	PagesTraitees      int               `json:"pagesTraitees"`
+	NombrePages        int               `json:"nombrePages"`
+	ErreurOCR          string            `json:"erreurOCR,omitempty"`
 	DateCreation       time.Time         `json:"dateCreation"`
 	DateModification   time.Time         `json:"dateModification"`
 }
@@ -44,6 +48,10 @@ type CoursRepository interface {
 	MettreAJour(ctx context.Context, cours *Cours) error
 	Supprimer(ctx context.Context, id string) error
 	Compter(ctx context.Context) (int, error)
+	MettreAJourProgressionOCR(ctx context.Context, id string, pagesTraitees int, texteOCR string, confiance float64, zonesIncertaines []byte, blocsTexte []byte, titre string, matiere string) error
+	TerminerOCR(ctx context.Context, id string, texteOCR string, confiance float64, zonesIncertaines []byte, blocsTexte []byte, titre string, matiere string) error
+	EchouerOCR(ctx context.Context, id string, erreur string) error
+	RecupererOCRBloques(ctx context.Context) (int, error)
 }
 
 // CoursRepo implémente CoursRepository avec PostgreSQL
@@ -95,9 +103,15 @@ func (r *CoursRepo) Creer(ctx context.Context, cours *Cours) error {
 		resumeParam = cours.Resume
 	}
 
+	// Valeurs par défaut pour le statut OCR
+	statutOCR := cours.StatutOCR
+	if statutOCR == "" {
+		statutOCR = "termine"
+	}
+
 	query := `
-		INSERT INTO cours (id, titre, matiere, texte_ocr, texte_corrige, confiance, zones_incertaines, fichiers_originaux, images, blocs_texte, date_creation, date_modification, resume)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+		INSERT INTO cours (id, titre, matiere, texte_ocr, texte_corrige, confiance, zones_incertaines, fichiers_originaux, images, blocs_texte, date_creation, date_modification, resume, statut_ocr, pages_traitees, nombre_pages, erreur_ocr)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
 	`
 
 	_, err = r.db.ExecContext(ctx, query,
@@ -114,6 +128,10 @@ func (r *CoursRepo) Creer(ctx context.Context, cours *Cours) error {
 		cours.DateCreation,
 		cours.DateModification,
 		resumeParam,
+		statutOCR,
+		cours.PagesTraitees,
+		cours.NombrePages,
+		nullString(cours.ErreurOCR),
 	)
 	if err != nil {
 		return fmt.Errorf("erreur création cours: %w", err)
@@ -125,13 +143,13 @@ func (r *CoursRepo) Creer(ctx context.Context, cours *Cours) error {
 // ObtenirParID récupère un cours par son identifiant
 func (r *CoursRepo) ObtenirParID(ctx context.Context, id string) (*Cours, error) {
 	query := `
-		SELECT id, titre, matiere, texte_ocr, texte_corrige, confiance, zones_incertaines, fichiers_originaux, COALESCE(images, '[]'::jsonb), COALESCE(blocs_texte, '[]'::jsonb), date_creation, date_modification, COALESCE(resume, 'null'::jsonb)
+		SELECT id, titre, matiere, texte_ocr, texte_corrige, confiance, zones_incertaines, fichiers_originaux, COALESCE(images, '[]'::jsonb), COALESCE(blocs_texte, '[]'::jsonb), date_creation, date_modification, COALESCE(resume, 'null'::jsonb), statut_ocr, pages_traitees, nombre_pages, erreur_ocr
 		FROM cours
 		WHERE id = $1
 	`
 
 	cours := &Cours{}
-	var matiere, texteCorrige sql.NullString
+	var matiere, texteCorrige, erreurOCR sql.NullString
 	var zonesJSON, fichiersJSON, imagesJSON, blocsTexteJSON, resumeJSON []byte
 
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
@@ -148,6 +166,10 @@ func (r *CoursRepo) ObtenirParID(ctx context.Context, id string) (*Cours, error)
 		&cours.DateCreation,
 		&cours.DateModification,
 		&resumeJSON,
+		&cours.StatutOCR,
+		&cours.PagesTraitees,
+		&cours.NombrePages,
+		&erreurOCR,
 	)
 	if err == sql.ErrNoRows {
 		return nil, fmt.Errorf("cours non trouvé: %s", id)
@@ -158,6 +180,7 @@ func (r *CoursRepo) ObtenirParID(ctx context.Context, id string) (*Cours, error)
 
 	cours.Matiere = matiere.String
 	cours.TexteCorrige = texteCorrige.String
+	cours.ErreurOCR = erreurOCR.String
 
 	if err := json.Unmarshal(zonesJSON, &cours.ZonesIncertaines); err != nil {
 		return nil, fmt.Errorf("erreur désérialisation zones incertaines: %w", err)
@@ -187,7 +210,7 @@ func (r *CoursRepo) ObtenirParID(ctx context.Context, id string) (*Cours, error)
 // Lister récupère une liste de cours avec pagination
 func (r *CoursRepo) Lister(ctx context.Context, limite, offset int) ([]*Cours, error) {
 	query := `
-		SELECT id, titre, matiere, texte_ocr, texte_corrige, confiance, zones_incertaines, fichiers_originaux, COALESCE(images, '[]'::jsonb), COALESCE(blocs_texte, '[]'::jsonb), date_creation, date_modification, COALESCE(resume, 'null'::jsonb)
+		SELECT id, titre, matiere, texte_ocr, texte_corrige, confiance, zones_incertaines, fichiers_originaux, COALESCE(images, '[]'::jsonb), COALESCE(blocs_texte, '[]'::jsonb), date_creation, date_modification, COALESCE(resume, 'null'::jsonb), statut_ocr, pages_traitees, nombre_pages, erreur_ocr
 		FROM cours
 		ORDER BY date_creation DESC
 		LIMIT $1 OFFSET $2
@@ -202,7 +225,7 @@ func (r *CoursRepo) Lister(ctx context.Context, limite, offset int) ([]*Cours, e
 	var coursList []*Cours
 	for rows.Next() {
 		cours := &Cours{}
-		var matiere, texteCorrige sql.NullString
+		var matiere, texteCorrige, erreurOCR sql.NullString
 		var zonesJSON, fichiersJSON, imagesJSON, blocsTexteJSON, resumeJSON []byte
 
 		err := rows.Scan(
@@ -219,6 +242,10 @@ func (r *CoursRepo) Lister(ctx context.Context, limite, offset int) ([]*Cours, e
 			&cours.DateCreation,
 			&cours.DateModification,
 			&resumeJSON,
+			&cours.StatutOCR,
+			&cours.PagesTraitees,
+			&cours.NombrePages,
+			&erreurOCR,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("erreur scan cours: %w", err)
@@ -226,6 +253,7 @@ func (r *CoursRepo) Lister(ctx context.Context, limite, offset int) ([]*Cours, e
 
 		cours.Matiere = matiere.String
 		cours.TexteCorrige = texteCorrige.String
+		cours.ErreurOCR = erreurOCR.String
 
 		if err := json.Unmarshal(zonesJSON, &cours.ZonesIncertaines); err != nil {
 			return nil, fmt.Errorf("erreur désérialisation zones incertaines: %w", err)
@@ -289,9 +317,14 @@ func (r *CoursRepo) MettreAJour(ctx context.Context, cours *Cours) error {
 		resumeParam = cours.Resume
 	}
 
+	statutOCR := cours.StatutOCR
+	if statutOCR == "" {
+		statutOCR = "termine"
+	}
+
 	query := `
 		UPDATE cours
-		SET titre = $2, matiere = $3, texte_ocr = $4, texte_corrige = $5, confiance = $6, zones_incertaines = $7, fichiers_originaux = $8, images = $9, blocs_texte = $10, resume = $11, date_modification = $12
+		SET titre = $2, matiere = $3, texte_ocr = $4, texte_corrige = $5, confiance = $6, zones_incertaines = $7, fichiers_originaux = $8, images = $9, blocs_texte = $10, resume = $11, date_modification = $12, statut_ocr = $13, pages_traitees = $14, nombre_pages = $15, erreur_ocr = $16
 		WHERE id = $1
 	`
 
@@ -308,6 +341,10 @@ func (r *CoursRepo) MettreAJour(ctx context.Context, cours *Cours) error {
 		blocsTexteJSON,
 		resumeParam,
 		cours.DateModification,
+		statutOCR,
+		cours.PagesTraitees,
+		cours.NombrePages,
+		nullString(cours.ErreurOCR),
 	)
 	if err != nil {
 		return fmt.Errorf("erreur mise à jour cours: %w", err)
@@ -357,6 +394,64 @@ func (r *CoursRepo) Compter(ctx context.Context) (int, error) {
 	}
 
 	return count, nil
+}
+
+// MettreAJourProgressionOCR met à jour la progression OCR (page par page)
+func (r *CoursRepo) MettreAJourProgressionOCR(ctx context.Context, id string, pagesTraitees int, texteOCR string, confiance float64, zonesIncertaines []byte, blocsTexte []byte, titre string, matiere string) error {
+	query := `
+		UPDATE cours
+		SET pages_traitees = $2, texte_ocr = $3, confiance = $4, zones_incertaines = $5, blocs_texte = $6, titre = $7, matiere = $8, date_modification = $9
+		WHERE id = $1
+	`
+	_, err := r.db.ExecContext(ctx, query, id, pagesTraitees, texteOCR, confiance, zonesIncertaines, blocsTexte, titre, nullString(matiere), time.Now())
+	if err != nil {
+		return fmt.Errorf("erreur mise à jour progression OCR: %w", err)
+	}
+	return nil
+}
+
+// TerminerOCR marque l'OCR comme terminé et met à jour les données finales
+func (r *CoursRepo) TerminerOCR(ctx context.Context, id string, texteOCR string, confiance float64, zonesIncertaines []byte, blocsTexte []byte, titre string, matiere string) error {
+	query := `
+		UPDATE cours
+		SET statut_ocr = 'termine', texte_ocr = $2, confiance = $3, zones_incertaines = $4, blocs_texte = $5, titre = $6, matiere = $7, pages_traitees = nombre_pages, date_modification = $8
+		WHERE id = $1
+	`
+	_, err := r.db.ExecContext(ctx, query, id, texteOCR, confiance, zonesIncertaines, blocsTexte, titre, nullString(matiere), time.Now())
+	if err != nil {
+		return fmt.Errorf("erreur finalisation OCR: %w", err)
+	}
+	return nil
+}
+
+// EchouerOCR marque l'OCR comme échoué avec un message d'erreur
+func (r *CoursRepo) EchouerOCR(ctx context.Context, id string, erreur string) error {
+	query := `
+		UPDATE cours
+		SET statut_ocr = 'erreur', erreur_ocr = $2, date_modification = $3
+		WHERE id = $1
+	`
+	_, err := r.db.ExecContext(ctx, query, id, erreur, time.Now())
+	if err != nil {
+		return fmt.Errorf("erreur marquage échec OCR: %w", err)
+	}
+	return nil
+}
+
+// RecupererOCRBloques remet les cours bloqués en statut 'termine' au redémarrage du serveur.
+// Les goroutines OCR en cours ont été tuées, on conserve les données partielles.
+func (r *CoursRepo) RecupererOCRBloques(ctx context.Context) (int, error) {
+	query := `
+		UPDATE cours
+		SET statut_ocr = 'termine', pages_traitees = nombre_pages, date_modification = $1
+		WHERE statut_ocr = 'en_cours'
+	`
+	result, err := r.db.ExecContext(ctx, query, time.Now())
+	if err != nil {
+		return 0, fmt.Errorf("erreur récupération OCR bloqués: %w", err)
+	}
+	n, _ := result.RowsAffected()
+	return int(n), nil
 }
 
 // nullString convertit une chaîne en sql.NullString

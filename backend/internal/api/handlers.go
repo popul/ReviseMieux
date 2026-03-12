@@ -2,6 +2,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -332,6 +333,7 @@ func (h *Handlers) MettreAJourCoursHandler(c *gin.Context) {
 		TexteOCR         string                 `json:"texteOCR"`
 		ZonesIncertaines []store.ZoneIncertaine `json:"zonesIncertaines"`
 		Images           []string               `json:"images"`
+		BlocsTexte       json.RawMessage        `json:"blocsTexte"`
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -360,6 +362,9 @@ func (h *Handlers) MettreAJourCoursHandler(c *gin.Context) {
 	}
 	if req.Images != nil {
 		cours.Images = req.Images
+	}
+	if len(req.BlocsTexte) > 0 && string(req.BlocsTexte) != "null" {
+		cours.BlocsTexte = req.BlocsTexte
 	}
 
 	// Sauvegarder les modifications
@@ -449,7 +454,7 @@ func parseInt(s string) (int, error) {
 // OCRHandler traite une image/PDF pour l'OCR
 func (h *Handlers) OCRHandler(c *gin.Context) {
 	if h.handlersOCR != nil {
-		h.handlersOCR.TraiterOCRStreamHandler(c)
+		h.handlersOCR.UploadOCRHandler(c)
 		return
 	}
 	c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -609,6 +614,21 @@ func (h *Handlers) GenererResumeHandler(c *gin.Context) {
 		"erreur": gin.H{
 			"code":    "SERVICE_NON_DISPONIBLE",
 			"message": "Le service de génération n'est pas configuré",
+		},
+	})
+}
+
+// PivoterImageHandler pivote une image et relance l'OCR
+func (h *Handlers) PivoterImageHandler(c *gin.Context) {
+	if h.handlersOCR != nil {
+		h.handlersOCR.PivoterImageHandler(c)
+		return
+	}
+	c.JSON(http.StatusServiceUnavailable, gin.H{
+		"succes": false,
+		"erreur": gin.H{
+			"code":    "SERVICE_NON_DISPONIBLE",
+			"message": "Le service OCR n'est pas configuré",
 		},
 	})
 }

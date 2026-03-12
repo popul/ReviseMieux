@@ -7,9 +7,13 @@ import (
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
+	"sync"
 
 	"github.com/otiai10/gosseract/v2"
 )
+
+// tesseractMu sérialise les appels gosseract (CGo) car la librairie C Tesseract n'est pas thread-safe.
+var tesseractMu sync.Mutex
 
 // BlocTesseract représente un bloc de texte détecté par Tesseract avec sa position en pixels
 type BlocTesseract struct {
@@ -23,6 +27,9 @@ type BlocTesseract struct {
 // ExtraireBlocsTesseract extrait les blocs de texte d'une image avec Tesseract.
 // Retourne les blocs, la largeur et hauteur de l'image en pixels.
 func ExtraireBlocsTesseract(imageBytes []byte, lang string) ([]BlocTesseract, int, int, error) {
+	tesseractMu.Lock()
+	defer tesseractMu.Unlock()
+
 	client := gosseract.NewClient()
 	defer client.Close()
 
@@ -73,6 +80,9 @@ func ExtraireBlocsTesseract(imageBytes []byte, lang string) ([]BlocTesseract, in
 
 // TesseractDisponible vérifie si Tesseract est installé et fonctionnel
 func TesseractDisponible() bool {
+	tesseractMu.Lock()
+	defer tesseractMu.Unlock()
+
 	client := gosseract.NewClient()
 	defer client.Close()
 	// Si on peut créer un client sans erreur, Tesseract est disponible

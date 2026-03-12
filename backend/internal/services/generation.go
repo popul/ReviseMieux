@@ -75,6 +75,52 @@ func NouveauServiceGeneration(
 	}
 }
 
+// obtenirTexteGeneration retourne le résumé formaté si disponible, sinon le texte complet.
+// Le résumé est ~80% plus court et suffit pour générer fiches, quiz et mindmap.
+func (s *ServiceGeneration) obtenirTexteGeneration(cours *store.Cours) string {
+	if cours.Resume != nil && len(cours.Resume) > 0 && string(cours.Resume) != "null" {
+		var resume ResultatResume
+		if err := json.Unmarshal(cours.Resume, &resume); err == nil {
+			return formaterResumePourGeneration(resume)
+		}
+	}
+	texte := cours.TexteCorrige
+	if texte == "" {
+		texte = cours.TexteOCR
+	}
+	return texte
+}
+
+// formaterResumePourGeneration formate le résumé de manière dense pour servir d'entrée LLM
+func formaterResumePourGeneration(resume ResultatResume) string {
+	var sb strings.Builder
+
+	if len(resume.PointsCles) > 0 {
+		sb.WriteString("Points clés :\n")
+		for _, p := range resume.PointsCles {
+			sb.WriteString("- ")
+			sb.WriteString(p)
+			sb.WriteString("\n")
+		}
+		sb.WriteString("\n")
+	}
+
+	for _, section := range resume.Structure {
+		sb.WriteString("## ")
+		sb.WriteString(section.Titre)
+		sb.WriteString("\n")
+		sb.WriteString(section.Contenu)
+		sb.WriteString("\n\n")
+	}
+
+	if resume.Paragraphe != "" {
+		sb.WriteString("Synthèse : ")
+		sb.WriteString(resume.Paragraphe)
+	}
+
+	return sb.String()
+}
+
 // GenererFiches génère des fiches de révision pour un cours
 func (s *ServiceGeneration) GenererFiches(ctx context.Context, coursID string, options *OptionsGenerationFiches) (*ResultatGenerationFiches, error) {
 	if s.gestionnaireLLM == nil {
@@ -87,11 +133,8 @@ func (s *ServiceGeneration) GenererFiches(ctx context.Context, coursID string, o
 		return nil, fmt.Errorf("%w: %s", ErrCoursNonTrouve, err.Error())
 	}
 
-	// Vérifier que le cours a du texte
-	texte := cours.TexteCorrige
-	if texte == "" {
-		texte = cours.TexteOCR
-	}
+	// Utiliser le résumé si disponible, sinon le texte complet
+	texte := s.obtenirTexteGeneration(cours)
 	if texte == "" {
 		return nil, ErrCoursVideOCR
 	}
@@ -168,34 +211,16 @@ func (s *ServiceGeneration) construirePromptFiches(texte string, options *Option
       "concepts": ["Nom du concept"]`
 	}
 
-	return fmt.Sprintf(`Tu es un professeur expert en création de supports de révision pour lycéens.
-
-À partir du cours suivant, génère des fiches de révision efficaces.
-
-Cours :
-"""
+	return fmt.Sprintf(`Cours :
+"""%s"""
 %s
-"""
-%s
-Instructions :
-%s%s- Crée des fiches question/réponse basées UNIQUEMENT sur le contenu fourni
-- Les questions doivent favoriser le rappel actif (pas de simples définitions)
-- Varie les types : faits, concepts, relations de cause à effet
-- Les réponses doivent être concises mais complètes
-- IMPORTANT : Quand c'est pertinent (formules, concepts, règles), inclus un ou plusieurs exemples concrets dans la réponse pour illustrer le concept
-- Format des exemples : ajoute "Exemple : ..." à la fin de la réponse quand applicable
-- Attribue une difficulté à chaque fiche
+Consignes :
+%s%s- Questions favorisant le rappel actif (faits, concepts, cause/effet)
+- Réponses concises avec exemples concrets quand pertinent (formules, règles)
+- Basé UNIQUEMENT sur le contenu fourni
 
-Réponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou après :
-{
-  "fiches": [
-    {
-      "question": "...",
-      "reponse": "...",
-      "difficulte": "facile|moyen|difficile"%s
-    }
-  ]
-}`, texte, conceptsSection, nombreFiches, difficulte, conceptsField)
+JSON attendu :
+{"fiches": [{"question": "...", "reponse": "...", "difficulte": "facile|moyen|difficile"%s}]}`, texte, conceptsSection, nombreFiches, difficulte, conceptsField)
 }
 
 // reponseFichesJSON représente la structure de réponse du LLM
@@ -296,11 +321,8 @@ func (s *ServiceGeneration) GenererQuiz(ctx context.Context, coursID string, opt
 		return nil, fmt.Errorf("%w: %s", ErrCoursNonTrouve, err.Error())
 	}
 
-	// Vérifier que le cours a du texte
-	texte := cours.TexteCorrige
-	if texte == "" {
-		texte = cours.TexteOCR
-	}
+	// Utiliser le résumé si disponible, sinon le texte complet
+	texte := s.obtenirTexteGeneration(cours)
 	if texte == "" {
 		return nil, ErrCoursVideOCR
 	}
@@ -376,35 +398,16 @@ func (s *ServiceGeneration) construirePromptQuiz(texte string, options *OptionsG
 		difficulte = options.Difficulte
 	}
 
-	return fmt.Sprintf(`Tu es un professeur créant un QCM pour tester la compréhension d'un cours.
+	return fmt.Sprintf(`Cours :
+"""%s"""
 
-Cours :
-"""
-%s
-"""
+%d questions, difficulté : %s
+- 4 choix par question, 1 correct, mauvaises réponses plausibles
+- Explication pédagogique pour chaque question
+- Basé UNIQUEMENT sur le contenu fourni
 
-Paramètres :
-- Nombre de questions : %d
-- Difficulté : %s
-
-Instructions :
-1. Crée des questions de compréhension (pas de piège)
-2. 4 choix par question, 1 seul correct
-3. Les mauvaises réponses doivent être plausibles mais clairement fausses
-4. Ajoute une explication pédagogique pour chaque question
-5. Base-toi UNIQUEMENT sur le contenu du cours fourni
-
-Réponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou après :
-{
-  "questions": [
-    {
-      "enonce": "...",
-      "choix": ["A", "B", "C", "D"],
-      "reponse_correcte": 0,
-      "explication": "..."
-    }
-  ]
-}`, texte, options.NombreQuestions, difficulte)
+JSON attendu :
+{"questions": [{"enonce": "...", "choix": ["A","B","C","D"], "reponse_correcte": 0, "explication": "..."}]}`, texte, options.NombreQuestions, difficulte)
 }
 
 // reponseQuizJSON représente la structure de réponse du LLM pour les quiz
@@ -665,11 +668,8 @@ func (s *ServiceGeneration) GenererMindmap(ctx context.Context, coursID string) 
 		return nil, fmt.Errorf("%w: %s", ErrCoursNonTrouve, err.Error())
 	}
 
-	// Vérifier que le cours a du texte
-	texte := cours.TexteCorrige
-	if texte == "" {
-		texte = cours.TexteOCR
-	}
+	// Utiliser le résumé si disponible, sinon le texte complet
+	texte := s.obtenirTexteGeneration(cours)
 	if texte == "" {
 		return nil, ErrCoursVideOCR
 	}
@@ -737,56 +737,16 @@ func (s *ServiceGeneration) construirePromptMindmap(texte, titre string, concept
 		conceptsSection += "\nPour chaque noeud de type \"branche\" ou \"feuille\", associe un \"concept_id\" correspondant si le noeud correspond à un des concepts ci-dessus. Utilise l'ID exact du concept. Si aucun concept ne correspond, laisse concept_id vide.\n"
 	}
 
-	return fmt.Sprintf(`Tu es un professeur créant une carte mentale (mindmap) pour aider un lycéen à visualiser et mémoriser un cours.
-
-%sCours :
-"""
+	return fmt.Sprintf(`%sCours :
+"""%s"""
 %s
-"""
-%s
-Instructions :
-1. Identifie le thème central du cours (nœud central)
-2. Identifie les 3-6 grandes branches (sous-thèmes principaux)
-3. Pour chaque branche, identifie 2-4 feuilles (concepts, détails importants)
-4. Limite le total à 20-30 nœuds maximum
-5. Utilise des labels courts et clairs (max 4-5 mots par nœud)
-6. Base-toi UNIQUEMENT sur le contenu du cours fourni
+Consignes :
+- 1 nœud central, 3-6 branches, 2-4 feuilles par branche (20-30 nœuds max)
+- Labels courts (max 4-5 mots), basé UNIQUEMENT sur le contenu fourni
+- Types : "central" (position 400,300), "branche", "feuille"
 
-Format de sortie :
-- Le nœud central a le type "central" et sera placé au centre (position 400, 300)
-- Les branches ont le type "branche" et sont disposées en cercle autour du centre
-- Les feuilles ont le type "feuille" et sont positionnées autour de leur branche parente
-
-Réponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou après :
-{
-  "noeuds": [
-    {
-      "id": "central",
-      "label": "Thème principal",
-      "type": "central",
-      "position": {"x": 400, "y": 300},
-      "concept_id": ""
-    },
-    {
-      "id": "branche1",
-      "label": "Sous-thème 1",
-      "type": "branche",
-      "position": {"x": 200, "y": 150},
-      "concept_id": ""
-    },
-    {
-      "id": "feuille1-1",
-      "label": "Concept 1",
-      "type": "feuille",
-      "position": {"x": 50, "y": 100},
-      "concept_id": ""
-    }
-  ],
-  "liens": [
-    {"source": "central", "target": "branche1"},
-    {"source": "branche1", "target": "feuille1-1"}
-  ]
-}`, titreInfo, texte, conceptsSection)
+JSON attendu :
+{"noeuds": [{"id": "central", "label": "Thème", "type": "central", "position": {"x": 400, "y": 300}, "concept_id": ""}], "liens": [{"source": "central", "target": "branche1"}]}`, titreInfo, texte, conceptsSection)
 }
 
 // reponseMindmapJSON représente la structure de réponse du LLM pour les mindmaps
@@ -906,8 +866,9 @@ func (s *ServiceGeneration) GenererResume(ctx context.Context, coursID string) (
 	// Construire le prompt
 	prompt := s.construirePromptResume(texte)
 
-	// Appeler le LLM
+	// Appeler le LLM (gpt-4o-mini suffit pour résumer)
 	llmOptions := llm.OptionsGeneration{
+		Modele:        "gpt-4o-mini",
 		Temperature:   0.7,
 		MaxTokens:     4000,
 		FormatReponse: "json",
@@ -940,31 +901,17 @@ func (s *ServiceGeneration) GenererResume(ctx context.Context, coursID string) (
 
 // construirePromptResume construit le prompt pour la génération de résumé
 func (s *ServiceGeneration) construirePromptResume(texte string) string {
-	return fmt.Sprintf(`Tu es un professeur expert en synthèse de cours pour lycéens et collégiens.
+	return fmt.Sprintf(`Cours :
+"""%s"""
 
-À partir du cours suivant, génère un résumé complet et structuré.
+Génère un résumé structuré :
+- 5-10 points clés
+- Sections avec titre et contenu détaillé
+- Paragraphe de synthèse (3-5 phrases)
+- Langage clair, basé UNIQUEMENT sur le contenu fourni
 
-Cours :
-"""
-%s
-"""
-
-Instructions :
-- Identifie les points clés du cours (5 à 10 points maximum)
-- Structure le résumé en sections avec titre et contenu
-- Rédige un paragraphe de synthèse global (3 à 5 phrases)
-- Base-toi UNIQUEMENT sur le contenu fourni
-- Utilise un langage clair et accessible pour un élève
-
-Réponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou après :
-{
-  "pointsCles": ["Point clé 1", "Point clé 2", "..."],
-  "structure": [
-    {"titre": "Section 1", "contenu": "Contenu détaillé de la section..."},
-    {"titre": "Section 2", "contenu": "Contenu détaillé de la section..."}
-  ],
-  "paragraphe": "Paragraphe de synthèse global du cours..."
-}`, texte)
+JSON attendu :
+{"pointsCles": ["..."], "structure": [{"titre": "...", "contenu": "..."}], "paragraphe": "..."}`, texte)
 }
 
 // ObtenirResume récupère le résumé existant d'un cours

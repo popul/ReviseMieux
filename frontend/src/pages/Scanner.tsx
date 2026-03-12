@@ -5,7 +5,7 @@ import ZoneUpload from '../components/ZoneUpload'
 import PreviewFichiers from '../components/PreviewFichiers'
 import OptionsGeneration, { type OptionsGenerationType } from '../components/OptionsGeneration'
 import ProcessingSection from '../components/ProcessingSection'
-import { envoyerOCRStream, obtenirConfig } from '../services/api'
+import { uploaderCours, obtenirConfig } from '../services/api'
 
 const ETAPES = [
   { numero: 1, libelle: 'Import' },
@@ -34,9 +34,7 @@ export default function Scanner() {
   const [etapeActive, setEtapeActive] = useState(1)
   const [etat, setEtat] = useState<EtatPage>('upload')
   const [erreur, setErreur] = useState<EtatErreur | null>(null)
-  const [progression, setProgression] = useState<{ page: number; total: number } | null>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const abortControllerRef = useRef<AbortController | null>(null)
   const [maxFichiers, setMaxFichiers] = useState(30)
 
   useEffect(() => {
@@ -66,13 +64,11 @@ export default function Scanner() {
   }, [])
 
   const reinitialiser = useCallback(() => {
-    abortControllerRef.current?.abort()
     setFichiers([])
     setOptions(OPTIONS_DEFAUT)
     setEtapeActive(1)
     setEtat('upload')
     setErreur(null)
-    setProgression(null)
   }, [])
 
   const auMoinsUneOption =
@@ -85,22 +81,12 @@ export default function Scanner() {
 
     setEtat('processing')
     setErreur(null)
-    setProgression(null)
-
-    const abortController = new AbortController()
-    abortControllerRef.current = abortController
 
     try {
-      const resultat = await envoyerOCRStream(
-        fichiers,
-        (page, total) => setProgression({ page, total }),
-        {
-          titre: options.titre || undefined,
-          matiere: options.matiere || undefined,
-          sauvegarder: true,
-        },
-        abortController.signal
-      )
+      const resultat = await uploaderCours(fichiers, {
+        titre: options.titre || undefined,
+        matiere: options.matiere || undefined,
+      })
 
       if (resultat.coursId) {
         navigate(`/cours?id=${resultat.coursId}`)
@@ -108,18 +94,14 @@ export default function Scanner() {
         navigate('/cours')
       }
     } catch (err) {
-      if ((err as Error).name === 'AbortError') return
-
       const message = err instanceof Error ? err.message : 'Une erreur inattendue est survenue'
-      const status = (err as Error & { status?: number }).status
-      const serverCode = (err as Error & { code?: string }).code
 
-      let code = serverCode || 'ERREUR_INCONNUE'
-      if (status === 429 || message.toLowerCase().includes('rate limit')) {
+      let code = 'ERREUR_INCONNUE'
+      if (message.toLowerCase().includes('rate limit') || message.toLowerCase().includes('quota')) {
         code = 'QUOTA_DEPASSE'
-      } else if (status === 503 || message.toLowerCase().includes('indisponible')) {
+      } else if (message.toLowerCase().includes('indisponible')) {
         code = 'SERVICE_INDISPONIBLE'
-      } else if (status === 400) {
+      } else if (message.toLowerCase().includes('invalide') || message.toLowerCase().includes('fichier')) {
         code = 'FICHIER_INVALIDE'
       }
 
@@ -217,7 +199,7 @@ export default function Scanner() {
 
       {/* État: Processing */}
       {etat === 'processing' && (
-        <ProcessingSection message="Extraction du texte en cours..." progression={progression} />
+        <ProcessingSection message="Upload en cours..." />
       )}
 
       {/* État: Erreur */}

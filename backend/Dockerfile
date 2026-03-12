@@ -32,7 +32,7 @@ FROM alpine:3.19
 WORKDIR /app
 
 # Install runtime dependencies (Tesseract OCR + French language data)
-RUN apk add --no-cache ca-certificates tzdata tesseract-ocr tesseract-ocr-data-fra
+RUN apk add --no-cache ca-certificates tzdata tesseract-ocr tesseract-ocr-data-fra tesseract-ocr-data-osd
 
 # Create non-root user
 RUN addgroup -g 1000 app && adduser -u 1000 -G app -D app

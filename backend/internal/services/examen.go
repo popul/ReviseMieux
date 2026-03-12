@@ -342,50 +342,17 @@ func (s *ServiceExamen) construirePromptExamen(texte, titre, matiere string) str
 		matiereInfo = fmt.Sprintf("Matiere : %s\n", matiere)
 	}
 
-	return fmt.Sprintf(`Tu es un professeur qui cree un examen blanc complet pour tester la maitrise d'un cours.
+	return fmt.Sprintf(`%s%sCours :
+"""%s"""
 
-%s%sCours :
-"""
-%s
-"""
+Examen blanc realiste, 6-10 questions, total 20 points, duree 20-45 min.
+Types : definition (2-3pts), comprehension (3-4pts), application (4-5pts), synthese (5-6pts).
+Difficultes variees (facile/moyen/difficile). Reponse attendue detaillee.
+3 indices par question : niveau 1 (rappel concept), niveau 2 (methodologie), niveau 3 (debut reponse).
+Base UNIQUEMENT sur le contenu fourni. Ton bienveillant.
 
-Instructions :
-1. Cree un examen blanc realiste avec 6 a 10 questions
-2. Varie les types de questions :
-   - "definition" : questions de connaissances (2-3 points)
-   - "comprehension" : questions de comprehension (3-4 points)
-   - "application" : exercices pratiques, calculs, analyses (4-5 points)
-   - "synthese" : questions de reflexion, argumentation (5-6 points)
-3. Le total des points doit etre 20 (systeme francais)
-4. Varie les difficultes (facile, moyen, difficile)
-5. Pour chaque question, fournis la reponse attendue detaillee
-6. Pour chaque question, fournis 3 niveaux d'indices progressifs :
-   - Niveau 1 : Rappel du concept concerne (aide legere)
-   - Niveau 2 : Indication methodologique (aide moyenne)
-   - Niveau 3 : Debut de la reponse (aide forte)
-7. La duree conseillee doit etre realiste (20-45 minutes)
-8. Base-toi UNIQUEMENT sur le contenu du cours fourni
-9. Les questions doivent etre bienveillantes et encourageantes
-
-Reponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou apres :
-{
-  "questions": [
-    {
-      "numero": 1,
-      "type": "definition",
-      "difficulte": "facile",
-      "enonce": "...",
-      "bareme": 2,
-      "reponse_attendue": "...",
-      "indices": [
-        { "niveau": 1, "texte": "Rappel: ce concept concerne..." },
-        { "niveau": 2, "texte": "Methodologie: commencez par..." },
-        { "niveau": 3, "texte": "La reponse commence par..." }
-      ]
-    }
-  ],
-  "duree_conseillee": 30
-}`, titreInfo, matiereInfo, texte)
+JSON attendu :
+{"questions": [{"numero": 1, "type": "definition", "difficulte": "facile", "enonce": "...", "bareme": 2, "reponse_attendue": "...", "indices": [{"niveau": 1, "texte": "..."},{"niveau": 2, "texte": "..."},{"niveau": 3, "texte": "..."}]}], "duree_conseillee": 30}`, titreInfo, matiereInfo, texte)
 }
 
 // reponseExamenJSON represente la structure de reponse du LLM pour les examens
@@ -492,52 +459,15 @@ Indices utilises : %d/3
 `, q.Numero, q.Type, q.Difficulte, q.Bareme, q.Enonce, q.ReponseAttendue, reponseEleve, nbIndices)
 	}
 
-	return fmt.Sprintf(`Tu es un professeur bienveillant qui corrige un examen blanc. Tu dois evaluer les reponses de l'eleve, attribuer une note sur 20 et donner des conseils constructifs.
-
-Examen et reponses de l'eleve :
+	return fmt.Sprintf(`Examen et reponses :
 %s
 
-Instructions :
-1. Evalue chaque reponse par rapport a la reponse attendue
-2. Attribue une note sur le bareme pour chaque question (peut etre partielle : 1.5/3 par exemple)
-3. Si l'eleve a utilise des indices, tu peux reduire legerement la note (mais reste bienveillant)
-4. Calcule la note totale sur 20
-5. Identifie 2-3 points forts de l'eleve
-6. Identifie 2-3 concepts a revoir
-7. Propose un plan de revision personnalise avec 3-5 actions concretes
-8. Sois encourageant et constructif dans tes commentaires
+Corrige chaque reponse (notes partielles possibles). Penalite legere si indices utilises.
+Note totale sur 20. 2-3 points forts, 2-3 points faibles, plan de revision (3-5 actions).
+Ton bienveillant et constructif.
 
-Reponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou apres :
-{
-  "note_estimee": 14.5,
-  "details": [
-    {
-      "question_numero": 1,
-      "note_question": 1.5,
-      "commentaire": "Bonne comprehension du concept mais la formulation peut etre amelioree..."
-    }
-  ],
-  "points_forts": [
-    {
-      "concept": "Les definitions de base",
-      "commentaire": "Tu maitrises bien les concepts fondamentaux"
-    }
-  ],
-  "points_faibles": [
-    {
-      "concept": "L'application pratique",
-      "commentaire": "Revois les exercices d'application pour mieux maitriser la methode"
-    }
-  ],
-  "plan_revision": [
-    {
-      "priorite": 1,
-      "action": "Revoir les exercices d'application",
-      "concept": "Application pratique",
-      "ressource": "Refaire les exercices du cours en se concentrant sur la methode"
-    }
-  ]
-}`, questionsStr)
+JSON attendu :
+{"note_estimee": 14.5, "details": [{"question_numero": 1, "note_question": 1.5, "commentaire": "..."}], "points_forts": [{"concept": "...", "commentaire": "..."}], "points_faibles": [{"concept": "...", "commentaire": "..."}], "plan_revision": [{"priorite": 1, "action": "...", "concept": "...", "ressource": "..."}]}`, questionsStr)
 }
 
 // reponseCorrectionJSON represente la structure de reponse du LLM pour la correction

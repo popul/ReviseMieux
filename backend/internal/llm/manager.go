@@ -103,6 +103,21 @@ func (g *GestionnaireLLM) ExtraireTexteImage(ctx context.Context, image []byte, 
 	return g.fallback.ExtraireTexteImage(ctx, image, options)
 }
 
+// DetecterOrientation détecte l'orientation d'une image avec fallback automatique
+func (g *GestionnaireLLM) DetecterOrientation(ctx context.Context, image []byte) (int, error) {
+	resultat, err := g.primaire.DetecterOrientation(ctx, image)
+	if err == nil {
+		return resultat, nil
+	}
+
+	if !g.doitFallback(err) {
+		return 0, err
+	}
+
+	log.Printf("[LLM] Fallback de %s vers %s: %s", g.primaire.Nom(), g.fallback.Nom(), err.Error())
+	return g.fallback.DetecterOrientation(ctx, image)
+}
+
 // EstDisponible vérifie si au moins un adaptateur est disponible
 func (g *GestionnaireLLM) EstDisponible(ctx context.Context) bool {
 	if g.primaire.EstDisponible(ctx) {

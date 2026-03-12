@@ -21,6 +21,7 @@ type ServiceConcepts struct {
 	gestionnaireLLM *llm.GestionnaireLLM
 	coursRepo       store.CoursRepository
 	conceptsRepo    store.ConceptsRepository
+	lexiqueRepo     store.LexiqueRepository
 }
 
 // NouveauServiceConcepts crée une nouvelle instance du service de concepts
@@ -28,11 +29,13 @@ func NouveauServiceConcepts(
 	gestionnaireLLM *llm.GestionnaireLLM,
 	coursRepo store.CoursRepository,
 	conceptsRepo store.ConceptsRepository,
+	lexiqueRepo store.LexiqueRepository,
 ) *ServiceConcepts {
 	return &ServiceConcepts{
 		gestionnaireLLM: gestionnaireLLM,
 		coursRepo:       coursRepo,
 		conceptsRepo:    conceptsRepo,
+		lexiqueRepo:     lexiqueRepo,
 	}
 }
 
@@ -42,16 +45,26 @@ type ResultatExtractionConcepts struct {
 	NombreExtraits int              `json:"nombreExtraits"`
 }
 
-// ExtraireConcepts extrait les concepts clés d'un cours via le LLM
+// ExtraireConcepts extrait les concepts clés d'un cours via le LLM.
+// Cette méthode extrait aussi les termes du lexique en un seul appel (stratégie d'optimisation tokens).
 func (s *ServiceConcepts) ExtraireConcepts(ctx context.Context, coursID string) (*ResultatExtractionConcepts, error) {
+	concepts, _, err := s.ExtraireConceptsEtTermes(ctx, coursID)
+	if err != nil {
+		return nil, err
+	}
+	return concepts, nil
+}
+
+// ExtraireConceptsEtTermes extrait les concepts ET les termes du lexique en un seul appel LLM.
+func (s *ServiceConcepts) ExtraireConceptsEtTermes(ctx context.Context, coursID string) (*ResultatExtractionConcepts, *ResultatExtractionLexique, error) {
 	if s.gestionnaireLLM == nil {
-		return nil, ErrServiceNonDisponible
+		return nil, nil, ErrServiceNonDisponible
 	}
 
 	// Récupérer le cours
 	cours, err := s.coursRepo.ObtenirParID(ctx, coursID)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s", ErrCoursNonTrouve, err.Error())
+		return nil, nil, fmt.Errorf("%w: %s", ErrCoursNonTrouve, err.Error())
 	}
 
 	// Vérifier que le cours a du texte
@@ -60,47 +73,59 @@ func (s *ServiceConcepts) ExtraireConcepts(ctx context.Context, coursID string) 
 		texte = cours.TexteOCR
 	}
 	if texte == "" {
-		return nil, ErrCoursVideOCR
+		return nil, nil, ErrCoursVideOCR
 	}
 
-	// Construire le prompt
-	prompt := s.construirePromptConcepts(texte)
+	// Construire le prompt combiné
+	prompt := s.construirePromptConceptsEtTermes(texte)
 
-	// Appeler le LLM
+	// Appeler le LLM (gpt-4o-mini suffit pour l'extraction)
 	llmOptions := llm.OptionsGeneration{
+		Modele:        "gpt-4o-mini",
 		Temperature:   0.5,
-		MaxTokens:     4000,
+		MaxTokens:     6000,
 		FormatReponse: "json",
-		SystemPrompt:  "Tu es un professeur expert en analyse de cours pour lycéens. Tu identifies les concepts clés d'un cours. Tu réponds uniquement en JSON valide.",
+		SystemPrompt:  "Tu es un professeur expert en analyse de cours pour lycéens. Tu identifies les concepts clés et les termes importants. Tu réponds uniquement en JSON valide.",
 	}
 
 	reponseJSON, err := s.gestionnaireLLM.GenererJSON(ctx, prompt, nil, llmOptions)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s", ErrGenerationLLMEchouee, err.Error())
+		return nil, nil, fmt.Errorf("%w: %s", ErrGenerationLLMEchouee, err.Error())
 	}
 
-	// Parser la réponse
-	concepts, err := s.parserReponseConcepts(reponseJSON, coursID)
+	// Parser la réponse combinée
+	concepts, termes, err := s.parserReponseConceptsEtTermes(reponseJSON, coursID)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %s", ErrParsingConceptsEchoue, err.Error())
+		return nil, nil, fmt.Errorf("%w: %s", ErrParsingConceptsEchoue, err.Error())
 	}
 
 	// Sauvegarder les concepts en base
 	if s.conceptsRepo != nil {
-		// Supprimer les anciens concepts du cours avant d'en créer de nouveaux
 		if err := s.conceptsRepo.SupprimerParCours(ctx, coursID); err != nil {
-			return nil, fmt.Errorf("erreur suppression anciens concepts: %w", err)
+			return nil, nil, fmt.Errorf("erreur suppression anciens concepts: %w", err)
 		}
-
 		if err := s.conceptsRepo.CreerPlusieurs(ctx, concepts); err != nil {
-			return nil, fmt.Errorf("erreur sauvegarde concepts: %w", err)
+			return nil, nil, fmt.Errorf("erreur sauvegarde concepts: %w", err)
+		}
+	}
+
+	// Sauvegarder les termes en base
+	if s.lexiqueRepo != nil {
+		if err := s.lexiqueRepo.SupprimerParCours(ctx, coursID); err != nil {
+			return nil, nil, fmt.Errorf("erreur suppression anciens termes: %w", err)
+		}
+		if err := s.lexiqueRepo.CreerPlusieurs(ctx, termes); err != nil {
+			return nil, nil, fmt.Errorf("erreur sauvegarde termes: %w", err)
 		}
 	}
 
 	return &ResultatExtractionConcepts{
-		Concepts:       concepts,
-		NombreExtraits: len(concepts),
-	}, nil
+			Concepts:       concepts,
+			NombreExtraits: len(concepts),
+		}, &ResultatExtractionLexique{
+			Termes:         termes,
+			NombreExtraits: len(termes),
+		}, nil
 }
 
 // GetConceptsByCours récupère les concepts existants d'un cours
@@ -167,42 +192,25 @@ func (s *ServiceConcepts) SupprimerConcept(ctx context.Context, conceptID string
 	return nil
 }
 
-// construirePromptConcepts construit le prompt pour l'extraction de concepts
-func (s *ServiceConcepts) construirePromptConcepts(texte string) string {
-	return fmt.Sprintf(`Tu es un professeur expert en analyse de contenus pédagogiques pour lycéens.
+// construirePromptConceptsEtTermes construit le prompt combiné pour extraire concepts et termes
+func (s *ServiceConcepts) construirePromptConceptsEtTermes(texte string) string {
+	return fmt.Sprintf(`Cours :
+"""%s"""
 
-À partir du cours suivant, identifie les concepts clés (notions, termes importants, formules, théorèmes, etc.).
+Extrais en une seule passe :
+1. 5-20 concepts clés (notions, formules, théorèmes), classés par importance
+2. 10-30 termes de vocabulaire par ordre alphabétique
 
-Cours :
-"""
-%s
-"""
+Pour chaque concept : nom court, définition (2-3 phrases), importance (essentiel/important/secondaire), position dans le texte.
+Pour chaque terme : terme, définition (2-3 phrases), contexte, exemple, catégorie.
+Basé UNIQUEMENT sur le contenu fourni.
 
-Instructions :
-- Identifie entre 5 et 20 concepts selon la richesse du contenu
-- Pour chaque concept, fournis :
-  - Le nom du concept (court et précis)
-  - Une définition claire et pédagogique (2-3 phrases maximum)
-  - Le niveau d'importance : "essentiel" (incontournable pour comprendre le cours), "important" (nécessaire pour bien maîtriser le sujet), ou "secondaire" (complément utile)
-  - La position approximative dans le texte (index de début et de fin du passage concerné, si identifiable)
-- Base-toi UNIQUEMENT sur le contenu du cours fourni
-- Classe les concepts du plus essentiel au plus secondaire
-
-Réponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou après :
-{
-  "concepts": [
-    {
-      "nom": "Nom du concept",
-      "definition": "Définition claire et pédagogique du concept.",
-      "importance": "essentiel|important|secondaire",
-      "position": {"debut": 0, "fin": 100}
-    }
-  ]
-}`, texte)
+JSON attendu :
+{"concepts": [{"nom": "...", "definition": "...", "importance": "essentiel|important|secondaire", "position": {"debut": 0, "fin": 100}}], "termes": [{"terme": "...", "definition": "...", "contexte": "...", "exemple": "...", "categorie": "..."}]}`, texte)
 }
 
-// reponseConceptsJSON représente la structure de réponse du LLM pour les concepts
-type reponseConceptsJSON struct {
+// reponseConceptsEtTermesJSON représente la structure combinée concepts + termes
+type reponseConceptsEtTermesJSON struct {
 	Concepts []struct {
 		Nom        string `json:"nom"`
 		Definition string `json:"definition"`
@@ -212,21 +220,28 @@ type reponseConceptsJSON struct {
 			Fin   int `json:"fin"`
 		} `json:"position,omitempty"`
 	} `json:"concepts"`
+	Termes []struct {
+		Terme      string `json:"terme"`
+		Definition string `json:"definition"`
+		Contexte   string `json:"contexte,omitempty"`
+		Exemple    string `json:"exemple,omitempty"`
+		Categorie  string `json:"categorie,omitempty"`
+	} `json:"termes"`
 }
 
-// parserReponseConcepts parse la réponse JSON du LLM en concepts
-func (s *ServiceConcepts) parserReponseConcepts(reponseJSON []byte, coursID string) ([]*store.Concept, error) {
-	var reponse reponseConceptsJSON
+// parserReponseConceptsEtTermes parse la réponse JSON combinée en concepts et termes
+func (s *ServiceConcepts) parserReponseConceptsEtTermes(reponseJSON []byte, coursID string) ([]*store.Concept, []*store.TermeLexique, error) {
+	var reponse reponseConceptsEtTermesJSON
 	if err := json.Unmarshal(reponseJSON, &reponse); err != nil {
-		return nil, fmt.Errorf("erreur parsing JSON: %w", err)
+		return nil, nil, fmt.Errorf("erreur parsing JSON: %w", err)
 	}
 
+	// Parser les concepts
 	concepts := make([]*store.Concept, 0, len(reponse.Concepts))
 	for _, c := range reponse.Concepts {
-		// Valider l'importance
 		importance := c.Importance
 		if importance != "essentiel" && importance != "important" && importance != "secondaire" {
-			importance = "important" // valeur par défaut
+			importance = "important"
 		}
 
 		concept := &store.Concept{
@@ -236,7 +251,6 @@ func (s *ServiceConcepts) parserReponseConcepts(reponseJSON []byte, coursID stri
 			Importance: importance,
 		}
 
-		// Ajouter la position si disponible
 		if c.Position != nil {
 			concept.PositionDansCours = &store.PositionDansCours{
 				Debut: c.Position.Debut,
@@ -247,5 +261,20 @@ func (s *ServiceConcepts) parserReponseConcepts(reponseJSON []byte, coursID stri
 		concepts = append(concepts, concept)
 	}
 
-	return concepts, nil
+	// Parser les termes
+	termes := make([]*store.TermeLexique, 0, len(reponse.Termes))
+	for _, t := range reponse.Termes {
+		terme := &store.TermeLexique{
+			CoursID:    coursID,
+			Terme:      t.Terme,
+			Definition: t.Definition,
+			Contexte:   t.Contexte,
+			Exemple:    t.Exemple,
+			Categorie:  t.Categorie,
+			Maitrise:   0,
+		}
+		termes = append(termes, terme)
+	}
+
+	return concepts, termes, nil
 }

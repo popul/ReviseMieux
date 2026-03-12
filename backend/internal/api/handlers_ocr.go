@@ -5,10 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
+	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/revisemieux/backend/internal/llm"
@@ -38,16 +40,24 @@ func NouveauHandlersOCR(serviceOCR *services.ServiceOCR, serviceStorage *service
 
 // ReponseOCR représente la réponse JSON de l'endpoint OCR
 type ReponseOCR struct {
-	Succes           bool                   `json:"succes"`
-	Texte            string                 `json:"texte,omitempty"`
-	Confiance        float64                `json:"confiance,omitempty"`
-	ZonesIncertaines []store.ZoneIncertaine `json:"zonesIncertaines,omitempty"`
-	NombrePages      int                    `json:"nombrePages,omitempty"`
-	CoursID          string                 `json:"coursId,omitempty"`
-	TitreSuggere     string                 `json:"titreSuggere,omitempty"`
-	MatiereSuggeree  string                 `json:"matiereSuggeree,omitempty"`
+	Succes           bool                        `json:"succes"`
+	Texte            string                      `json:"texte,omitempty"`
+	Confiance        float64                     `json:"confiance,omitempty"`
+	ZonesIncertaines []store.ZoneIncertaine      `json:"zonesIncertaines,omitempty"`
+	NombrePages      int                         `json:"nombrePages,omitempty"`
+	CoursID          string                      `json:"coursId,omitempty"`
+	TitreSuggere     string                      `json:"titreSuggere,omitempty"`
+	MatiereSuggeree  string                      `json:"matiereSuggeree,omitempty"`
 	BlocsTexte       []services.BlocTexteParPage `json:"blocsTexte,omitempty"`
-	Erreur           *ErreurReponse         `json:"erreur,omitempty"`
+	Erreur           *ErreurReponse              `json:"erreur,omitempty"`
+}
+
+// ReponseUpload représente la réponse JSON rapide de l'upload OCR
+type ReponseUpload struct {
+	Succes      bool           `json:"succes"`
+	CoursID     string         `json:"coursId,omitempty"`
+	NombrePages int            `json:"nombrePages,omitempty"`
+	Erreur      *ErreurReponse `json:"erreur,omitempty"`
 }
 
 // ErreurReponse représente une erreur dans la réponse JSON
@@ -58,233 +68,17 @@ type ErreurReponse struct {
 
 // RequeteOCR représente les paramètres optionnels de la requête OCR
 type RequeteOCR struct {
-	Titre        string `form:"titre"`
-	Matiere      string `form:"matiere"`
-	Sauvegarder  bool   `form:"sauvegarder"`
+	Titre   string `form:"titre"`
+	Matiere string `form:"matiere"`
 }
 
-// TraiterOCRHandler traite une image ou PDF pour l'OCR
+// UploadOCRHandler upload les fichiers, crée le cours, et lance le traitement OCR en arrière-plan.
 // POST /api/ocr
 // Content-Type: multipart/form-data
-// Champs:
-//   - fichiers[]: fichiers à traiter (required, max 10)
-//   - titre: titre du cours (optional)
-//   - matiere: matière du cours (optional)
-//   - sauvegarder: si true, sauvegarde le cours en base (optional, default false)
-func (h *HandlersOCR) TraiterOCRHandler(c *gin.Context) {
-	// Vérifier que le service OCR est disponible
+// Retourne immédiatement le coursId. Le client poll ensuite GET /api/cours/:id pour la progression.
+func (h *HandlersOCR) UploadOCRHandler(c *gin.Context) {
 	if h.serviceOCR == nil {
-		c.JSON(http.StatusServiceUnavailable, ReponseOCR{
-			Succes: false,
-			Erreur: &ErreurReponse{
-				Code:    "SERVICE_NON_DISPONIBLE",
-				Message: "Le service OCR n'est pas configuré",
-			},
-		})
-		return
-	}
-
-	// Parser les paramètres de la requête
-	var requete RequeteOCR
-	if err := c.ShouldBind(&requete); err != nil {
-		// Ignorer l'erreur de binding, les champs sont optionnels
-	}
-
-	// Récupérer les fichiers uploadés
-	form, err := c.MultipartForm()
-	if err != nil {
-		c.JSON(http.StatusBadRequest, ReponseOCR{
-			Succes: false,
-			Erreur: &ErreurReponse{
-				Code:    "REQUETE_INVALIDE",
-				Message: "La requête doit être de type multipart/form-data",
-			},
-		})
-		return
-	}
-
-	fichiers := form.File["fichiers[]"]
-	if len(fichiers) == 0 {
-		// Essayer aussi avec "fichiers" sans les crochets
-		fichiers = form.File["fichiers"]
-	}
-
-	if len(fichiers) == 0 {
-		c.JSON(http.StatusBadRequest, ReponseOCR{
-			Succes: false,
-			Erreur: &ErreurReponse{
-				Code:    "FICHIERS_MANQUANTS",
-				Message: "Aucun fichier fourni. Utilisez le champ 'fichiers[]' ou 'fichiers'",
-			},
-		})
-		return
-	}
-
-	// Valider les fichiers
-	if err := h.serviceOCR.ValiderFichiers(fichiers); err != nil {
-		codeErreur, message := h.convertirErreurOCR(err)
-		c.JSON(http.StatusBadRequest, ReponseOCR{
-			Succes: false,
-			Erreur: &ErreurReponse{
-				Code:    codeErreur,
-				Message: message,
-			},
-		})
-		return
-	}
-
-	// Traiter les fichiers avec le service OCR
-	resultat, err := h.serviceOCR.TraiterFichiers(c.Request.Context(), fichiers)
-	if err != nil {
-		statusCode, codeErreur, message := h.convertirErreurTraitement(err)
-		c.JSON(statusCode, ReponseOCR{
-			Succes: false,
-			Erreur: &ErreurReponse{
-				Code:    codeErreur,
-				Message: message,
-			},
-		})
-		return
-	}
-
-	// Convertir les zones incertaines du format llm vers store
-	zonesIncertaines := make([]store.ZoneIncertaine, len(resultat.ZonesIncertaines))
-	for i, zone := range resultat.ZonesIncertaines {
-		zonesIncertaines[i] = store.ZoneIncertaine{
-			Debut:  zone.Debut,
-			Fin:    zone.Fin,
-			Texte:  zone.Texte,
-			Raison: zone.Raison,
-		}
-	}
-
-	// Collecter les noms de fichiers
-	nomsFichiers := make([]string, len(fichiers))
-	for i, f := range fichiers {
-		nomsFichiers[i] = f.Filename
-	}
-
-	// Construire la réponse
-	reponse := ReponseOCR{
-		Succes:           true,
-		Texte:            resultat.Texte,
-		Confiance:        resultat.Confiance,
-		ZonesIncertaines: zonesIncertaines,
-		NombrePages:      resultat.NombrePages,
-		TitreSuggere:     resultat.TitreSuggere,
-		MatiereSuggeree:  resultat.MatiereSuggeree,
-		BlocsTexte:       resultat.BlocsTexte,
-	}
-
-	// Sauvegarder le cours si demandé
-	if requete.Sauvegarder && h.coursRepo != nil {
-		// Utiliser le titre fourni, sinon le titre suggéré, sinon un titre par défaut
-		titre := requete.Titre
-		if titre == "" && resultat.TitreSuggere != "" {
-			titre = resultat.TitreSuggere
-		}
-		if titre == "" {
-			titre = "Cours sans titre"
-		}
-
-		// Utiliser la matière fournie, sinon la matière suggérée
-		matiere := requete.Matiere
-		if matiere == "" && resultat.MatiereSuggeree != "" {
-			matiere = resultat.MatiereSuggeree
-		}
-
-		// Générer un ID pour le cours avant de sauvegarder les images
-		coursID := ""
-		// Sérialiser les blocs de texte en JSON pour le stockage
-		var blocsTexteJSON json.RawMessage
-		if len(resultat.BlocsTexte) > 0 {
-			blocsJSON, errJSON := json.Marshal(resultat.BlocsTexte)
-			if errJSON == nil {
-				blocsTexteJSON = json.RawMessage(blocsJSON)
-			}
-		}
-
-		cours := &store.Cours{
-			Titre:             titre,
-			Matiere:           matiere,
-			TexteOCR:          resultat.Texte,
-			Confiance:         resultat.Confiance,
-			ZonesIncertaines:  zonesIncertaines,
-			FichiersOriginaux: nomsFichiers,
-			Images:            []string{},
-			BlocsTexte:        blocsTexteJSON,
-		}
-
-		// Créer le cours d'abord pour obtenir l'ID
-		if err := h.coursRepo.Creer(c.Request.Context(), cours); err != nil {
-			// Log l'erreur mais ne pas faire échouer la requête
-			// Le texte OCR a été extrait avec succès
-			c.JSON(http.StatusOK, reponse)
-			return
-		}
-		coursID = cours.ID
-
-		// Sauvegarder les images si le service de stockage est disponible
-		if h.serviceStorage != nil {
-			imagesSauvegardees := []string{}
-			for _, fichier := range fichiers {
-				// Vérifier si c'est une image (pas un PDF)
-				contentType := fichier.Header.Get("Content-Type")
-				if contentType == "image/jpeg" || contentType == "image/png" || contentType == "image/gif" || contentType == "image/webp" {
-					nomImage, err := h.serviceStorage.SauvegarderImage(coursID, fichier)
-					if err == nil {
-						imagesSauvegardees = append(imagesSauvegardees, nomImage)
-					}
-				}
-			}
-
-			// Mettre à jour le cours avec les images
-			if len(imagesSauvegardees) > 0 {
-				cours.Images = imagesSauvegardees
-				h.coursRepo.MettreAJour(c.Request.Context(), cours)
-			}
-		}
-
-		reponse.CoursID = coursID
-
-		// Lancer la génération automatique du résumé et des concepts en arrière-plan
-		if coursID != "" && h.serviceGeneration != nil {
-			go func(id string) {
-				ctx := context.Background()
-				if _, err := h.serviceGeneration.GenererResume(ctx, id); err != nil {
-					log.Printf("Auto-génération résumé échouée pour cours %s: %v", id, err)
-				} else {
-					log.Printf("Résumé généré automatiquement pour cours %s", id)
-				}
-				if h.serviceConcepts != nil {
-					if _, err := h.serviceConcepts.ExtraireConcepts(ctx, id); err != nil {
-						log.Printf("Auto-extraction concepts échouée pour cours %s: %v", id, err)
-					} else {
-						log.Printf("Concepts extraits automatiquement pour cours %s", id)
-					}
-				}
-			}(coursID)
-		}
-	}
-
-	c.JSON(http.StatusOK, reponse)
-}
-
-// envoyerEvenementSSE écrit un événement SSE formaté dans le writer
-func envoyerEvenementSSE(w http.ResponseWriter, event string, data interface{}) {
-	jsonData, _ := json.Marshal(data)
-	fmt.Fprintf(w, "event: %s\ndata: %s\n\n", event, jsonData)
-	if f, ok := w.(http.Flusher); ok {
-		f.Flush()
-	}
-}
-
-// TraiterOCRStreamHandler traite l'OCR avec streaming SSE page par page
-// POST /api/ocr
-func (h *HandlersOCR) TraiterOCRStreamHandler(c *gin.Context) {
-	// Phase de validation (avant SSE headers) — erreurs en JSON classique
-	if h.serviceOCR == nil {
-		c.JSON(http.StatusServiceUnavailable, ReponseOCR{
+		c.JSON(http.StatusServiceUnavailable, ReponseUpload{
 			Succes: false,
 			Erreur: &ErreurReponse{
 				Code:    "SERVICE_NON_DISPONIBLE",
@@ -301,7 +95,7 @@ func (h *HandlersOCR) TraiterOCRStreamHandler(c *gin.Context) {
 
 	form, err := c.MultipartForm()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, ReponseOCR{
+		c.JSON(http.StatusBadRequest, ReponseUpload{
 			Succes: false,
 			Erreur: &ErreurReponse{
 				Code:    "REQUETE_INVALIDE",
@@ -317,7 +111,7 @@ func (h *HandlersOCR) TraiterOCRStreamHandler(c *gin.Context) {
 	}
 
 	if len(fichiers) == 0 {
-		c.JSON(http.StatusBadRequest, ReponseOCR{
+		c.JSON(http.StatusBadRequest, ReponseUpload{
 			Succes: false,
 			Erreur: &ErreurReponse{
 				Code:    "FICHIERS_MANQUANTS",
@@ -329,7 +123,7 @@ func (h *HandlersOCR) TraiterOCRStreamHandler(c *gin.Context) {
 
 	if err := h.serviceOCR.ValiderFichiers(fichiers); err != nil {
 		codeErreur, message := h.convertirErreurOCR(err)
-		c.JSON(http.StatusBadRequest, ReponseOCR{
+		c.JSON(http.StatusBadRequest, ReponseUpload{
 			Succes: false,
 			Erreur: &ErreurReponse{
 				Code:    codeErreur,
@@ -339,144 +133,308 @@ func (h *HandlersOCR) TraiterOCRStreamHandler(c *gin.Context) {
 		return
 	}
 
-	// Validation OK — basculer en mode SSE
-	c.Writer.Header().Set("Content-Type", "text/event-stream")
-	c.Writer.Header().Set("Cache-Control", "no-cache")
-	c.Writer.Header().Set("Connection", "keep-alive")
-	c.Writer.Header().Set("X-Accel-Buffering", "no")
-	c.Writer.WriteHeader(http.StatusOK)
-	c.Writer.Flush()
-
-	// Callback de progression
-	onProgression := func(page, total int) error {
-		select {
-		case <-c.Request.Context().Done():
-			return fmt.Errorf("client déconnecté")
-		default:
-		}
-		envoyerEvenementSSE(c.Writer, "progress", map[string]int{
-			"page":  page,
-			"total": total,
-		})
-		return nil
-	}
-
-	// Traiter les fichiers avec progression
-	resultat, err := h.serviceOCR.TraiterFichiersAvecProgression(c.Request.Context(), fichiers, onProgression)
+	// Extraire les images en mémoire (avant que le multipart soit libéré)
+	imagesBytes, err := h.serviceOCR.ExtraireImagesMultipart(fichiers)
 	if err != nil {
-		_, codeErreur, message := h.convertirErreurTraitement(err)
-		envoyerEvenementSSE(c.Writer, "error", map[string]string{
-			"code":    codeErreur,
-			"message": message,
+		codeErreur, message := h.convertirErreurOCR(err)
+		c.JSON(http.StatusBadRequest, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    codeErreur,
+				Message: message,
+			},
 		})
 		return
 	}
 
-	// Convertir les zones incertaines
-	zonesIncertaines := make([]store.ZoneIncertaine, len(resultat.ZonesIncertaines))
-	for i, zone := range resultat.ZonesIncertaines {
-		zonesIncertaines[i] = store.ZoneIncertaine{
+	nombrePages := len(imagesBytes)
+
+	// Titre initial
+	titre := requete.Titre
+	if titre == "" {
+		titre = "Cours sans titre"
+	}
+
+	// Créer le cours en DB avec statut "en_cours"
+	cours := &store.Cours{
+		Titre:             titre,
+		Matiere:           requete.Matiere,
+		TexteOCR:          "",
+		Confiance:         0,
+		ZonesIncertaines:  []store.ZoneIncertaine{},
+		FichiersOriginaux: collecterNomsFichiers(fichiers),
+		Images:            []string{},
+		StatutOCR:         "en_cours",
+		NombrePages:       nombrePages,
+		PagesTraitees:     0,
+	}
+
+	if err := h.coursRepo.Creer(c.Request.Context(), cours); err != nil {
+		c.JSON(http.StatusInternalServerError, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    "ERREUR_CREATION",
+				Message: "Erreur lors de la création du cours",
+			},
+		})
+		return
+	}
+
+	// Sauvegarder les images sur disque
+	if h.serviceStorage != nil {
+		imagesSauvegardees := []string{}
+		for _, imgBytes := range imagesBytes {
+			nomImage, err := h.serviceStorage.SauvegarderImageBytes(cours.ID, imgBytes, ".jpg")
+			if err == nil {
+				imagesSauvegardees = append(imagesSauvegardees, nomImage)
+			}
+		}
+		if len(imagesSauvegardees) > 0 {
+			cours.Images = imagesSauvegardees
+			h.coursRepo.MettreAJour(c.Request.Context(), cours)
+		}
+	}
+
+	// Lancer le traitement OCR en arrière-plan
+	go h.traiterOCRAsynchrone(cours.ID, imagesBytes, cours.Images, requete.Titre, requete.Matiere)
+
+	c.JSON(http.StatusOK, ReponseUpload{
+		Succes:      true,
+		CoursID:     cours.ID,
+		NombrePages: nombrePages,
+	})
+}
+
+// traiterOCRAsynchrone traite les images OCR en arrière-plan page par page
+func (h *HandlersOCR) traiterOCRAsynchrone(coursID string, images [][]byte, nomImages []string, titreRequete string, matiereRequete string) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("PANIC dans traiterOCRAsynchrone cours %s: %v", coursID, r)
+		}
+	}()
+
+	log.Printf("Démarrage OCR asynchrone cours %s (%d pages)", coursID, len(images))
+	ctx := context.Background()
+
+	onPageTraitee := func(pagesTerminees int, resultatPartiel *services.ResultatOCRCours, pageIdx int, imageCorrigee []byte) {
+		// Si l'image a été pivotée, mettre à jour le fichier sur disque
+		if imageCorrigee != nil && h.serviceStorage != nil && pageIdx < len(nomImages) {
+			if err := h.serviceStorage.EcraserImage(coursID, nomImages[pageIdx], imageCorrigee); err != nil {
+				log.Printf("Erreur écriture image pivotée page %d cours %s: %v", pageIdx+1, coursID, err)
+			} else {
+				log.Printf("Image pivotée sauvegardée page %d cours %s", pageIdx+1, coursID)
+			}
+		}
+
+		// Déterminer le titre et la matière
+		titre := titreRequete
+		if titre == "" && resultatPartiel.TitreSuggere != "" {
+			titre = resultatPartiel.TitreSuggere
+		}
+		if titre == "" {
+			titre = "Cours sans titre"
+		}
+
+		matiere := matiereRequete
+		if matiere == "" && resultatPartiel.MatiereSuggeree != "" {
+			matiere = resultatPartiel.MatiereSuggeree
+		}
+
+		zonesJSON, _ := json.Marshal(convertirZonesIncertaines(resultatPartiel.ZonesIncertaines))
+		blocsJSON, _ := json.Marshal(resultatPartiel.BlocsTexte)
+
+		if err := h.coursRepo.MettreAJourProgressionOCR(ctx, coursID, pagesTerminees,
+			resultatPartiel.Texte, resultatPartiel.Confiance,
+			zonesJSON, blocsJSON, titre, matiere); err != nil {
+			log.Printf("Erreur mise à jour progression OCR cours %s: %v", coursID, err)
+		}
+	}
+
+	resultat, err := h.serviceOCR.TraiterImagesProgressif(ctx, images, onPageTraitee)
+	if err != nil {
+		log.Printf("Erreur traitement OCR asynchrone cours %s: %v", coursID, err)
+		if errEchouer := h.coursRepo.EchouerOCR(ctx, coursID, err.Error()); errEchouer != nil {
+			log.Printf("Erreur marquage échec OCR cours %s: %v", coursID, errEchouer)
+		}
+		return
+	}
+
+	// Déterminer le titre et la matière finaux
+	titre := titreRequete
+	if titre == "" && resultat.TitreSuggere != "" {
+		titre = resultat.TitreSuggere
+	}
+	if titre == "" {
+		titre = "Cours sans titre"
+	}
+
+	matiere := matiereRequete
+	if matiere == "" && resultat.MatiereSuggeree != "" {
+		matiere = resultat.MatiereSuggeree
+	}
+
+	zonesJSON, _ := json.Marshal(convertirZonesIncertaines(resultat.ZonesIncertaines))
+	blocsJSON, _ := json.Marshal(resultat.BlocsTexte)
+
+	if err := h.coursRepo.TerminerOCR(ctx, coursID,
+		resultat.Texte, resultat.Confiance,
+		zonesJSON, blocsJSON, titre, matiere); err != nil {
+		log.Printf("Erreur finalisation OCR cours %s: %v", coursID, err)
+		return
+	}
+
+	log.Printf("OCR terminé pour cours %s (%d pages)", coursID, resultat.NombrePages)
+
+	// Pas d'auto-génération : l'utilisateur vérifie d'abord le texte OCR
+	// puis clique sur "Générer le résumé" manuellement
+}
+
+// PivoterImageHandler pivote une image de 90° à gauche ou à droite, écrase le fichier
+// et relance l'OCR de la page.
+// POST /api/cours/:id/images/:filename/pivoter?sens=gauche|droite
+func (h *HandlersOCR) PivoterImageHandler(c *gin.Context) {
+	if h.serviceOCR == nil || h.serviceStorage == nil || h.coursRepo == nil {
+		c.JSON(http.StatusServiceUnavailable, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{
+				Code:    "SERVICE_NON_DISPONIBLE",
+				Message: "Le service OCR ou de stockage n'est pas configuré",
+			},
+		})
+		return
+	}
+
+	coursID := c.Param("id")
+	filename := c.Param("filename")
+	sens := c.Query("sens")
+
+	if coursID == "" || filename == "" {
+		c.JSON(http.StatusBadRequest, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{Code: "PARAMS_MANQUANTS", Message: "L'identifiant du cours et le nom de fichier sont requis"},
+		})
+		return
+	}
+
+	var angle int
+	switch sens {
+	case "gauche":
+		angle = 270
+	case "droite":
+		angle = 90
+	default:
+		c.JSON(http.StatusBadRequest, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{Code: "SENS_INVALIDE", Message: "Le paramètre 'sens' doit être 'gauche' ou 'droite'"},
+		})
+		return
+	}
+
+	cours, err := h.coursRepo.ObtenirParID(c.Request.Context(), coursID)
+	if err != nil {
+		c.JSON(http.StatusNotFound, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{Code: "COURS_NON_TROUVE", Message: "Cours non trouvé"},
+		})
+		return
+	}
+
+	// Lire l'image
+	cheminImage, err := h.serviceStorage.ObtenirImage(coursID, filename)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{Code: "IMAGE_ILLISIBLE", Message: "Impossible de trouver l'image"},
+		})
+		return
+	}
+	imageData, err := os.ReadFile(cheminImage)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{Code: "IMAGE_ILLISIBLE", Message: "Impossible de lire l'image"},
+		})
+		return
+	}
+
+	// Pivoter l'image
+	pivoted, err := services.PivoterImage(imageData, angle)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{Code: "ERREUR_ROTATION", Message: "Erreur lors de la rotation de l'image"},
+		})
+		return
+	}
+
+	// Écraser le fichier sur disque
+	if err := h.serviceStorage.EcraserImage(coursID, filename, pivoted); err != nil {
+		c.JSON(http.StatusInternalServerError, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{Code: "ERREUR_ECRITURE", Message: "Erreur lors de la sauvegarde de l'image pivotée"},
+		})
+		return
+	}
+
+	// Trouver l'index de la page
+	pageIdx := -1
+	for i, img := range cours.Images {
+		if img == filename {
+			pageIdx = i
+			break
+		}
+	}
+	if pageIdx == -1 {
+		c.JSON(http.StatusBadRequest, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{Code: "IMAGE_NON_TROUVEE", Message: "L'image ne fait pas partie de ce cours"},
+		})
+		return
+	}
+
+	// Passer le cours en statut "en_cours" (1 page)
+	cours.StatutOCR = "en_cours"
+	cours.NombrePages = 1
+	cours.PagesTraitees = 0
+	cours.ErreurOCR = ""
+	if err := h.coursRepo.MettreAJour(c.Request.Context(), cours); err != nil {
+		c.JSON(http.StatusInternalServerError, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{Code: "ERREUR_MAJ", Message: "Erreur lors de la mise à jour du cours"},
+		})
+		return
+	}
+
+	go h.traiterOCRPageAsynchrone(cours, pageIdx, pivoted, filename, false)
+
+	c.JSON(http.StatusOK, ReponseUpload{
+		Succes:      true,
+		CoursID:     coursID,
+		NombrePages: 1,
+	})
+}
+
+// convertirZonesIncertaines convertit les zones du format llm vers store
+func convertirZonesIncertaines(zones []llm.ZoneIncertaine) []store.ZoneIncertaine {
+	result := make([]store.ZoneIncertaine, len(zones))
+	for i, zone := range zones {
+		result[i] = store.ZoneIncertaine{
 			Debut:  zone.Debut,
 			Fin:    zone.Fin,
 			Texte:  zone.Texte,
 			Raison: zone.Raison,
 		}
 	}
+	return result
+}
 
-	nomsFichiers := make([]string, len(fichiers))
+// collecterNomsFichiers extrait les noms de fichiers des multipart FileHeaders
+func collecterNomsFichiers(fichiers []*multipart.FileHeader) []string {
+	noms := make([]string, len(fichiers))
 	for i, f := range fichiers {
-		nomsFichiers[i] = f.Filename
+		noms[i] = f.Filename
 	}
-
-	reponse := ReponseOCR{
-		Succes:           true,
-		Texte:            resultat.Texte,
-		Confiance:        resultat.Confiance,
-		ZonesIncertaines: zonesIncertaines,
-		NombrePages:      resultat.NombrePages,
-		TitreSuggere:     resultat.TitreSuggere,
-		MatiereSuggeree:  resultat.MatiereSuggeree,
-		BlocsTexte:       resultat.BlocsTexte,
-	}
-
-	// Sauvegarder le cours si demandé
-	if requete.Sauvegarder && h.coursRepo != nil {
-		titre := requete.Titre
-		if titre == "" && resultat.TitreSuggere != "" {
-			titre = resultat.TitreSuggere
-		}
-		if titre == "" {
-			titre = "Cours sans titre"
-		}
-
-		matiere := requete.Matiere
-		if matiere == "" && resultat.MatiereSuggeree != "" {
-			matiere = resultat.MatiereSuggeree
-		}
-
-		var blocsTexteJSON json.RawMessage
-		if len(resultat.BlocsTexte) > 0 {
-			blocsJSON, errJSON := json.Marshal(resultat.BlocsTexte)
-			if errJSON == nil {
-				blocsTexteJSON = json.RawMessage(blocsJSON)
-			}
-		}
-
-		cours := &store.Cours{
-			Titre:             titre,
-			Matiere:           matiere,
-			TexteOCR:          resultat.Texte,
-			Confiance:         resultat.Confiance,
-			ZonesIncertaines:  zonesIncertaines,
-			FichiersOriginaux: nomsFichiers,
-			Images:            []string{},
-			BlocsTexte:        blocsTexteJSON,
-		}
-
-		if err := h.coursRepo.Creer(c.Request.Context(), cours); err != nil {
-			envoyerEvenementSSE(c.Writer, "complete", reponse)
-			return
-		}
-		reponse.CoursID = cours.ID
-
-		if h.serviceStorage != nil {
-			imagesSauvegardees := []string{}
-			for _, fichier := range fichiers {
-				contentType := fichier.Header.Get("Content-Type")
-				if contentType == "image/jpeg" || contentType == "image/png" || contentType == "image/gif" || contentType == "image/webp" {
-					nomImage, err := h.serviceStorage.SauvegarderImage(cours.ID, fichier)
-					if err == nil {
-						imagesSauvegardees = append(imagesSauvegardees, nomImage)
-					}
-				}
-			}
-			if len(imagesSauvegardees) > 0 {
-				cours.Images = imagesSauvegardees
-				h.coursRepo.MettreAJour(c.Request.Context(), cours)
-			}
-		}
-
-		// Lancer génération automatique en arrière-plan
-		if cours.ID != "" && h.serviceGeneration != nil {
-			go func(id string) {
-				ctx := context.Background()
-				if _, err := h.serviceGeneration.GenererResume(ctx, id); err != nil {
-					log.Printf("Auto-génération résumé échouée pour cours %s: %v", id, err)
-				} else {
-					log.Printf("Résumé généré automatiquement pour cours %s", id)
-				}
-				if h.serviceConcepts != nil {
-					if _, err := h.serviceConcepts.ExtraireConcepts(ctx, id); err != nil {
-						log.Printf("Auto-extraction concepts échouée pour cours %s: %v", id, err)
-					} else {
-						log.Printf("Concepts extraits automatiquement pour cours %s", id)
-					}
-				}
-			}(cours.ID)
-		}
-	}
-
-	envoyerEvenementSSE(c.Writer, "complete", reponse)
+	return noms
 }
 
 // convertirErreurOCR convertit une erreur de validation OCR en code et message
@@ -490,7 +448,6 @@ func (h *HandlersOCR) convertirErreurOCR(err error) (string, string) {
 
 // convertirErreurTraitement convertit une erreur de traitement en status HTTP, code et message
 func (h *HandlersOCR) convertirErreurTraitement(err error) (int, string, string) {
-	// Erreurs OCR service
 	var errOCR *services.ErreurOCR
 	if errors.As(err, &errOCR) {
 		switch errOCR.Code {
@@ -501,7 +458,6 @@ func (h *HandlersOCR) convertirErreurTraitement(err error) (int, string, string)
 		}
 	}
 
-	// Erreurs LLM
 	var errLLM *llm.ErreurLLM
 	if errors.As(err, &errLLM) {
 		if errLLM.RateLimited {
@@ -513,15 +469,16 @@ func (h *HandlersOCR) convertirErreurTraitement(err error) (int, string, string)
 		return http.StatusInternalServerError, "ERREUR_OCR", errLLM.Message
 	}
 
-	// Erreur générique
 	return http.StatusInternalServerError, "ERREUR_INTERNE", "Une erreur inattendue s'est produite"
 }
 
-// RetraiterOCRCoursHandler relance l'OCR sur un cours existant pour générer les blocsTexte
+// RetraiterOCRCoursHandler relance l'OCR sur un cours existant (asynchrone).
 // POST /api/cours/:id/reocr
+// POST /api/cours/:id/reocr?page=N  (re-OCR d'une seule page, 0-indexed)
+// Retourne immédiatement. Le client poll GET /api/cours/:id pour la progression.
 func (h *HandlersOCR) RetraiterOCRCoursHandler(c *gin.Context) {
 	if h.serviceOCR == nil || h.serviceStorage == nil || h.coursRepo == nil {
-		c.JSON(http.StatusServiceUnavailable, ReponseOCR{
+		c.JSON(http.StatusServiceUnavailable, ReponseUpload{
 			Succes: false,
 			Erreur: &ErreurReponse{
 				Code:    "SERVICE_NON_DISPONIBLE",
@@ -533,17 +490,16 @@ func (h *HandlersOCR) RetraiterOCRCoursHandler(c *gin.Context) {
 
 	coursID := c.Param("id")
 	if coursID == "" {
-		c.JSON(http.StatusBadRequest, ReponseOCR{
+		c.JSON(http.StatusBadRequest, ReponseUpload{
 			Succes: false,
 			Erreur: &ErreurReponse{Code: "ID_MANQUANT", Message: "L'identifiant du cours est requis"},
 		})
 		return
 	}
 
-	// Récupérer le cours
 	cours, err := h.coursRepo.ObtenirParID(c.Request.Context(), coursID)
 	if err != nil {
-		c.JSON(http.StatusNotFound, ReponseOCR{
+		c.JSON(http.StatusNotFound, ReponseUpload{
 			Succes: false,
 			Erreur: &ErreurReponse{Code: "COURS_NON_TROUVE", Message: "Cours non trouvé"},
 		})
@@ -551,19 +507,37 @@ func (h *HandlersOCR) RetraiterOCRCoursHandler(c *gin.Context) {
 	}
 
 	if len(cours.Images) == 0 {
-		c.JSON(http.StatusBadRequest, ReponseOCR{
+		c.JSON(http.StatusBadRequest, ReponseUpload{
 			Succes: false,
 			Erreur: &ErreurReponse{Code: "PAS_D_IMAGES", Message: "Ce cours n'a pas d'images à re-traiter"},
 		})
 		return
 	}
 
-	// Lire toutes les images depuis le stockage
+	// Détection d'orientation : activée par défaut, désactivée si detecterOrientation=false
+	detecterOrientation := c.Query("detecterOrientation") != "false"
+
+	// Vérifier si une seule page est demandée
+	pageParam := c.Query("page")
+	if pageParam != "" {
+		pageIdx, err := strconv.Atoi(pageParam)
+		if err != nil || pageIdx < 0 || pageIdx >= len(cours.Images) {
+			c.JSON(http.StatusBadRequest, ReponseUpload{
+				Succes: false,
+				Erreur: &ErreurReponse{Code: "PAGE_INVALIDE", Message: "Index de page invalide"},
+			})
+			return
+		}
+		h.retraiterPageUnique(c, cours, pageIdx, detecterOrientation)
+		return
+	}
+
+	// Re-OCR de toutes les pages
 	var images [][]byte
 	for _, nomImage := range cours.Images {
 		cheminImage, err := h.serviceStorage.ObtenirImage(coursID, nomImage)
 		if err != nil {
-			continue // Ignorer les images manquantes
+			continue
 		}
 		data, err := os.ReadFile(cheminImage)
 		if err != nil {
@@ -573,89 +547,170 @@ func (h *HandlersOCR) RetraiterOCRCoursHandler(c *gin.Context) {
 	}
 
 	if len(images) == 0 {
-		c.JSON(http.StatusBadRequest, ReponseOCR{
+		c.JSON(http.StatusBadRequest, ReponseUpload{
 			Succes: false,
 			Erreur: &ErreurReponse{Code: "IMAGES_ILLISIBLES", Message: "Impossible de lire les images du cours"},
 		})
 		return
 	}
 
-	// Lancer l'OCR sur les images
-	resultat, err := h.serviceOCR.RetraiterOCRImages(c.Request.Context(), images)
-	if err != nil {
-		statusCode, codeErreur, message := h.convertirErreurTraitement(err)
-		c.JSON(statusCode, ReponseOCR{
-			Succes: false,
-			Erreur: &ErreurReponse{Code: codeErreur, Message: message},
-		})
-		return
-	}
-
-	// Mettre à jour le cours avec les nouveaux résultats OCR
-	cours.TexteOCR = resultat.Texte
-	cours.Confiance = resultat.Confiance
-
-	// Convertir les zones incertaines
-	zonesIncertaines := make([]store.ZoneIncertaine, len(resultat.ZonesIncertaines))
-	for i, zone := range resultat.ZonesIncertaines {
-		zonesIncertaines[i] = store.ZoneIncertaine{
-			Debut:  zone.Debut,
-			Fin:    zone.Fin,
-			Texte:  zone.Texte,
-			Raison: zone.Raison,
-		}
-	}
-	cours.ZonesIncertaines = zonesIncertaines
-
-	// Mettre à jour les blocs de texte (toujours, même si nil pour effacer les anciens)
-	if len(resultat.BlocsTexte) > 0 {
-		blocsJSON, errJSON := json.Marshal(resultat.BlocsTexte)
-		if errJSON == nil {
-			cours.BlocsTexte = json.RawMessage(blocsJSON)
-		}
-	} else {
-		cours.BlocsTexte = nil
-	}
-
+	// Passer le cours en statut "en_cours"
+	cours.StatutOCR = "en_cours"
+	cours.NombrePages = len(images)
+	cours.PagesTraitees = 0
+	cours.ErreurOCR = ""
 	if err := h.coursRepo.MettreAJour(c.Request.Context(), cours); err != nil {
-		c.JSON(http.StatusInternalServerError, ReponseOCR{
+		c.JSON(http.StatusInternalServerError, ReponseUpload{
 			Succes: false,
 			Erreur: &ErreurReponse{Code: "ERREUR_MAJ", Message: "Erreur lors de la mise à jour du cours"},
 		})
 		return
 	}
 
-	// Lancer la génération automatique du résumé et des concepts en arrière-plan
-	if coursID != "" && h.serviceGeneration != nil {
-		go func(id string) {
-			ctx := context.Background()
-			if _, err := h.serviceGeneration.GenererResume(ctx, id); err != nil {
-				log.Printf("Auto-génération résumé échouée pour cours %s: %v", id, err)
-			} else {
-				log.Printf("Résumé généré automatiquement pour cours %s", id)
-			}
-			if h.serviceConcepts != nil {
-				if _, err := h.serviceConcepts.ExtraireConcepts(ctx, id); err != nil {
-					log.Printf("Auto-extraction concepts échouée pour cours %s: %v", id, err)
-				} else {
-					log.Printf("Concepts extraits automatiquement pour cours %s", id)
-				}
-			}
-		}(coursID)
-	}
+	go h.traiterOCRAsynchrone(coursID, images, cours.Images, cours.Titre, cours.Matiere)
 
-	c.JSON(http.StatusOK, ReponseOCR{
-		Succes:           true,
-		Texte:            resultat.Texte,
-		Confiance:        resultat.Confiance,
-		ZonesIncertaines: zonesIncertaines,
-		NombrePages:      resultat.NombrePages,
-		CoursID:          coursID,
-		BlocsTexte:       resultat.BlocsTexte,
+	c.JSON(http.StatusOK, ReponseUpload{
+		Succes:      true,
+		CoursID:     coursID,
+		NombrePages: len(images),
 	})
 }
 
-// Vérification que HandlersOCR implémente les méthodes nécessaires
-var _ interface {
-	TraiterOCRHandler(*gin.Context)
-} = (*HandlersOCR)(nil)
+// retraiterPageUnique relance l'OCR sur une seule page d'un cours (asynchrone).
+func (h *HandlersOCR) retraiterPageUnique(c *gin.Context, cours *store.Cours, pageIdx int, detecterOrientation bool) {
+	nomImage := cours.Images[pageIdx]
+	cheminImage, err := h.serviceStorage.ObtenirImage(cours.ID, nomImage)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{Code: "IMAGE_ILLISIBLE", Message: "Impossible de lire l'image"},
+		})
+		return
+	}
+	imageData, err := os.ReadFile(cheminImage)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{Code: "IMAGE_ILLISIBLE", Message: "Impossible de lire l'image"},
+		})
+		return
+	}
+
+	// Passer le cours en statut "en_cours" (1 page)
+	cours.StatutOCR = "en_cours"
+	cours.NombrePages = 1
+	cours.PagesTraitees = 0
+	cours.ErreurOCR = ""
+	if err := h.coursRepo.MettreAJour(c.Request.Context(), cours); err != nil {
+		c.JSON(http.StatusInternalServerError, ReponseUpload{
+			Succes: false,
+			Erreur: &ErreurReponse{Code: "ERREUR_MAJ", Message: "Erreur lors de la mise à jour du cours"},
+		})
+		return
+	}
+
+	go h.traiterOCRPageAsynchrone(cours, pageIdx, imageData, nomImage, detecterOrientation)
+
+	c.JSON(http.StatusOK, ReponseUpload{
+		Succes:      true,
+		CoursID:     cours.ID,
+		NombrePages: 1,
+	})
+}
+
+// traiterOCRPageAsynchrone traite une seule page en arrière-plan et fusionne le résultat.
+// Si detecterOrientation est true, le LLM détecte l'orientation avant l'OCR.
+func (h *HandlersOCR) traiterOCRPageAsynchrone(cours *store.Cours, pageIdx int, imageData []byte, nomImage string, detecterOrientation bool) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("PANIC dans traiterOCRPageAsynchrone cours %s page %d: %v", cours.ID, pageIdx, r)
+		}
+	}()
+
+	log.Printf("Démarrage OCR page %d cours %s", pageIdx+1, cours.ID)
+	ctx := context.Background()
+
+	resultat, err := h.serviceOCR.RetraiterOCRImages(ctx, [][]byte{imageData}, detecterOrientation)
+	if err != nil {
+		log.Printf("Erreur OCR page %d cours %s: %v", pageIdx+1, cours.ID, err)
+		if errEchouer := h.coursRepo.EchouerOCR(ctx, cours.ID, err.Error()); errEchouer != nil {
+			log.Printf("Erreur marquage échec OCR cours %s: %v", cours.ID, errEchouer)
+		}
+		return
+	}
+
+	// Sauvegarder l'image pivotée si nécessaire
+	if h.serviceStorage != nil && len(resultat.ImagesCorrigees) > 0 {
+		if err := h.serviceStorage.EcraserImage(cours.ID, nomImage, resultat.ImagesCorrigees[0]); err != nil {
+			log.Printf("Erreur écriture image pivotée page %d cours %s: %v", pageIdx+1, cours.ID, err)
+		}
+	}
+
+	// Recharger le cours pour avoir les données les plus récentes
+	coursFrais, err := h.coursRepo.ObtenirParID(ctx, cours.ID)
+	if err != nil {
+		log.Printf("Erreur rechargement cours %s: %v", cours.ID, err)
+		return
+	}
+
+	// Fusionner les blocs : parser les blocs existants, remplacer ceux de la page
+	var blocsExistants []services.BlocTexteParPage
+	if coursFrais.BlocsTexte != nil {
+		json.Unmarshal(coursFrais.BlocsTexte, &blocsExistants)
+	}
+
+	// Retirer les blocs de cette page
+	var blocsFiltres []services.BlocTexteParPage
+	for _, b := range blocsExistants {
+		if b.Page != pageIdx {
+			blocsFiltres = append(blocsFiltres, b)
+		}
+	}
+
+	// Ajouter les nouveaux blocs de cette page (résultat a page=0, on remappe)
+	for _, b := range resultat.BlocsTexte {
+		blocsFiltres = append(blocsFiltres, services.BlocTexteParPage{
+			Page:       pageIdx,
+			BlocsTexte: b.BlocsTexte,
+		})
+	}
+
+	// Reconstruire le texte à partir de tous les blocs triés par page
+	var textesParPage []string
+	pageMap := make(map[int][]string)
+	for _, b := range blocsFiltres {
+		for _, bloc := range b.BlocsTexte {
+			pageMap[b.Page] = append(pageMap[b.Page], bloc.Texte)
+		}
+	}
+	for i := 0; i < len(coursFrais.Images); i++ {
+		if textes, ok := pageMap[i]; ok {
+			textesParPage = append(textesParPage, strings.Join(textes, "\n"))
+		}
+	}
+	texteComplet := strings.Join(textesParPage, "\n\n")
+
+	// Recalculer la confiance moyenne
+	var confianceTotale float64
+	var nbBlocs int
+	for _, b := range blocsFiltres {
+		for _, bloc := range b.BlocsTexte {
+			confianceTotale += bloc.Confiance
+			nbBlocs++
+		}
+	}
+	confiance := float64(0)
+	if nbBlocs > 0 {
+		confiance = confianceTotale / float64(nbBlocs)
+	}
+
+	blocsJSON, _ := json.Marshal(blocsFiltres)
+	zonesJSON, _ := json.Marshal(coursFrais.ZonesIncertaines)
+
+	if err := h.coursRepo.TerminerOCR(ctx, cours.ID, texteComplet, confiance, zonesJSON, blocsJSON, coursFrais.Titre, coursFrais.Matiere); err != nil {
+		log.Printf("Erreur finalisation OCR page %d cours %s: %v", pageIdx+1, cours.ID, err)
+		return
+	}
+
+	log.Printf("OCR page %d terminé pour cours %s", pageIdx+1, cours.ID)
+}

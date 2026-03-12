@@ -16,6 +16,10 @@ type AdaptateurLLM interface {
 	// ExtraireTexteImage extrait le texte d'une image (OCR)
 	ExtraireTexteImage(ctx context.Context, image []byte, options OptionsOCR) (*ResultatOCR, error)
 
+	// DetecterOrientation détecte si une image est pivotée et retourne
+	// l'angle de rotation nécessaire (0, 90, 180, 270)
+	DetecterOrientation(ctx context.Context, image []byte) (int, error)
+
 	// EstDisponible vérifie si le service est accessible
 	EstDisponible(ctx context.Context) bool
 
@@ -25,6 +29,9 @@ type AdaptateurLLM interface {
 
 // OptionsGeneration contient les options pour la génération de texte
 type OptionsGeneration struct {
+	// Modele permet de surcharger le modèle par défaut du fournisseur (ex: "gpt-4o-mini")
+	Modele string
+
 	// Temperature contrôle la créativité (0.0 = déterministe, 1.0 = créatif)
 	Temperature float64
 
@@ -63,6 +70,15 @@ type ResultatOCR struct {
 
 	// BlocsTexte contient les blocs de texte avec leurs positions approximatives dans l'image
 	BlocsTexte []BlocTexte `json:"blocs_texte,omitempty"`
+
+	// TitreSuggere est le titre déduit par le LLM lors de l'OCR
+	TitreSuggere string `json:"titre_suggere,omitempty"`
+
+	// MatiereSuggeree est la matière scolaire déduite par le LLM lors de l'OCR
+	MatiereSuggeree string `json:"matiere_suggeree,omitempty"`
+
+	// Rotation est le nombre de degrés de rotation horaire nécessaire pour remettre l'image à l'endroit (0, 90, 180, 270)
+	Rotation int `json:"rotation"`
 }
 
 // BlocTexte représente un bloc de texte avec sa position dans l'image

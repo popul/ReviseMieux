@@ -75,8 +75,13 @@ func (c *ClientOpenAI) GenererTexte(ctx context.Context, prompt string, options 
 		}
 	}
 
+	modele := openAIModeleChat
+	if options.Modele != "" {
+		modele = options.Modele
+	}
+
 	requete := requeteChatCompletion{
-		Model:       openAIModeleChat,
+		Model:       modele,
 		Messages:    messages,
 		Temperature: options.Temperature,
 		MaxTokens:   options.MaxTokens,
@@ -112,8 +117,13 @@ func (c *ClientOpenAI) GenererJSON(ctx context.Context, prompt string, schema in
 		}
 	}
 
+	modele := openAIModeleChat
+	if options.Modele != "" {
+		modele = options.Modele
+	}
+
 	requete := requeteChatCompletion{
-		Model:          openAIModeleChat,
+		Model:          modele,
 		Messages:       messages,
 		Temperature:    options.Temperature,
 		MaxTokens:      options.MaxTokens,
@@ -205,6 +215,69 @@ func (c *ClientOpenAI) ExtraireTexteImage(ctx context.Context, image []byte, opt
 
 	// Parse la réponse JSON
 	return parserReponseOCR(reponse.Choices[0].Message.Content)
+}
+
+// DetecterOrientation détecte si une image est pivotée et retourne l'angle de rotation (0, 90, 180, 270)
+func (c *ClientOpenAI) DetecterOrientation(ctx context.Context, image []byte) (int, error) {
+	imageBase64 := base64.StdEncoding.EncodeToString(image)
+	mimeType := detecterMimeType(image)
+
+	prompt := `Is the text in this image upright or rotated? Look at the physical orientation of characters relative to the image frame. Reply only in JSON: {"rotation": 0} if upright, {"rotation": 90}, {"rotation": 180} if upside down, {"rotation": 270}.`
+
+	contenuMulti := []contenuMessage{
+		{Type: "text", Text: prompt},
+		{
+			Type: "image_url",
+			ImageURL: &imageURL{
+				URL:    fmt.Sprintf("data:%s;base64,%s", mimeType, imageBase64),
+				Detail: "auto",
+			},
+		},
+	}
+
+	requete := requeteChatCompletionVision{
+		Model: openAIModeleVision,
+		Messages: []messageChatVision{
+			{Role: "user", Content: contenuMulti},
+		},
+		Temperature:    0,
+		MaxTokens:      50,
+		ResponseFormat: &formatReponse{Type: "json_object"},
+	}
+
+	reponse, err := c.appelChatCompletionVision(ctx, requete)
+	if err != nil {
+		return 0, err
+	}
+
+	if len(reponse.Choices) == 0 {
+		return 0, &ErreurLLM{
+			Fournisseur: "OpenAI",
+			Code:        500,
+			Message:     "aucune réponse pour la détection d'orientation",
+			Recuperable: true,
+		}
+	}
+
+	var result struct {
+		Rotation int `json:"rotation"`
+	}
+	if err := json.Unmarshal([]byte(reponse.Choices[0].Message.Content), &result); err != nil {
+		return 0, &ErreurLLM{
+			Fournisseur: "OpenAI",
+			Code:        500,
+			Message:     "réponse orientation invalide: " + err.Error(),
+			Recuperable: false,
+		}
+	}
+
+	// Valider la valeur
+	switch result.Rotation {
+	case 0, 90, 180, 270:
+		return result.Rotation, nil
+	default:
+		return 0, nil
+	}
 }
 
 // appelChatCompletion effectue un appel à l'API chat/completions
@@ -488,58 +561,44 @@ dans le champ "blocs_texte". Pour chaque bloc, estime sa position dans l'image e
 avec x, y pour le coin supérieur gauche et largeur, hauteur pour les dimensions.
 `, typeDoc, langue)
 
-	if options.DetailConfiance {
-		promptBase += `
-Pour chaque zone où tu n'es pas certain du texte (écriture illisible, mots flous, taches, etc.),
-indique-le dans le champ "zones_incertaines".
+	matieres := "mathematiques, francais, histoire, geographie, sciences, anglais, physique, chimie, svt, ses, philosophie, espagnol, allemand, italien, economie, informatique"
 
-Réponds uniquement en JSON avec ce format exact:
+	if options.DetailConfiance {
+		promptBase += fmt.Sprintf(`
+Pour chaque zone où tu n'es pas certain du texte, indique-le dans "zones_incertaines".
+
+Déduis aussi un titre court (max 50 caractères) et la matière scolaire parmi : %s.
+
+Réponds uniquement en JSON :
 {
   "texte": "Le texte extrait complet",
   "confiance": 0.95,
   "zones_incertaines": [
-    {
-      "debut": 45,
-      "fin": 52,
-      "texte": "mot probable",
-      "raison": "écriture peu lisible"
-    }
+    {"debut": 45, "fin": 52, "texte": "mot probable", "raison": "écriture peu lisible"}
   ],
   "blocs_texte": [
-    {
-      "texte": "Contenu du bloc",
-      "position": {"x": 5, "y": 10, "largeur": 90, "hauteur": 8},
-      "confiance": 0.95
-    }
-  ]
+    {"texte": "Contenu du bloc", "position": {"x": 5, "y": 10, "largeur": 90, "hauteur": 8}, "confiance": 0.95}
+  ],
+  "titre_suggere": "Titre court du cours",
+  "matiere_suggeree": "mathematiques"
 }
-
-- "confiance" est un score entre 0 et 1 représentant ta confiance globale dans l'extraction
-- "debut" et "fin" sont les indices de caractères dans le texte extrait
-- Si tout est clair, retourne une liste vide pour "zones_incertaines"
-- "blocs_texte" contient chaque bloc de texte distinct avec sa position estimée et sa confiance
-- "position": x, y = coin supérieur gauche en % de l'image (0-100), largeur et hauteur en %
-`
+`, matieres)
 	} else {
-		promptBase += `
-Réponds uniquement en JSON avec ce format exact:
+		promptBase += fmt.Sprintf(`
+Déduis aussi un titre court (max 50 caractères) et la matière scolaire parmi : %s.
+
+Réponds uniquement en JSON :
 {
   "texte": "Le texte extrait complet",
   "confiance": 0.95,
   "zones_incertaines": [],
   "blocs_texte": [
-    {
-      "texte": "Contenu du bloc",
-      "position": {"x": 5, "y": 10, "largeur": 90, "hauteur": 8},
-      "confiance": 0.95
-    }
-  ]
+    {"texte": "Contenu du bloc", "position": {"x": 5, "y": 10, "largeur": 90, "hauteur": 8}, "confiance": 0.95}
+  ],
+  "titre_suggere": "Titre court du cours",
+  "matiere_suggeree": "mathematiques"
 }
-
-- "confiance" est un score entre 0 et 1 représentant ta confiance globale dans l'extraction
-- "blocs_texte" contient chaque bloc de texte distinct avec sa position estimée et sa confiance
-- "position": x, y = coin supérieur gauche en % de l'image (0-100), largeur et hauteur en %
-`
+`, matieres)
 	}
 
 	return promptBase

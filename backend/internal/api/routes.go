@@ -61,6 +61,7 @@ func ConfigurerRoutes(r *gin.Engine, h *Handlers, serviceQuotas *services.Servic
 			cours.DELETE("/:id/images/:filename", h.SupprimerImageHandler)
 			cours.PUT("/:id/images/ordre", h.ReordonnerImagesHandler)
 			cours.POST("/:id/images/:filename/deplacer", h.DeplacerImageHandler)
+			cours.POST("/:id/images/:filename/pivoter", h.PivoterImageHandler)
 		}
 
 		// Routes OCR (avec middleware quota)

@@ -1,0 +1,4 @@
+ALTER TABLE cours DROP COLUMN IF EXISTS statut_ocr;
+ALTER TABLE cours DROP COLUMN IF EXISTS pages_traitees;
+ALTER TABLE cours DROP COLUMN IF EXISTS nombre_pages;
+ALTER TABLE cours DROP COLUMN IF EXISTS erreur_ocr;

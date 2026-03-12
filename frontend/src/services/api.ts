@@ -66,8 +66,18 @@ export interface Cours {
   images: string[]
   blocsTexte?: BlocTexteParPage[]
   resume?: ResumeCours
+  statutOCR: 'en_cours' | 'termine' | 'erreur'
+  pagesTraitees: number
+  nombrePages: number
+  erreurOCR?: string
   dateCreation: string
   dateModification: string
+}
+
+export interface ReponseUpload {
+  succes: boolean
+  coursId: string
+  nombrePages: number
 }
 
 export interface StatutAPI {
@@ -136,43 +146,37 @@ export async function envoyerOCR(
 const DIMENSION_MAX_IMAGE = 2048
 const QUALITE_JPEG = 0.85
 
-// Redimensionne une image côté client via Canvas si elle dépasse DIMENSION_MAX_IMAGE
+// Normalise une image côté client via Canvas :
+// - Corrige l'orientation EXIF via createImageBitmap (plus fiable que new Image())
+// - Redimensionne si l'image dépasse DIMENSION_MAX_IMAGE
 async function redimensionnerImage(fichier: File): Promise<File> {
   // Ne pas toucher aux PDF
   if (fichier.type === 'application/pdf') return fichier
 
-  // Charger l'image pour obtenir ses dimensions
-  const url = URL.createObjectURL(fichier)
-  const img = new Image()
-  await new Promise<void>((resolve, reject) => {
-    img.onload = () => resolve()
-    img.onerror = () => reject(new Error('Impossible de charger l\'image'))
-    img.src = url
-  })
-  URL.revokeObjectURL(url)
+  // createImageBitmap gère l'orientation EXIF de manière fiable
+  // et prend directement un File/Blob (pas besoin de créer un URL)
+  const bitmap = await createImageBitmap(fichier)
 
-  // Pas besoin de redimensionner si déjà assez petit
-  if (img.width <= DIMENSION_MAX_IMAGE && img.height <= DIMENSION_MAX_IMAGE) {
-    return fichier
+  // Calculer les dimensions cibles (réduire si nécessaire, sinon garder telles quelles)
+  let newW = bitmap.width
+  let newH = bitmap.height
+  if (newW > DIMENSION_MAX_IMAGE || newH > DIMENSION_MAX_IMAGE) {
+    if (newW > newH) {
+      newH = Math.round(newH * DIMENSION_MAX_IMAGE / newW)
+      newW = DIMENSION_MAX_IMAGE
+    } else {
+      newW = Math.round(newW * DIMENSION_MAX_IMAGE / newH)
+      newH = DIMENSION_MAX_IMAGE
+    }
   }
 
-  // Calculer les nouvelles dimensions en gardant le ratio
-  let newW = img.width
-  let newH = img.height
-  if (newW > newH) {
-    newH = Math.round(newH * DIMENSION_MAX_IMAGE / newW)
-    newW = DIMENSION_MAX_IMAGE
-  } else {
-    newW = Math.round(newW * DIMENSION_MAX_IMAGE / newH)
-    newH = DIMENSION_MAX_IMAGE
-  }
-
-  // Dessiner sur un canvas redimensionné
+  // Dessiner le bitmap (déjà orienté correctement) sur le canvas
   const canvas = document.createElement('canvas')
   canvas.width = newW
   canvas.height = newH
   const ctx = canvas.getContext('2d')!
-  ctx.drawImage(img, 0, 0, newW, newH)
+  ctx.drawImage(bitmap, 0, 0, newW, newH)
+  bitmap.close()
 
   // Exporter en JPEG (meilleur ratio taille/qualité)
   const blob = await new Promise<Blob>((resolve) => {
@@ -184,18 +188,19 @@ async function redimensionnerImage(fichier: File): Promise<File> {
   return new File([blob], nom, { type: 'image/jpeg' })
 }
 
+// Normalise une seule image (orientation + redimensionnement) — usage public
+export { redimensionnerImage as normaliserImage }
+
 // Redimensionne toutes les images en parallèle
 async function redimensionnerImages(fichiers: File[]): Promise<File[]> {
   return Promise.all(fichiers.map(redimensionnerImage))
 }
 
-// API OCR avec streaming SSE (progression page par page)
-export async function envoyerOCRStream(
+// API OCR — upload asynchrone (le traitement OCR se fait en arrière-plan)
+export async function uploaderCours(
   fichiers: File[],
-  onProgression: (page: number, total: number) => void,
-  options?: { titre?: string; matiere?: string; sauvegarder?: boolean },
-  signal?: AbortSignal
-): Promise<ReponseOCR> {
+  options?: { titre?: string; matiere?: string }
+): Promise<ReponseUpload> {
   // Redimensionner les images côté client avant upload
   const fichiersRedim = await redimensionnerImages(fichiers)
 
@@ -206,72 +211,13 @@ export async function envoyerOCRStream(
 
   if (options?.titre) formData.append('titre', options.titre)
   if (options?.matiere) formData.append('matiere', options.matiere)
-  if (options?.sauvegarder) formData.append('sauvegarder', 'true')
 
   const response = await fetch(`${API_BASE}/ocr`, {
     method: 'POST',
     body: formData,
-    signal,
   })
 
-  // Erreurs de validation (avant le SSE) : JSON classique
-  if (!response.ok) {
-    const erreur = await response.json().catch(() => ({
-      erreur: { code: 'ERREUR_INCONNUE', message: `Erreur HTTP ${response.status}` },
-    }))
-    const err = new Error(erreur.erreur?.message || `Erreur HTTP ${response.status}`) as Error & { status?: number; code?: string }
-    err.status = response.status
-    err.code = erreur.erreur?.code
-    throw err
-  }
-
-  // Lire le flux SSE
-  const reader = response.body!.getReader()
-  const decoder = new TextDecoder()
-  let buffer = ''
-
-  while (true) {
-    const { done, value } = await reader.read()
-    if (done) break
-
-    buffer += decoder.decode(value, { stream: true })
-
-    // Séparer les événements SSE (délimiteur : double saut de ligne)
-    const parties = buffer.split('\n\n')
-    buffer = parties.pop()! // garder le fragment incomplet
-
-    for (const partie of parties) {
-      if (!partie.trim()) continue
-
-      let eventType = ''
-      let eventData = ''
-
-      for (const ligne of partie.split('\n')) {
-        if (ligne.startsWith('event: ')) eventType = ligne.slice(7)
-        else if (ligne.startsWith('data: ')) eventData = ligne.slice(6)
-      }
-
-      if (!eventData) continue
-
-      try {
-        const parsed = JSON.parse(eventData)
-        switch (eventType) {
-          case 'progress':
-            onProgression(parsed.page, parsed.total)
-            break
-          case 'complete':
-            return parsed as ReponseOCR
-          case 'error':
-            throw new Error(parsed.message || 'Erreur OCR')
-        }
-      } catch (e) {
-        if (e instanceof Error && e.message !== 'Erreur OCR' && !e.message.startsWith('Erreur')) continue
-        throw e
-      }
-    }
-  }
-
-  throw new Error('La connexion avec le serveur a été interrompue')
+  return gererReponse<ReponseUpload>(response)
 }
 
 // API Cours
@@ -1086,6 +1032,26 @@ export async function genererResume(coursId: string): Promise<{ succes: boolean;
 // API Re-OCR
 export async function retraiterOCRCours(coursId: string): Promise<ReponseOCR> {
   const response = await fetch(`${API_BASE}/cours/${coursId}/reocr`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  return gererReponse(response)
+}
+
+// Pivoter une image d'un cours (gauche = 270° CW, droite = 90° CW) et relancer l'OCR
+export async function pivoterImageCours(coursId: string, filename: string, sens: 'gauche' | 'droite'): Promise<ReponseUpload> {
+  const response = await fetch(`${API_BASE}/cours/${coursId}/images/${encodeURIComponent(filename)}/pivoter?sens=${sens}`, {
+    method: 'POST',
+  })
+  return gererReponse<ReponseUpload>(response)
+}
+
+// Re-OCR d'une seule page (0-indexed)
+// detecterOrientation: true par défaut, false pour désactiver la détection auto d'orientation
+export async function retraiterOCRPage(coursId: string, pageIndex: number, detecterOrientation = true): Promise<ReponseUpload> {
+  const params = new URLSearchParams({ page: String(pageIndex) })
+  if (!detecterOrientation) params.set('detecterOrientation', 'false')
+  const response = await fetch(`${API_BASE}/cours/${coursId}/reocr?${params}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
   })

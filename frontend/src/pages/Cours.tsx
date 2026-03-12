@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useEffect, useState, useCallback, useMemo, useRef } from 'react'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import {
   listerCours,
   obtenirCours,
@@ -10,16 +10,21 @@ import {
   genererQuiz,
   getConceptsByCours,
   retraiterOCRCours,
+  retraiterOCRPage,
+  pivoterImageCours,
+  genererResume,
+  extraireConcepts,
   listerPlansRevision,
   listerPlansParCours,
   ajouterCoursAuPlan,
+  normaliserImage,
   type Cours,
   type ZoneIncertaine,
   type Fiche,
   type BlocTexteOCR,
   type BlocTexteParPage,
+  type PositionBlocOCR,
   type Concept,
-  type ResumeCours,
   type PlanRevisionResume,
 } from '../services/api'
 import ProcessingSection from '../components/ProcessingSection'
@@ -210,6 +215,7 @@ function CoursCard({
 
 // Vue détaillée d'un cours avec mode édition
 function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => void }) {
+  const navigate = useNavigate()
   const [cours, setCours] = useState<Cours | null>(null)
   const [chargement, setChargement] = useState(true)
   const [erreur, setErreur] = useState<string | null>(null)
@@ -234,17 +240,54 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
 
   // Concepts state
   const [concepts, setConcepts] = useState<Concept[]>([])
-  const [chargementConcepts, setChargementConcepts] = useState(false)
   const [conceptSelectionne, setConceptSelectionne] = useState<Concept | null>(null)
-
-  // Resume state
-  const [resume, setResume] = useState<ResumeCours | null>(null)
 
   // Overlay édition directe
   const [overlayModifie, setOverlayModifie] = useState(false)
 
-  // Re-OCR state
-  const [reOCREnCours, setReOCREnCours] = useState(false)
+  // OCR state unifié : upload = requête en vol, traitement = OCR côté serveur en attente de bboxes
+  const [pageOCREnCours, setPageOCREnCours] = useState<{ page: number; phase: 'upload' | 'traitement' } | null>(null)
+
+  // Pages orientées manuellement (détection auto désactivée)
+  const [pagesOrientationManuelle, setPagesOrientationManuelle] = useState<Set<number>>(new Set())
+
+  // Cache-busting pour les images (timestamp initial + incrémenté à chaque rotation/re-OCR)
+  const [imageVersion, setImageVersion] = useState(() => Date.now())
+
+  // État des miniatures (indicateurs OCR)
+  const etatPages = useMemo(() => {
+    const map = new Map<number, 'upload' | 'attente' | 'en_cours' | 'termine'>()
+
+    // Base : OCR global (initial ou re-OCR tout)
+    if (cours?.statutOCR === 'en_cours') {
+      const nbImages = cours.images?.length ?? 0
+      const pagesAvecBlocs = new Set(blocsTexteEdites.map(b => b.page))
+      let premierePageSansBlocs = true
+      for (let i = 0; i < nbImages; i++) {
+        if (pagesAvecBlocs.has(i)) {
+          map.set(i, 'termine')
+        } else if (premierePageSansBlocs) {
+          map.set(i, 'en_cours')
+          premierePageSansBlocs = false
+        } else {
+          map.set(i, 'attente')
+        }
+      }
+    }
+
+    // Superposition : opération single-page (écrase l'état global pour cette page)
+    if (pageOCREnCours !== null) {
+      map.set(pageOCREnCours.page, pageOCREnCours.phase === 'upload' ? 'upload' : 'en_cours')
+    }
+
+    return map
+  }, [pageOCREnCours, cours?.statutOCR, cours?.images?.length, blocsTexteEdites])
+
+  // Dérivé : opération en cours (bannière globale + texte OCR)
+  const operationEnCours = pageOCREnCours !== null || cours?.statutOCR === 'en_cours'
+  // Dérivé : page courante bloquée (pour les boutons rotation/re-OCR/auto-orient)
+  // page === -1 indique une opération globale (re-OCR tout, ajout d'images)
+  const pageCouranteBloquee = (pageOCREnCours !== null && (pageOCREnCours.page === imageSelectionnee || pageOCREnCours.page === -1)) || cours?.statutOCR === 'en_cours'
 
   // Plans state
   const [plansMenuOuvert, setPlansMenuOuvert] = useState(false)
@@ -286,7 +329,6 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
       .then((c) => {
         if (!cancelled) {
           setCours(c)
-          setTexteEdite(c.texteOCR || '')
           setZonesIncertainesEditees(c.zonesIncertaines || [])
           setBlocsTexteEdites(c.blocsTexte || [])
           setChargement(false)
@@ -303,6 +345,50 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
       cancelled = true
     }
   }, [coursId])
+
+  // Polling OCR : si le cours est en cours de traitement, poll toutes les 2s
+  useEffect(() => {
+    if (!cours || cours.statutOCR !== 'en_cours') return
+
+    const timer = setInterval(async () => {
+      try {
+        const coursMAJ = await obtenirCours(coursId)
+        setCours((prev) => {
+          // Ne mettre à jour que si les données ont changé
+          if (!prev || prev.pagesTraitees !== coursMAJ.pagesTraitees || prev.statutOCR !== coursMAJ.statutOCR || prev.texteOCR !== coursMAJ.texteOCR) {
+            setZonesIncertainesEditees(coursMAJ.zonesIncertaines || [])
+            setBlocsTexteEdites(coursMAJ.blocsTexte || [])
+            setOverlayModifie(false)
+            return coursMAJ
+          }
+          return prev
+        })
+        if (coursMAJ.statutOCR !== 'en_cours') {
+          clearInterval(timer)
+        }
+      } catch {
+        // Ignorer les erreurs de polling
+      }
+    }, 2000)
+
+    return () => clearInterval(timer)
+  }, [cours?.statutOCR, coursId]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Détecter l'apparition des bboxes pour une page en traitement → effacer le spinner
+  // Ne PAS utiliser ocrTermine ici : pour les ops single-page, le statut global est déjà 'termine',
+  // ce qui effaçait le spinner immédiatement avant l'arrivée des blocs.
+  useEffect(() => {
+    if (!pageOCREnCours || pageOCREnCours.phase !== 'traitement') return
+    if (pageOCREnCours.page < 0) return // opérations globales (-1) gérées par finally du handler
+    const pageADesBlocs = blocsTexteEdites.some(b => b.page === pageOCREnCours.page)
+    if (pageADesBlocs) {
+      setPageOCREnCours(null)
+      return
+    }
+    // Sécurité : timeout si les blocs n'arrivent jamais (erreur silencieuse côté serveur)
+    const timeout = setTimeout(() => setPageOCREnCours(null), 30000)
+    return () => clearTimeout(timeout)
+  }, [pageOCREnCours, blocsTexteEdites])
 
   // Activer le mode édition
   const activerEdition = () => {
@@ -330,12 +416,18 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
 
     setSauvegarde(true)
     try {
+      const texteASauvegarder = !modeEdition && blocsTexteEdites.length > 0
+        ? reconstruireTexteDepuisBlocs(blocsTexteEdites)
+        : texteEdite
       const coursModifie = await mettreAJourCours(coursId, {
-        texteOCR: texteEdite,
+        texteOCR: texteASauvegarder,
         zonesIncertaines: zonesIncertainesEditees,
         blocsTexte: blocsTexteEdites.length > 0 ? blocsTexteEdites : undefined,
       })
       setCours(coursModifie)
+      setZonesIncertainesEditees(coursModifie.zonesIncertaines || [])
+      setBlocsTexteEdites(coursModifie.blocsTexte || [])
+      setOverlayModifie(false)
       setModeEdition(false)
     } catch (err) {
       setErreur(err instanceof Error ? err.message : 'Erreur lors de la sauvegarde')
@@ -356,99 +448,76 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
     setZonesIncertainesEditees(nouvellesZones)
   }
 
-  // Charger les fiches existantes
+  // Charger les fiches existantes (une seule fois par coursId, indépendant du polling)
   useEffect(() => {
     let cancelled = false
 
-    if (cours) {
-      setChargementFiches(true)
-      obtenirFichesCours(coursId)
-        .then((res) => {
-          if (!cancelled && res.succes) {
-            setFiches(res.fiches || [])
-          }
-        })
-        .catch(() => {
-          // Pas de fiches existantes, ce n'est pas une erreur
-        })
-        .finally(() => {
-          if (!cancelled) {
-            setChargementFiches(false)
-          }
-        })
-    }
+    setChargementFiches(true)
+    obtenirFichesCours(coursId)
+      .then((res) => {
+        if (!cancelled && res.succes) {
+          setFiches(res.fiches || [])
+        }
+      })
+      .catch(() => {
+        // Pas de fiches existantes, ce n'est pas une erreur
+      })
+      .finally(() => {
+        if (!cancelled) {
+          setChargementFiches(false)
+        }
+      })
 
     return () => {
       cancelled = true
     }
-  }, [cours, coursId])
+  }, [coursId])
 
   // Charger les concepts du cours
   useEffect(() => {
     if (!coursId) return
-    setChargementConcepts(true)
     getConceptsByCours(coursId)
       .then(res => setConcepts(res.concepts || []))
       .catch(() => setConcepts([]))
-      .finally(() => setChargementConcepts(false))
   }, [coursId])
 
-  // Parser le résumé depuis les données du cours
-  useEffect(() => {
-    if (cours?.resume) {
-      setResume(cours.resume as unknown as ResumeCours)
-    } else {
-      setResume(null)
+  // Résumé dérivé du cours (pas de state séparé)
+  const resume = cours?.resume ?? null
+
+  // Générer le résumé et les concepts manuellement (après vérification OCR)
+  const [generationResumeEnCours, setGenerationResumeEnCours] = useState(false)
+  const genererResumeEtConcepts = async () => {
+    setGenerationResumeEnCours(true)
+    try {
+      const [resResume] = await Promise.all([
+        genererResume(coursId),
+        extraireConcepts(coursId).catch(() => null),
+      ])
+      if (resResume.resume) {
+        setCours(prev => prev ? { ...prev, resume: resResume.resume } : prev)
+      }
+      const resConcepts = await getConceptsByCours(coursId)
+      if (resConcepts.concepts && resConcepts.concepts.length > 0) {
+        setConcepts(resConcepts.concepts)
+      }
+    } catch (err) {
+      console.error('Erreur génération résumé:', err)
+    } finally {
+      setGenerationResumeEnCours(false)
     }
-  }, [cours])
+  }
 
-  // Polling pour récupérer le résumé et les concepts générés automatiquement
+  // Deep-link concept depuis l'URL (une seule fois)
+  const deepLinkApplique = useRef(false)
   useEffect(() => {
-    if (!cours?.texteOCR) return
-    const resumeManquant = !resume
-    const conceptsManquants = concepts.length === 0
-    if (!resumeManquant && !conceptsManquants) return
-
-    let tentatives = 0
-    const maxTentatives = 6
-    const timer = setInterval(async () => {
-      tentatives++
-      if (tentatives > maxTentatives) {
-        clearInterval(timer)
-        return
-      }
-      try {
-        const coursMAJ = await obtenirCours(coursId)
-        setCours(coursMAJ)
-        if (coursMAJ.resume) {
-          setResume(coursMAJ.resume as unknown as ResumeCours)
-        }
-        const resConcepts = await getConceptsByCours(coursId)
-        if (resConcepts.concepts && resConcepts.concepts.length > 0) {
-          setConcepts(resConcepts.concepts)
-        }
-        // Arrêter si les deux sont arrivés
-        const aResume = !!coursMAJ.resume
-        const aConcepts = resConcepts.concepts && resConcepts.concepts.length > 0
-        if (aResume && aConcepts) {
-          clearInterval(timer)
-        }
-      } catch {
-        // Ignorer les erreurs de polling
-      }
-    }, 5000)
-
-    return () => clearInterval(timer)
-  }, [cours?.texteOCR, coursId]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Lire le paramètre concept dans l'URL pour deep-linking
-  useEffect(() => {
+    if (deepLinkApplique.current || concepts.length === 0) return
     const params = new URLSearchParams(window.location.search)
     const conceptId = params.get('concept')
-    if (conceptId && concepts.length > 0) {
+    if (conceptId) {
       const found = concepts.find(c => c.id === conceptId)
       if (found) setConceptSelectionne(found)
     }
+    deepLinkApplique.current = true
   }, [concepts])
 
   // Scroll vers le concept surligné
@@ -485,7 +554,7 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
       const res = await genererQuiz(coursId, { nombreQuestions: 5 })
       if (res.succes && res.quiz) {
         // Rediriger vers le quiz
-        window.location.href = `/quiz?id=${res.quiz.id}`
+        navigate(`/quiz?id=${res.quiz.id}`)
       } else {
         setErreurQuiz(res.erreur?.message || 'Erreur lors de la génération')
       }
@@ -496,20 +565,77 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
     }
   }
 
+  // Utiliser les images sauvegardées (pas les noms de fichiers originaux)
+  const images = cours?.images || []
+
+  // Helper partagé : opération single-page (rotation, re-OCR, auto-orient)
+  const executerOperationPage = async (
+    page: number,
+    operation: () => Promise<unknown>,
+    avantOperation?: () => void,
+  ) => {
+    setPageOCREnCours({ page, phase: 'upload' })
+    avantOperation?.()
+    setBlocsTexteEdites(prev => prev.filter(b => b.page !== page))
+    try {
+      await operation()
+      setPageOCREnCours({ page, phase: 'traitement' })
+      setImageVersion(v => v + 1)
+      const coursMAJ = await obtenirCours(coursId)
+      setCours(coursMAJ)
+      setBlocsTexteEdites(coursMAJ.blocsTexte || [])
+    } catch (err) {
+      console.error('Erreur opération page:', err)
+      setPageOCREnCours(null)
+    }
+  }
+
   const handleReOCR = async () => {
     if (!coursId) return
-    setReOCREnCours(true)
+    await executerOperationPage(
+      imageSelectionnee,
+      () => retraiterOCRPage(coursId, imageSelectionnee, false),
+    )
+  }
+
+  const handleAutoDetectOrientation = async () => {
+    if (!coursId) return
+    await executerOperationPage(
+      imageSelectionnee,
+      () => retraiterOCRPage(coursId, imageSelectionnee, true),
+      () => setPagesOrientationManuelle(prev => {
+        const next = new Set(prev)
+        next.delete(imageSelectionnee)
+        return next
+      }),
+    )
+  }
+
+  const handlePivoter = async (sens: 'gauche' | 'droite') => {
+    if (!coursId || !cours || images.length === 0) return
+    const filename = images[imageSelectionnee]
+    if (!filename) return
+    await executerOperationPage(
+      imageSelectionnee,
+      () => pivoterImageCours(coursId, filename, sens),
+      () => setPagesOrientationManuelle(prev => new Set(prev).add(imageSelectionnee)),
+    )
+  }
+
+  const handleReOCRTout = async () => {
+    if (!coursId) return
+    setPageOCREnCours({ page: -1, phase: 'upload' })
+    setBlocsTexteEdites([])
     try {
-      const res = await retraiterOCRCours(coursId)
-      if (res.succes && cours) {
-        // Refresh course data
-        const coursMAJ = await obtenirCours(coursId)
-        setCours(coursMAJ)
-      }
+      await retraiterOCRCours(coursId)
+      setImageVersion(v => v + 1)
+      const coursMAJ = await obtenirCours(coursId)
+      setCours(coursMAJ)
+      setBlocsTexteEdites(coursMAJ.blocsTexte || [])
     } catch (err) {
       console.error('Erreur re-OCR:', err)
     } finally {
-      setReOCREnCours(false)
+      setPageOCREnCours(null)
     }
   }
 
@@ -518,6 +644,14 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
   }
 
   // Modifier un bloc de texte OCR
+  // Reconstruire le texte global à partir des blocs triés par numéro de page
+  const reconstruireTexteDepuisBlocs = (blocs: BlocTexteParPage[]): string => {
+    return [...blocs]
+      .sort((a, b) => a.page - b.page)
+      .map((page) => page.blocs_texte.map((b) => b.texte).join('\n'))
+      .join('\n\n')
+  }
+
   const modifierBlocTexte = (pageIndex: number, blocIndex: number, nouveauTexte: string) => {
     const nouveauxBlocs = [...blocsTexteEdites]
     if (nouveauxBlocs[pageIndex]) {
@@ -525,11 +659,6 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
       blocsPage[blocIndex] = { ...blocsPage[blocIndex], texte: nouveauTexte }
       nouveauxBlocs[pageIndex] = { ...nouveauxBlocs[pageIndex], blocs_texte: blocsPage }
       setBlocsTexteEdites(nouveauxBlocs)
-      // Mettre a jour le texte OCR global (concatenation de tous les blocs)
-      const texteComplet = nouveauxBlocs
-        .flatMap((page) => page.blocs_texte.map((b) => b.texte))
-        .join('\n')
-      setTexteEdite(texteComplet)
       setOverlayModifie(true)
     }
   }
@@ -540,20 +669,76 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
     return pageData?.blocs_texte || []
   }
 
+  // Texte toujours calculé depuis les blocs (champ dérivé)
+  const texteCalcule = useMemo(() => {
+    if (blocsTexteEdites.length > 0) {
+      return reconstruireTexteDepuisBlocs(blocsTexteEdites)
+    }
+    return cours?.texteOCR || ''
+  }, [blocsTexteEdites, cours?.texteOCR])
+
+  // Supprimer un bloc de texte OCR
+  const supprimerBlocTexte = (pageDataIndex: number, blocIndex: number) => {
+    const nouveauxBlocs = [...blocsTexteEdites]
+    if (nouveauxBlocs[pageDataIndex]) {
+      const blocsPage = [...nouveauxBlocs[pageDataIndex].blocs_texte]
+      blocsPage.splice(blocIndex, 1)
+      if (blocsPage.length === 0) {
+        nouveauxBlocs.splice(pageDataIndex, 1)
+      } else {
+        nouveauxBlocs[pageDataIndex] = { ...nouveauxBlocs[pageDataIndex], blocs_texte: blocsPage }
+      }
+      setBlocsTexteEdites(nouveauxBlocs)
+      setOverlayModifie(true)
+    }
+  }
+
+  // Déplacer un bloc de texte OCR (drag & drop de la bbox)
+  const deplacerBlocTexte = (pageDataIndex: number, blocIndex: number, nouvellePosition: PositionBlocOCR) => {
+    const nouveauxBlocs = [...blocsTexteEdites]
+    if (nouveauxBlocs[pageDataIndex]) {
+      const blocsPage = [...nouveauxBlocs[pageDataIndex].blocs_texte]
+      blocsPage[blocIndex] = { ...blocsPage[blocIndex], position: nouvellePosition }
+      nouveauxBlocs[pageDataIndex] = { ...nouveauxBlocs[pageDataIndex], blocs_texte: blocsPage }
+      setBlocsTexteEdites(nouveauxBlocs)
+      setOverlayModifie(true)
+    }
+  }
+
   // Reordonner les images via drag and drop
   const reordonnerImages = async (nouvelOrdre: string[]) => {
     if (!cours) return
     try {
-      const coursModifie = await mettreAJourCours(coursId, { images: nouvelOrdre })
+      // Construire le mapping ancien index → nouvel index
+      const ancienOrdre = cours.images || []
+      const mapping = new Map<number, number>()
+      ancienOrdre.forEach((img, ancienIdx) => {
+        const nouvelIdx = nouvelOrdre.indexOf(img)
+        if (nouvelIdx !== -1) mapping.set(ancienIdx, nouvelIdx)
+      })
+
+      // Mettre à jour les numéros de page dans blocsTexte
+      const blocsReordonnes = blocsTexteEdites.map((b) => ({
+        ...b,
+        page: mapping.get(b.page) ?? b.page,
+      }))
+
+      const coursModifie = await mettreAJourCours(coursId, {
+        images: nouvelOrdre,
+        blocsTexte: blocsReordonnes,
+      })
       setCours(coursModifie)
+      const blocsFinaux = coursModifie.blocsTexte || blocsReordonnes
+      setBlocsTexteEdites(blocsFinaux)
     } catch (err) {
       console.error('Erreur lors du reordonnancement:', err)
     }
   }
 
-  // Générer l'URL de l'image
+  // Générer l'URL de l'image (avec cache busting pour refléter les rotations)
   const getImageUrl = (nomFichier: string) => {
-    return `/api/cours/${coursId}/images/${encodeURIComponent(nomFichier)}`
+    const base = `/api/cours/${coursId}/images/${encodeURIComponent(nomFichier)}`
+    return `${base}?v=${imageVersion}`
   }
 
   // Helper pour surligner le texte du concept sélectionné
@@ -576,8 +761,20 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
 
   if (chargement) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <ProcessingSection message="Chargement du cours..." />
+      <div className="bg-white rounded-lg p-4 md:p-8 lg:p-12 shadow-sm animate-pulse">
+        <div className="flex items-start gap-8 mb-8">
+          <div className="w-20 h-20 rounded-lg bg-cream" />
+          <div className="flex-1">
+            <div className="h-7 bg-cream rounded w-2/3 mb-3" />
+            <div className="h-4 bg-cream rounded w-1/3 mb-4" />
+            <div className="h-3 bg-cream rounded w-1/4" />
+          </div>
+        </div>
+        <div className="space-y-3">
+          <div className="h-4 bg-cream rounded w-full" />
+          <div className="h-4 bg-cream rounded w-5/6" />
+          <div className="h-4 bg-cream rounded w-4/6" />
+        </div>
       </div>
     )
   }
@@ -600,21 +797,84 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
     )
   }
 
-  // Utiliser les images sauvegardées (pas les noms de fichiers originaux)
-  const images = cours.images || []
+  const blocsPageCourante = getBlocsPageCourante()
+
+  // Boutons d'action image (partagés entre overlay et image brute)
+  const boutonsActionImage = (
+    <>
+      <button
+        data-testid="btn-pivoter-gauche"
+        onClick={() => handlePivoter('gauche')}
+        disabled={pageCouranteBloquee}
+        className="px-2 py-1.5 bg-white/90 text-ink rounded-full text-xs font-medium hover:bg-white disabled:opacity-50 transition-colors shadow-md"
+        title="Pivoter à gauche"
+      >
+        ↶
+      </button>
+      <button
+        data-testid="btn-pivoter-droite"
+        onClick={() => handlePivoter('droite')}
+        disabled={pageCouranteBloquee}
+        className="px-2 py-1.5 bg-white/90 text-ink rounded-full text-xs font-medium hover:bg-white disabled:opacity-50 transition-colors shadow-md"
+        title="Pivoter à droite"
+      >
+        ↷
+      </button>
+      <button
+        data-testid="btn-auto-orient"
+        onClick={handleAutoDetectOrientation}
+        disabled={pageCouranteBloquee}
+        className={`px-2 py-1.5 rounded-full text-xs font-medium disabled:opacity-50 transition-colors shadow-md ${
+          pagesOrientationManuelle.has(imageSelectionnee)
+            ? 'bg-coral/90 text-white hover:bg-coral'
+            : 'bg-white/90 text-ink hover:bg-white'
+        }`}
+        title={pagesOrientationManuelle.has(imageSelectionnee)
+          ? 'Détection auto désactivée — cliquer pour réactiver'
+          : 'Relancer la détection automatique d\'orientation'}
+      >
+        {pagesOrientationManuelle.has(imageSelectionnee) ? '🧭!' : '🧭'}
+      </button>
+      <button
+        data-testid="btn-reocr"
+        onClick={handleReOCR}
+        disabled={pageCouranteBloquee}
+        className="px-3 py-1.5 bg-gold text-teal-dark rounded-full text-xs font-medium hover:bg-gold/90 disabled:opacity-50 transition-colors shadow-md"
+      >
+        {pageCouranteBloquee ? 'Re-OCR...' : 'Relancer l\'OCR'}
+      </button>
+    </>
+  )
 
   // Supprimer une image
   const supprimerImage = async (nomFichier: string) => {
     if (!cours) return
     try {
+      const indexSupprime = images.indexOf(nomFichier)
       const response = await fetch(`/api/cours/${coursId}/images/${encodeURIComponent(nomFichier)}`, {
         method: 'DELETE',
       })
       if (response.ok) {
         const data = await response.json()
+        // Mettre à jour les blocs : supprimer la page et remapper les numéros
+        let blocsMAJ = blocsTexteEdites
+        if (indexSupprime !== -1) {
+          blocsMAJ = blocsTexteEdites
+            .filter(b => b.page !== indexSupprime)
+            .map(b => ({
+              ...b,
+              page: b.page > indexSupprime ? b.page - 1 : b.page,
+            }))
+          setBlocsTexteEdites(blocsMAJ)
+          setOverlayModifie(true)
+        }
         setCours({ ...cours, images: data.images })
         if (imageSelectionnee >= data.images.length) {
           setImageSelectionnee(Math.max(0, data.images.length - 1))
+        }
+        // Sauvegarder les blocs mis à jour au backend
+        if (indexSupprime !== -1 && blocsMAJ.length > 0) {
+          await mettreAJourCours(coursId, { blocsTexte: blocsMAJ })
         }
       }
     } catch (err) {
@@ -622,11 +882,12 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
     }
   }
 
-  // Ajouter une image
+  // Ajouter une image (normalise l'orientation EXIF avant upload)
   const ajouterImage = async (file: File) => {
     if (!cours) return
+    const fichierNormalise = await normaliserImage(file)
     const formData = new FormData()
-    formData.append('image', file)
+    formData.append('image', fichierNormalise)
 
     try {
       const response = await fetch(`/api/cours/${coursId}/images`, {
@@ -642,11 +903,25 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
     }
   }
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      ajouterImage(file)
-      e.target.value = '' // Reset input
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files || files.length === 0) return
+    setPageOCREnCours({ page: -1, phase: 'upload' })
+    for (const file of Array.from(files)) {
+      await ajouterImage(file)
+    }
+    e.target.value = '' // Reset input
+    // Lancer l'OCR (asynchrone côté backend, le polling prendra le relai)
+    try {
+      await retraiterOCRCours(coursId)
+      // Rafraîchir pour voir le statut "en_cours" et déclencher le polling
+      const coursMAJ = await obtenirCours(coursId)
+      setCours(coursMAJ)
+      setBlocsTexteEdites(coursMAJ.blocsTexte || [])
+    } catch (err) {
+      console.error('Erreur lors du lancement OCR:', err)
+    } finally {
+      setPageOCREnCours(null)
     }
   }
 
@@ -680,27 +955,41 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
             </>
           ) : (
             <>
-              <button
-                onClick={activerEdition}
-                className="px-6 py-2 bg-gold text-white rounded-full text-sm font-medium hover:bg-gold/90 transition-colors"
-              >
-                Modifier
-              </button>
+              {cours.statutOCR === 'termine' && (
+                <button
+                  onClick={activerEdition}
+                  className="px-6 py-2 bg-gold text-white rounded-full text-sm font-medium hover:bg-gold/90 transition-colors"
+                >
+                  Modifier
+                </button>
+              )}
               <Link
-                to={`/fiches?cours=${cours.id}`}
-                className="px-6 py-2 bg-coral text-white rounded-full text-sm font-medium hover:bg-coral-dark transition-colors"
+                to={cours.statutOCR === 'termine' ? `/fiches?cours=${cours.id}` : '#'}
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+                  cours.statutOCR === 'termine'
+                    ? 'bg-coral text-white hover:bg-coral-dark'
+                    : 'bg-ink-muted text-white cursor-not-allowed pointer-events-none'
+                }`}
               >
                 Réviser les fiches
               </Link>
               <Link
-                to={`/quiz?cours=${cours.id}`}
-                className="px-6 py-2 bg-teal text-white rounded-full text-sm font-medium hover:bg-teal-light transition-colors"
+                to={cours.statutOCR === 'termine' ? `/quiz?cours=${cours.id}` : '#'}
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+                  cours.statutOCR === 'termine'
+                    ? 'bg-teal text-white hover:bg-teal-light'
+                    : 'bg-ink-muted text-white cursor-not-allowed pointer-events-none'
+                }`}
               >
                 Lancer un quiz
               </Link>
               <Link
-                to={`/examen-blanc?cours=${cours.id}`}
-                className="px-6 py-2 bg-ink text-white rounded-full text-sm font-medium hover:bg-ink/80 transition-colors"
+                to={cours.statutOCR === 'termine' ? `/examen-blanc?cours=${cours.id}` : '#'}
+                className={`px-6 py-2 rounded-full text-sm font-medium transition-colors ${
+                  cours.statutOCR === 'termine'
+                    ? 'bg-ink text-white hover:bg-ink/80'
+                    : 'bg-ink-muted text-white cursor-not-allowed pointer-events-none'
+                }`}
               >
                 Examen blanc
               </Link>
@@ -772,8 +1061,56 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
           </div>
         </div>
 
+        {/* Bannière progression OCR */}
+        {cours.statutOCR === 'en_cours' && (
+          <div data-testid="ocr-progress-banner" className="mb-8 p-6 bg-teal/10 border border-teal/30 rounded-md">
+            <div className="flex items-center gap-4 mb-3">
+              <div className="animate-spin h-5 w-5 border-2 border-teal border-t-transparent rounded-full" />
+              <span className="font-medium text-teal">
+                Extraction du texte en cours... Page {cours.pagesTraitees} sur {cours.nombrePages}
+              </span>
+            </div>
+            <div className="h-2 bg-cream-dark rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full bg-teal transition-all duration-500"
+                style={{ width: `${cours.nombrePages > 0 ? (cours.pagesTraitees / cours.nombrePages) * 100 : 0}%` }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Bannière erreur OCR */}
+        {cours.statutOCR === 'erreur' && (
+          <div className="mb-8 p-6 bg-coral/10 border border-coral/30 rounded-md">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <span className="text-2xl">⚠️</span>
+                <div>
+                  <p className="font-medium text-coral">Erreur lors de l'extraction du texte</p>
+                  {cours.erreurOCR && (
+                    <p className="text-sm text-ink-muted mt-1">{cours.erreurOCR}</p>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={handleReOCRTout}
+                disabled={operationEnCours}
+                className="px-6 py-2 bg-coral text-white rounded-full text-sm font-medium hover:bg-coral-dark transition-colors disabled:opacity-50 whitespace-nowrap"
+              >
+                {operationEnCours ? 'Relance en cours...' : 'Relancer l\'OCR'}
+              </button>
+            </div>
+            {operationEnCours && (
+              <div className="flex items-center gap-2 mt-3 text-coral">
+                <div className="animate-spin h-4 w-4 border-2 border-coral border-t-transparent rounded-full" />
+                <span className="text-xs">Traitement des images en cours...</span>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Indicateur OCR */}
-        {cours.confiance > 0 && (
+        {cours.confiance > 0 && cours.statutOCR === 'termine' && (
           <div className="mb-8 p-6 bg-cream rounded-md">
             <div className="flex items-center justify-between text-sm mb-2">
               <span className="text-ink-muted">Confiance OCR</span>
@@ -796,114 +1133,109 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
           </div>
         )}
 
-        {/* Section Resume */}
-        {!modeEdition && (
+        {/* Bouton Générer le résumé — après vérification OCR */}
+        {!modeEdition && !resume && cours?.statutOCR === 'termine' && cours?.texteOCR && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6 text-center">
+            <p className="text-gray-600 mb-3">Vérifie le texte OCR ci-dessus, puis génère le résumé et les concepts.</p>
+            <button
+              onClick={genererResumeEtConcepts}
+              disabled={generationResumeEnCours}
+              className="px-6 py-3 bg-[#1A4D4D] text-white rounded-lg hover:bg-[#163f3f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            >
+              {generationResumeEnCours ? (
+                <span className="flex items-center gap-2 justify-center">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  Génération en cours...
+                </span>
+              ) : (
+                '✨ Générer le résumé et les concepts'
+              )}
+            </button>
+          </div>
+        )}
+
+        {/* Section Resume — visible uniquement quand les données existent */}
+        {!modeEdition && resume && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-[#1A4D4D]">Résumé du cours</h3>
             </div>
-            {!resume && cours.texteOCR && (
-              <div className="flex items-center gap-3 text-gray-500">
-                <div className="animate-spin h-5 w-5 border-2 border-[#E85D4C] border-t-transparent rounded-full" />
-                <span>Résumé en cours de génération...</span>
-              </div>
-            )}
-            {resume && (
-              <div className="space-y-4">
-                {resume.paragraphe && (
-                  <p className="text-gray-700 leading-relaxed bg-[#FBF8F3] p-4 rounded-lg">{resume.paragraphe}</p>
-                )}
-                {resume.pointsCles && resume.pointsCles.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-semibold text-[#1A4D4D] mb-2">Points clés</h4>
-                    <ul className="space-y-1">
-                      {resume.pointsCles.map((point, i) => (
-                        <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
-                          <span className="text-[#E85D4C] mt-0.5">&bull;</span>
-                          <span>{point}</span>
-                        </li>
-                      ))}
-                    </ul>
+            <div className="space-y-4">
+              {resume.paragraphe && (
+                <p className="text-gray-700 leading-relaxed bg-[#FBF8F3] p-4 rounded-lg">{resume.paragraphe}</p>
+              )}
+              {resume.pointsCles && resume.pointsCles.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold text-[#1A4D4D] mb-2">Points clés</h4>
+                  <ul className="space-y-1">
+                    {resume.pointsCles.map((point, i) => (
+                      <li key={i} className="flex items-start gap-2 text-sm text-gray-700">
+                        <span className="text-[#E85D4C] mt-0.5">&bull;</span>
+                        <span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {resume.structure && resume.structure.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold text-[#1A4D4D] mb-2">Structure du cours</h4>
+                  <div className="space-y-2">
+                    {resume.structure.map((section, i) => (
+                      <details key={i} className="border border-gray-200 rounded-lg">
+                        <summary className="px-4 py-2 cursor-pointer font-medium text-sm text-[#1A4D4D] hover:bg-gray-50">
+                          {section.titre}
+                        </summary>
+                        <p className="px-4 py-3 text-sm text-gray-600 border-t border-gray-100">{section.contenu}</p>
+                      </details>
+                    ))}
                   </div>
-                )}
-                {resume.structure && resume.structure.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-semibold text-[#1A4D4D] mb-2">Structure du cours</h4>
-                    <div className="space-y-2">
-                      {resume.structure.map((section, i) => (
-                        <details key={i} className="border border-gray-200 rounded-lg">
-                          <summary className="px-4 py-2 cursor-pointer font-medium text-sm text-[#1A4D4D] hover:bg-gray-50">
-                            {section.titre}
-                          </summary>
-                          <p className="px-4 py-3 text-sm text-gray-600 border-t border-gray-100">{section.contenu}</p>
-                        </details>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+                </div>
+              )}
+            </div>
           </div>
         )}
 
-        {/* Section Concepts clés */}
-        {!modeEdition && (
+        {/* Section Concepts clés — visible uniquement quand les données existent */}
+        {!modeEdition && concepts.length > 0 && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-[#1A4D4D]">
                 Concepts clés
-                {concepts.length > 0 && (
-                  <span className="ml-2 text-sm font-normal text-gray-400">({concepts.length})</span>
-                )}
+                <span className="ml-2 text-sm font-normal text-gray-400">({concepts.length})</span>
               </h3>
             </div>
-            {concepts.length === 0 && !chargementConcepts && cours.texteOCR && (
-              <div className="flex items-center gap-3 text-gray-500">
-                <div className="animate-spin h-5 w-5 border-2 border-[#1A4D4D] border-t-transparent rounded-full" />
-                <span>Extraction des concepts en cours...</span>
-              </div>
-            )}
-            {chargementConcepts && (
-              <div className="flex items-center gap-3 text-gray-500">
-                <div className="animate-spin h-5 w-5 border-2 border-[#1A4D4D] border-t-transparent rounded-full" />
-                <span>Chargement...</span>
-              </div>
-            )}
-            {concepts.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {concepts.map(concept => (
-                  <ConceptCard
-                    key={concept.id}
-                    concept={concept}
-                    onClick={handleConceptClick}
-                    isSelected={conceptSelectionne?.id === concept.id}
-                  />
-                ))}
-              </div>
-            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {concepts.map(concept => (
+                <ConceptCard
+                  key={concept.id}
+                  concept={concept}
+                  onClick={handleConceptClick}
+                  isSelected={conceptSelectionne?.id === concept.id}
+                />
+              ))}
+            </div>
           </div>
         )}
 
         {/* Images avec texte superpose */}
-        {(images.length > 0 || modeEdition) && (
-          <div className="mb-8" data-testid="images-ocr">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-ink">Images du cours ({images.length})</h3>
-              {modeEdition && (
-                <label
-                  data-testid="ajouter-image"
-                  className="px-6 py-2 bg-teal text-white rounded-full text-sm font-medium hover:bg-teal-light transition-colors cursor-pointer"
-                >
-                  + Ajouter une image
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                  />
-                </label>
-              )}
-            </div>
+        <div className="mb-8" data-testid="images-ocr">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-ink">Images du cours ({images.length})</h3>
+            <label
+              data-testid="ajouter-image"
+              className="px-6 py-2 bg-teal text-white rounded-full text-sm font-medium hover:bg-teal-light transition-colors cursor-pointer"
+            >
+              + Ajouter une page
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+            </label>
+          </div>
 
             {/* Selecteur d'images avec drag and drop */}
             {images.length > 0 && (
@@ -914,8 +1246,9 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
                   imageSelectionnee={imageSelectionnee}
                   onSelectionner={setImageSelectionnee}
                   onReordonner={reordonnerImages}
-                  modeEdition={modeEdition}
-                  onSupprimer={modeEdition ? supprimerImage : undefined}
+                  onSupprimer={supprimerImage}
+                  desactive={cours.statutOCR === 'en_cours'}
+                  etatPages={etatPages}
                 />
               </div>
             )}
@@ -923,10 +1256,11 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
             {/* Image principale avec overlay OCR */}
             {images.length > 0 && (
               <div>
-                {getBlocsPageCourante().length > 0 ? (
+                {blocsPageCourante.length > 0 ? (
                   <OverlayTexteOCR
+                    actionSlot={<div className="flex gap-1">{boutonsActionImage}</div>}
                     imageUrl={getImageUrl(images[imageSelectionnee])}
-                    blocs={getBlocsPageCourante()}
+                    blocs={blocsPageCourante}
                     onBlocModifie={(blocIndex, nouveauTexte) => {
                       const pageDataIndex = blocsTexteEdites.findIndex(
                         (p) => p.page === imageSelectionnee
@@ -935,68 +1269,50 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
                         modifierBlocTexte(pageDataIndex, blocIndex, nouveauTexte)
                       }
                     }}
+                    onBlocSupprime={(blocIndex) => {
+                      const pageDataIndex = blocsTexteEdites.findIndex(
+                        (p) => p.page === imageSelectionnee
+                      )
+                      if (pageDataIndex !== -1) {
+                        supprimerBlocTexte(pageDataIndex, blocIndex)
+                      }
+                    }}
+                    onBlocDeplace={(blocIndex, nouvellePosition) => {
+                      const pageDataIndex = blocsTexteEdites.findIndex(
+                        (p) => p.page === imageSelectionnee
+                      )
+                      if (pageDataIndex !== -1) {
+                        deplacerBlocTexte(pageDataIndex, blocIndex, nouvellePosition)
+                      }
+                    }}
                   />
                 ) : (
                   <div className="relative rounded-lg overflow-hidden bg-ink-lighter">
-                    <div className="absolute top-4 left-4 z-10">
-                      <span className="bg-coral text-white text-sm font-semibold px-3 py-1.5 rounded-full shadow-lg">
-                        Page {imageSelectionnee + 1} / {images.length}
-                      </span>
-                    </div>
                     <img
                       src={getImageUrl(images[imageSelectionnee])}
                       alt={`Page ${imageSelectionnee + 1}`}
                       className="w-full"
                     />
-                    <div className="absolute bottom-4 left-4 right-4 z-10">
-                      <div className="bg-ink/80 backdrop-blur-sm text-white text-xs px-4 py-2 rounded-lg">
-                        Le texte ci-dessous correspond a l'ensemble des {images.length} page{images.length > 1 ? 's' : ''} scannee{images.length > 1 ? 's' : ''}
-                      </div>
+                    <div className="absolute top-2 right-2 z-20 flex gap-1">
+                      {boutonsActionImage}
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Bouton Re-OCR si blocsTexte manquant */}
-            {images.length > 0 &&
-             (!cours.blocsTexte || cours.blocsTexte.length === 0) && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 mt-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-amber-800">Overlay OCR non disponible</p>
-                    <p className="text-xs text-amber-600 mt-1">Ce cours a ete scanne avant la mise a jour. Relancez l'OCR pour activer la superposition du texte.</p>
-                  </div>
-                  <button
-                    onClick={handleReOCR}
-                    disabled={reOCREnCours}
-                    className="px-4 py-2 bg-[#F5C542] text-[#1A4D4D] rounded-lg text-sm font-medium hover:bg-[#e0b23a] disabled:opacity-50 transition-colors whitespace-nowrap ml-4"
-                  >
-                    {reOCREnCours ? 'Re-OCR en cours...' : 'Relancer l\'OCR'}
-                  </button>
-                </div>
-                {reOCREnCours && (
-                  <div className="flex items-center gap-2 mt-3 text-amber-700">
-                    <div className="animate-spin h-4 w-4 border-2 border-amber-600 border-t-transparent rounded-full" />
-                    <span className="text-xs">Traitement des images en cours, cela peut prendre quelques secondes...</span>
                   </div>
                 )}
               </div>
             )}
 
             {/* Message si pas d'images */}
-            {images.length === 0 && modeEdition && (
+            {images.length === 0 && (
               <div className="text-center py-8 bg-cream rounded-lg">
                 <div className="text-3xl mb-4">📷</div>
                 <p className="text-sm text-ink-muted">
                   Aucune image pour ce cours.
                   <br />
-                  Cliquez sur "Ajouter une image" pour en ajouter.
+                  Cliquez sur "+ Ajouter une page" pour en ajouter.
                 </p>
               </div>
             )}
           </div>
-        )}
 
         {/* Zones incertaines */}
         {zonesIncertainesEditees.length > 0 && (
@@ -1056,9 +1372,11 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
           ) : (
             <div className="p-6 bg-cream rounded-md max-h-[400px] overflow-y-auto">
               <pre className="whitespace-pre-wrap text-sm text-ink-light font-body">
-                {(overlayModifie ? texteEdite : cours.texteOCR)
-                  ? renderTexteAvecSurlignage(overlayModifie ? texteEdite : cours.texteOCR, conceptSelectionne)
-                  : 'Aucun contenu textuel disponible.'}
+                {texteCalcule
+                  ? renderTexteAvecSurlignage(texteCalcule, conceptSelectionne)
+                  : cours.statutOCR === 'en_cours'
+                    ? <span className="flex items-center gap-3 text-ink-muted"><span className="animate-spin h-4 w-4 border-2 border-teal border-t-transparent rounded-full" />Extraction du texte en cours...</span>
+                    : 'Aucun contenu textuel disponible.'}
               </pre>
             </div>
           )}
@@ -1080,8 +1398,8 @@ function CoursDetail({ coursId, onRetour }: { coursId: string; onRetour: () => v
           )}
         </div>
 
-        {/* Section Génération IA */}
-        {!modeEdition && (
+        {/* Section Génération IA — visible uniquement après OCR terminé */}
+        {!modeEdition && cours.statutOCR === 'termine' && (
           <div className="mt-8 pt-8 border-t border-cream-dark">
             <h3 className="font-semibold text-ink mb-6">🤖 Générer avec l'IA</h3>
 

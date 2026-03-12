@@ -104,6 +104,13 @@ func (s *ServiceStorage) ObtenirImage(coursID, nomFichier string) (string, error
 	return cheminComplet, nil
 }
 
+// EcraserImage remplace le contenu d'une image existante
+func (s *ServiceStorage) EcraserImage(coursID, nomFichier string, data []byte) error {
+	nomFichier = filepath.Base(nomFichier)
+	cheminComplet := filepath.Join(s.basePath, "cours", coursID, nomFichier)
+	return os.WriteFile(cheminComplet, data, 0644)
+}
+
 // SupprimerImage supprime une image d'un cours
 func (s *ServiceStorage) SupprimerImage(coursID, nomFichier string) error {
 	nomFichier = filepath.Base(nomFichier)

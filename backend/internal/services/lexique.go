@@ -60,19 +60,32 @@ type QuizVocabulaire struct {
 	Questions []QuestionVocabulaire `json:"questions"`
 }
 
-// ExtraireTermes extrait les termes cles d un cours via le LLM
+// ExtraireTermes extrait les termes clés d'un cours.
+// Vérifie d'abord si des termes existent déjà en base (sauvegardés par l'extraction combinée concepts+lexique).
+// Si oui, les retourne directement sans appel LLM.
+// Sinon, fait un appel LLM dédié.
 func (s *ServiceLexique) ExtraireTermes(ctx context.Context, coursID string) (*ResultatExtractionLexique, error) {
+	// Vérifier si des termes existent déjà (sauvegardés par ExtraireConceptsEtTermes)
+	if s.lexiqueRepo != nil {
+		termesExistants, err := s.lexiqueRepo.ListerParCours(ctx, coursID)
+		if err == nil && len(termesExistants) > 0 {
+			return &ResultatExtractionLexique{
+				Termes:         termesExistants,
+				NombreExtraits: len(termesExistants),
+			}, nil
+		}
+	}
+
+	// Aucun terme existant, faire un appel LLM
 	if s.gestionnaireLLM == nil {
 		return nil, ErrServiceNonDisponible
 	}
 
-	// Recuperer le cours
 	cours, err := s.coursRepo.ObtenirParID(ctx, coursID)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrCoursNonTrouve, err.Error())
 	}
 
-	// Verifier que le cours a du texte
 	texte := cours.TexteCorrige
 	if texte == "" {
 		texte = cours.TexteOCR
@@ -81,11 +94,10 @@ func (s *ServiceLexique) ExtraireTermes(ctx context.Context, coursID string) (*R
 		return nil, ErrCoursVideOCR
 	}
 
-	// Construire le prompt
 	prompt := s.construirePromptLexique(texte)
 
-	// Appeler le LLM
 	llmOptions := llm.OptionsGeneration{
+		Modele:        "gpt-4o-mini",
 		Temperature:   0.5,
 		MaxTokens:     4000,
 		FormatReponse: "json",
@@ -97,18 +109,15 @@ func (s *ServiceLexique) ExtraireTermes(ctx context.Context, coursID string) (*R
 		return nil, fmt.Errorf("%w: %s", ErrGenerationLLMEchouee, err.Error())
 	}
 
-	// Parser la reponse
 	termes, err := s.parserReponseLexique(reponseJSON, coursID)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrParsingLexiqueEchoue, err.Error())
 	}
 
-	// Sauvegarder les termes en base
 	if s.lexiqueRepo != nil {
 		if err := s.lexiqueRepo.SupprimerParCours(ctx, coursID); err != nil {
 			return nil, fmt.Errorf("erreur suppression anciens termes: %w", err)
 		}
-
 		if err := s.lexiqueRepo.CreerPlusieurs(ctx, termes); err != nil {
 			return nil, fmt.Errorf("erreur sauvegarde termes: %w", err)
 		}
@@ -207,38 +216,15 @@ func (s *ServiceLexique) GenererQuizVocabulaire(ctx context.Context, coursID str
 
 // construirePromptLexique construit le prompt pour l extraction de termes
 func (s *ServiceLexique) construirePromptLexique(texte string) string {
-	return fmt.Sprintf(`Tu es un professeur expert en analyse de contenus pedagogiques pour lyceens.
+	return fmt.Sprintf(`Cours :
+"""%s"""
 
-A partir du cours suivant, identifie les termes cles et leur definition.
+Identifie 10-30 termes cles par ordre alphabetique.
+Pour chaque terme : terme, definition (2-3 phrases), contexte, exemple, categorie.
+Base UNIQUEMENT sur le contenu fourni.
 
-Cours :
-"""
-%s
-"""
-
-Instructions :
-- Identifie entre 10 et 30 termes selon la richesse du contenu
-- Pour chaque terme, fournis :
-  - Le terme (mot ou expression cle)
-  - Une definition claire et pedagogique (2-3 phrases maximum)
-  - Le contexte dans lequel le terme apparait dans le cours
-  - Un exemple d utilisation du terme
-  - La categorie ou le domaine du terme (ex: "Biologie", "Mathematiques", "Grammaire")
-- Base-toi UNIQUEMENT sur le contenu du cours fourni
-- Classe les termes par ordre alphabetique
-
-Reponds UNIQUEMENT avec un JSON valide au format suivant, sans texte avant ou apres :
-{
-  "termes": [
-    {
-      "terme": "Nom du terme",
-      "definition": "Definition claire et pedagogique du terme.",
-      "contexte": "Le contexte dans lequel ce terme apparait dans le cours.",
-      "exemple": "Un exemple d utilisation du terme.",
-      "categorie": "Categorie du terme"
-    }
-  ]
-}`, texte)
+JSON attendu :
+{"termes": [{"terme": "...", "definition": "...", "contexte": "...", "exemple": "...", "categorie": "..."}]}`, texte)
 }
 
 // reponseLexiqueJSON represente la structure de reponse du LLM pour le lexique

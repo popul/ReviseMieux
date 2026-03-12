@@ -64,6 +64,7 @@ func (h *HandlersImages) ServirImageHandler(c *gin.Context) {
 		return
 	}
 
+	c.Header("Cache-Control", "no-store, must-revalidate")
 	c.File(cheminComplet)
 }
 

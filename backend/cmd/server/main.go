@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -86,6 +87,13 @@ func main() {
 		lexiqueRepo = store.NouveauLexiqueRepo(db)
 		plansRepo = store.NouveauPlansRevisionRepo(db)
 		log.Println("✓ Repositories initialisés (cours, fiches, quiz, mindmaps, quotas, copies, erreurs, concepts, plans)")
+
+		// Récupérer les cours bloqués en OCR (goroutines tuées par un redémarrage)
+		if n, err := coursRepo.RecupererOCRBloques(context.Background()); err != nil {
+			log.Printf("⚠️  Erreur récupération OCR bloqués: %v", err)
+		} else if n > 0 {
+			log.Printf("✓ %d cours bloqués en OCR récupérés", n)
+		}
 	}
 
 	// Créer le service de génération
@@ -126,7 +134,7 @@ func main() {
 	// Créer le service de concepts
 	var serviceConcepts *services.ServiceConcepts
 	if gestionnaireLLM != nil && coursRepo != nil {
-		serviceConcepts = services.NouveauServiceConcepts(gestionnaireLLM, coursRepo, conceptsRepo)
+		serviceConcepts = services.NouveauServiceConcepts(gestionnaireLLM, coursRepo, conceptsRepo, lexiqueRepo)
 		log.Println("✓ Service concepts initialisé")
 	}
 
