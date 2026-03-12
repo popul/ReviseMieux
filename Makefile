@@ -147,10 +147,10 @@ build: ## Build backend + mobile
 # Benchmark LLM
 # ------------------------------------------------------------
 
-bench: ## Lance le benchmark LLM (voir make backend-bench pour les options)
-	@$(MAKE) -C $(BACKEND_DIR) bench $(if $(ALL),ALL=$(ALL)) $(if $(PROVIDER),PROVIDER=$(PROVIDER)) $(if $(CASE),CASE=$(CASE)) $(if $(RUNS),RUNS=$(RUNS)) $(if $(OUTPUT),OUTPUT=$(OUTPUT))
+bench: ## Lance le benchmark LLM (voir make bench sans args pour l'aide)
+	@$(MAKE) -C $(BACKEND_DIR) bench $(if $(ALL),ALL=$(ALL)) $(if $(PROVIDER),PROVIDER=$(PROVIDER)) $(if $(MODELS),MODELS=$(MODELS)) $(if $(CASE),CASE=$(CASE)) $(if $(RUNS),RUNS=$(RUNS)) $(if $(OUTPUT),OUTPUT=$(OUTPUT))
 
-bench-all: ## Benchmark tous les providers
+bench-all: ## Benchmark tous les modèles
 	@$(MAKE) -C $(BACKEND_DIR) bench-all
 
 bench-report: ## Génère le rapport HTML depuis les derniers résultats
