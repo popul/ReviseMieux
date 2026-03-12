@@ -1,0 +1,143 @@
+{
+  "items": [
+    {
+      "type": "KNOWLEDGE",
+      "term": "L'eau et les sels minéraux sont absorbés par les poils absorbants des racines. Les poils absorbants forment une très grande surface d'échanges.",
+      "keywords": ["poils absorbants", "racines", "eau", "sels minéraux", "surface d'échanges"],
+      "notion": "Prélèvement de l'eau et des sels minéraux"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Une mycorhize est une association entre le mycélium d'un champignon et la racine d'une plante. Elle augmente la surface d'absorption d'eau et de nutriments, favorisant la croissance de la plante.",
+      "keywords": ["mycorhize", "mycélium", "champignon", "racine", "absorption", "croissance"],
+      "notion": "Prélèvement de l'eau et des sels minéraux"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Les feuilles prélèvent le CO2 de l'air par les stomates. Les stomates sont des structures de la face inférieure des feuilles qui assurent les échanges gazeux entre l'atmosphère et l'intérieur de la feuille.",
+      "keywords": ["stomates", "CO2", "feuilles", "échanges gazeux", "atmosphère"],
+      "notion": "Échanges gazeux des feuilles"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "L'amidon est une substance constituant la matière organique, qui appartient à la famille des glucides (sucres). L'eau iodée permet de mettre en évidence l'amidon en le colorant en bleu-noir.",
+      "keywords": ["amidon", "matière organique", "glucides", "sucres", "eau iodée", "bleu-noir"],
+      "notion": "Photosynthèse"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "La photosynthèse est la production de matière organique par une plante placée à la lumière. Elle nécessite : lumière, chlorophylle, CO2, eau et sels minéraux.",
+      "keywords": ["photosynthèse", "matière organique", "lumière", "chlorophylle", "CO2", "eau", "sels minéraux"],
+      "notion": "Photosynthèse"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "La photosynthèse se déroule au niveau des feuilles, dans les chloroplastes. Les chloroplastes sont des petits compartiments verts présents dans le cytoplasme des cellules végétales.",
+      "keywords": ["chloroplastes", "feuilles", "cellules végétales", "cytoplasme", "photosynthèse"],
+      "notion": "Photosynthèse au niveau cellulaire"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Les cellules végétales sont délimitées par une paroi rigide et contiennent un noyau, une membrane, du cytoplasme et des chloroplastes dans les parties vertes.",
+      "keywords": ["cellule végétale", "paroi rigide", "noyau", "membrane", "cytoplasme", "chloroplastes"],
+      "notion": "Photosynthèse au niveau cellulaire"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "La sève brute est un liquide riche en eau et en sels minéraux, prélevés par les racines. Elle est transportée de bas en haut dans la plante par des vaisseaux conducteurs spécialisés (xylème).",
+      "keywords": ["sève brute", "eau", "sels minéraux", "racines", "vaisseaux conducteurs", "xylème", "bas en haut"],
+      "notion": "Transport de la sève brute"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "La sève élaborée est constituée de matière organique (glucides comme le saccharose, protides). Elle est produite au niveau des feuilles grâce à la photosynthèse et transportée par des vaisseaux conducteurs spécialisés vers tous les organes de la plante.",
+      "keywords": ["sève élaborée", "matière organique", "saccharose", "glucides", "vaisseaux conducteurs"],
+      "notion": "Transport de la sève élaborée"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "La respiration cellulaire transforme le glucose en énergie en présence de dioxygène. La réaction produit aussi du CO2 et de l'eau : O2 + Glucose → Énergie + CO2 + Eau.",
+      "keywords": ["respiration cellulaire", "glucose", "dioxygène", "O2", "énergie", "CO2"],
+      "notion": "Utilisation de la matière organique"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "L'amidon stocké dans les graines est transformé en glucose lors de la germination. Ce glucose est utilisé pour la croissance de la plantule.",
+      "keywords": ["amidon", "glucose", "germination", "graine", "plantule", "croissance"],
+      "notion": "Utilisation de la matière organique"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "La matière organique produite par photosynthèse peut être utilisée pour la respiration cellulaire (énergie), la croissance, ou être stockée dans des organes comme les tubercules ou les graines.",
+      "keywords": ["matière organique", "respiration cellulaire", "croissance", "stockage", "tubercules", "graines"],
+      "notion": "Utilisation de la matière organique"
+    },
+    {
+      "type": "PROCEDURE",
+      "term": "Expérience de mise en évidence des conditions de la photosynthèse avec le test à l'eau iodée sur des feuilles de pélargonium.",
+      "keywords": ["eau iodée", "photosynthèse", "pélargonium", "amidon", "lumière", "chlorophylle", "CO2"],
+      "steps": [
+        "Placer un plant de pélargonium à la lumière pendant plusieurs heures",
+        "Tester différentes conditions : lumière seule, cache opaque, feuille panachée (sans chlorophylle sur les bords), air sans CO2",
+        "Tremper les feuilles dans l'eau iodée",
+        "Observer la coloration : bleu-noir = présence d'amidon, blanc/incolore = absence",
+        "Conclure : la lumière, la chlorophylle et le CO2 sont tous nécessaires à la fabrication d'amidon"
+      ],
+      "notion": "Photosynthèse"
+    },
+    {
+      "type": "PROCEDURE",
+      "term": "Expérience de coloration du céleri pour mettre en évidence la circulation de la sève brute.",
+      "keywords": ["céleri", "colorant rouge", "sève brute", "vaisseaux conducteurs", "xylème"],
+      "steps": [
+        "Placer une branche de céleri dans un bécher contenant 15 mL de colorant rouge",
+        "Observer après 3 heures",
+        "Couper la branche de céleri et observer la coupe transversale",
+        "Constater que le colorant s'est infiltré dans les vaisseaux conducteurs jusqu'aux feuilles",
+        "Conclure : la sève brute circule de bas en haut dans des vaisseaux conducteurs spécialisés"
+      ],
+      "notion": "Transport de la sève brute"
+    },
+    {
+      "type": "PROCEDURE",
+      "term": "Expérience de transformation de l'amidon en glucose (test au Lugol et à la liqueur de Fehling).",
+      "keywords": ["Lugol", "Fehling", "amidon", "glucose", "germination", "grains d'orge"],
+      "steps": [
+        "Broyer des grains d'orge et les placer dans un tube contenant de l'amidon",
+        "Chauffer au bain-marie",
+        "À T=0 : test au Lugol positif (bleu-noir = amidon présent), test Fehling négatif (bleu = pas de glucose)",
+        "À T=30 min : test au Lugol négatif (jaune = plus d'amidon), test Fehling positif (rouge = glucose présent)",
+        "Conclure : l'amidon a été transformé en glucose"
+      ],
+      "notion": "Utilisation de la matière organique"
+    },
+    {
+      "type": "DOCUMENT",
+      "term": "Microphotographie de l'épiderme inférieur de la feuille montrant les cellules et les stomates (zones d'échanges gazeux).",
+      "keywords": ["microphotographie", "épiderme", "feuille", "stomates", "cellules"],
+      "notion": "Échanges gazeux des feuilles"
+    },
+    {
+      "type": "DOCUMENT",
+      "term": "Schéma de la cellule végétale avec légendes : paroi cellulaire, noyau, chloroplaste, membrane plasmique.",
+      "keywords": ["schéma", "cellule végétale", "paroi", "noyau", "chloroplaste", "membrane"],
+      "notion": "Photosynthèse au niveau cellulaire"
+    },
+    {
+      "type": "DOCUMENT",
+      "term": "Schéma récapitulatif de la nutrition chez les végétaux : absorption (racines, feuilles) → sève brute → photosynthèse (dans les chloroplastes) → sève élaborée → distribution (croissance, stockage, respiration cellulaire).",
+      "keywords": ["schéma récapitulatif", "nutrition", "végétaux", "sève brute", "photosynthèse", "sève élaborée", "respiration cellulaire"],
+      "notion": "Nutrition des végétaux"
+    }
+  ],
+  "notions": [
+    "Prélèvement de l'eau et des sels minéraux",
+    "Échanges gazeux des feuilles",
+    "Photosynthèse",
+    "Photosynthèse au niveau cellulaire",
+    "Transport de la sève brute",
+    "Transport de la sève élaborée",
+    "Utilisation de la matière organique",
+    "Nutrition des végétaux"
+  ]
+}

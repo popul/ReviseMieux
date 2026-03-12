@@ -1,0 +1,114 @@
+{
+  "blocks": [
+    {
+      "text": "Chapitre 3 : Prélèvement de matière minérale, production de matière organique et utilisation de la matière par les végétaux\n\nPb : Quels sont les besoins nutritifs des végétaux ?\n\nI – Le prélèvement de la matière par les plantes\n\n1 – L'eau et les sels minéraux",
+      "block_type": "TEXT",
+      "confidence": 0.82
+    },
+    {
+      "text": "Activité 1 :\n1 – À partir de la vidéo, quelle est l'hypothèse concernant la zone d'absorption de l'eau et des sels minéraux ?\n2 – Quelle expérience est faite pour vérifier cette hypothèse ? Dessine cette expérience.\n3 – Que constates-tu ? (quels sont les résultats obtenus ?)\n4 – Que peux-tu en déduire ?\n\n[Photo : Observer des poils absorbants — Apex de la racine, Poils absorbants, Graine, Sol, poil]\nUne jeune racine observée à la loupe binoculaire.\nUn jeune plant de seigle possède 14 milliards de poils absorbants ce qui lui confère deux terrains de tennis, de 500 m² soit la surface d'échanges.\n\n5 – Explique en quoi les poils absorbants forment une bonne surface d'échanges ?",
+      "block_type": "TEXT",
+      "confidence": 0.78
+    },
+    {
+      "text": "1 – Je pense que les plantes absorbent les sels minéraux et l'eau par les poils sur la racine.\n\n[Schéma : expérience avec deux récipients contenant des plantes, l'un avec eau]\n\n3 – Je constate que ce sont les poils qui absorbent les sels minéraux et l'eau.\n\n4 – J'en déduis que ce sont les poils dans les racines qui absorbent l'eau et les sels minéraux.\n\n4 – Quand les poils absorbants sont dans l'huile, les plantes meurent alors que lorsque les poils absorbants sont dans l'eau la plante pousse.\n\n5 – Les poils absorbants par leur membrane proportionnent une très grande surface d'absorption.",
+      "block_type": "TEXT",
+      "confidence": 0.80
+    },
+    {
+      "text": "Activité 2 :\n[Documents : Des associations bénéfiques pour la plante – une mycorhize augmente de 100 fois la surface d'absorption d'eau et de nutriments de la plante. Filaments du champignon. Racines mycorhizées (coupe transversale en microscope optique). Racine mycorhizée de pin sous la loupe binoculaire.]\n\n[Résultats expérimentaux de cultures : Carottes cultivées en même temps et dans les mêmes conditions sans et avec mycorhize. Oignons cultivés en même temps et dans les mêmes conditions sans et avec mycorhize.]\n\n[Graphique : Hauteur des frênes (cm) — Année 1 à Année 4, Frêne non mycorhizé vs Frêne mycorhizé]\n\n1 – Qu'est-ce qu'un mycorhize ?\n2 – Que représente le graphique ci-dessus ?\n3 – Que constates-tu à partir du graphique présenté ?\n4 – Que sait-on concernant les besoins des végétaux ? Que peut-on en déduire ?",
+      "block_type": "TEXT",
+      "confidence": 0.76
+    },
+    {
+      "text": "1 – Une mycorhize est une association entre le mycélium et la racine.\n\n2 – Le graphique représente l'évolution de deux arbres sur plusieurs années en cm, le premier arbre pousse sans mycorhize alors que le deuxième pousse avec mycorhize.\n\n3 – On constate que la mycorhize facilite l'absorption des sels minéraux et la croissance des végétaux.\n\nOn peut déduire que la mycorhize facilite l'absorption des sels minéraux et de l'eau.\n\nUne plante avec mycorhize est plus grande qu'une plante sans mycorhize.\n\nLes végétaux ont besoin d'eau et des sels minéraux ; les mycorhizes permettent d'absorber plus d'eau et de sels minéraux ce qui permet aux plantes d'avoir une meilleure croissance.\n\nBilan : L'eau et les sels minéraux sont absorbés par les poils absorbants des racines.\nChez certaines plantes, l'absorption de l'eau et les sels minéraux est optimisée par les mycorhizes ce qui favorise leur croissance.",
+      "block_type": "TEXT",
+      "confidence": 0.83
+    },
+    {
+      "text": "2 – Le cycle du carbone\n\nExp : Je peux en déduire que la feuille absorbe du CO2.\n\nActivité 3 :\n[Expérience – Je manipule : 1. Coupez des feuilles de blé en petits fragments et placez-les dans une enceinte éclairée. 2. À l'aide d'un dispositif ExAO, mesurez la concentration de CO2 dans l'enceinte pendant 10 minutes. 3. Renouvelez l'expérience sans placer de feuille dans l'enceinte.]\n\n[Graphique : Évolution de la concentration en CO2 dans une enceinte éclairée contenant ou non des feuilles de blé. Courbe \"Sans feuille\" reste constante ~1800. Courbe \"Avec feuilles\" diminue de ~800 à ~200 en 10 minutes.]\n\n1 – Décris l'aspect des courbes du doc 3 : que peux-tu en conclure ?",
+      "block_type": "TEXT",
+      "confidence": 0.79
+    },
+    {
+      "text": "Le stomate : zone d'échanges de la feuille\nLes stomates assurent les échanges gazeux entre l'atmosphère et l'intérieur de la feuille : ce sont des « portes » qui laissent entrer et sortir les gaz dans la plante.\n\n[Schéma : coupe de feuille — Cellule de la feuille, Cellule épidermique, Stomate, Face inférieure de la feuille, CO2, O2, Air atmosphérique]\n[Photo : Coupe transversale d'une feuille (microscope optique) — Stomate]\n\n2 – Quelle structure présente au niveau des feuilles permet l'absorption du CO2 ?\n3 – On veut localiser les zones d'échanges de gaz à la surface des feuilles.\nÉtale du vernis transparent sur la face inférieure d'une feuille sur une surface de 1 cm2 environ. Laisse sécher, dépose un bout de scotch et soulève délicatement. Tu as obtenu une empreinte de la face inférieure de la feuille. Observe-la au microscope.\nTu viens d'observer des stomates.",
+      "block_type": "TEXT",
+      "confidence": 0.81
+    },
+    {
+      "text": "[Photo : Microphotographie de l'épiderme inférieur de la feuille — Feuille de végétal chlorophyllien]\n[Légendes manuscrites : Cellules, Stomates]\n[Photo : Coupe transversale de feuille au microscope]",
+      "block_type": "DIAGRAM",
+      "confidence": 0.65
+    },
+    {
+      "text": "Bilan : Les feuilles prélèvent le CO2 de l'air par les stomates.\n\nPb : Comment les végétaux produisent-ils leur matière organique ?\n\nII – La production de matière organique à partir de la matière minérale par les végétaux",
+      "block_type": "TEXT",
+      "confidence": 0.85
+    },
+    {
+      "text": "Activité 4 : (Magnard page 185)\nDOC 1 : Apports scientifiques\nLa matière organique produite par une plante se trouve en grande partie sous forme d'amidon.\nUn réactif, l'eau iodée, permet de mettre en évidence l'amidon : elle colore en bleu-noir les zones possédant de l'amidon.\nDéfinitions :\nAmidon : substance constituant la matière organique, qui appartient à la famille des glucides (sucres).\nPhotosynthèse : production de matière organique par une plante placée à la lumière.\n\nDOC 2 : Expérience\nUn plant de pélargonium est placé plusieurs heures à la lumière.\nSur une feuille, on pose un cache opaque à la lumière.\n\n[Schéma : plant avec cache opaque et feuille panachée, dépourvue de chlorophylle sur les bords]",
+      "block_type": "TEXT",
+      "confidence": 0.88
+    },
+    {
+      "text": "[Tableau d'expériences — Activité 4]\nConditions d'expériences | Résultats d'expériences | Je vois que | J'en conclus que\n\nLumière → feuille entière colorée bleu-noir | La feuille se colore en bleu-noir | La feuille contient de l'amidon\n\nLumière + cache opaque → partie cachée blanche | La partie où il y avait le cache opaque est toute blanche | La feuille a besoin de lumière pour créer de l'amidon\n\nLumière + feuille panachée → seule partie verte colorée | Il n'y a que la partie où il y a de la chlorophylle qui s'est colorée | La feuille a besoin de chlorophylle pour créer de l'amidon\n\nLumière + air sans CO2 → pas de coloration | Elle ne se colore pas | La feuille a besoin de CO2 pour créer de l'amidon",
+      "block_type": "TEXT",
+      "confidence": 0.82
+    },
+    {
+      "text": "Bilan : En présence de lumière, l'eau, les sels minéraux et le CO2 captés par la plante sont utilisés pour la synthèse de matière organique. Ce processus est la photosynthèse. Elle se déroule au niveau des feuilles en particulier.\n\nPb : Où les végétaux produisent-ils leur matière organique ?\n\nIII – Production de matière organique au niveau des cellules végétales",
+      "block_type": "TEXT",
+      "confidence": 0.84
+    },
+    {
+      "text": "Activité 5 :\nDocument 3 : L'élodée du Canada est un végétal aquatique. Ses feuilles, particulièrement fines, constituent un matériel de choix pour observer leur structure au microscope.\nDans l'expérience réalisée, certaines feuilles ont été placées à la lumière et d'autres à l'obscurité.\n\n[Photos microscope : Document 3A (feuille d'élodée à la lumière), Document 3B (feuilles d'élodée à l'obscurité après séjour dans l'eau iodée), Document 3C (feuilles d'élodée à la lumière après séjour dans l'eau iodée)]\n\nDocument 4 : Organisation d'une feuille d'Elodée à l'échelle cellulaire. On y trouve comme dans toutes les cellules : un noyau, une membrane et du cytoplasme. Les cellules végétales sont délimitées par une paroi rigide. Dans les parties vertes de la plante, le cytoplasme contient des « petits compartiments verts » : les chloroplastes.\n\n[Schéma cellule végétale : Paroi cellulaire, Noyau, Un chloroplaste, Membrane plasmique]",
+      "block_type": "TEXT",
+      "confidence": 0.86
+    },
+    {
+      "text": "Exp 1 : La production de matière organique se fait dans les chloroplastes, ce processus s'appelle la photosynthèse.\n\nExp 2 : Les petites structures présentes dans les cellules des feuilles sont les chloroplastes.\n\n[Schéma bilan : Lumière → Feuille → Chloroplaste → CO2 + eau + sels minéraux → Photosynthèse → Matière organique]\n\nPb : Comment circule la matière chez les végétaux ?\n\nBilan : Les plantes vertes sont des organismes qui réalisent la photosynthèse ; réaction qui permet de fabriquer de la matière organique à partir de l'eau, du CO2 et des minéraux prélevés par la plante. Cette réaction a lieu dans les chloroplastes grâce à l'énergie solaire.",
+      "block_type": "TEXT",
+      "confidence": 0.83
+    },
+    {
+      "text": "IV – Le transport de la matière chez les végétaux\n\n1 – Transport de l'eau et des sels minéraux\n\nActivité 6 : La circulation de la sève brute\n[Documents : Coupe transversale de tige, vaisseaux conducteurs de sève brute observés au microscope]\n[Tableau : Composition de la sève dans les vaisseaux du xylème d'un chêne rouvre — Eau, Matière sèche dont : Saccharose 0.1 mg, Potassium 0.17 mg, Magnésium 0.01 mg, Sodium 0.004 mg, Calcium 0.01 mg, Phosphate 0.05 mg]\n\n1 – Décris l'expérience réalisée (doc 3)\n2 – Que constates-tu ?\n3 – Comment expliques-tu la coloration des feuilles ?\n4 – Doc 3 : Comment s'appelle ce liquide ?\n5 – Doc 3 : Que contient ce liquide ?\n6 – Dans quel sens circule-t-il ?",
+      "block_type": "TEXT",
+      "confidence": 0.80
+    },
+    {
+      "text": "1 – Dans l'expérience réalisée dans le doc 3 on met une branche de céleri dans un bécher contenant 15 mL de colorant rouge, on observe la branche après 3 heures et on coupe la branche du céleri pour observer la coupe.\n\n3 – Je constate que le colorant s'est infiltré dans les vaisseaux conducteurs de la sève brute et qu'il est donc remonté dans les feuilles.\n\n4 – Ce liquide s'appelle la sève brute.\n\n5 – Ce liquide contient des minéraux comme le potassium, le magnésium et de l'eau.\n\n6 – Il circule de bas en haut, des racines jusqu'aux feuilles.\n\nBilan : Les substances prélevées par les racines forment un liquide riche en eau et en sels minéraux : la sève brute.\nLa sève brute est transportée dans toute la plante par des vaisseaux conducteurs spécialisés.",
+      "block_type": "TEXT",
+      "confidence": 0.81
+    },
+    {
+      "text": "2 – Le transport de la matière organique dans la plante\n\nActivité 7 : La sève élaborée et sa composition\n\n[Document 1 : Le repas d'un puceron. En plantant son stylet dans la tige, ce puceron aspire un liquide fabriqué par la plante. Ce liquide, c'est la sève élaborée.]\n[Tableau : Composition de la sève élaborée du lupin — Eau 80%, Substances dissoutes dont : Saccharose (glucide) 148 mg/mL, Acides aminés (protides) 7.5 mg/mL]\n\n[Document 3 : Graphique — Variation journalière de la quantité de saccharose dans une feuille et dans la sève élaborée de la tige. Le saccharose est un sucre (glucide) fabriqué lors de la photosynthèse. Courbes montrant augmentation jusqu'à 15h puis diminution.]\n\nLe transport de la sève élaborée\n[Documents : Vaisseaux conducteurs de sève élaborée vus au MEB (coupe transversale). Schéma des vaisseaux conducteurs de sève élaborée avec tamis.]\n[Expérience : Aspect d'une tige de haricot avant et après traitement à la cire. L'application de cire chaude a permis de détruire les vaisseaux conducteurs de sève élaborée tout en maintenant intacts les vaisseaux de sève brute. Les tissus gonflent car la sève s'accumule.]",
+      "block_type": "TEXT",
+      "confidence": 0.77
+    },
+    {
+      "text": "1 – La sève élaborée est constituée de Matière Organique (glucides, protides). Elle est produite au niveau des feuilles grâce à la photosynthèse. Sa quantité augmente jusqu'à environ 15h et diminue de 15h à 21h.\n\n3 – La sève élaborée commence par les racines, va jusqu'aux feuilles. Elle descend de haut en bas.\n\nBilan : La matière organique fabriquée par photosynthèse est distribuée dans tous les organes de la plante grâce à la sève élaborée. Ce liquide est transporté par les vaisseaux conducteurs spécialisés, vers les organes de la plante.",
+      "block_type": "TEXT",
+      "confidence": 0.80
+    },
+    {
+      "text": "Pb : Comment est utilisée la matière organique chez les végétaux ?\n\nV – L'utilisation et le stockage de la matière organique\n\nActivité 8 :\nDOC 1 : Évolution de la quantité de matière organique au cours des saisons. Le haricot en hiver / Le haricot au printemps. Avant la germination, la graine est sous terre (grain coloré au Lugol, il apparaît bleu violet). À la germination, la graine perd son enveloppe et les cotylédons sont vides.\n\n1 – Doc 1 : Que contient la graine de haricot ?\n2 – Doc 1 : Compare la quantité d'amidon présente dans une graine avant et après germination. Propose une hypothèse sur le rôle de l'amidon présent dans la graine.\n\nDOC 2 : Utilisation des réserves en matière organique. Broyage de grains d'orge → Tube contenant de l'amidon → Chauffage au bain-marie.\nTest au Lugol : présence d'amidon (couleur violet). Si absence d'amidon, couleur jaune.\nTest Liqueur de Fehling : Solution qui devient rouge en présence de glucides utilisables par la plante comme le glucose.",
+      "block_type": "TEXT",
+      "confidence": 0.82
+    },
+    {
+      "text": "3 – Doc 2 : Compare les résultats des tests de l'expérience à 0 et à 30 min pour le test au lugol et le test à la liqueur de Fehling.\n\nTransformation de la matière organique — Histoire des sciences :\nLavoisier, père de la chimie moderne, a énoncé le principe de conservation de la matière : « Rien ne se perd, rien ne se crée, tout se transforme ».\nEn présence de dioxygène dans les cellules, des réactions chimiques transforment l'énergie du glucose en énergie directement utilisable pour le fonctionnement et la croissance de la plante. C'est la respiration cellulaire.\n\n[Schéma : O2 + Glucose → Transformation chimique → Énergie pour le fonctionnement et la croissance + CO2 + eau]\n\nDoc 4 : Culture d'une pomme de terre. Une pomme de terre plantée au printemps permet la récolte de nombreux tubercules à la fin de l'été. Durant l'été, la partie aérienne se développe et fabrique une grande quantité de matière organique que la plante stocke dans les tubercules.",
+      "block_type": "TEXT",
+      "confidence": 0.80
+    },
+    {
+      "text": "Exp 4 : Le grain de haricot contient de l'amidon, des cotylédons et une plantule.\n\nExp 5 : À la germination, les graines contiennent de l'amidon alors qu'après germination les cotylédons sont vides ; l'amidon serait utilisé pour la croissance de la plantule.\n\nTest au Lugol : T=0 → bleu-noir = Amidon ; T=30 → jaune = plus d'Amidon.\nTest au Fehling : T=0 → bleu = pas de Glucose ; T=30 → rouge = Glucose.\n\nL'amidon a été transformé en glucose.\n\nExp 6 : Le glucose est transformé lors d'une réaction chimique en énergie et CO2. C'est la respiration cellulaire : O2 + Glucose → Énergie + CO2.\n\nBilan : La matière organique produite par la photosynthèse le jour permet aux cellules végétales de réaliser la respiration cellulaire et donc de produire de l'énergie. Cette matière organique permet également la croissance de la plante, mais elle peut aussi être stockée dans différents organes.",
+      "block_type": "TEXT",
+      "confidence": 0.83
+    },
+    {
+      "text": "[Schéma récapitulatif : La nutrition chez les végétaux]\nLumière + CO2 (absorbé par feuilles) + Eau H2O + Sels minéraux (absorbés par racines) → Sève brute (montante) → Cellule végétale : Photosynthèse (Eau + sels minéraux + CO2 → Matière organique) → Sève élaborée (descendante) → Distribution à toutes les cellules de la plante → Croissance / Stockage / Respiration cellulaire (Matière organique + O2 → Énergie + CO2)",
+      "block_type": "DIAGRAM",
+      "confidence": 0.72
+    }
+  ]
+}
