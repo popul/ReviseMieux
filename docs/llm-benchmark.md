@@ -437,18 +437,18 @@ Seuls les providers avec une clé configurée sont exécutés. Les autres sont i
 
 | Provider | Cas × runs | Tokens input estimés | Coût estimé |
 |----------|-----------|---------------------|-------------|
-| Claude Sonnet 4.6 | 1 × 1 | ~29 300 | ~$0.096 |
-| Claude Haiku 4.5 | 1 × 1 | ~29 300 | ~$0.032 |
-| GPT-4o (high detail) | 1 × 1 | ~6 875 | ~$0.022 |
-| GPT-4o Mini (high detail) | 1 × 1 | ~6 875 | ~$0.001 |
-| Gemini 2.5 Pro | 1 × 1 | ~1 274 | ~$0.007 |
-| Gemini 2.5 Flash | 1 × 1 | ~1 274 | ~$0.001 |
-| Mistral Pixtral Large | 1 × 1 | ~36 500 | ~$0.076 |
-| **Total OCR** | | | **~$0.24** |
+| Claude Sonnet 4.6 | 1 × 1 | ~5 300 | ~$0.022 |
+| Claude Haiku 4.5 | 1 × 1 | ~5 300 | ~$0.008 |
+| GPT-4o (high detail) | 1 × 1 | ~2 795 | ~$0.012 |
+| GPT-4o Mini (high detail) | 1 × 1 | ~2 795 | ~$0.001 |
+| Gemini 2.5 Pro | 1 × 1 | ~5 144 | ~$0.011 |
+| Gemini 2.5 Flash | 1 × 1 | ~5 144 | ~$0.002 |
+| Mistral Pixtral Large | 1 × 1 | ~9 911 | ~$0.023 |
+| **Total OCR** | | | **~$0.08** |
 
-Un run complet des deux benchmarks coûte ~$0.64. Avec 3 répétitions : ~$1.92.
+Un run complet des deux benchmarks coûte ~$0.48. Avec 3 répétitions : ~$1.44.
 
-> **Attention** : le coût OCR varie d'un facteur **100x** entre providers à cause des différences de tokenisation images (voir §11). Le coût augmentera linéairement avec le nombre de cas de test images ajoutés (voir §13 pour le plan d'expansion).
+> **Note** : le coût OCR varie d'un facteur ~20× entre providers. Il augmentera linéairement avec le nombre de cas images ajoutés (voir §13). Voir §11 pour le détail de la tokenisation.
 
 ---
 
@@ -691,44 +691,46 @@ D'après l'analyse de notre cas pilote (10_SVT_cours_louis, 3 pages), les modèl
 
 ### 11.1 Comment chaque provider facture les images
 
-La tokenisation des images varie **drastiquement** d'un provider à l'autre. Cela impacte directement le coût OCR, qui est dominé par les tokens d'entrée (images).
+La tokenisation des images varie d'un provider à l'autre. Cela impacte directement le coût OCR, qui est dominé par les tokens d'entrée (images).
 
-| Provider | Méthode de tokenisation | Tokens estimés pour 1 photo cahier (~1500×2000px, JPEG 500KB) | Coût input estimé |
-|----------|------------------------|--------------------------------------------------------------|-------------------|
-| **Anthropic** | Tiles de 768×768px. Image redimensionnée pour tenir dans les tiles. ~1600 tokens/tile. | ~6 tiles × 1600 = **~9 600 tokens** | $0.029 (Sonnet) / $0.010 (Haiku) |
-| **OpenAI** | `detail: low` = 85 tokens fixe. `detail: high` = tiles de 512×512 + 85. | High: ~12 tiles × 170 + 85 = **~2 125 tokens** | $0.005 (4o) / $0.0003 (4o-mini) |
-| **Google** | Nativement multimodal. Images tokenisées en ~258 tokens/image (fixe). | **~258 tokens** par image | $0.0003 (Pro) / $0.00004 (Flash) |
-| **Mistral** | Pixtral : découpe variable selon résolution. ~1 token/16px. | ~**12 000 tokens** estimés | $0.024 (Large) |
+| Provider | Méthode de tokenisation | Formule | Tokens pour 1 photo cahier (~1500×2000px) | Coût input/image |
+|----------|------------------------|---------|------------------------------------------|-----------------|
+| **Anthropic** | Pixel area / 750, auto-downscale si > 1568px long edge. | `(w×h)/750` après resize | **~1 600 tokens** (résolution réduite à ~951×1268) | $0.0048 (Sonnet) / $0.0016 (Haiku) |
+| **OpenAI** | `detail: high` = tiles 512×512 + overhead. Shortest side → 768px. | `85 + 170 × tiles` | **~765 tokens** (4 tiles après resize 768×1024) | $0.0019 (4o) / $0.0001 (4o-mini) |
+| **Google** | Tiles 768×768, 258 tokens/tile. < 384px = 1 tile. | `258 × tiles` | **~1 548 tokens** (6 tiles) | $0.0019 (Pro) / $0.0005 (Flash) |
+| **Mistral** | Pixtral : patches 16×16 à résolution native (max 1024 long edge). | `(w/16)×(h/16) + h/16 + 1` | **~3 137 tokens** (après resize 768×1024) | $0.0063 (Pixtral Large) |
 
 ### 11.2 Impact sur le coût OCR (3 images de cahier)
 
-| Provider | Modèle | Tokens input (3 images + prompt) | Coût input | Tokens output (~500) | Coût output | **Total** |
-|----------|--------|----------------------------------|-----------|---------------------|------------|-----------|
-| Anthropic | Sonnet 4.6 | ~29 300 | $0.088 | 500 | $0.008 | **$0.096** |
-| Anthropic | Haiku 4.5 | ~29 300 | $0.029 | 500 | $0.003 | **$0.032** |
-| OpenAI | GPT-4o (high) | ~6 875 | $0.017 | 500 | $0.005 | **$0.022** |
-| OpenAI | GPT-4o Mini (high) | ~6 875 | $0.001 | 500 | $0.0003 | **$0.001** |
-| Google | Gemini 2.5 Pro | ~1 274 | $0.002 | 500 | $0.005 | **$0.007** |
-| Google | Gemini 2.5 Flash | ~1 274 | $0.0002 | 500 | $0.0003 | **$0.001** |
-| Mistral | Pixtral Large | ~36 500 | $0.073 | 500 | $0.003 | **$0.076** |
+| Provider | Modèle | Tokens input (3 img + prompt) | Coût input | Tokens output (~500) | Coût output | **Total** |
+|----------|--------|------------------------------|-----------|---------------------|------------|-----------|
+| Anthropic | Sonnet 4.6 | ~5 300 | $0.016 | 500 | $0.008 | **$0.022** |
+| Anthropic | Haiku 4.5 | ~5 300 | $0.005 | 500 | $0.003 | **$0.008** |
+| OpenAI | GPT-4o (high) | ~2 795 | $0.007 | 500 | $0.005 | **$0.012** |
+| OpenAI | GPT-4o Mini (high) | ~2 795 | $0.0004 | 500 | $0.0003 | **$0.001** |
+| Google | Gemini 2.5 Pro | ~5 144 | $0.006 | 500 | $0.005 | **$0.011** |
+| Google | Gemini 2.5 Flash | ~5 144 | $0.002 | 500 | $0.0003 | **$0.002** |
+| Mistral | Pixtral Large | ~9 911 | $0.020 | 500 | $0.003 | **$0.023** |
 
-> **Constat majeur** : le coût OCR varie d'un facteur **100x** entre Gemini Flash ($0.001) et Anthropic Sonnet ($0.096) pour les mêmes 3 images. Si la qualité est comparable, Gemini est imbattable en OCR grâce à sa tokenisation native des images.
+> **Constat** : le coût OCR varie d'un facteur **~20x** entre GPT-4o Mini ($0.001) et Mistral Pixtral Large ($0.023) pour les mêmes 3 images. Les modèles économiques (GPT-4o Mini, Gemini Flash) sont très compétitifs — le benchmark doit déterminer si la qualité suit.
+>
+> **Prompt caching** : Anthropic propose un cache à 0.1× le coût input. Si les mêmes images sont analysées plusieurs fois (runs, itérations), le coût tombe à ~$0.004 par appel sur Sonnet — compétitif avec les modèles flash.
 
 ### 11.3 Projections à l'échelle
 
-Pour un utilisateur typique (4 chapitres × 4 pages × 3 images/page = 48 images) :
+Pour un utilisateur typique (4 chapitres × 4 pages × 3 images/page = 48 images, traitées en 16 appels de 3 images) :
 
-| Provider | Modèle | Coût pipeline OCR complet |
-|----------|--------|--------------------------|
-| Anthropic | Sonnet 4.6 | ~$1.54 |
-| Anthropic | Haiku 4.5 | ~$0.51 |
-| OpenAI | GPT-4o | ~$0.35 |
-| OpenAI | GPT-4o Mini | ~$0.02 |
-| Google | Gemini 2.5 Pro | ~$0.11 |
-| Google | Gemini 2.5 Flash | ~$0.01 |
-| Mistral | Pixtral Large | ~$1.22 |
+| Provider | Modèle | Coût pipeline OCR complet | Avec prompt caching |
+|----------|--------|--------------------------|---------------------|
+| Anthropic | Sonnet 4.6 | ~$0.35 | ~$0.06 (cache 0.1×) |
+| Anthropic | Haiku 4.5 | ~$0.13 | ~$0.02 (cache 0.1×) |
+| OpenAI | GPT-4o | ~$0.19 | ~$0.10 (cache 0.5×) |
+| OpenAI | GPT-4o Mini | ~$0.01 | ~$0.007 |
+| Google | Gemini 2.5 Pro | ~$0.18 | ~$0.03 (cache 0.1×) |
+| Google | Gemini 2.5 Flash | ~$0.03 | ~$0.006 |
+| Mistral | Pixtral Large | ~$0.37 | N/A (pas de cache) |
 
-> **Conclusion** : le choix du modèle OCR a un impact budgétaire majeur. Un modèle "premium" (Sonnet) pour l'OCR est 150x plus cher qu'un modèle "flash" (Gemini Flash). Le benchmark doit déterminer si cette différence de prix se justifie par une différence de qualité.
+> **Conclusion** : le coût OCR est raisonnable pour tous les providers sur le volume MVP (48 images, < $0.40). L'écart se creuse à l'échelle (10K pages/mois) : $48/mois sur Sonnet vs $1/mois sur GPT-4o Mini. Le prompt caching réduit significativement l'écart entre les modèles premium et économiques.
 
 ---
 
