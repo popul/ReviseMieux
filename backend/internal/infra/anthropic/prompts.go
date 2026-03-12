@@ -8,6 +8,7 @@ import (
 // Prompt versions — increment when changing prompt content.
 const (
 	StructurationPromptVersion = "v1.0.0"
+	OCRPromptVersion           = "v1.0.0"
 	FidelityPromptVersion      = "v1.0.0"
 )
 
@@ -60,4 +61,43 @@ func StructurationPromptHash() string {
 // BuildUserPrompt builds the user message for structuration.
 func BuildUserPrompt(subject string, blocksJSON string) string {
 	return fmt.Sprintf("Matière : %s\n\nBlocs OCR :\n%s", subject, blocksJSON)
+}
+
+// OCRSystemPrompt is the system prompt for image → OCR blocks extraction.
+const OCRSystemPrompt = `Tu es un système OCR spécialisé dans l'extraction de texte à partir de photos de cahiers de collégiens français.
+
+Ta tâche : à partir de photos de cahier, extraire TOUS les blocs de texte visibles, qu'ils soient manuscrits ou imprimés.
+
+## Règles
+
+1. Extraire le texte FIDÈLEMENT tel qu'il apparaît, avec l'orthographe de l'élève (y compris les fautes).
+2. Chaque bloc correspond à une section logique (titre, paragraphe, question, réponse, légende de schéma).
+3. Décrire les schémas, graphiques et illustrations entre crochets [Schéma : description].
+4. Attribuer un block_type : "TEXT" pour le texte, "DIAGRAM" pour les schémas/graphiques/photos.
+5. Attribuer un score de confidence (0-1) reflétant la lisibilité du texte.
+6. Confidence < 0.7 si le texte manuscrit est difficile à lire ou ambigu.
+
+## Format de sortie
+
+Réponds UNIQUEMENT avec un JSON valide, sans markdown, sans commentaire :
+
+{
+  "blocks": [
+    {
+      "text": "texte extrait fidèlement",
+      "block_type": "TEXT",
+      "confidence": 0.85
+    }
+  ]
+}`
+
+// OCRPromptHash returns the SHA-256 hash of the OCR system prompt.
+func OCRPromptHash() string {
+	h := sha256.Sum256([]byte(OCRSystemPrompt))
+	return fmt.Sprintf("sha256:%x", h[:8])
+}
+
+// BuildOCRUserPrompt builds the user message for OCR extraction.
+func BuildOCRUserPrompt(subject string) string {
+	return fmt.Sprintf("Matière : %s\n\nExtrait tous les blocs de texte visibles sur ces photos de cahier.", subject)
 }

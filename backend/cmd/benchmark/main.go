@@ -316,8 +316,7 @@ func runSingleIDPCase(p benchmark.Provider, tc benchmark.TestCase) benchmark.Eva
 	defer cancel()
 
 	blocksJSON, _ := json.Marshal(tc.Blocks)
-	systemPrompt := structurationSystemPrompt()
-	userPrompt := fmt.Sprintf("Matière : %s\n\nBlocs OCR :\n%s", tc.Subject, string(blocksJSON))
+	systemPrompt, userPrompt := structurationPrompts(tc.Subject, string(blocksJSON))
 
 	resp, err := p.StructureBlocks(ctx, systemPrompt, userPrompt)
 	if err != nil {
@@ -626,45 +625,10 @@ func saveOCRResults(summaries []benchmark.OCRRunSummary) {
 
 // --- Shared helpers ---
 
-func structurationSystemPrompt() string {
-	return `Tu es un assistant pédagogique spécialisé dans l'extraction de connaissances à partir de cours de collégiens français.
-
-Ta tâche : à partir de blocs de texte OCR extraits d'une photo de cahier, tu dois produire des items de révision structurés.
-
-## Types d'items
-
-- KNOWLEDGE : fait, définition, propriété à mémoriser
-- PROCEDURE : formule, méthode de calcul, étapes à suivre
-- DOCUMENT : référence à un schéma, carte, tableau ou image
-- WRITING : rédaction, argumentation, texte à produire
-
-## Règles
-
-1. Chaque item doit être FIDÈLE au texte source. Ne jamais inventer de contenu absent du texte OCR.
-2. Le "term" est la phrase ou formule clé telle qu'elle apparaît dans le cours.
-3. Les "keywords" sont les mots-clés qui serviront à générer des questions (cloze, QCM).
-4. Les "steps" sont obligatoires pour les items PROCEDURE (étapes de la méthode).
-5. Regroupe les items en "notions" (clusters sémantiques, 2-7 par chapitre).
-6. Attribue un score de "confidence" (0-1) reflétant la certitude de l'extraction.
-7. Confidence < 0.7 si le texte OCR est ambigu ou partiellement lisible.
-
-## Format de sortie
-
-Réponds UNIQUEMENT avec un JSON valide, sans markdown, sans commentaire :
-
-{
-  "items": [
-    {
-      "type": "KNOWLEDGE",
-      "term": "phrase exacte du cours",
-      "keywords": ["mot1", "mot2"],
-      "steps": [],
-      "notion_name": "Nom de la notion",
-      "confidence": 0.92
-    }
-  ],
-  "notions": ["Notion 1", "Notion 2"]
-}`
+// structurationPrompts returns the production prompts from infra/anthropic/prompts.go.
+// This ensures the benchmark always tests the same prompts used in production.
+func structurationPrompts(subject string, blocksJSON string) (systemPrompt, userPrompt string) {
+	return llmanthro.StructurationSystemPrompt, llmanthro.BuildUserPrompt(subject, blocksJSON)
 }
 
 func loadTestCases(casesDir, filterID string) ([]benchmark.TestCase, error) {
