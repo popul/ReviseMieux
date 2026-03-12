@@ -198,18 +198,46 @@ func (s *ValidationService) Ignore(ctx context.Context, taskID, resolverID uuid.
 	return nil
 }
 
+// maxValidationTasks is the cap on validation tasks per chapter (Z2-AC09).
+const maxValidationTasks = 8
+
 // CreateValidationTasksIfNeeded creates validation tasks for items below
-// the confidence threshold (Z3-AC09).
+// the confidence threshold (Z3-AC09), capped at 8 highest-priority items (Z2-AC09).
 func (s *ValidationService) CreateValidationTasksIfNeeded(ctx context.Context, items []*chapter.Item) []*validation.ValidationTask {
 	now := s.clock.Now()
-	var tasks []*validation.ValidationTask
 
+	// Collect eligible items sorted by lowest confidence first (highest priority)
+	type candidate struct {
+		item       *chapter.Item
+		confidence float32
+	}
+	var candidates []candidate
 	for _, item := range items {
 		if item.Confidence < confidenceThreshold {
-			task := validation.NewValidationTask(s.idGen, item.ID, validation.SourceUncertainty, now)
-			s.valRepo.Save(ctx, task)
-			tasks = append(tasks, task)
+			candidates = append(candidates, candidate{item: item, confidence: item.Confidence})
 		}
+	}
+
+	// Sort by confidence ascending (lowest confidence = highest priority)
+	for i := 0; i < len(candidates); i++ {
+		for j := i + 1; j < len(candidates); j++ {
+			if candidates[j].confidence < candidates[i].confidence {
+				candidates[i], candidates[j] = candidates[j], candidates[i]
+			}
+		}
+	}
+
+	// Cap at maxValidationTasks (Z2-AC09)
+	limit := len(candidates)
+	if limit > maxValidationTasks {
+		limit = maxValidationTasks
+	}
+
+	var tasks []*validation.ValidationTask
+	for i := 0; i < limit; i++ {
+		task := validation.NewValidationTask(s.idGen, candidates[i].item.ID, validation.SourceUncertainty, now)
+		s.valRepo.Save(ctx, task)
+		tasks = append(tasks, task)
 	}
 
 	return tasks

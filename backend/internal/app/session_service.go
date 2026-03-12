@@ -226,6 +226,61 @@ func (s *SessionService) SubmitAnswer(ctx context.Context, sessionID, questionID
 	}, nil
 }
 
+// ComposeMockExam creates a mock exam session, independent of any active daily session (Z4-AC07).
+// CB1 has its own question pool and does not block or depend on daily sessions.
+func (s *SessionService) ComposeMockExam(ctx context.Context, userID uuid.UUID, chapterIDs []uuid.UUID) (*session.Session, error) {
+	now := s.clock.Now()
+
+	if len(chapterIDs) == 0 {
+		return nil, session.ErrEmptyPool
+	}
+
+	// Gather all items from all chapters
+	var allItemIDs []uuid.UUID
+	for _, chID := range chapterIDs {
+		items, err := s.chapterRepo.FindItemsByChapter(ctx, chID, false)
+		if err != nil {
+			return nil, fmt.Errorf("session_service: find items for chapter: %w", err)
+		}
+		for _, item := range items {
+			allItemIDs = append(allItemIDs, item.ID)
+		}
+	}
+
+	if len(allItemIDs) == 0 {
+		return nil, session.ErrEmptyPool
+	}
+
+	sess := session.NewSession(s.idGen, userID, session.TypeMockExam, session.TriggerManual, now)
+	sess.ChapterIDs = chapterIDs
+
+	if err := s.sessionRepo.Save(ctx, sess); err != nil {
+		return nil, fmt.Errorf("session_service: save mock exam: %w", err)
+	}
+
+	// Select up to 20 questions for a mock exam
+	maxQuestions := 20
+	if len(allItemIDs) < maxQuestions {
+		maxQuestions = len(allItemIDs)
+	}
+
+	for i := 0; i < maxQuestions; i++ {
+		templateID := difficulty1Templates[i%len(difficulty1Templates)]
+		q := &session.Question{
+			ID:         s.idGen.New(),
+			SessionID:  sess.ID,
+			TemplateID: templateID,
+			ItemID:     allItemIDs[i],
+			CreatedAt:  now,
+		}
+		if err := s.sessionRepo.SaveQuestion(ctx, q); err != nil {
+			return nil, fmt.Errorf("session_service: save mock exam question: %w", err)
+		}
+	}
+
+	return sess, nil
+}
+
 // AvailableSessionTypes returns session types available based on schedule status.
 // Z6-AC11: without schedule, daily/evening_first/mock_exam still available;
 // pre_class requires schedule.

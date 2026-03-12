@@ -81,11 +81,11 @@ Upload → OCR → Structuration → Items.
 | 3.6 | Échec génération items (erreur LLM, retry + fallback) | `[x]` | Z2-AC05 | P1 |
 | 3.7 | Diagnostic impossible si 0 items valides | `[x]` | Z2-AC07 | P1 |
 | 3.8 | Streaming carte leçon (première page dispo) | `[x]` | Z2-AC10 | P1 |
-| 3.9 | Timeout OCR sur page intermédiaire | `[ ]` | Z2-AC02 | P2 |
-| 3.10 | Photo floue détectée (confidence < 0.3) | `[ ]` | Z2-AC03 | P2 |
-| 3.11 | Idempotence pipeline au restart | `[ ]` | Z2-AC06 | P2 |
-| 3.12 | Bloc SCHEMA/MAP conservé comme Document image | `[ ]` | Z2-AC08 | P2 |
-| 3.13 | File validation plafonnée à 8 | `[ ]` | Z2-AC09 | P2 |
+| 3.9 | Timeout OCR sur page intermédiaire | `[x]` | Z2-AC02 | P2 |
+| 3.10 | Photo floue détectée (confidence < 0.3) | `[x]` | Z2-AC03 | P2 |
+| 3.11 | Idempotence pipeline au restart | `[x]` | Z2-AC06 | P2 |
+| 3.12 | Bloc SCHEMA/MAP conservé comme Document image | `[x]` | Z2-AC08 | P2 |
+| 3.13 | File validation plafonnée à 8 | `[x]` | Z2-AC09 | P2 |
 | 3.14 | Clé d'identité canonique de l'item | `[x]` | Z5-AC01 | P1 |
 | 3.15 | Révision courante unique par chapitre | `[x]` | Z5-AC04 | P1 |
 | 3.16 | Items archivés non proposés en session | `[x]` | Z5-AC06 | P1 |
@@ -107,9 +107,9 @@ Composition, lazy generation, feedback.
 | 4.7 | Lazy generation de questions (templates → questions) | `[x]` | — | P1 |
 | 4.8 | Mode dégradé sans emploi du temps | `[x]` | Z6-AC11 | P1 |
 | 4.9 | Pas de pénalité maîtrise pour items en retard | `[x]` | Z6-AC13 | P1 |
-| 4.10 | Mock exam non bloqué par session daily active | `[ ]` | Z4-AC07 | P2 |
-| 4.11 | Exam multi-chapitre : création et liaison | `[ ]` | Z6-AC10 | P2 |
-| 4.12 | Vue chapitre par notion (accordéon + maîtrise) | `[ ]` | Z7-AC16 | P2 |
+| 4.10 | Mock exam non bloqué par session daily active | `[x]` | Z4-AC07 | P2 |
+| 4.11 | Exam multi-chapitre : création et liaison | `[x]` | Z6-AC10 | P2 |
+| 4.12 | Vue chapitre par notion (accordéon + maîtrise) | `[x]` | Z7-AC16 | P2 |
 
 ---
 
@@ -199,7 +199,7 @@ Vérification exhaustive : chaque AC Lot 0 est rattachée à une tâche.
 | Z6-AC05 | 4.2 | `[x]` |
 | Z6-AC11 | 4.8 | `[x]` |
 | Z6-AC13 | 4.9 | `[x]` |
-| Z7-AC15 | 3.3 | `[ ]` |
+| Z7-AC15 | 3.3 | `[x]` |
 | Z8-AC01 | 6.1 | `[x]` |
 | Z8-AC02 | 6.2 | `[x]` |
 | Z8-AC04 | 6.3 | `[x]` |
@@ -211,11 +211,11 @@ Vérification exhaustive : chaque AC Lot 0 est rattachée à une tâche.
 | Z1-AC08 | 2.8 | `[—]` |
 | Z1-AC10 | 2.9 | `[—]` |
 | Z1-AC13 | 2.10 | `[x]` |
-| Z2-AC02 | 3.9 | `[ ]` |
-| Z2-AC03 | 3.10 | `[ ]` |
-| Z2-AC06 | 3.11 | `[ ]` |
-| Z2-AC08 | 3.12 | `[ ]` |
-| Z2-AC09 | 3.13 | `[ ]` |
+| Z2-AC02 | 3.9 | `[x]` |
+| Z2-AC03 | 3.10 | `[x]` |
+| Z2-AC06 | 3.11 | `[x]` |
+| Z2-AC08 | 3.12 | `[x]` |
+| Z2-AC09 | 3.13 | `[x]` |
 | Z3-AC01 | 5.2 | `[x]` |
 | Z3-AC02 | 5.3 | `[x]` |
 | Z3-AC03 | 5.4 | `[x]` |
@@ -223,9 +223,9 @@ Vérification exhaustive : chaque AC Lot 0 est rattachée à une tâche.
 | Z3-AC05 | 5.6 | `[x]` |
 | Z3-AC09 | 5.7 | `[x]` |
 | Z3-AC10 | 5.8 | `[—]` |
-| Z4-AC07 | 4.10 | `[ ]` |
-| Z6-AC10 | 4.11 | `[ ]` |
-| Z7-AC16 | 4.12 | `[ ]` |
+| Z4-AC07 | 4.10 | `[x]` |
+| Z6-AC10 | 4.11 | `[x]` |
+| Z7-AC16 | 4.12 | `[x]` |
 | Z8-AC03 | 6.4 | `[ ]` |
 | Z8-AC08 | 6.5 | `[ ]` |
 

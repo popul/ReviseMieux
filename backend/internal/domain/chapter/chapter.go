@@ -78,6 +78,7 @@ const (
 	PageNoItems         PageStatus = "NO_ITEMS"
 	PageItemsFailed     PageStatus = "ITEMS_FAILED"
 	PageFailed          PageStatus = "FAILED"
+	PageBlurry          PageStatus = "BLURRY" // Z2-AC03: confidence < 0.3
 )
 
 type RevisionStatus string
@@ -130,13 +131,15 @@ type Revision struct {
 
 // Page represents a single photo page within a revision.
 type Page struct {
-	ID         uuid.UUID
-	RevisionID uuid.UUID
-	PhotoURL   string
-	PageOrder  int
-	OCRStatus  PageStatus
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
+	ID            uuid.UUID
+	RevisionID    uuid.UUID
+	PhotoURL      string
+	PageOrder     int
+	OCRStatus     PageStatus
+	FailReason    *string // Z2-AC02: e.g. "ocr_timeout"
+	OCRConfidence *float32 // Z2-AC03: global confidence
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 // Block represents an OCR-detected zone within a page.
@@ -161,21 +164,23 @@ type Notion struct {
 
 // Item represents a reviewable knowledge unit.
 type Item struct {
-	ID                  uuid.UUID
-	ChapterID           uuid.UUID
-	NotionID            *uuid.UUID
-	RevisionID          uuid.UUID
-	ItemType            ItemType
-	Term                *string
-	Confidence          float32
-	ValidationRequired  bool
-	Archived            bool
-	Keywords            []string
-	Steps               []ItemStep
-	LLMModelVersion     *string
+	ID                    uuid.UUID
+	ChapterID             uuid.UUID
+	NotionID              *uuid.UUID
+	RevisionID            uuid.UUID
+	ItemType              ItemType
+	Term                  *string
+	Confidence            float32
+	ValidationRequired    bool
+	Archived              bool
+	Keywords              []string
+	Steps                 []ItemStep
+	Tags                  []string // Z2-AC08: e.g. ["map"], ["schema"]
+	SourceImageURL        *string  // Z2-AC08: for DOCUMENT items from visual blocks
+	LLMModelVersion       *string
 	PromptTemplateVersion *string
-	CreatedAt           time.Time
-	UpdatedAt           time.Time
+	CreatedAt             time.Time
+	UpdatedAt             time.Time
 }
 
 // ItemStep represents an ordered step in a PROCEDURE item.

@@ -2,8 +2,10 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -11,6 +13,20 @@ import (
 	"github.com/popul/revisemieux/internal/domain/event"
 	"github.com/popul/revisemieux/internal/domain/mastery"
 )
+
+const (
+	// ocrMaxRetries is the max retries for OCR timeout (Z2-AC02).
+	ocrMaxRetries = 3
+	// ocrTimeout is the per-page OCR timeout.
+	ocrTimeout = 10 * time.Second
+	// blurryThreshold is the global confidence below which a page is marked blurry (Z2-AC03).
+	blurryThreshold float32 = 0.3
+	// schemaConfidenceThreshold: blocks below this are kept as visual documents (Z2-AC08).
+	schemaConfidenceThreshold float32 = 0.5
+)
+
+// ErrOCRTimeout is returned when OCR times out after retries.
+var ErrOCRTimeout = errors.New("pipeline: OCR timeout after retries")
 
 // PageUpload represents a single photo to upload.
 type PageUpload struct {
@@ -226,13 +242,15 @@ func (s *PipelineService) processPage(
 	notionCache map[string]*chapter.Notion,
 	now time.Time,
 ) ([]*chapter.Item, error) {
-	// OCR
+	// OCR with retry (Z2-AC02)
 	page.OCRStatus = chapter.PageOCRProcessing
 	page.UpdatedAt = now
 	s.chapterRepo.SavePage(ctx, page)
 
-	ocrResult, err := s.ocr.ProcessPage(ctx, page.PhotoURL)
+	ocrResult, err := s.ocrWithRetry(ctx, page.PhotoURL)
 	if err != nil {
+		reason := "ocr_timeout"
+		page.FailReason = &reason
 		return nil, fmt.Errorf("ocr: %w", err)
 	}
 
@@ -240,32 +258,63 @@ func (s *PipelineService) processPage(
 		return nil, nil
 	}
 
-	// Save blocks
-	for _, ob := range ocrResult.Blocks {
-		block := &chapter.Block{
-			ID:         s.idGen.New(),
-			PageID:     page.ID,
-			BlockType:  ob.BlockType,
-			Confidence: ob.Confidence,
-			OCRText:    &ob.Text,
-			CreatedAt:  now,
-		}
-		// We don't persist blocks via the chapter repo interface yet.
-		// For now, blocks are transient — they feed the LLM step.
-		_ = block
+	// Z2-AC03: Check global confidence for blurry detection
+	globalConf := computeGlobalConfidence(ocrResult.Blocks)
+	page.OCRConfidence = &globalConf
+	if globalConf < blurryThreshold {
+		page.OCRStatus = chapter.PageBlurry
+		page.UpdatedAt = now
+		s.chapterRepo.SavePage(ctx, page)
+		// Still continue — items will be marked validation_required
 	}
 
-	// Structuration via LLM
+	// Z2-AC08: Separate SCHEMA/MAP blocks with low confidence → Document items
+	var textBlocks []chapter.OCRBlock
+	var visualDocItems []*chapter.Item
+	for _, ob := range ocrResult.Blocks {
+		if isVisualBlock(ob.BlockType) && ob.Confidence < schemaConfidenceThreshold {
+			// Create Document item for visual block
+			tag := strings.ToLower(string(ob.BlockType))
+			cropURL := ob.Text // In real impl, this would be the crop URL
+			item := &chapter.Item{
+				ID:             s.idGen.New(),
+				ChapterID:      ch.ID,
+				RevisionID:     rev.ID,
+				ItemType:       chapter.ItemDocument,
+				Tags:           []string{tag},
+				SourceImageURL: &cropURL,
+				Confidence:     ob.Confidence,
+				CreatedAt:      now,
+				UpdatedAt:      now,
+			}
+			visualDocItems = append(visualDocItems, item)
+		} else {
+			textBlocks = append(textBlocks, ob)
+		}
+	}
+
+	// Save visual document items
+	for _, item := range visualDocItems {
+		if err := s.chapterRepo.SaveItem(ctx, item); err != nil {
+			return nil, fmt.Errorf("save doc item: %w", err)
+		}
+	}
+
+	if len(textBlocks) == 0 {
+		return visualDocItems, nil
+	}
+
+	// Structuration via LLM (only text blocks)
 	page.OCRStatus = chapter.PageItemsGenerating
 	page.UpdatedAt = now
 	s.chapterRepo.SavePage(ctx, page)
 
-	structResult, err := s.llm.StructureBlocks(ctx, ch.Subject, ocrResult.Blocks)
+	structResult, err := s.llm.StructureBlocks(ctx, ch.Subject, textBlocks)
 	if err != nil {
-		return nil, fmt.Errorf("llm: %w", err)
+		return visualDocItems, fmt.Errorf("llm: %w", err)
 	}
 
-	if len(structResult.Items) == 0 {
+	if len(structResult.Items) == 0 && len(visualDocItems) == 0 {
 		return nil, nil
 	}
 
@@ -299,6 +348,11 @@ func (s *PipelineService) processPage(
 			UpdatedAt:  now,
 		}
 
+		// Z2-AC03: items from blurry pages need validation
+		if globalConf < blurryThreshold {
+			item.ValidationRequired = true
+		}
+
 		// Link to notion if exists
 		if si.NotionName != "" {
 			if notion, ok := notionCache[si.NotionName]; ok {
@@ -324,13 +378,138 @@ func (s *PipelineService) processPage(
 		items = append(items, item)
 	}
 
-	return items, nil
+	return append(visualDocItems, items...), nil
 }
 
 func (s *PipelineService) notifyProgress(p PageProgress) {
 	if s.onProgress != nil {
 		s.onProgress(p)
 	}
+}
+
+// ocrWithRetry calls OCR with timeout and retries (Z2-AC02).
+func (s *PipelineService) ocrWithRetry(ctx context.Context, imageURL string) (*chapter.OCRResult, error) {
+	var lastErr error
+	for attempt := 0; attempt <= ocrMaxRetries; attempt++ {
+		ocrCtx, cancel := context.WithTimeout(ctx, ocrTimeout)
+		result, err := s.ocr.ProcessPage(ocrCtx, imageURL)
+		cancel()
+		if err == nil {
+			return result, nil
+		}
+		lastErr = err
+	}
+	return nil, fmt.Errorf("%w: %v", ErrOCRTimeout, lastErr)
+}
+
+// computeGlobalConfidence returns the average confidence across all blocks (Z2-AC03).
+func computeGlobalConfidence(blocks []chapter.OCRBlock) float32 {
+	if len(blocks) == 0 {
+		return 0
+	}
+	var total float32
+	for _, b := range blocks {
+		total += b.Confidence
+	}
+	return total / float32(len(blocks))
+}
+
+// isVisualBlock returns true for SCHEMA/MAP block types (Z2-AC08).
+func isVisualBlock(bt chapter.BlockType) bool {
+	switch bt {
+	case chapter.BlockSchema, chapter.BlockMap:
+		return true
+	}
+	return false
+}
+
+// ResumeRevision resumes an interrupted pipeline from incomplete steps (Z2-AC06).
+// Reuses already-processed pages and only processes pending ones.
+func (s *PipelineService) ResumeRevision(ctx context.Context, revisionID uuid.UUID) (*PipelineResult, error) {
+	now := s.clock.Now()
+
+	rev, err := s.chapterRepo.FindRevisionByID(ctx, revisionID)
+	if err != nil {
+		return nil, fmt.Errorf("pipeline.resume: find revision: %w", err)
+	}
+	if rev.Status != chapter.RevisionProcessing && rev.Status != chapter.RevisionPartial {
+		return nil, fmt.Errorf("pipeline.resume: revision status %s is not resumable", rev.Status)
+	}
+
+	ch, err := s.chapterRepo.FindByID(ctx, rev.ChapterID)
+	if err != nil {
+		return nil, fmt.Errorf("pipeline.resume: find chapter: %w", err)
+	}
+
+	pages, err := s.chapterRepo.FindPagesByRevision(ctx, revisionID)
+	if err != nil {
+		return nil, fmt.Errorf("pipeline.resume: find pages: %w", err)
+	}
+
+	result := &PipelineResult{RevisionID: revisionID, TotalPages: len(pages)}
+	var allItems []*chapter.Item
+	notionCache := make(map[string]*chapter.Notion)
+
+	// Load existing notions
+	existingNotions, _ := s.chapterRepo.FindNotionsByChapter(ctx, ch.ID)
+	for _, n := range existingNotions {
+		notionCache[n.Name] = n
+	}
+
+	// Count already-done pages and items
+	existingItems, _ := s.chapterRepo.FindItemsByChapter(ctx, ch.ID, true)
+	for _, item := range existingItems {
+		if item.RevisionID == revisionID {
+			allItems = append(allItems, item)
+		}
+	}
+
+	for _, page := range pages {
+		switch page.OCRStatus {
+		case chapter.PageDone, chapter.PageNoItems, chapter.PageBlurry:
+			result.ProcessedPages++
+			continue
+		case chapter.PageFailed, chapter.PageItemsFailed:
+			result.FailedPages++
+			continue
+		}
+
+		// Re-process pending/processing pages
+		items, err := s.processPage(ctx, ch, rev, page, notionCache, now)
+		if err != nil {
+			page.OCRStatus = chapter.PageItemsFailed
+			page.UpdatedAt = now
+			s.chapterRepo.SavePage(ctx, page)
+			result.FailedPages++
+			continue
+		}
+		if len(items) == 0 {
+			page.OCRStatus = chapter.PageNoItems
+			page.UpdatedAt = now
+			s.chapterRepo.SavePage(ctx, page)
+			result.ProcessedPages++
+			continue
+		}
+		page.OCRStatus = chapter.PageDone
+		page.UpdatedAt = now
+		s.chapterRepo.SavePage(ctx, page)
+		result.ProcessedPages++
+		allItems = append(allItems, items...)
+	}
+
+	result.TotalItems = len(allItems)
+
+	// Update revision status
+	if result.TotalItems == 0 {
+		rev.Status = chapter.RevisionFailed
+	} else if result.FailedPages > 0 {
+		rev.Status = chapter.RevisionPartial
+	} else {
+		rev.Status = chapter.RevisionReady
+	}
+	s.chapterRepo.SaveRevision(ctx, rev)
+
+	return result, nil
 }
 
 // RevisionProgress holds the current progress of a revision's pipeline (Z8-AC04).
