@@ -17,6 +17,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"flag"
 	"fmt"
@@ -28,6 +29,7 @@ import (
 	"time"
 
 	"github.com/popul/revisemieux/internal/benchmark"
+	llmanthro "github.com/popul/revisemieux/internal/infra/anthropic"
 )
 
 func main() {
@@ -123,17 +125,79 @@ func main() {
 }
 
 func runSingleCase(p benchmark.Provider, tc benchmark.TestCase) benchmark.EvalResult {
-	// For now, this is a placeholder that shows the structure.
-	// Each provider implementation will make the actual API call.
-	// TODO: implement actual API calls when providers are wired
-	result := benchmark.EvalResult{
-		CaseID:    tc.ID,
-		Provider:  p.Name(),
-		Model:     p.ModelID(),
-		Timestamp: time.Now(),
-		Error:     "provider not yet implemented",
+	ctx, cancel := context.WithTimeout(context.Background(), 90*time.Second)
+	defer cancel()
+
+	// Build the prompt from test case blocks
+	blocksJSON, _ := json.Marshal(tc.Blocks)
+	systemPrompt := structurationSystemPrompt()
+	userPrompt := fmt.Sprintf("Matière : %s\n\nBlocs OCR :\n%s", tc.Subject, string(blocksJSON))
+
+	// Call the LLM
+	resp, err := p.StructureBlocks(ctx, systemPrompt, userPrompt)
+	if err != nil {
+		return benchmark.EvalResult{
+			CaseID:    tc.ID,
+			Provider:  p.Name(),
+			Model:     p.ModelID(),
+			Timestamp: time.Now(),
+			Error:     err.Error(),
+		}
 	}
+
+	// Parse the response JSON
+	var parsed benchmark.ParsedOutput
+	if err := json.Unmarshal(resp.RawJSON, &parsed); err != nil {
+		result := benchmark.Evaluate(tc, nil, resp, p)
+		result.Timestamp = time.Now()
+		result.Error = fmt.Sprintf("JSON parse error: %v", err)
+		return result
+	}
+
+	result := benchmark.Evaluate(tc, &parsed, resp, p)
+	result.Timestamp = time.Now()
 	return result
+}
+
+func structurationSystemPrompt() string {
+	return `Tu es un assistant pédagogique spécialisé dans l'extraction de connaissances à partir de cours de collégiens français.
+
+Ta tâche : à partir de blocs de texte OCR extraits d'une photo de cahier, tu dois produire des items de révision structurés.
+
+## Types d'items
+
+- KNOWLEDGE : fait, définition, propriété à mémoriser
+- PROCEDURE : formule, méthode de calcul, étapes à suivre
+- DOCUMENT : référence à un schéma, carte, tableau ou image
+- WRITING : rédaction, argumentation, texte à produire
+
+## Règles
+
+1. Chaque item doit être FIDÈLE au texte source. Ne jamais inventer de contenu absent du texte OCR.
+2. Le "term" est la phrase ou formule clé telle qu'elle apparaît dans le cours.
+3. Les "keywords" sont les mots-clés qui serviront à générer des questions (cloze, QCM).
+4. Les "steps" sont obligatoires pour les items PROCEDURE (étapes de la méthode).
+5. Regroupe les items en "notions" (clusters sémantiques, 2-7 par chapitre).
+6. Attribue un score de "confidence" (0-1) reflétant la certitude de l'extraction.
+7. Confidence < 0.7 si le texte OCR est ambigu ou partiellement lisible.
+
+## Format de sortie
+
+Réponds UNIQUEMENT avec un JSON valide, sans markdown, sans commentaire :
+
+{
+  "items": [
+    {
+      "type": "KNOWLEDGE",
+      "term": "phrase exacte du cours",
+      "keywords": ["mot1", "mot2"],
+      "steps": [],
+      "notion_name": "Nom de la notion",
+      "confidence": 0.92
+    }
+  ],
+  "notions": ["Notion 1", "Notion 2"]
+}`
 }
 
 func outputConsole(summaries []benchmark.RunSummary) {
@@ -254,20 +318,28 @@ func readJSON(path string, v interface{}) error {
 }
 
 func buildProviders(all bool, single string) []benchmark.Provider {
-	// TODO: wire actual provider implementations here
-	// For now, return empty — providers will be added when API clients are implemented
 	var providers []benchmark.Provider
 
-	_ = all
-	_ = single
+	if key := os.Getenv("ANTHROPIC_API_KEY"); key != "" && (all || single == "anthropic") {
+		providers = append(providers,
+			llmanthro.NewBenchmarkProvider(key, "claude-sonnet-4-6", 3.00, 15.00),
+			llmanthro.NewBenchmarkProvider(key, "claude-haiku-4-5", 1.00, 5.00),
+		)
+	}
 
-	// Example of how providers will be registered:
-	// if key := os.Getenv("ANTHROPIC_API_KEY"); key != "" && (all || single == "anthropic") {
-	//     providers = append(providers,
-	//         anthropic.NewBenchmarkProvider(key, "claude-sonnet-4-6-20250217", 3.00, 15.00),
-	//         anthropic.NewBenchmarkProvider(key, "claude-haiku-4-5-20251001", 1.00, 5.00),
-	//     )
-	// }
+	// TODO: add OpenAI, Google, Mistral, DeepSeek providers
+	if key := os.Getenv("OPENAI_API_KEY"); key != "" && (all || single == "openai") {
+		fmt.Println("  [skip] OpenAI provider not yet implemented")
+	}
+	if key := os.Getenv("GOOGLE_AI_API_KEY"); key != "" && (all || single == "google") {
+		fmt.Println("  [skip] Google provider not yet implemented")
+	}
+	if key := os.Getenv("MISTRAL_API_KEY"); key != "" && (all || single == "mistral") {
+		fmt.Println("  [skip] Mistral provider not yet implemented")
+	}
+	if key := os.Getenv("DEEPSEEK_API_KEY"); key != "" && (all || single == "deepseek") {
+		fmt.Println("  [skip] DeepSeek provider not yet implemented")
+	}
 
 	return providers
 }

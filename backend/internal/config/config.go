@@ -20,6 +20,11 @@ type Config struct {
 	S3AccessKey string
 	S3SecretKey string
 	S3Region    string
+
+	// Anthropic LLM
+	AnthropicAPIKey        string
+	AnthropicStructModel   string // Model for structuration (default: claude-sonnet-4-6)
+	AnthropicFidelityModel string // Model for fidelity check (default: claude-haiku-4-5)
 }
 
 // Load reads configuration from environment variables with sensible defaults.
@@ -36,6 +41,10 @@ func Load() (*Config, error) {
 		S3AccessKey: envOrDefault("S3_ACCESS_KEY", ""),
 		S3SecretKey: envOrDefault("S3_SECRET_KEY", ""),
 		S3Region:    envOrDefault("S3_REGION", "us-east-1"),
+
+		AnthropicAPIKey:        envOrDefault("ANTHROPIC_API_KEY", ""),
+		AnthropicStructModel:   envOrDefault("ANTHROPIC_STRUCT_MODEL", "claude-sonnet-4-6"),
+		AnthropicFidelityModel: envOrDefault("ANTHROPIC_FIDELITY_MODEL", "claude-haiku-4-5"),
 	}
 
 	if cfg.JWTSecret == "" {

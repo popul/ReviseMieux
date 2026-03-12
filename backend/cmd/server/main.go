@@ -17,6 +17,7 @@ import (
 	"github.com/popul/revisemieux/internal/domain/event"
 	apphttp "github.com/popul/revisemieux/internal/http"
 	"github.com/popul/revisemieux/internal/http/handler"
+	llmanthro "github.com/popul/revisemieux/internal/infra/anthropic"
 	"github.com/popul/revisemieux/internal/infra/eventbus"
 	"github.com/popul/revisemieux/internal/infra/postgres"
 
@@ -68,6 +69,18 @@ func main() {
 	masteryRepo := postgres.NewMasteryRepository(pool)
 	sessionRepo := postgres.NewSessionRepository(pool)
 	validationRepo := postgres.NewValidationRepository(pool)
+
+	// --- LLM Service ---
+	var llmStructurer *llmanthro.Structurer
+	if cfg.AnthropicAPIKey != "" {
+		llmStructurer = llmanthro.NewStructurer(cfg.AnthropicAPIKey, cfg.AnthropicStructModel)
+		log.Printf("LLM structurer initialized: model=%s", cfg.AnthropicStructModel)
+	} else {
+		log.Println("WARNING: ANTHROPIC_API_KEY not set — LLM structuration disabled")
+	}
+	// PipelineService requires Storage + OCR adapters (not yet implemented).
+	// When ready, wire: app.NewPipelineService(chapterRepo, masteryRepo, storage, ocr, llmStructurer, publisher, clock, idGen)
+	_ = llmStructurer
 
 	// --- Application Services ---
 	chapterSvc := app.NewChapterService(chapterRepo)
