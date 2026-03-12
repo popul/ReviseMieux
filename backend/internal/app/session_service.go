@@ -171,6 +171,61 @@ func (s *SessionService) ResumeSession(ctx context.Context, sessionID uuid.UUID)
 	return sess, nil
 }
 
+// GetSession retrieves a session by ID.
+func (s *SessionService) GetSession(ctx context.Context, sessionID uuid.UUID) (*session.Session, error) {
+	return s.sessionRepo.FindByID(ctx, sessionID)
+}
+
+// GetQuestions retrieves questions for a session.
+func (s *SessionService) GetQuestions(ctx context.Context, sessionID uuid.UUID) ([]*session.Question, error) {
+	return s.sessionRepo.FindQuestionsBySession(ctx, sessionID)
+}
+
+// SubmitAnswerResult is the result of submitting an answer.
+type SubmitAnswerResult struct {
+	AttemptID uuid.UUID
+	Score     float64
+	Feedback  *Feedback
+}
+
+// SubmitAnswer records an attempt and returns feedback (Z4-AC09).
+func (s *SessionService) SubmitAnswer(ctx context.Context, sessionID, questionID, userID uuid.UUID, answer []byte, score float64) (*SubmitAnswerResult, error) {
+	now := s.clock.Now()
+
+	// Find the question to get expected answer and template
+	q, err := s.sessionRepo.FindQuestionByID(ctx, questionID)
+	if err != nil {
+		return nil, fmt.Errorf("session_service: find question: %w", err)
+	}
+
+	// Create and save the attempt
+	attempt := session.NewAttempt(s.idGen, sessionID, questionID, userID, answer, score, now)
+	if err := s.sessionRepo.SaveAttempt(ctx, attempt); err != nil {
+		return nil, fmt.Errorf("session_service: save attempt: %w", err)
+	}
+
+	// Generate feedback for incorrect answers
+	var fb *Feedback
+	if score < 0.7 && q.ExpectedAnswer != nil {
+		f := GenerateFeedback(q.TemplateID, q.ExpectedAnswer, answer)
+		fb = &f
+	}
+
+	// Publish attempt event for mastery transition
+	s.publisher.Publish(ctx, event.AttemptRecorded{
+		BaseEvent: event.BaseEvent{OccurredOn: now},
+		UserID:    userID,
+		ItemID:    q.ItemID,
+		Score:     score,
+	})
+
+	return &SubmitAnswerResult{
+		AttemptID: attempt.ID,
+		Score:     score,
+		Feedback:  fb,
+	}, nil
+}
+
 // AvailableSessionTypes returns session types available based on schedule status.
 // Z6-AC11: without schedule, daily/evening_first/mock_exam still available;
 // pre_class requires schedule.

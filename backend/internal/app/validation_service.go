@@ -215,6 +215,11 @@ func (s *ValidationService) CreateValidationTasksIfNeeded(ctx context.Context, i
 	return tasks
 }
 
+// ListPending returns pending validation tasks.
+func (s *ValidationService) ListPending(ctx context.Context, limit int) ([]*validation.ValidationTask, error) {
+	return s.valRepo.FindPendingAll(ctx, limit)
+}
+
 // EligibleTemplates returns the templates available for an item based on
 // its validation_required status (Z3-AC01).
 func (s *ValidationService) EligibleTemplates(validationRequired bool) []string {

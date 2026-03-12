@@ -11,9 +11,13 @@ import (
 
 // RouterConfig holds dependencies needed to build the router.
 type RouterConfig struct {
-	JWTSecret       string
-	Version         string
-	PipelineHandler *handler.Pipeline
+	JWTSecret         string
+	Version           string
+	PipelineHandler   *handler.Pipeline
+	MasteryHandler    *handler.Mastery
+	ChapterHandler    *handler.Chapter
+	SessionHandler    *handler.Session
+	ValidationHandler *handler.Validation
 }
 
 // NewRouter creates and configures the Gin router with all routes.
@@ -32,9 +36,38 @@ func NewRouter(cfg RouterConfig) *gin.Engine {
 	api := r.Group("/api/v1")
 	api.Use(middleware.Auth(cfg.JWTSecret))
 	{
-		// Pipeline
+		// Chapters
+		if cfg.ChapterHandler != nil {
+			api.GET("/chapters", cfg.ChapterHandler.List)
+			api.POST("/chapters", cfg.ChapterHandler.Create)
+			api.GET("/chapters/:chapter_id/lesson-card", cfg.ChapterHandler.GetLessonCard)
+		}
+
+		// Pipeline (upload is under chapters)
 		if cfg.PipelineHandler != nil {
 			api.POST("/chapters/:chapter_id/upload", cfg.PipelineHandler.Upload)
+		}
+
+		// Masteries
+		if cfg.MasteryHandler != nil {
+			api.GET("/masteries", cfg.MasteryHandler.GetByUser)
+			api.GET("/masteries/:item_id", cfg.MasteryHandler.GetByItem)
+			api.POST("/masteries/attempt", cfg.MasteryHandler.RecordAttempt)
+		}
+
+		// Sessions
+		if cfg.SessionHandler != nil {
+			api.POST("/sessions/daily", cfg.SessionHandler.ComposeDaily)
+			api.GET("/sessions/:id", cfg.SessionHandler.GetByID)
+			api.POST("/sessions/:id/resume", cfg.SessionHandler.Resume)
+			api.GET("/sessions/:id/questions", cfg.SessionHandler.GetQuestions)
+			api.POST("/sessions/:id/answer", cfg.SessionHandler.SubmitAnswer)
+		}
+
+		// Validation
+		if cfg.ValidationHandler != nil {
+			api.GET("/validations", cfg.ValidationHandler.ListPending)
+			api.POST("/validations/:id/resolve", cfg.ValidationHandler.Resolve)
 		}
 	}
 
