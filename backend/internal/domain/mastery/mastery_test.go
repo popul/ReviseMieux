@@ -538,3 +538,31 @@ func TestZ1AC13_CappedAtOKBlocksSolid(t *testing.T) {
 		t.Errorf("next_due_at: got %v, want %v", *m.NextDueAt, wantDue)
 	}
 }
+
+// Z6-AC13 — Items overdue non révisés : aucune pénalité mastery
+// GIVEN: Un item en état OK avec next_due_at = 2 mars. L'élève ne révise pas du 2 au 5.
+// WHEN:  L'élève ouvre une session le 5 mars (item is overdue).
+// THEN:  L'item est toujours en état OK. cs n'a pas changé. Aucune régression.
+func TestZ6AC13_NoPenaltyForOverdueItems(t *testing.T) {
+	m := newTestMastery(t)
+
+	// Setup: OK with cs=2, due on March 2
+	dueDate := time.Date(2026, 3, 2, 18, 0, 0, 0, time.UTC)
+	lastSuccess := time.Date(2026, 2, 28, 18, 0, 0, 0, time.UTC)
+	m.State = OK
+	m.ConsecutiveSuccesses = 2
+	m.NextDueAt = &dueDate
+	m.LastSuccessAt = &lastSuccess
+
+	// March 5 — 3 days overdue. No RecordAttempt was called.
+	// The mastery state should be exactly as it was.
+	if m.State != OK {
+		t.Errorf("state: got %q, want %q (no penalty for inaction)", m.State, OK)
+	}
+	if m.ConsecutiveSuccesses != 2 {
+		t.Errorf("consecutive_successes: got %d, want 2 (no penalty for inaction)", m.ConsecutiveSuccesses)
+	}
+	if !m.NextDueAt.Equal(dueDate) {
+		t.Errorf("next_due_at: got %v, want %v (unchanged by inaction)", *m.NextDueAt, dueDate)
+	}
+}

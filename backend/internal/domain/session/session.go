@@ -10,9 +10,11 @@ import (
 )
 
 var (
-	ErrSessionNotResumable = errors.New("session cannot be resumed from current status")
+	ErrNotFound              = errors.New("session: not found")
+	ErrSessionNotResumable   = errors.New("session cannot be resumed from current status")
 	ErrSessionNotCompletable = errors.New("session cannot be completed from current status")
-	ErrNoQuestions         = errors.New("session has no questions")
+	ErrNoQuestions           = errors.New("session has no questions")
+	ErrEmptyPool             = errors.New("session: no items available for composition")
 )
 
 // --- Value Objects ---
@@ -159,6 +161,7 @@ func (s *Session) Abandon(now time.Time) {
 // Question represents a generated question within a session.
 type Question struct {
 	ID                    uuid.UUID
+	SessionID             uuid.UUID
 	TemplateID            string
 	ItemID                uuid.UUID
 	VisualBlockID         *uuid.UUID

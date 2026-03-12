@@ -98,15 +98,15 @@ Composition, lazy generation, feedback.
 
 | # | Tâche | Statut | ACs couvertes | Priorité |
 |---|---|---|---|---|
-| 4.1 | Session evening_first déclenchée après upload | `[ ]` | Z6-AC04 | P1 |
-| 4.2 | evening_first : 100% UNKNOWN, difficulté 1 | `[ ]` | Z6-AC05 | P1 |
-| 4.3 | Composition session avec contraintes pack | `[ ]` | Z4-AC05 | P1 |
-| 4.4 | Pool vide : dégradation gracieuse | `[ ]` | Z4-AC06 | P1 |
-| 4.5 | Reprise session interrompue | `[ ]` | Z4-AC04 | P1 |
-| 4.6 | Feedback enrichi après réponse incorrecte | `[ ]` | Z4-AC09 | P1 |
-| 4.7 | Lazy generation de questions (templates → questions) | `[ ]` | — | P1 |
-| 4.8 | Mode dégradé sans emploi du temps | `[ ]` | Z6-AC11 | P1 |
-| 4.9 | Pas de pénalité maîtrise pour items en retard | `[ ]` | Z6-AC13 | P1 |
+| 4.1 | Session evening_first déclenchée après upload | `[x]` | Z6-AC04 | P1 |
+| 4.2 | evening_first : 100% UNKNOWN, difficulté 1 | `[x]` | Z6-AC05 | P1 |
+| 4.3 | Composition session avec contraintes pack | `[—]` | Z4-AC05 | P1 |
+| 4.4 | Pool vide : dégradation gracieuse | `[x]` | Z4-AC06 | P1 |
+| 4.5 | Reprise session interrompue | `[x]` | Z4-AC04 | P1 |
+| 4.6 | Feedback enrichi après réponse incorrecte | `[x]` | Z4-AC09 | P1 |
+| 4.7 | Lazy generation de questions (templates → questions) | `[x]` | — | P1 |
+| 4.8 | Mode dégradé sans emploi du temps | `[x]` | Z6-AC11 | P1 |
+| 4.9 | Pas de pénalité maîtrise pour items en retard | `[x]` | Z6-AC13 | P1 |
 | 4.10 | Mock exam non bloqué par session daily active | `[ ]` | Z4-AC07 | P2 |
 | 4.11 | Exam multi-chapitre : création et liaison | `[ ]` | Z6-AC10 | P2 |
 | 4.12 | Vue chapitre par notion (accordéon + maîtrise) | `[ ]` | Z7-AC16 | P2 |
@@ -188,17 +188,17 @@ Vérification exhaustive : chaque AC Lot 0 est rattachée à une tâche.
 | Z2-AC07 | 3.7 | `[x]` |
 | Z2-AC10 | 3.8 | `[x]` |
 | Z3-AC06 | 5.1 | `[ ]` |
-| Z4-AC04 | 4.5 | `[ ]` |
-| Z4-AC05 | 4.3 | `[ ]` |
-| Z4-AC06 | 4.4 | `[ ]` |
-| Z4-AC09 | 4.6 | `[ ]` |
+| Z4-AC04 | 4.5 | `[x]` |
+| Z4-AC05 | 4.3 | `[—]` |
+| Z4-AC06 | 4.4 | `[x]` |
+| Z4-AC09 | 4.6 | `[x]` |
 | Z5-AC01 | 3.14 | `[x]` |
 | Z5-AC04 | 3.15 | `[x]` |
 | Z5-AC06 | 3.16 | `[x]` |
-| Z6-AC04 | 4.1 | `[ ]` |
-| Z6-AC05 | 4.2 | `[ ]` |
-| Z6-AC11 | 4.8 | `[ ]` |
-| Z6-AC13 | 4.9 | `[ ]` |
+| Z6-AC04 | 4.1 | `[x]` |
+| Z6-AC05 | 4.2 | `[x]` |
+| Z6-AC11 | 4.8 | `[x]` |
+| Z6-AC13 | 4.9 | `[x]` |
 | Z7-AC15 | 3.3 | `[ ]` |
 | Z8-AC01 | 6.1 | `[ ]` |
 | Z8-AC02 | 6.2 | `[ ]` |
