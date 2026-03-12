@@ -4,50 +4,26 @@ package postgres_test
 
 import (
 	"context"
-	"os"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/popul/revisemieux/internal/domain/chapter"
 	"github.com/popul/revisemieux/internal/domain/mastery"
 	"github.com/popul/revisemieux/internal/infra/postgres"
 )
 
-func setupTestPool(t *testing.T) *pgxpool.Pool {
-	t.Helper()
-	dsn := os.Getenv("TEST_DATABASE_URL")
-	if dsn == "" {
-		t.Skip("TEST_DATABASE_URL not set, skipping integration test")
-	}
-	pool, err := pgxpool.New(context.Background(), dsn)
-	if err != nil {
-		t.Fatalf("connect to test DB: %v", err)
-	}
-	t.Cleanup(func() { pool.Close() })
-	return pool
-}
-
-func newMasteryFixture(userID, itemID uuid.UUID, now time.Time) *mastery.Mastery {
-	return &mastery.Mastery{
-		ID:        uuid.Must(uuid.NewV7()),
-		UserID:    userID,
-		ItemID:    itemID,
-		State:     mastery.Unknown,
-		CreatedAt: now,
-		UpdatedAt: now,
-	}
-}
-
 func TestMasteryRepository_SaveAndFindByID(t *testing.T) {
-	pool := setupTestPool(t)
-	repo := postgres.NewMasteryRepository(pool)
+	tdb := setupTestDB(t)
+	repo := postgres.NewMasteryRepository(tdb.pool)
 	ctx := context.Background()
 	now := time.Now().UTC().Truncate(time.Microsecond)
 
-	userID := uuid.Must(uuid.NewV7())
-	itemID := uuid.Must(uuid.NewV7())
-	m := newMasteryFixture(userID, itemID, now)
+	userID := tdb.seedUser("student")
+	ch := tdb.seedChapter(userID)
+	rev := tdb.seedRevision(ch.ID)
+	item := tdb.seedItem(ch.ID, rev.ID, nil, chapter.ItemKnowledge, "Densité")
+	m := newMasteryFixture(userID, item.ID, now)
 
 	if err := repo.Save(ctx, m); err != nil {
 		t.Fatalf("Save: %v", err)
@@ -66,8 +42,8 @@ func TestMasteryRepository_SaveAndFindByID(t *testing.T) {
 }
 
 func TestMasteryRepository_FindByID_NotFound(t *testing.T) {
-	pool := setupTestPool(t)
-	repo := postgres.NewMasteryRepository(pool)
+	tdb := setupTestDB(t)
+	repo := postgres.NewMasteryRepository(tdb.pool)
 	ctx := context.Background()
 
 	_, err := repo.FindByID(ctx, uuid.Must(uuid.NewV7()))
@@ -77,20 +53,22 @@ func TestMasteryRepository_FindByID_NotFound(t *testing.T) {
 }
 
 func TestMasteryRepository_FindByUserAndItem(t *testing.T) {
-	pool := setupTestPool(t)
-	repo := postgres.NewMasteryRepository(pool)
+	tdb := setupTestDB(t)
+	repo := postgres.NewMasteryRepository(tdb.pool)
 	ctx := context.Background()
 	now := time.Now().UTC().Truncate(time.Microsecond)
 
-	userID := uuid.Must(uuid.NewV7())
-	itemID := uuid.Must(uuid.NewV7())
-	m := newMasteryFixture(userID, itemID, now)
+	userID := tdb.seedUser("student")
+	ch := tdb.seedChapter(userID)
+	rev := tdb.seedRevision(ch.ID)
+	item := tdb.seedItem(ch.ID, rev.ID, nil, chapter.ItemKnowledge, "Densité")
+	m := newMasteryFixture(userID, item.ID, now)
 
 	if err := repo.Save(ctx, m); err != nil {
 		t.Fatalf("Save: %v", err)
 	}
 
-	got, err := repo.FindByUserAndItem(ctx, userID, itemID)
+	got, err := repo.FindByUserAndItem(ctx, userID, item.ID)
 	if err != nil {
 		t.Fatalf("FindByUserAndItem: %v", err)
 	}
@@ -100,23 +78,25 @@ func TestMasteryRepository_FindByUserAndItem(t *testing.T) {
 }
 
 func TestMasteryRepository_FindDueByUser(t *testing.T) {
-	pool := setupTestPool(t)
-	repo := postgres.NewMasteryRepository(pool)
+	tdb := setupTestDB(t)
+	repo := postgres.NewMasteryRepository(tdb.pool)
 	ctx := context.Background()
 	now := time.Now().UTC().Truncate(time.Microsecond)
 
-	userID := uuid.Must(uuid.NewV7())
+	userID := tdb.seedUser("student")
+	ch := tdb.seedChapter(userID)
+	rev := tdb.seedRevision(ch.ID)
 	dueTime := now.Add(-1 * time.Hour)
 
-	// Create a mastery that is due
-	m := newMasteryFixture(userID, uuid.Must(uuid.NewV7()), now)
+	item1 := tdb.seedItem(ch.ID, rev.ID, nil, chapter.ItemKnowledge, "Item 1")
+	m := newMasteryFixture(userID, item1.ID, now)
 	m.NextDueAt = &dueTime
 	if err := repo.Save(ctx, m); err != nil {
 		t.Fatalf("Save: %v", err)
 	}
 
-	// Create a mastery that is NOT due
-	m2 := newMasteryFixture(userID, uuid.Must(uuid.NewV7()), now)
+	item2 := tdb.seedItem(ch.ID, rev.ID, nil, chapter.ItemKnowledge, "Item 2")
+	m2 := newMasteryFixture(userID, item2.ID, now)
 	futureTime := now.Add(24 * time.Hour)
 	m2.NextDueAt = &futureTime
 	if err := repo.Save(ctx, m2); err != nil {
@@ -136,20 +116,24 @@ func TestMasteryRepository_FindDueByUser(t *testing.T) {
 }
 
 func TestMasteryRepository_FindByUserAndState(t *testing.T) {
-	pool := setupTestPool(t)
-	repo := postgres.NewMasteryRepository(pool)
+	tdb := setupTestDB(t)
+	repo := postgres.NewMasteryRepository(tdb.pool)
 	ctx := context.Background()
 	now := time.Now().UTC().Truncate(time.Microsecond)
 
-	userID := uuid.Must(uuid.NewV7())
+	userID := tdb.seedUser("student")
+	ch := tdb.seedChapter(userID)
+	rev := tdb.seedRevision(ch.ID)
 
-	m1 := newMasteryFixture(userID, uuid.Must(uuid.NewV7()), now)
+	item1 := tdb.seedItem(ch.ID, rev.ID, nil, chapter.ItemKnowledge, "Item 1")
+	m1 := newMasteryFixture(userID, item1.ID, now)
 	m1.State = mastery.Fragile
 	if err := repo.Save(ctx, m1); err != nil {
 		t.Fatalf("Save m1: %v", err)
 	}
 
-	m2 := newMasteryFixture(userID, uuid.Must(uuid.NewV7()), now)
+	item2 := tdb.seedItem(ch.ID, rev.ID, nil, chapter.ItemKnowledge, "Item 2")
+	m2 := newMasteryFixture(userID, item2.ID, now)
 	m2.State = mastery.OK
 	if err := repo.Save(ctx, m2); err != nil {
 		t.Fatalf("Save m2: %v", err)
@@ -168,23 +152,26 @@ func TestMasteryRepository_FindByUserAndState(t *testing.T) {
 }
 
 func TestMasteryRepository_SaveAll(t *testing.T) {
-	pool := setupTestPool(t)
-	repo := postgres.NewMasteryRepository(pool)
+	tdb := setupTestDB(t)
+	repo := postgres.NewMasteryRepository(tdb.pool)
 	ctx := context.Background()
 	now := time.Now().UTC().Truncate(time.Microsecond)
 
-	userID := uuid.Must(uuid.NewV7())
-	masteries := []*mastery.Mastery{
-		newMasteryFixture(userID, uuid.Must(uuid.NewV7()), now),
-		newMasteryFixture(userID, uuid.Must(uuid.NewV7()), now),
-		newMasteryFixture(userID, uuid.Must(uuid.NewV7()), now),
+	userID := tdb.seedUser("student")
+	ch := tdb.seedChapter(userID)
+	rev := tdb.seedRevision(ch.ID)
+
+	items := make([]*mastery.Mastery, 3)
+	for i := range items {
+		item := tdb.seedItem(ch.ID, rev.ID, nil, chapter.ItemKnowledge, "Item")
+		items[i] = newMasteryFixture(userID, item.ID, now)
 	}
 
-	if err := repo.SaveAll(ctx, masteries); err != nil {
+	if err := repo.SaveAll(ctx, items); err != nil {
 		t.Fatalf("SaveAll: %v", err)
 	}
 
-	for _, m := range masteries {
+	for _, m := range items {
 		got, err := repo.FindByID(ctx, m.ID)
 		if err != nil {
 			t.Fatalf("FindByID(%v): %v", m.ID, err)
@@ -196,20 +183,21 @@ func TestMasteryRepository_SaveAll(t *testing.T) {
 }
 
 func TestMasteryRepository_SaveUpsert(t *testing.T) {
-	pool := setupTestPool(t)
-	repo := postgres.NewMasteryRepository(pool)
+	tdb := setupTestDB(t)
+	repo := postgres.NewMasteryRepository(tdb.pool)
 	ctx := context.Background()
 	now := time.Now().UTC().Truncate(time.Microsecond)
 
-	userID := uuid.Must(uuid.NewV7())
-	itemID := uuid.Must(uuid.NewV7())
-	m := newMasteryFixture(userID, itemID, now)
+	userID := tdb.seedUser("student")
+	ch := tdb.seedChapter(userID)
+	rev := tdb.seedRevision(ch.ID)
+	item := tdb.seedItem(ch.ID, rev.ID, nil, chapter.ItemKnowledge, "Densité")
+	m := newMasteryFixture(userID, item.ID, now)
 
 	if err := repo.Save(ctx, m); err != nil {
 		t.Fatalf("Save (insert): %v", err)
 	}
 
-	// Update state and save again (upsert)
 	m.State = mastery.Fragile
 	m.ConsecutiveSuccesses = 1
 	m.UpdatedAt = now.Add(time.Hour)

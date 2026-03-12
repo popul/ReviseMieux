@@ -97,13 +97,17 @@ func (s *OnboardingService) SeedDemoChapter(ctx context.Context, userID uuid.UUI
 		Status:         chapter.RevisionReady,
 		CreatedAt:      now,
 	}
-	ch.CurrentRevisionID = &revID
-
+	// Save chapter first (without revision link to avoid FK violation)
 	if err := s.chapterRepo.Save(ctx, ch); err != nil {
 		return nil, nil, fmt.Errorf("onboarding_service: save chapter: %w", err)
 	}
+	// Save revision, then link it to the chapter
 	if err := s.chapterRepo.SaveRevision(ctx, rev); err != nil {
 		return nil, nil, fmt.Errorf("onboarding_service: save revision: %w", err)
+	}
+	ch.CurrentRevisionID = &revID
+	if err := s.chapterRepo.Save(ctx, ch); err != nil {
+		return nil, nil, fmt.Errorf("onboarding_service: link revision: %w", err)
 	}
 
 	// Create items and masteries
