@@ -1,0 +1,12 @@
+{
+  "id": "01_physique_densite",
+  "subject": "Physique-Chimie",
+  "level": "5e",
+  "topic": "Densité et masse volumique",
+  "difficulty": "medium",
+  "expected_item_count": 8,
+  "expected_types": {
+    "KNOWLEDGE": 6,
+    "PROCEDURE": 2
+  }
+}
