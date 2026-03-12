@@ -80,15 +80,15 @@ Upload → OCR → Structuration → Items.
 | 3.5 | Aucun item généré sur une page (gestion gracieuse) | `[x]` | Z2-AC04 | P1 |
 | 3.6 | Échec génération items (erreur LLM, retry + fallback) | `[x]` | Z2-AC05 | P1 |
 | 3.7 | Diagnostic impossible si 0 items valides | `[x]` | Z2-AC07 | P1 |
-| 3.8 | Streaming carte leçon (première page dispo) | `[ ]` | Z2-AC10 | P1 |
+| 3.8 | Streaming carte leçon (première page dispo) | `[x]` | Z2-AC10 | P1 |
 | 3.9 | Timeout OCR sur page intermédiaire | `[ ]` | Z2-AC02 | P2 |
 | 3.10 | Photo floue détectée (confidence < 0.3) | `[ ]` | Z2-AC03 | P2 |
 | 3.11 | Idempotence pipeline au restart | `[ ]` | Z2-AC06 | P2 |
 | 3.12 | Bloc SCHEMA/MAP conservé comme Document image | `[ ]` | Z2-AC08 | P2 |
 | 3.13 | File validation plafonnée à 8 | `[ ]` | Z2-AC09 | P2 |
-| 3.14 | Clé d'identité canonique de l'item | `[ ]` | Z5-AC01 | P1 |
-| 3.15 | Révision courante unique par chapitre | `[ ]` | Z5-AC04 | P1 |
-| 3.16 | Items archivés non proposés en session | `[ ]` | Z5-AC06 | P1 |
+| 3.14 | Clé d'identité canonique de l'item | `[x]` | Z5-AC01 | P1 |
+| 3.15 | Révision courante unique par chapitre | `[x]` | Z5-AC04 | P1 |
+| 3.16 | Items archivés non proposés en session | `[x]` | Z5-AC06 | P1 |
 
 ---
 
@@ -186,15 +186,15 @@ Vérification exhaustive : chaque AC Lot 0 est rattachée à une tâche.
 | Z2-AC04 | 3.5 | `[x]` |
 | Z2-AC05 | 3.6 | `[x]` |
 | Z2-AC07 | 3.7 | `[x]` |
-| Z2-AC10 | 3.8 | `[ ]` |
+| Z2-AC10 | 3.8 | `[x]` |
 | Z3-AC06 | 5.1 | `[ ]` |
 | Z4-AC04 | 4.5 | `[ ]` |
 | Z4-AC05 | 4.3 | `[ ]` |
 | Z4-AC06 | 4.4 | `[ ]` |
 | Z4-AC09 | 4.6 | `[ ]` |
-| Z5-AC01 | 3.14 | `[ ]` |
-| Z5-AC04 | 3.15 | `[ ]` |
-| Z5-AC06 | 3.16 | `[ ]` |
+| Z5-AC01 | 3.14 | `[x]` |
+| Z5-AC04 | 3.15 | `[x]` |
+| Z5-AC06 | 3.16 | `[x]` |
 | Z6-AC04 | 4.1 | `[ ]` |
 | Z6-AC05 | 4.2 | `[ ]` |
 | Z6-AC11 | 4.8 | `[ ]` |

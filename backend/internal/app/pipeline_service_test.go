@@ -545,3 +545,58 @@ func (m *callCountLLM) StructureBlocks(_ context.Context, _ string, _ []chapter.
 	}
 	return &chapter.StructurationResult{}, nil
 }
+
+// Z2-AC10: progress callback is invoked per page
+func TestPipelineService_Z2AC10_ProgressCallback(t *testing.T) {
+	now := time.Date(2026, 1, 15, 10, 0, 0, 0, time.UTC)
+	clock := fixedClock{t: now}
+	idGen := &fixedIDGen{}
+
+	chRepo := newMockChapterRepo()
+	storage := newMockStorage()
+	ocr := newMockOCR()
+	llm := newMockLLM()
+	masteryRepo := &mockMasteryRepo{}
+	publisher := &mockPublisher{}
+
+	ch := chapter.NewChapter(idGen, uuid.Must(uuid.NewV7()), "Physique", "5e", "Chapitre", now)
+	chRepo.Save(context.Background(), ch)
+
+	svc := NewPipelineService(chRepo, masteryRepo, storage, ocr, llm, publisher, clock, idGen)
+
+	var progress []PageProgress
+	svc.OnPageProgress(func(p PageProgress) {
+		progress = append(progress, p)
+	})
+
+	photos := []PageUpload{
+		{FileName: "page1.jpg", ContentType: "image/jpeg", Body: strings.NewReader("data")},
+		{FileName: "page2.jpg", ContentType: "image/jpeg", Body: strings.NewReader("data")},
+		{FileName: "page3.jpg", ContentType: "image/jpeg", Body: strings.NewReader("data")},
+	}
+	_, err := svc.UploadAndProcess(context.Background(), ch.ID, photos)
+	if err != nil {
+		t.Fatalf("UploadAndProcess: %v", err)
+	}
+
+	// Should have received 3 progress events
+	if len(progress) != 3 {
+		t.Fatalf("expected 3 progress events, got %d", len(progress))
+	}
+
+	// Check first event
+	if progress[0].PageOrder != 1 {
+		t.Errorf("progress[0].PageOrder = %d, want 1", progress[0].PageOrder)
+	}
+	if progress[0].TotalPages != 3 {
+		t.Errorf("progress[0].TotalPages = %d, want 3", progress[0].TotalPages)
+	}
+	if progress[0].ItemsGenerated != 1 {
+		t.Errorf("progress[0].ItemsGenerated = %d, want 1", progress[0].ItemsGenerated)
+	}
+
+	// Check last event
+	if progress[2].PageOrder != 3 {
+		t.Errorf("progress[2].PageOrder = %d, want 3", progress[2].PageOrder)
+	}
+}

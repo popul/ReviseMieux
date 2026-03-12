@@ -28,6 +28,15 @@ type PipelineResult struct {
 	TotalItems     int
 }
 
+// PageProgress represents the progress after processing a single page.
+type PageProgress struct {
+	RevisionID     uuid.UUID
+	PageOrder      int
+	TotalPages     int
+	Status         string // "done", "no_items", "failed"
+	ItemsGenerated int
+}
+
 // PipelineService orchestrates the J0 pipeline: upload → OCR → structuration → items.
 type PipelineService struct {
 	chapterRepo chapter.Repository
@@ -38,6 +47,13 @@ type PipelineService struct {
 	publisher   event.Publisher
 	clock       event.Clock
 	idGen       event.IDGenerator
+	onProgress  func(PageProgress)
+}
+
+// OnPageProgress sets a callback invoked after each page is processed.
+// Used for SSE streaming (Z2-AC10).
+func (s *PipelineService) OnPageProgress(fn func(PageProgress)) {
+	s.onProgress = fn
 }
 
 // NewPipelineService creates a new PipelineService.
@@ -128,6 +144,10 @@ func (s *PipelineService) UploadAndProcess(ctx context.Context, chapterID uuid.U
 			page.UpdatedAt = now
 			s.chapterRepo.SavePage(ctx, page)
 			result.FailedPages++
+			s.notifyProgress(PageProgress{
+				RevisionID: rev.ID, PageOrder: page.PageOrder,
+				TotalPages: len(pages), Status: "failed",
+			})
 			continue
 		}
 
@@ -137,6 +157,10 @@ func (s *PipelineService) UploadAndProcess(ctx context.Context, chapterID uuid.U
 			page.UpdatedAt = now
 			s.chapterRepo.SavePage(ctx, page)
 			result.ProcessedPages++
+			s.notifyProgress(PageProgress{
+				RevisionID: rev.ID, PageOrder: page.PageOrder,
+				TotalPages: len(pages), Status: "no_items",
+			})
 			continue
 		}
 
@@ -145,6 +169,11 @@ func (s *PipelineService) UploadAndProcess(ctx context.Context, chapterID uuid.U
 		s.chapterRepo.SavePage(ctx, page)
 		result.ProcessedPages++
 		allItems = append(allItems, items...)
+		s.notifyProgress(PageProgress{
+			RevisionID: rev.ID, PageOrder: page.PageOrder,
+			TotalPages: len(pages), Status: "done",
+			ItemsGenerated: len(items),
+		})
 	}
 
 	result.TotalItems = len(allItems)
@@ -296,4 +325,10 @@ func (s *PipelineService) processPage(
 	}
 
 	return items, nil
+}
+
+func (s *PipelineService) notifyProgress(p PageProgress) {
+	if s.onProgress != nil {
+		s.onProgress(p)
+	}
 }
