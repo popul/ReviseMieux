@@ -30,13 +30,15 @@ type Response struct {
 
 // TestCase represents a single benchmark test case loaded from disk.
 type TestCase struct {
-	ID       string   `json:"id"`
-	Subject  string   `json:"subject"`
-	Level    string   `json:"level"`
-	Topic    string   `json:"topic"`
-	Difficulty string `json:"difficulty"`
-	Blocks   []OCRBlock    `json:"blocks"`
-	Golden   GoldenOutput  `json:"golden"`
+	ID         string       `json:"id"`
+	Subject    string       `json:"subject"`
+	Level      string       `json:"level"`
+	Topic      string       `json:"topic"`
+	Difficulty string       `json:"difficulty"`
+	Blocks     []OCRBlock   `json:"blocks"`
+	Golden     GoldenOutput `json:"golden"`
+	HasImages  bool         `json:"has_images"`
+	ImagePaths []string     `json:"-"` // populated at load time for OCR benchmark
 }
 
 // OCRBlock mirrors chapter.OCRBlock for benchmark inputs.
@@ -107,6 +109,70 @@ type EvalResult struct {
 
 	// Error if the call failed
 	Error string `json:"error,omitempty"`
+}
+
+// OCRProvider abstracts an OCR/vision API for benchmarking.
+type OCRProvider interface {
+	// Name returns the provider display name (e.g., "Anthropic").
+	Name() string
+	// ModelID returns the model identifier (e.g., "claude-sonnet-4-6").
+	ModelID() string
+	// PricePerMInput returns the cost in USD per 1M input tokens.
+	PricePerMInput() float64
+	// PricePerMOutput returns the cost in USD per 1M output tokens.
+	PricePerMOutput() float64
+	// ExtractBlocks sends images to the vision API and returns OCR blocks.
+	ExtractBlocks(ctx context.Context, imagePaths []string, subject string) (*Response, error)
+}
+
+// OCREvalResult holds all evaluation metrics for one (provider, test case) OCR benchmark pair.
+type OCREvalResult struct {
+	CaseID    string    `json:"case_id"`
+	Provider  string    `json:"provider"`
+	Model     string    `json:"model"`
+	Timestamp time.Time `json:"timestamp"`
+
+	// Detection metrics
+	BlocksExpected int     `json:"blocks_expected"`
+	BlocksFound    int     `json:"blocks_found"`
+	DetectionScore float64 `json:"detection_score"` // min(found,expected)/max(found,expected)
+
+	// Text accuracy (average word overlap across matched blocks)
+	TextAccuracy float64 `json:"text_accuracy"`
+
+	// Block type classification accuracy
+	TypeAccuracy float64 `json:"type_accuracy"`
+
+	// Performance
+	LatencyMs    int64   `json:"latency_ms"`
+	TokensInput  int     `json:"tokens_input"`
+	TokensOutput int     `json:"tokens_output"`
+	CostUSD      float64 `json:"cost_usd"`
+
+	// Composite
+	QualityScore   float64 `json:"quality_score"`
+	CompositeScore float64 `json:"composite_score"`
+
+	// Error if the call failed
+	Error string `json:"error,omitempty"`
+}
+
+// OCRRunSummary aggregates OCR results across all cases for one provider.
+type OCRRunSummary struct {
+	Provider string `json:"provider"`
+	Model    string `json:"model"`
+
+	AvgDetectionScore float64 `json:"avg_detection_score"`
+	AvgTextAccuracy   float64 `json:"avg_text_accuracy"`
+	AvgTypeAccuracy   float64 `json:"avg_type_accuracy"`
+	AvgLatencyMs      int64   `json:"avg_latency_ms"`
+	TotalCostUSD      float64 `json:"total_cost_usd"`
+	ErrorRate         float64 `json:"error_rate"`
+
+	AvgQualityScore   float64 `json:"avg_quality_score"`
+	AvgCompositeScore float64 `json:"avg_composite_score"`
+
+	Results []OCREvalResult `json:"results"`
 }
 
 // RunSummary aggregates results across all cases for one provider.

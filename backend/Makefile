@@ -4,7 +4,7 @@
 
 .PHONY: help deps build run dev test test-unit test-integration \
         lint fmt vet db-migrate db-create-migration swagger clean \
-        bench bench-all bench-report
+        bench bench-idp bench-ocr bench-all bench-report
 
 .DEFAULT_GOAL := help
 
@@ -180,37 +180,51 @@ ifneq ($(BENCH_ENV),)
   export
 endif
 
-bench: ## Lance le benchmark (usage: make bench PROVIDER=anthropic ou MODELS=gpt-4o,claude-sonnet-4-6)
+bench: ## Lance le benchmark IDP (alias, usage: make bench PROVIDER=anthropic)
+	@$(MAKE) bench-idp $(if $(ALL),ALL=$(ALL)) $(if $(PROVIDER),PROVIDER=$(PROVIDER)) $(if $(MODELS),MODELS=$(MODELS)) $(if $(CASE),CASE=$(CASE)) $(if $(RUNS),RUNS=$(RUNS)) $(if $(OUTPUT),OUTPUT=$(OUTPUT))
+
+bench-idp: ## Benchmark IDP — structuration LLM (OCR blocks → items)
 ifdef ALL
-	@echo "$(CYAN)Benchmark — tous les modèles...$(RESET)"
-	@$(GO) run $(BENCH_CMD) --all $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
+	@echo "$(CYAN)Benchmark IDP — tous les modèles...$(RESET)"
+	@$(GO) run $(BENCH_CMD) --type=idp --all $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
 else ifdef MODELS
-	@echo "$(CYAN)Benchmark — $(MODELS)...$(RESET)"
-	@$(GO) run $(BENCH_CMD) --models=$(MODELS) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
+	@echo "$(CYAN)Benchmark IDP — $(MODELS)...$(RESET)"
+	@$(GO) run $(BENCH_CMD) --type=idp --models=$(MODELS) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
 else ifdef PROVIDER
-	@echo "$(CYAN)Benchmark — $(PROVIDER)...$(RESET)"
-	@$(GO) run $(BENCH_CMD) --provider=$(PROVIDER) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
+	@echo "$(CYAN)Benchmark IDP — $(PROVIDER)...$(RESET)"
+	@$(GO) run $(BENCH_CMD) --type=idp --provider=$(PROVIDER) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
 else
 	@echo "$(YELLOW)Usage :$(RESET)"
-	@echo "  make bench ALL=1                                       — tous les modèles"
-	@echo "  make bench PROVIDER=anthropic                          — tous les modèles d'un provider"
-	@echo "  make bench MODELS=gpt-4o,claude-sonnet-4-6             — sélection de modèles"
-	@echo "  make bench MODELS=gpt-4o,gemini-2.5-flash RUNS=3       — avec options"
-	@echo ""
-	@echo "$(YELLOW)Variables :$(RESET)"
-	@echo "  ALL       — 1 pour lancer tous les modèles"
-	@echo "  PROVIDER  — anthropic, openai, google, mistral, deepseek"
-	@echo "  MODELS    — liste de modèles séparés par des virgules"
-	@echo "  CASE      — ID du cas de test"
-	@echo "  RUNS      — nombre de runs par cas (défaut: 1)"
-	@echo "  OUTPUT    — console, json, csv (défaut: console)"
+	@echo "  make bench-idp ALL=1                                    — tous les modèles"
+	@echo "  make bench-idp PROVIDER=anthropic                       — tous les modèles d'un provider"
+	@echo "  make bench-idp MODELS=gpt-4o,claude-sonnet-4-6          — sélection de modèles"
 	@echo ""
 	@echo "$(YELLOW)Modèles disponibles :$(RESET)"
 	@$(GO) run $(BENCH_CMD) --list-models
 endif
 
-bench-all: ## Benchmark tous les modèles
-	@$(MAKE) bench ALL=1
+bench-ocr: ## Benchmark OCR — extraction vision (images → OCR blocks)
+ifdef ALL
+	@echo "$(CYAN)Benchmark OCR — tous les modèles vision...$(RESET)"
+	@$(GO) run $(BENCH_CMD) --type=ocr --all $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
+else ifdef MODELS
+	@echo "$(CYAN)Benchmark OCR — $(MODELS)...$(RESET)"
+	@$(GO) run $(BENCH_CMD) --type=ocr --models=$(MODELS) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
+else ifdef PROVIDER
+	@echo "$(CYAN)Benchmark OCR — $(PROVIDER)...$(RESET)"
+	@$(GO) run $(BENCH_CMD) --type=ocr --provider=$(PROVIDER) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
+else
+	@echo "$(YELLOW)Usage :$(RESET)"
+	@echo "  make bench-ocr ALL=1                                    — tous les modèles vision"
+	@echo "  make bench-ocr PROVIDER=anthropic                       — tous les modèles d'un provider"
+	@echo "  make bench-ocr MODELS=gpt-4o,claude-sonnet-4-6          — sélection de modèles"
+	@echo ""
+	@echo "$(YELLOW)Modèles vision disponibles :$(RESET)"
+	@$(GO) run $(BENCH_CMD) --list-models
+endif
+
+bench-all: ## Benchmark tous les modèles (IDP)
+	@$(MAKE) bench-idp ALL=1
 
 bench-models: ## Liste les modèles disponibles
 	@$(GO) run $(BENCH_CMD) --list-models
