@@ -173,6 +173,13 @@ db-psql: ## Ouvre psql sur la DB
 
 BENCH_CMD := ./cmd/benchmark
 
+# Charge .env.bench s'il existe (clés API pour les benchmarks)
+BENCH_ENV := $(wildcard $(CURDIR)/../.env.bench)
+ifneq ($(BENCH_ENV),)
+  include $(BENCH_ENV)
+  export
+endif
+
 bench: ## Lance le benchmark (usage: make bench PROVIDER=anthropic ou MODELS=gpt-4o,claude-sonnet-4-6)
 ifdef ALL
 	@echo "$(CYAN)Benchmark — tous les modèles...$(RESET)"
