@@ -74,12 +74,14 @@ func main() {
 	masterySvc := app.NewMasteryService(masteryRepo, publisher, clock)
 	sessionSvc := app.NewSessionService(sessionRepo, chapterRepo, masteryRepo, publisher, clock, idGen)
 	validationSvc := app.NewValidationService(validationRepo, chapterRepo, publisher, clock, idGen)
+	onboardingSvc := app.NewOnboardingService(chapterRepo, masteryRepo, clock, idGen)
 
 	// --- HTTP Handlers ---
 	chapterHandler := handler.NewChapter(chapterSvc, chapterRepo, idGen, clock)
 	masteryHandler := handler.NewMastery(masterySvc)
 	sessionHandler := handler.NewSession(sessionSvc)
 	validationHandler := handler.NewValidation(validationSvc)
+	onboardingHandler := handler.NewOnboarding(onboardingSvc)
 
 	// --- Router ---
 	r := apphttp.NewRouter(apphttp.RouterConfig{
@@ -89,6 +91,7 @@ func main() {
 		MasteryHandler:    masteryHandler,
 		SessionHandler:    sessionHandler,
 		ValidationHandler: validationHandler,
+		OnboardingHandler: onboardingHandler,
 	})
 
 	// --- HTTP server with graceful shutdown ---

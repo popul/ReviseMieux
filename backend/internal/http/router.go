@@ -18,6 +18,7 @@ type RouterConfig struct {
 	ChapterHandler    *handler.Chapter
 	SessionHandler    *handler.Session
 	ValidationHandler *handler.Validation
+	OnboardingHandler *handler.Onboarding
 }
 
 // NewRouter creates and configures the Gin router with all routes.
@@ -46,6 +47,13 @@ func NewRouter(cfg RouterConfig) *gin.Engine {
 		// Pipeline (upload is under chapters)
 		if cfg.PipelineHandler != nil {
 			api.POST("/chapters/:chapter_id/upload", cfg.PipelineHandler.Upload)
+			api.GET("/revisions/:revision_id/progress", cfg.PipelineHandler.GetProgress)
+		}
+
+		// Onboarding (Z8)
+		if cfg.OnboardingHandler != nil {
+			api.GET("/onboarding/status", cfg.OnboardingHandler.GetStatus)
+			api.POST("/onboarding/seed-demo", cfg.OnboardingHandler.SeedDemo)
 		}
 
 		// Masteries

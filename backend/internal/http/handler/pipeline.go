@@ -92,3 +92,42 @@ func (h *Pipeline) Upload(c *gin.Context) {
 		TotalItems:     result.TotalItems,
 	})
 }
+
+// GetProgress godoc
+//
+//	@Summary		Get pipeline progress for a revision
+//	@Description	Returns the current processing status (Z8-AC04)
+//	@Tags			pipeline
+//	@Produce		json
+//	@Param			revision_id	path		string	true	"Revision ID"
+//	@Success		200			{object}	dto.PipelineProgressResponse
+//	@Failure		404			{object}	dto.ErrorResponse
+//	@Router			/api/v1/revisions/{revision_id}/progress [get]
+func (h *Pipeline) GetProgress(c *gin.Context) {
+	revisionID, err := uuid.Parse(c.Param("revision_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: "invalid revision_id"})
+		return
+	}
+
+	progress, err := h.svc.GetRevisionProgress(c.Request.Context(), revisionID)
+	if err != nil {
+		if errors.Is(err, chapter.ErrNotFound) {
+			c.JSON(http.StatusNotFound, dto.ErrorResponse{Error: "revision not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "failed to get progress"})
+		return
+	}
+
+	c.JSON(http.StatusOK, dto.PipelineProgressResponse{
+		RevisionID:     progress.RevisionID.String(),
+		Status:         progress.Status,
+		TotalPages:     progress.TotalPages,
+		ProcessedPages: progress.ProcessedPages,
+		FailedPages:    progress.FailedPages,
+		TotalItems:     progress.TotalItems,
+		Phase:          progress.Phase,
+		PhaseMessage:   progress.PhaseMessage,
+	})
+}

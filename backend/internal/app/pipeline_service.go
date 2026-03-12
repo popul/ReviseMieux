@@ -332,3 +332,75 @@ func (s *PipelineService) notifyProgress(p PageProgress) {
 		s.onProgress(p)
 	}
 }
+
+// RevisionProgress holds the current progress of a revision's pipeline (Z8-AC04).
+type RevisionProgress struct {
+	RevisionID     uuid.UUID
+	Status         string
+	TotalPages     int
+	ProcessedPages int
+	FailedPages    int
+	TotalItems     int
+	Phase          string // "reading", "generating", "done"
+	PhaseMessage   string
+}
+
+// GetRevisionProgress returns the current pipeline progress for a revision (Z8-AC04).
+func (s *PipelineService) GetRevisionProgress(ctx context.Context, revisionID uuid.UUID) (*RevisionProgress, error) {
+	rev, err := s.chapterRepo.FindRevisionByID(ctx, revisionID)
+	if err != nil {
+		return nil, fmt.Errorf("pipeline: find revision: %w", err)
+	}
+
+	pages, err := s.chapterRepo.FindPagesByRevision(ctx, revisionID)
+	if err != nil {
+		return nil, fmt.Errorf("pipeline: find pages: %w", err)
+	}
+
+	processed := 0
+	failed := 0
+	totalItems := 0
+	for _, p := range pages {
+		switch p.OCRStatus {
+		case chapter.PageDone:
+			processed++
+		case chapter.PageNoItems:
+			processed++
+		case chapter.PageFailed, chapter.PageItemsFailed:
+			failed++
+		}
+	}
+
+	// Count items for this revision
+	items, err := s.chapterRepo.FindItemsByChapter(ctx, rev.ChapterID, true)
+	if err == nil {
+		for _, item := range items {
+			if item.RevisionID == revisionID {
+				totalItems++
+			}
+		}
+	}
+
+	// Determine phase and message
+	phase := "reading"
+	msg := "Lecture de tes pages…"
+	if processed > 0 || failed > 0 {
+		phase = "generating"
+		msg = "Création des questions…"
+	}
+	if rev.Status == chapter.RevisionReady || rev.Status == chapter.RevisionPartial || rev.Status == chapter.RevisionFailed {
+		phase = "done"
+		msg = "Terminé"
+	}
+
+	return &RevisionProgress{
+		RevisionID:     revisionID,
+		Status:         string(rev.Status),
+		TotalPages:     len(pages),
+		ProcessedPages: processed,
+		FailedPages:    failed,
+		TotalItems:     totalItems,
+		Phase:          phase,
+		PhaseMessage:   msg,
+	}, nil
+}

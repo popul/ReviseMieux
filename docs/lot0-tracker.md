@@ -136,9 +136,9 @@ Première expérience utilisateur.
 
 | # | Tâche | Statut | ACs couvertes | Priorité |
 |---|---|---|---|---|
-| 6.1 | Chapitre démo pré-chargé (cold start) | `[ ]` | Z8-AC01 | P1 |
-| 6.2 | Empty state guidé avant premier upload | `[ ]` | Z8-AC02 | P1 |
-| 6.3 | Écran de progression pendant le traitement J0 | `[ ]` | Z8-AC04 | P1 |
+| 6.1 | Chapitre démo pré-chargé (cold start) | `[x]` | Z8-AC01 | P1 |
+| 6.2 | Empty state guidé avant premier upload | `[x]` | Z8-AC02 | P1 |
+| 6.3 | Écran de progression pendant le traitement J0 | `[x]` | Z8-AC04 | P1 |
 | 6.4 | UX de recovery si le premier OCR échoue | `[ ]` | Z8-AC03 | P2 |
 | 6.5 | Séquence d'onboarding déterministe (Day 0) | `[ ]` | Z8-AC08 | P2 |
 
@@ -200,9 +200,9 @@ Vérification exhaustive : chaque AC Lot 0 est rattachée à une tâche.
 | Z6-AC11 | 4.8 | `[x]` |
 | Z6-AC13 | 4.9 | `[x]` |
 | Z7-AC15 | 3.3 | `[ ]` |
-| Z8-AC01 | 6.1 | `[ ]` |
-| Z8-AC02 | 6.2 | `[ ]` |
-| Z8-AC04 | 6.3 | `[ ]` |
+| Z8-AC01 | 6.1 | `[x]` |
+| Z8-AC02 | 6.2 | `[x]` |
+| Z8-AC04 | 6.3 | `[x]` |
 
 ### P2 (20 ACs)
 
