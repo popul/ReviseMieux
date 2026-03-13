@@ -600,6 +600,51 @@ Jaccard(A, B) = |A ∩ B| / |A ∪ B|
 
 **Pourquoi** : les keywords servent à générer les questions (cloze, MCQ). Des keywords imprécis → des questions imprécises.
 
+### Q6 — Cohérence du groupement en Notions
+
+```
+score = (count_score × 0.4) + (name_score × 0.3) + (assignment_score × 0.3)
+
+count_score = 1 - |notions_produites - notions_attendues| / notions_attendues
+              clampé à [0, 1]
+
+name_score = avg(max_similarity(notion_name_llm, notion_names_golden))
+             pour chaque notion produite
+             similarity = Jaccard sur les mots significatifs du nom
+
+assignment_score = items_correctly_assigned / items_matched
+                   correctly_assigned = l'item est dans la même notion
+                                        que dans le golden output
+                                        (match par nom de notion, fuzzy)
+```
+
+**Pourquoi** : les items doivent être regroupés en `Notion`s pédagogiquement cohérentes. Un modèle qui met "théorème de Pythagore" et "équation du second degré" dans la même notion produit des sessions de révision incohérentes. Cette métrique est **semi-automatique** : le scoring algorithmique ci-dessus capture les cas évidents, mais les cas ambigus (deux découpages valides) nécessitent un jugement humain.
+
+**Composantes** :
+- **count_score** (40%) : le nombre de notions produites est-il dans la fourchette attendue ? Trop de notions = fragmentation, trop peu = confusion des concepts.
+- **name_score** (30%) : les noms des notions sont-ils pertinents et proches du golden ? "Densité et masse volumique" vs "Propriétés de la matière" — les deux sont acceptables mais le premier est plus précis.
+- **assignment_score** (30%) : chaque item est-il assigné à la bonne notion ? Un item "ρ = m/V" dans la notion "Unités de mesure" au lieu de "Masse volumique" est une erreur d'assignation.
+
+**Cas limites** :
+- Un modèle qui met tous les items dans une seule notion → count_score ≈ 0, assignment_score = 1 (trivial)
+- Un modèle qui crée une notion par item → count_score ≈ 0, name_score variable
+- Deux découpages également valides → score potentiellement injuste → signaler en review manuelle
+
+### Q7 — Conformité du schéma JSON
+
+```
+score = 1.0 si le JSON est valide ET conforme au schéma attendu
+        0.0 sinon
+
+# Vérifications :
+# 1. JSON parseable sans erreur
+# 2. Tous les champs requis présents (items[].type, items[].term, etc.)
+# 3. Enums respectés (type ∈ {KNOWLEDGE, PROCEDURE, DOCUMENT})
+# 4. Types corrects (term = string, keywords = []string)
+```
+
+**Pourquoi** : un modèle qui retourne du JSON invalide ou non conforme au schéma bloque le pipeline. C'est un critère binaire (pass/fail) mais essentiel. Un modèle qui retourne du texte libre au lieu de JSON est inutilisable, quelle que soit la qualité du contenu.
+
 ### P6 — Coût par item extrait
 
 ```
@@ -968,23 +1013,232 @@ Si les résultats du benchmark montrent des faiblesses, voici les leviers d'opti
 
 Si un modèle ne passe pas les seuils MVP, il est **éliminé** du benchmark pour la production.
 
-### 14.5 Métriques de bout en bout (OCR → IDP)
+### 14.5 Benchmark pipeline bout-en-bout (`--type=pipeline`)
 
-Le vrai test est le **pipeline complet** : est-ce que des blocs OCR de qualité X produisent des items IDP de qualité Y ?
+Le vrai test est le **pipeline complet** : est-ce que des blocs OCR de qualité X produisent des items IDP de qualité Y ? Ce mode mesure la **propagation d'erreurs** de l'OCR vers l'IDP.
+
+#### Architecture
 
 ```
-Pipeline_score = f(OCR_quality, IDP_quality)
+cmd/benchmark/main.go --type=pipeline
 
-# Mesure proposée : exécuter le pipeline complet (images → OCR → IDP) sur les cas ayant des images
-# et comparer le golden_output.json IDP final vs ce que le pipeline complet produit.
-# Cela capture l'effet de propagation d'erreurs OCR vers l'IDP.
+    ├── Charge les cas de test avec images ("has_images": true)
+    ├── Pour chaque combinaison (OCR_provider × IDP_provider) :
+    │   ├── Pour chaque cas de test :
+    │   │   ├── Étape 1 : Envoie les images au OCR_provider → blocs OCR bruts
+    │   │   ├── Étape 2 : Envoie les blocs OCR bruts au IDP_provider → items structurés
+    │   │   ├── Mesure latence totale, tokens totaux, coût total
+    │   │   ├── Évalue les blocs OCR vs input.json (métriques O1-O6)
+    │   │   ├── Évalue les items vs golden_output.json (métriques Q1-Q7)
+    │   │   └── Calcule le delta de dégradation (voir ci-dessous)
+    │   └── Agrège les résultats
+    ├── Matrice de résultats OCR×IDP
+    └── Sauvegarde dans results/pipeline/
 ```
 
-| OCR quality | IDP quality attendue | Commentaire |
-|-------------|---------------------|-------------|
-| O2 ≥ 0.90 | Q1 ~ Q1_baseline | Pas de dégradation visible |
-| O2 0.75-0.90 | Q1 réduit de 5-15% | Quelques items manqués à cause de texte mal lu |
-| O2 0.60-0.75 | Q1 réduit de 20-40% | Dégradation significative, HITL nécessaire |
-| O2 < 0.60 | Pipeline inutilisable | Fallback nécessaire |
+#### Combinaisons testées
 
-Ce test de bout en bout sera implémenté comme un troisième mode du benchmark : `--type=pipeline`.
+Le mode pipeline teste toutes les combinaisons pertinentes :
+
+```
+OCR providers :  [Sonnet, Haiku, GPT-4o, Flash, Cloud Vision, ...]
+                          ×
+IDP providers :  [Sonnet, Haiku, GPT-4o, Flash, ...]
+```
+
+Cela inclut les **combinaisons croisées** (OCR Haiku + IDP Sonnet, OCR Cloud Vision + IDP Sonnet) — exactement ce qu'il faut pour valider l'approche hybride (§12.3).
+
+#### Métrique de dégradation
+
+```
+degradation = 1 - (Q1_pipeline / Q1_baseline)
+
+Q1_baseline = Q1 du benchmark IDP seul (input = golden OCR, §5.1)
+Q1_pipeline = Q1 du pipeline complet (input = images → OCR → IDP)
+
+# Même calcul pour Q3, Q5, etc.
+```
+
+| Dégradation Q1 | Interprétation | Action |
+|----------------|----------------|--------|
+| < 5% | Négligeable — l'OCR ne dégrade pas l'IDP | OK pour production |
+| 5-15% | Modérée — quelques items perdus par erreurs OCR | Acceptable si coût justifié |
+| 15-30% | Significative — HITL nécessaire | Améliorer le prompt OCR ou changer de modèle |
+| > 30% | Critique — pipeline inutilisable | Fallback (§14.2) |
+
+#### Rapport de sortie spécifique
+
+```
+╔════════════════════════════════════════════════════════════════════════╗
+║                    Pipeline OCR → IDP : Matrice                       ║
+╠══════════════╦═══════════════╦═══════════════╦═══════════════════════╣
+║ OCR ↓ IDP →  ║ Sonnet 4.6    ║ Haiku 4.5     ║ Gemini Flash         ║
+╠══════════════╬═══════════════╬═══════════════╬═══════════════════════╣
+║ Sonnet 4.6   ║ Q1=0.90 $0.07 ║ Q1=0.88 $0.05 ║ Q1=0.85 $0.05       ║
+║ Haiku 4.5    ║ Q1=0.87 $0.04 ║ Q1=0.84 $0.02 ║ Q1=0.82 $0.02       ║
+║ Cloud Vision ║ Q1=0.83 $0.03 ║ Q1=0.80 $0.01 ║ Q1=0.78 $0.01       ║
+║ GPT-4o Mini  ║ Q1=0.85 $0.03 ║ Q1=0.82 $0.01 ║ Q1=0.80 $0.01       ║
+╚══════════════╩═══════════════╩═══════════════╩═══════════════════════╝
+(valeurs fictives à titre d'illustration)
+```
+
+Ce tableau permet de répondre directement à : **quelle combinaison OCR+IDP offre le meilleur rapport qualité/coût ?**
+
+#### Commandes
+
+```bash
+# Toutes les combinaisons
+go run ./cmd/benchmark/ --type=pipeline --all
+
+# Une combinaison spécifique
+go run ./cmd/benchmark/ --type=pipeline --ocr=anthropic:haiku --idp=anthropic:sonnet
+
+# OCR dédié + LLM IDP (test de l'approche hybride)
+go run ./cmd/benchmark/ --type=pipeline --ocr=google:cloud-vision --idp=anthropic:sonnet
+
+make bench-pipeline ALL=1
+```
+
+#### Coût estimé
+
+Un run pipeline complet teste N×M combinaisons. Avec 5 OCR providers × 4 IDP providers = 20 combinaisons × 1 cas image = ~$1.60. Avec 3 répétitions : ~$4.80. Le coût augmente linéairement avec le nombre de cas images (§13).
+
+#### Prérequis
+
+Le mode pipeline nécessite :
+1. Au moins 1 cas de test avec `"has_images": true`
+2. Au moins 1 OCR provider et 1 IDP provider configurés
+3. Les clés API correspondantes dans les variables d'environnement
+
+> **Note** : ce mode est le plus coûteux car il exécute deux appels API par combinaison×cas. Il est recommandé de l'exécuter après les benchmarks OCR et IDP séparés, une fois les modèles présélectionnés.
+
+---
+
+## 15. Gestion des prompts
+
+### 15.1 Pourquoi c'est critique
+
+Le prompt est une **variable silencieuse** du benchmark. À modèle identique, un changement de prompt peut faire varier Q1 de ±20%. Le benchmark doit donc :
+1. **Fixer** le prompt utilisé par run pour que les résultats soient reproductibles
+2. **Versionner** les prompts pour tracer les évolutions
+3. **Stocker** le prompt exact utilisé dans chaque résultat
+
+### 15.2 Stockage des prompts
+
+```
+backend/testdata/benchmark/
+├── prompts/
+│   ├── ocr/
+│   │   ├── v1_baseline.txt          # Prompt OCR initial
+│   │   ├── v2_fewshot.txt           # Avec exemples few-shot
+│   │   └── current -> v1_baseline.txt  # Symlink vers le prompt actif
+│   ├── idp/
+│   │   ├── v1_baseline.txt          # Prompt IDP initial
+│   │   ├── v2_subject_hints.txt     # Avec hints par matière
+│   │   └── current -> v1_baseline.txt
+│   └── README.md                    # Changelog des prompts
+```
+
+### 15.3 Contenu d'un fichier prompt
+
+Chaque fichier prompt contient le **system prompt** et le **user prompt template** séparés par un délimiteur :
+
+```
+--- SYSTEM ---
+Tu es un assistant spécialisé dans l'extraction de contenu pédagogique
+à partir de photos de cahiers de collégiens français.
+
+Extrais FIDÈLEMENT le contenu, y compris les fautes d'orthographe.
+Ne corrige PAS l'orthographe de l'élève.
+...
+
+--- USER ---
+Voici {{N_IMAGES}} photos d'un cahier de {{SUBJECT}}, niveau {{LEVEL}}.
+
+Extrais chaque bloc de texte ou schéma dans l'ordre de lecture.
+Retourne un JSON conforme au schéma suivant :
+...
+```
+
+Les variables `{{...}}` sont interpolées par le runner au moment de l'exécution.
+
+### 15.4 Versioning et traçabilité
+
+Chaque résultat de benchmark (`results/*/summary.json`) inclut :
+
+```json
+{
+  "run_id": "2026-03-13_10h00",
+  "prompt_version": "ocr/v1_baseline",
+  "prompt_hash": "sha256:a1b2c3...",
+  "models": ["claude-sonnet-4-6", "gpt-4o"],
+  "results": [...]
+}
+```
+
+Le `prompt_hash` garantit qu'on peut détecter si un prompt a été modifié sans changer la version.
+
+### 15.5 Règles
+
+1. **Ne jamais modifier un prompt existant** — créer une nouvelle version (`v2_...`)
+2. **Un run = un prompt** — le même prompt est utilisé pour tous les modèles dans un run, sinon la comparaison est invalide
+3. **Documenter le changement** dans `prompts/README.md` (quoi a changé, pourquoi)
+4. **Comparer les versions** : relancer le benchmark avec l'ancien et le nouveau prompt pour mesurer l'impact
+
+```bash
+# Comparer deux versions de prompt
+go run ./cmd/benchmark/ --type=ocr --all --prompt=ocr/v1_baseline
+go run ./cmd/benchmark/ --type=ocr --all --prompt=ocr/v2_fewshot
+
+# Le rapport affiche le delta entre les deux runs
+go run ./cmd/benchmark/ --compare=results/ocr/2026-03-13_v1,results/ocr/2026-03-13_v2
+```
+
+### 15.6 Optimisation itérative
+
+Le cycle d'optimisation des prompts suit le même principe que le TDD :
+
+```
+1. Lancer le benchmark avec le prompt courant → résultats baseline
+2. Identifier la métrique la plus faible (ex: O6 diacritiques = 0.72)
+3. Modifier le prompt pour adresser cette faiblesse (ex: "Préserve les accents...")
+4. Créer une nouvelle version du prompt (v2_diacritics)
+5. Relancer le benchmark → comparer
+6. Si amélioration sans régression → mettre à jour le symlink `current`
+7. Si régression sur une autre métrique → itérer
+```
+
+---
+
+## 16. Limites actuelles du dataset
+
+> **AVERTISSEMENT** : le benchmark OCR ne dispose actuellement que d'**un seul cas de test avec images** (10_SVT_cours_louis, 3 photos). Les conclusions tirées du benchmark OCR sont **préliminaires** et ne doivent pas être considérées comme définitives.
+
+### 16.1 Risques d'un dataset insuffisant
+
+| Risque | Description | Impact |
+|--------|-------------|--------|
+| **Biais de matière** | Un seul cas SVT — aucune couverture maths, physique, français | Un modèle peut exceller en SVT et échouer en maths (formules) |
+| **Biais d'écriture** | Une seule qualité d'écriture (celle de Louis) | Pas de généralisation possible à d'autres élèves |
+| **Biais de photo** | Une seule qualité photo, un seul appareil | Pas de robustesse testée (angle, éclairage, résolution) |
+| **Surapprentissage du prompt** | Optimiser le prompt sur 1 cas = overfitting | Le prompt fonctionnera sur ce cas mais pas sur d'autres |
+| **Absence de cas difficiles** | Pas de manuscrit brouillon, pas de multi-encre | Le benchmark ne teste pas les cas limites |
+
+### 16.2 Seuils de confiance par taille de dataset
+
+| Nb de cas OCR | Confiance dans les résultats | Décisions possibles |
+|---------------|------------------------------|---------------------|
+| **1** (actuel) | Très faible — indicatif seulement | Aucune décision définitive. Utile pour valider le framework. |
+| **3-5** | Modérée — tendances visibles | Éliminer les modèles clairement inadéquats |
+| **8-10** | Bonne — résultats exploitables | Choisir le modèle OCR pour la production |
+| **15+** | Haute — statistiquement significatif | Publier des benchmarks, optimiser les prompts |
+
+### 16.3 Plan d'action
+
+La priorité est d'atteindre **5 cas OCR** (Phase 2, §13.2) avant de tirer des conclusions sur le choix LLM vs OCR dédié. Le protocole de création est décrit en §13.4.
+
+Matières prioritaires pour les prochains cas :
+1. **Mathématiques** — le plus difficile (formules, symboles, graphiques)
+2. **Physique-Chimie** — mixte (formules + schémas de circuits)
+3. **Histoire-Géographie** — cas "facile" (texte majoritaire) pour établir un plafond
+4. **Un second cas SVT** avec une écriture différente — pour tester la généralisation
