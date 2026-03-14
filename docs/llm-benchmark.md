@@ -460,6 +460,14 @@ Un run complet des deux benchmarks coûte ~$0.48. Avec 3 répétitions : ~$1.44.
 
 ### Benchmark OCR
 
+> **Baseline humaine** : toutes les métriques OCR comparent la sortie d'un modèle au `input.json`, qui est une **transcription humaine experte** du cahier (`"ocr_source": "human_expert"` dans metadata.json). C'est la meilleure baseline possible car :
+> - Un humain qui lit la photo transcrit **fidèlement** le contenu, y compris les fautes d'orthographe de l'élève
+> - Un humain segmente en **blocs sémantiques** cohérents (pas des blocs géométriques arbitraires)
+> - Un humain décrit les **schémas et graphiques** de manière pertinente
+> - Le score `confidence: 1.0` reflète la certitude totale du transcripteur
+>
+> Un modèle OCR parfait obtiendrait O1=1.0, O2=1.0, O3=1.0 : il produirait exactement la même transcription qu'un humain expert.
+
 #### O1 — Détection de blocs
 
 ```
@@ -1022,13 +1030,91 @@ Chaque axe doit être représenté par au moins 2 cas de test :
 
 ### 13.4 Protocole de création d'un cas OCR
 
-1. **Photographier** : 2-4 pages d'un cahier réel avec un smartphone (conditions réalistes)
-2. **Annoter manuellement** : créer le `input.json` (golden OCR output) en transcrivant fidèlement chaque bloc
-3. **Classifier** : attribuer `block_type` et `confidence` de référence à chaque bloc
-4. **Valider** : faire relire par une deuxième personne (cross-validation humaine)
-5. **Métadonnées** : renseigner `metadata.json` avec les caractéristiques (qualité écriture, type d'encre, etc.)
+#### Étape 1 — Photographier (5 min)
 
-### 13.5 Format metadata.json étendu pour les cas OCR
+1. Choisir 2-4 pages consécutives d'un cahier réel
+2. Photographier avec un smartphone en conditions réalistes (pas de studio photo)
+3. Nommer les fichiers `IMG_XXXX.jpeg` et les placer dans `cases/<id>/images/`
+
+**Conditions photo recommandées** :
+- Éclairage naturel ou lampe de bureau (pas de flash direct)
+- Cahier posé à plat, pas tenu en main
+- Cadrage : la page entière visible, marges incluses
+- Résolution native du téléphone (ne pas compresser)
+- OK si un peu de l'autre page est visible sur le bord — c'est réaliste
+
+#### Étape 2 — Transcrire manuellement (golden OCR humain, 30-60 min)
+
+C'est l'étape **la plus importante**. Le `input.json` que tu crées est la **référence absolue** contre laquelle tous les modèles seront évalués. La qualité du benchmark dépend directement de la qualité de cette transcription.
+
+**Règles de transcription** :
+
+| Règle | Explication | Exemple |
+|-------|-------------|---------|
+| **Fidélité totale** | Transcrire exactement ce qui est écrit, y compris les fautes d'orthographe de l'élève | "les staumates" → garder "staumates" (pas "stomates") |
+| **Segmenter en blocs sémantiques** | Un bloc = une unité de sens cohérente (titre, paragraphe, activité, schéma) | Le titre "Chapitre 3 : ..." est un bloc séparé |
+| **Décrire les visuels** | Pour les schémas/graphiques, décrire entre `[crochets]` ce qui est visible | `[Schéma : coupe de feuille montrant...]` |
+| **Respecter l'ordre de lecture** | Les blocs doivent être dans l'ordre de lecture naturel, pas dans l'ordre physique (haut→bas, gauche→droite) | Si une note en marge se rapporte au §2, la mettre après le §2 |
+| **Ne rien inventer** | Ne pas compléter les phrases coupées en bas de page, ne pas deviner les mots illisibles | Un mot illisible → `[illisible]` |
+| **Préserver la mise en forme** | Listes numérotées, retours à la ligne, tirets — garder la structure | "1 – L'eau\n2 – Les sels minéraux" |
+
+**Workflow recommandé** :
+
+```
+1. Ouvrir les photos sur un grand écran (pas sur téléphone)
+2. Ouvrir un éditeur de texte à côté
+3. Parcourir la photo de haut en bas
+4. Pour chaque bloc identifié :
+   a. Déterminer le type : TEXT, DIAGRAM, ou TABLE
+   b. Transcrire le contenu mot à mot
+   c. Pour les schémas : décrire le contenu visuel entre [crochets]
+5. Relire la transcription en comparant phrase par phrase avec la photo
+6. Vérifier l'ordre : les blocs sont-ils dans l'ordre de lecture ?
+```
+
+**Décisions de découpage** :
+
+Le découpage en blocs est un jugement humain. Voici les heuristiques :
+
+| Situation | Découpage recommandé |
+|-----------|---------------------|
+| Titre + paragraphe de cours | 1 bloc (le titre contexte le paragraphe) |
+| Activité avec questions numérotées | 1 bloc pour l'énoncé |
+| Réponses manuscrites de l'élève | 1 bloc séparé (source différente : élève vs prof/polycopié) |
+| Schéma avec légendes | 1 bloc DIAGRAM (description textuelle du schéma + légendes) |
+| Graphique avec données | 1 bloc DIAGRAM (décrire les axes, courbes, valeurs clés) |
+| Tableau | 1 bloc TABLE (transcrire le contenu en texte structuré) |
+| Encadré "à retenir" | 1 bloc séparé (souvent l'item KNOWLEDGE le plus important) |
+
+#### Étape 3 — Assembler le `input.json`
+
+```json
+{
+  "blocks": [
+    {
+      "text": "Chapitre 3 : Prélèvement de matière...\n\nI – Le prélèvement...",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "[Schéma : expérience avec deux récipients...]",
+      "block_type": "DIAGRAM",
+      "confidence": 1.0
+    }
+  ]
+}
+```
+
+> **`confidence: 1.0` pour tous les blocs** — c'est une transcription humaine parfaite, pas un OCR automatique. Le score de confiance est de 1.0 par définition.
+
+#### Étape 4 — Créer le golden IDP (`golden_output.json`)
+
+À partir de ta transcription, extraire les items pédagogiques :
+- Identifier chaque fait/formule/procédure/schéma → créer un item
+- Grouper les items en notions
+- Suivre le format existant (voir `10_SVT_cours_louis/golden_output.json`)
+
+#### Étape 5 — Renseigner `metadata.json`
 
 ```json
 {
@@ -1039,6 +1125,14 @@ Chaque axe doit être représenté par au moins 2 cas de test :
   "difficulty": "high",
   "has_images": true,
   "expected_item_count": 10,
+  "expected_types": {
+    "KNOWLEDGE": 7,
+    "PROCEDURE": 2,
+    "DOCUMENT": 1
+  },
+  "ocr_source": "human_expert",
+  "ocr_author": "Prénom (rôle)",
+  "ocr_date": "2026-03-14",
   "ocr_metadata": {
     "handwriting_quality": "normal",
     "ink_types": ["blue_pen", "red_pen"],
