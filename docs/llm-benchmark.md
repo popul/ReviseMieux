@@ -336,20 +336,24 @@ Le benchmark produit :
 Exemple de sortie console :
 
 ```
-╔══════════════════════════╦═══════╦═══════╦═══════╦═══════╦════════╦═══════════╗
-║ Modèle                  ║ Q1    ║ Q3    ║ Q5    ║ Coût  ║ Lat.   ║ Score     ║
-║                          ║ Compl.║ Fidél.║ Hallu.║ $/item║ ms     ║ composite ║
-╠══════════════════════════╬═══════╬═══════╬═══════╬═══════╬════════╬═══════════╣
-║ Claude Sonnet 4.6        ║ 0.92  ║ 0.95  ║ 0.02  ║ 0.002 ║ 3200   ║ 0.87      ║
-║ GPT-5                    ║ 0.89  ║ 0.93  ║ 0.04  ║ 0.001 ║ 2800   ║ 0.86      ║
-║ Gemini 2.5 Pro           ║ 0.88  ║ 0.91  ║ 0.05  ║ 0.001 ║ 2500   ║ 0.85      ║
-║ Mistral Medium 3         ║ 0.83  ║ 0.88  ║ 0.07  ║ 0.0004║ 2100   ║ 0.84      ║
-║ Gemini 2.5 Flash         ║ 0.81  ║ 0.86  ║ 0.08  ║ 0.0003║ 1500   ║ 0.83      ║
-║ DeepSeek V3.2            ║ 0.80  ║ 0.85  ║ 0.09  ║ 0.0001║ 3500   ║ 0.82      ║
-║ GPT-5 Mini               ║ 0.78  ║ 0.84  ║ 0.10  ║ 0.0002║ 1800   ║ 0.79      ║
-║ Claude Haiku 4.5         ║ 0.76  ║ 0.82  ║ 0.11  ║ 0.0001║ 1200   ║ 0.78      ║
-║ DeepSeek R1              ║ 0.85  ║ 0.90  ║ 0.06  ║ 0.0003║ 8000   ║ 0.77      ║
-╚══════════════════════════╩═══════╩═══════╩═══════╩═══════╩════════╩═══════════╝
+╔═════════════════════╦══════╦══════╦══════╦══════╦══════╦═══╦═══════╦══════╦════════╦═══════╗
+║ Modèle              ║  Q1  ║  Q3  ║  Q5  ║  Q4  ║  Q6  ║Q7 ║ Coût  ║ Lat. ║ Score  ║ Statut║
+║                      ║Compl.║Fidél.║Hallu.║ Kw.  ║Notion║ JS║$/item ║ ms   ║ comp.  ║       ║
+╠═════════════════════╬══════╬══════╬══════╬══════╬══════╬═══╬═══════╬══════╬════════╬═══════╣
+║ Claude Sonnet 4.6   ║ 0.92 ║ 0.95 ║ 0.02 ║ 0.81 ║ 0.78 ║ ✓ ║ 0.002 ║ 3200 ║  0.87  ║  🏆  ║
+║ GPT-5               ║ 0.89 ║ 0.93 ║ 0.04 ║ 0.78 ║ 0.73 ║ ✓ ║ 0.001 ║ 2800 ║  0.86  ║  ✅  ║
+║ Gemini 2.5 Pro      ║ 0.88 ║ 0.91 ║ 0.05 ║ 0.76 ║ 0.71 ║ ✓ ║ 0.001 ║ 2500 ║  0.85  ║  ✅  ║
+║ Mistral Medium 3    ║ 0.83 ║ 0.88 ║ 0.07 ║ 0.70 ║ 0.65 ║ ✓ ║0.0004 ║ 2100 ║  0.84  ║ ⚠️❌ ║
+║ Gemini 2.5 Flash    ║ 0.81 ║ 0.86 ║ 0.08 ║ 0.68 ║ 0.60 ║ ✓ ║0.0003 ║ 1500 ║  0.83  ║ ⚠️❌ ║
+║ DeepSeek V3.2       ║ 0.80 ║ 0.85 ║ 0.09 ║ 0.65 ║ 0.58 ║ ✓ ║0.0001 ║ 3500 ║  0.82  ║ 🚫RGPD║
+║ GPT-5 Mini          ║ 0.78 ║ 0.84 ║ 0.10 ║ 0.63 ║ 0.55 ║ ✓ ║0.0002 ║ 1800 ║  0.79  ║ ⚠️❌ ║
+║ Claude Haiku 4.5    ║ 0.76 ║ 0.82 ║ 0.11 ║ 0.60 ║ 0.52 ║ ✓ ║0.0001 ║ 1200 ║  0.78  ║ ⚠️❌ ║
+║ DeepSeek R1         ║ 0.85 ║ 0.90 ║ 0.06 ║ 0.72 ║ 0.68 ║ ✓ ║0.0003 ║ 8000 ║  0.77  ║ 🚫RGPD║
+╚═════════════════════╩══════╩══════╩══════╩══════╩══════╩═══╩═══════╩══════╩════════╩═══════╝
+
+Légende statut :
+  🏆 = RECOMMANDÉ    ✅ = éligible    💰 = alternative budget
+  ⚠️❌ = exclu (seuil éliminatoire — voir §8.1)    🚫RGPD = exclu pour non-conformité RGPD
 ```
 
 *(valeurs fictives à titre d'illustration)*
@@ -658,20 +662,118 @@ total_cost = (tokens_input × price_input / 1M)
 
 ---
 
-## 8. Scénarios de décision
+## 8. Seuils d'acceptation et scénarios de décision
 
-Le benchmark ne donne pas un gagnant absolu. Il alimente des **décisions contextuelles** :
+### 8.1 Seuils go/no-go pour la production
+
+Un modèle doit **passer tous les seuils éliminatoires** pour être considéré. Les seuils de qualité sont des **minimums** — en dessous, le modèle est exclu quelle que soit sa performance sur les autres axes.
+
+#### IDP — Seuils éliminatoires
+
+| Métrique | Seuil minimum | Justification |
+|----------|---------------|---------------|
+| **Q5 (hallucinations)** | ≤ 0.05 (5%) | Un item hallucine = un faux enseigné à un collégien. Non négociable. |
+| **Q7 (schéma JSON)** | = 1.0 (100%) | Un JSON invalide bloque le pipeline. Binaire : pass ou fail. |
+| **Q3 (fidélité)** | ≥ 0.80 | En dessous, le contenu est déformé — les items ne correspondent plus au cahier. |
+| **Q1 (complétude)** | ≥ 0.70 | En dessous, trop d'items sont perdus — les révisions seront incomplètes. |
+
+#### IDP — Seuils de confort (souhaitables, pas éliminatoires)
+
+| Métrique | Seuil souhaité | Commentaire |
+|----------|----------------|-------------|
+| Q1 (complétude) | ≥ 0.85 | Bon niveau de couverture |
+| Q3 (fidélité) | ≥ 0.90 | Haute fidélité au contenu original |
+| Q4 (keywords) | ≥ 0.70 | Keywords suffisamment précis pour générer des questions |
+| Q6 (notions) | ≥ 0.60 | Groupement cohérent — en dessous, review manuelle nécessaire |
+| P6 (coût/item) | ≤ $0.005 | Budget soutenable pour un SaaS éducatif |
+| P7 (latence) | ≤ 5000ms | UX acceptable pour un upload de chapitre |
+
+#### OCR — Seuils éliminatoires
+
+| Métrique | Seuil minimum | Justification |
+|----------|---------------|---------------|
+| **O2 (précision texte)** | ≥ 0.70 | En dessous, l'IDP n'a pas assez de matière pour travailler |
+| **O1 (détection blocs)** | ≥ 0.60 | Blocs manqués = items perdus en cascade |
+| **O3 (ordre lecture)** | ≥ 0.80 | Un mauvais ordre → regroupements notions incohérents |
+
+#### Critères non-benchmark (éliminatoires)
+
+| Critère | Condition éliminatoire | Modèles concernés |
+|---------|----------------------|-------------------|
+| **RGPD** | Données transférées hors UE sans DPA valide | DeepSeek (Chine — rédhibitoire) |
+| **SLA disponibilité** | Uptime < 99.5% sur les 3 derniers mois | Vérifier status pages |
+| **Rate limits** | < 100 RPM au tier actuel | Modèles en preview/beta |
+
+### 8.2 Algorithme de recommandation automatique
+
+Le rapport inclut une **recommandation automatique** basée sur l'algorithme suivant :
+
+```
+Pour chaque modèle :
+  1. Vérifier les seuils éliminatoires → si un seuil échoue : EXCLU
+  2. Vérifier RGPD / SLA → si non conforme : EXCLU
+  3. Calculer le score composite (pondéré, §4)
+  4. Classer les modèles éligibles par score composite décroissant
+
+Recommandations :
+  - "RECOMMANDÉ" = meilleur score composite parmi les éligibles
+  - "ALTERNATIVE BUDGET" = meilleur score avec coût < 50% du recommandé
+  - "NON RECOMMANDÉ" = exclu par un seuil éliminatoire (indiquer lequel)
+  - "INSUFFISANT" = aucun modèle ne passe tous les seuils → intervention humaine
+```
+
+#### Exemple de sortie
+
+```
+╔══════════════════════════════════════════════════════════════════════════════╗
+║                         RECOMMANDATION AUTOMATIQUE                          ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║                                                                              ║
+║  🏆 RECOMMANDÉ IDP : Claude Sonnet 4.6                                      ║
+║     Score composite: 0.87 | Coût/item: $0.002 | Latence: 3200ms              ║
+║     Q1=0.92 Q3=0.95 Q5=0.02 Q6=0.78 Q7=1.0                                ║
+║     ✅ Tous les seuils éliminatoires passés                                  ║
+║     ✅ RGPD conforme (UE, DPA Anthropic)                                     ║
+║                                                                              ║
+║  💰 ALTERNATIVE BUDGET IDP : Gemini 2.5 Flash                               ║
+║     Score composite: 0.83 | Coût/item: $0.0003 | Latence: 1500ms            ║
+║     Q1=0.81 Q3=0.86 Q5=0.08 Q6=0.62 Q7=1.0                                ║
+║     ⚠️  Q5=0.08 proche du seuil éliminatoire (0.05)                        ║
+║                                                                              ║
+║  🏆 RECOMMANDÉ OCR : Claude Sonnet 4.6 (Vision)                            ║
+║     O1=0.95 O2=0.91 O3=0.93 | Coût: $0.04/page                            ║
+║                                                                              ║
+║  💰 ALTERNATIVE BUDGET OCR : Google Cloud Vision                            ║
+║     O1=0.88 O2=0.85 O3=0.90 | Coût: $0.002/page (20x moins cher)          ║
+║                                                                              ║
+║  ❌ EXCLU : DeepSeek V3.2 — RGPD non conforme (transfert Chine)            ║
+║  ❌ EXCLU : DeepSeek R1 — RGPD non conforme (transfert Chine)              ║
+║                                                                              ║
+║  🏆 RECOMMANDÉ PIPELINE : Sonnet OCR + Sonnet IDP                          ║
+║     Q1_pipeline=0.90 | Dégradation=2% | Coût total: $0.07/chapitre         ║
+║                                                                              ║
+║  💰 ALTERNATIVE PIPELINE : Cloud Vision OCR + Sonnet IDP                   ║
+║     Q1_pipeline=0.83 | Dégradation=8% | Coût total: $0.03/chapitre         ║
+║                                                                              ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+(valeurs fictives à titre d'illustration)
+```
+
+### 8.3 Scénarios de décision
+
+Le benchmark alimente des **décisions contextuelles** :
 
 | Scénario | Critère de décision | Action |
 |----------|-------------------|--------|
 | Modèle A a Q1 > 0.90 et coûte 10x moins que le baseline | Qualité suffisante, économie massive | Migrer vers A |
-| Modèle A a Q5 > 0.15 (hallucinations) | Disqualifié | Ne pas utiliser pour la structuration |
-| Modèle A a Q3 < 0.80 (fidélité basse) | Risque pour les élèves | Exclure ou restreindre aux fidelity-checked items |
+| Modèle A a Q5 > 0.05 (hallucinations) | **Éliminé** par seuil go/no-go | Ne pas utiliser — rapport l'indique en rouge |
+| Modèle A a Q3 < 0.80 (fidélité basse) | **Éliminé** par seuil go/no-go | Exclure — risque pour les élèves |
 | Tous les modèles se valent en qualité | Décision sur le coût + RGPD | Choisir le moins cher conforme |
+| Aucun modèle ne passe les seuils | **INSUFFISANT** | Améliorer les prompts (§15.6) avant de rechoisir |
 | Nouveau modèle sorti | Relancer le benchmark | `go run ./cmd/benchmark/ --models=new_model` |
 | Provider augmente ses prix | Relancer le benchmark | Vérifier si un switch est rentable |
 | Résultats très variables entre runs | Modèle instable | Augmenter `--runs=5`, vérifier `temperature=0` |
-| **OCR** : Modèle A a O2 < 0.70 (texte) | OCR inutilisable seul | Tester l'approche hybride (OCR dédié + LLM) — voir §12.3 |
+| **OCR** : Modèle A a O2 < 0.70 (texte) | **Éliminé** par seuil go/no-go | Tester l'approche hybride (OCR dédié + LLM) — voir §12.3 |
 | **OCR** : Modèle A a O4 < 0.30 (confidence) | Confidence non fiable | Envoyer tout en HITL, ignorer le score de confidence |
 | **OCR** : Google Vision ≈ LLM Vision en O2 | OCR dédié aussi bon | Migrer vers Google Vision (100x moins cher) — voir §11 |
 | **OCR** : Manuscrit brouillon < 0.50 en O2 | Cas dégradé | Proposer la saisie manuelle comme fallback — voir §14 |
