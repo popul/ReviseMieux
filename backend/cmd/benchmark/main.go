@@ -7,7 +7,7 @@
 //	go run ./cmd/benchmark/ --type=idp --provider=anthropic
 //	go run ./cmd/benchmark/ --type=idp --models=gpt-4o,claude-sonnet-4-6,gemini-2.5-flash
 //	go run ./cmd/benchmark/ --list-models
-//	go run ./cmd/benchmark/ --type=idp --case=01_physique_densite
+//	go run ./cmd/benchmark/ --type=idp --case=10_SVT_cours_louis
 //	go run ./cmd/benchmark/ --type=idp --all --runs=3 --output=csv
 //	go run ./cmd/benchmark/ --report
 //	go run ./cmd/benchmark/ --report-run=2026-03-12_14h30
