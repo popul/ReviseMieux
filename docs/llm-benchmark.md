@@ -1009,11 +1009,24 @@ Le benchmark OCR ne dispose actuellement que d'**un seul cas de test avec images
 
 ### 13.2 Plan de couverture cible
 
+**Matières prioritaires** : Histoire, Géographie, Physique, Chimie, SVT.
+
 | Phase | Cas | Matières couvertes | Type de contenu | Objectif |
 |-------|-----|-------------------|-----------------|----------|
 | **Phase 1** (actuel) | 1 cas, 3 images | SVT | Manuscrit + polycopié + schéma | Preuve de concept |
-| **Phase 2** (court terme) | 5 cas, ~15 images | SVT, Physique, Maths | Variété de contenus | Première comparaison fiable |
-| **Phase 3** (moyen terme) | 10 cas, ~30 images | Toutes matières | Variété complète | Benchmark représentatif |
+| **Phase 2** (court terme) | 4-5 cas, ~12-15 images | SVT, Physique, Chimie, Histoire ou Géo | Variété de contenus + golden humain | Première comparaison fiable |
+| **Phase 3** (moyen terme) | 8-10 cas, ~25-30 images | Toutes matières prioritaires + Maths, Français | Variété complète | Benchmark représentatif |
+
+**Cas concrets à créer en Phase 2** :
+
+| ID | Matière | Contenu attendu | Difficulté OCR |
+|----|---------|-----------------|----------------|
+| `11_histoire_xxx` | Histoire | Dates, frises chronologiques, texte dense | Moyenne (surtout du texte) |
+| `12_geographie_xxx` | Géographie | Cartes annotées, légendes, croquis | Haute (schémas + légendes manuscrites) |
+| `13_physique_xxx` | Physique-Chimie | Formules, schémas de circuits/montages, tableaux de mesures | Haute (formules + symboles) |
+| `14_svt_xxx` | SVT | 2e cas SVT avec écriture différente du cas 10 | Moyenne (teste la généralisation) |
+
+> **Note** : remplacer `xxx` par un descriptif court du chapitre (ex: `11_histoire_revolution`, `13_physique_optique`).
 
 ### 13.3 Axes de diversité à couvrir
 
@@ -1026,7 +1039,7 @@ Chaque axe doit être représenté par au moins 2 cas de test :
 | **Qualité photo** | Bonne (bien éclairé, droit), Moyenne (léger angle), Mauvaise (sombre, flou) | Haute |
 | **Contenu** | Texte seul, Texte + schéma, Formules, Tableaux, Cartes | Haute |
 | **Support** | Cahier manuscrit pur, Polycopié collé + annotations, Imprimé annoté | Moyenne |
-| **Matière** | SVT, Physique-Chimie, Maths, Histoire-Géo, Français | Haute |
+| **Matière** | Histoire, Géographie, Physique-Chimie, SVT (prioritaires) ; Maths, Français (phase 3) | Haute |
 
 ### 13.4 Protocole de création d'un cas OCR
 
