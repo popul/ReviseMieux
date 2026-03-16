@@ -233,6 +233,37 @@ Avant de considérer un cas comme terminé :
 
 ---
 
+## Génération assistée par LLM (Makefile)
+
+Tu peux utiliser le Makefile à la racine de `benchmark/` pour générer un **brouillon** des 3 fichiers JSON à partir des photos, via l'API Anthropic (Claude Opus 4.6 en mode vision).
+
+### Pré-requis
+
+- `ANTHROPIC_API_KEY` définie dans l'environnement
+- `curl`, `jq`, `python3` installés
+
+### Commandes rapides
+
+```bash
+# Depuis backend/testdata/benchmark/
+make help                                   # Afficher toutes les targets
+make generate CASE=10_SVT_cours_louis       # Générer les 3 JSON d'un coup
+make generate-input CASE=10_SVT_cours_louis # Seulement la transcription
+make validate CASE=10_SVT_cours_louis       # Vérifier la validité JSON
+make list-cases                             # Voir le statut de tous les cas
+```
+
+### Workflow recommandé
+
+1. `make generate CASE=10_SVT_cours_louis` — génère les brouillons
+2. Ouvre chaque JSON et **corrige à la main** (le LLM fait des erreurs, surtout sur le manuscrit)
+3. `make validate CASE=10_SVT_cours_louis` — vérifie que le JSON est bien formé
+4. Passe la checklist ci-dessous
+
+> **⚠️ Les fichiers générés sont des brouillons.** Le LLM peut inventer du contenu, mal lire l'écriture manuscrite, ou rater des blocs. La relecture humaine est indispensable.
+
+---
+
 ## Exemple complet de référence
 
 Le cas `10_SVT_cours_louis/` est un exemple complet et validé. En cas de doute sur le format ou le niveau de détail attendu, consulte ses fichiers.
