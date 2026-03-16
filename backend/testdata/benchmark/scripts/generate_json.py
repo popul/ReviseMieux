@@ -14,8 +14,16 @@ import json
 import os
 import sys
 from pathlib import Path
+import ssl
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
+
+# Build SSL context using certifi certificates (fixes macOS Python SSL issues)
+try:
+    import certifi
+    _ssl_ctx = ssl.create_default_context(cafile=certifi.where())
+except ImportError:
+    _ssl_ctx = None
 
 
 def load_images(images_dir: str) -> list[dict]:
@@ -72,7 +80,7 @@ def call_api(content: list[dict], model: str, max_tokens: int) -> str:
     )
 
     try:
-        with urlopen(req) as resp:
+        with urlopen(req, context=_ssl_ctx) as resp:
             body = json.loads(resp.read())
     except HTTPError as e:
         error_body = e.read().decode()
