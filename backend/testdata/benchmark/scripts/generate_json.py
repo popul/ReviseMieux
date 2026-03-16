@@ -108,47 +108,30 @@ def extract_json(text: str) -> dict:
 
 
 # --- Prompts ---
+# Single source of truth: prompts are loaded from the shared .txt files
+# used by both the Go backend (via //go:embed) and this script.
 
-PROMPT_INPUT = """\
-Tu es un expert en transcription de cahiers scolaires. Analyse ces photos de cahier et produis une transcription structurée en blocs.
+_PROMPTS_DIR = os.path.join(
+    os.path.dirname(__file__), "..", "..", "..", "internal", "infra", "anthropic", "prompts"
+)
 
-Règles :
-- Transcris mot à mot, y compris les fautes.
-- Chaque unité de sens = un bloc séparé.
-- Types de blocs : TEXT (texte, titres, questions, réponses), DIAGRAM (schémas, graphiques), TABLE (tableaux).
-- Pour les éléments visuels, décris entre crochets : [Schéma : description détaillée]
-- Préserve la structure (numéros, tirets, retours à la ligne).
-- Mots illisibles : [illisible]
-- confidence: 1.0 pour tous les blocs.
 
-Réponds UNIQUEMENT avec le JSON valide, sans markdown, sans commentaire :
-{
-  "blocks": [
-    {"text": "...", "block_type": "TEXT|DIAGRAM|TABLE", "confidence": 1.0}
-  ]
-}"""
+def _load_prompt(name: str) -> str:
+    """Load a prompt from the shared prompts directory."""
+    path = os.path.join(_PROMPTS_DIR, name)
+    try:
+        return Path(path).read_text()
+    except FileNotFoundError:
+        print(f"Error: shared prompt not found: {path}", file=sys.stderr)
+        print("  Prompts live in backend/internal/infra/anthropic/prompts/", file=sys.stderr)
+        sys.exit(1)
 
-PROMPT_GOLDEN = """\
-Tu es un expert pédagogique. À partir de ces photos de cahier scolaire, extrais les items de révision.
 
-Types d'items :
-- KNOWLEDGE : fait, définition, règle (champs: type, term, keywords, notion)
-- PROCEDURE : méthode, protocole (champs: type, term, keywords, steps, notion)
-- DOCUMENT : schéma/graphique à savoir lire (champs: type, term, keywords, notion)
+PROMPT_INPUT = _load_prompt("ocr_system.txt")
 
-Règles :
-- 3 à 5 keywords par item
-- notion = concept chapeau (2-4 notions par chapitre)
-- steps uniquement pour PROCEDURE (3-6 étapes)
-- Vise 6-10 items
-- notions en bas = liste des notions uniques
-{input_context}
-
-Réponds UNIQUEMENT avec le JSON valide, sans markdown :
-{{
-  "items": [{{"type": "...", "term": "...", "keywords": [...], "notion": "..."}}],
-  "notions": ["Notion1", "Notion2"]
-}}"""
+# The structuration prompt is used as-is for golden output generation.
+# We wrap it with benchmark-specific context (input.json content) at call time.
+_STRUCTURATION_PROMPT = _load_prompt("structuration_system.txt")
 
 PROMPT_METADATA = """\
 Analyse ces photos de cahier scolaire et génère le fichier metadata.json.
@@ -210,7 +193,7 @@ def main():
             input_context = f"\n\nTranscription déjà réalisée (input.json) :\n{input_content}"
         else:
             print("  Warning: input.json not found, generating from images only", file=sys.stderr)
-        prompt = PROMPT_GOLDEN.format(input_context=input_context)
+        prompt = _STRUCTURATION_PROMPT + input_context
         output_file = os.path.join(case_dir, "golden_output.json")
 
     elif args.target == "metadata":
