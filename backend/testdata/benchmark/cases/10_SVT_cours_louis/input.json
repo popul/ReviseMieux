@@ -1,0 +1,149 @@
+{
+  "blocks": [
+    {
+      "text": "CHAPITRE 3: Prélèvement de matière minérale, production de matière organique et utilisation de la matière par les végétaux",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "PB: Quels sont les échanges réalisés par les végétaux?",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "I- Le prélèvement de la matière par les plantes",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "1- L'eau et les sels minéraux",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "1-°) Je pense que les plantes absorbent les sels minéraux et l'eau par les racines par osmose.",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "2-°) [Schéma : Trois tubes à essai avec différents contenus - les 3 tubes à essai contiennent une plante avec des racines et de l'eau, le premier tube ne contient que de l'eau, le deuxième tube contient en plus de l'huile et ses racines sont dans l'eau, le troisième tube contient aussi de l'huile et ses racines sont dans l'huile et la plante dans ce tube est morte]",
+      "block_type": "DIAGRAM",
+      "confidence": 1.0
+    },
+    {
+      "text": "3-°) Je constate que ce sont les poils qui absorbent les sels minéraux et l'eau.",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "4-°) J'en déduis que ce sont les poils sur la racine qui absorbent l'eau et les sels minéraux.",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "* Quand les poils absorbants sont dans l'huile, les plantes meurent alors que lorsque les poils absorbants sont dans l'eau la plante pousse.",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "5- Les poils absorbants, très nombreux, représentent une très grande surce d'absorption.",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "Activité 1\nhttps://www.youtube.com/watch?v=Fir6nT_RMLY\n1- A partir de la vidéo, quelle est l'hypothèse concernant la zone d'absorption de l'eau et des sels minéraux?\n2- Quelle expérience est faite pour vérifier cette hypothèse? Je dessine cette expérience.\n3- Que constates-tu ? (quels sont les résultats obtenus?)\n4- Que peut-on en déduire?\n5- Explique en quoi les poils aborbants forment une bonne surface d'échanges?",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "2- Quelle expérience est faite pour vérifier cette hypothèse? Je dessine cette expérience.",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "3- Quels sont les résultats obtenus? (Que sont les résultats obtenus?)",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "4- Que peut-on en déduire?",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "[Document image: Photo en noir et blanc montrant ce qui semble être une plante ou racine, avec titre 'Observer des poils absorbants'. On y voit une graine germée avec des racines, et des poils absorbants visibles sur les racines, ainsi qu'un apex de racine. La légende indique 'Une jeune racine observée à la loupe binoculaure. Un jeune plant de seigne possède 14 milliards de poils absorvants ce qui lui confère une surface d'absorption de 400 m², soit la surface de 2 terrains de tennis!']",
+      "block_type": "DIAGRAM",
+      "confidence": 1.0
+    },
+    {
+      "text": "5- Explique en quoi les poils absorbants forment une bonne surface d'échanges ?",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "ACTIVITÉ 3:",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "Je manipule:\n1. Couper des feuilles de blé en petits fragments et placez-les dans une enceinte éclairée.\n2. À l'aide d'un dispositif ExAO, mesurez la concentration de CO₂ dans l'enceinte pendant 10 minutes.\n3. Renouveler l'expérience sans placer de feuille dans l'enceinte.",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "[Document image: Photo en noir et blanc montrant un dispositif experimental, avec 2 flacons, une sonde de mesure de CO2, un écran d'ordinateur affichant des courbes']",
+      "block_type": "DIAGRAM",
+      "confidence": 1.0
+    },    
+    {
+      "text": "[Graphique : Concentration en CO₂ (unités arbitraires) en fonction du temps (en minutes), montrant deux courbes - 'Sans feuilles' et 'Avec feuilles', avec des valeurs de 0 à 1600 sur l'axe y et 0 à 10 minutes sur l'axe x. La courbe 'Sans feuille' est stable dans le temps autour de 1200 unités, et 'Avec feuilles', commence à 1200 unités et diminue progressivement pour atteindre environ 400 unités à 10 minutes. En légende: 'Evolution de la concentration en CO₂ dans une enceinte éclairée contenant ou non des feuilles de blé.']",
+      "block_type": "DIAGRAM",
+      "confidence": 1.0
+    },
+    {
+      "text": "1-Décris l'aspect des courbes du doc 3: que peux-tu en conclure?",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "3 Le stomate: zone d'échanges de la feuille",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "Les stomates assurent les échanges gazeux entre l'atmosphère et l'intérieur de la feuille: ce sont des 'portes' qui laissent entrer et sortir les gaz dans la plante.",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "[Schéma anatomique : Coupe transversale d'une feuille montrant les cellules de la feuille, cellule épidermique, stomate, CO₂, O₂, air atmosphérique, et face inférieure de la feuille]",
+      "block_type": "DIAGRAM",
+      "confidence": 1.0
+    },
+    {
+      "text": "[Image microscopique : Coupe transversale d'une feuille (microscope optique) montrant les stomates, le CO₂]",
+      "block_type": "DIAGRAM",
+      "confidence": 1.0
+    },
+    {
+      "text": "2-Quelle structure présente au niveau des feuilles permet l'absorption du CO2?",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "3-On veut localiser les zones d'échanges de gaz à la surface des feuilles.",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    },
+    {
+      "text": "Étale du vernis transparent sur la face inférieure d'une feuille sur une surface de 1 cm2 environ.\nLaisse sécher, dépose un bout de scotch et soulève délicatement\nTu as obtenu une empreinte de la face inférieure de la feuille.\nObserve-la au microscope.\nTu viens d'observer des stomates. Légende le document ci-dessous",
+      "block_type": "TEXT",
+      "confidence": 1.0
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+{
+  "items": [
+    {
+      "type": "KNOWLEDGE",
+      "term": "Absorption des sels minéraux et de l'eau par les plantes",
+      "keywords": [
+        "racines",
+        "poils absorbants",
+        "sels minéraux",
+        "eau",
+        "osmose"
+      ],
+      "notion": "Prélèvement de matière minérale"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Poils absorbants des racines",
+      "keywords": [
+        "surface d'absorption",
+        "échanges",
+        "racines",
+        "14 milliards",
+        "400 m²"
+      ],
+      "notion": "Prélèvement de matière minérale"
+    },
+    {
+      "type": "DOCUMENT",
+      "term": "Schéma de l'expérience des trois tubes à essai",
+      "keywords": [
+        "tubes à essai",
+        "racines",
+        "eau",
+        "huile",
+        "plante morte",
+        "poils absorbants",
+        "schéma expérience"
+      ],
+      "notion": "Prélèvement de matière minérale"
+    },
+    {
+      "type": "DOCUMENT",
+      "term": "Photo de poils absorbants observés à la loupe binoculaire",
+      "keywords": [
+        "loupe binoculaire",
+        "graine germée",
+        "jeune racine",
+        "poils absorbants",
+        "apex",
+        "seigle",
+        "14 milliards",
+        "400 m²",
+        "surface d'absorption"
+      ],
+      "notion": "Prélèvement de matière minérale"
+    },
+    {
+      "type": "PROCEDURE",
+      "term": "Expérience d'absorption par les racines",
+      "keywords": [
+        "tubes à essai",
+        "racines",
+        "eau",
+        "huile",
+        "absorption"
+      ],
+      "steps": [
+        "Préparer trois tubes à essai",
+        "Placer une plante dans chaque tube",
+        "Premier tube: racines dans l'eau",
+        "Deuxième tube: racines dans l'eau, huile au-dessus",
+        "Troisième tube: racines dans l'huile",
+        "Observer les résultats"
+      ],
+      "notion": "Prélèvement de matière minérale"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Absorption du CO2 par les feuilles",
+      "keywords": [
+        "photosynthèse",
+        "CO2",
+        "feuilles",
+        "concentration",
+        "diminution"
+      ],
+      "notion": "Échanges gazeux"
+    },
+    {
+      "type": "PROCEDURE",
+      "term": "Mesure de la concentration en CO2 avec ExAO",
+      "keywords": [
+        "ExAO",
+        "CO2",
+        "feuilles",
+        "enceinte éclairée",
+        "10 minutes"
+      ],
+      "steps": [
+        "Couper des feuilles de blé en fragments",
+        "Placer dans enceinte éclairée",
+        "Mesurer CO2 avec ExAO pendant 10 minutes",
+        "Renouveler sans feuilles",
+        "Comparer les résultats"
+      ],
+      "notion": "Échanges gazeux"
+    },
+    {
+      "type": "DOCUMENT",
+      "term": "Photo du dispositif expérimental ExAO de mesure du CO2",
+      "keywords": [
+        "ExAO",
+        "flacons",
+        "sonde CO2",
+        "ordinateur",
+        "courbes",
+        "dispositif expérimental"
+      ],
+      "notion": "Échanges gazeux"
+    },
+    {
+      "type": "DOCUMENT",
+      "term": "Graphique d'évolution de la concentration en CO2 avec et sans feuilles",
+      "keywords": [
+        "graphique",
+        "concentration CO2",
+        "temps",
+        "courbe avec feuilles",
+        "courbe sans feuilles",
+        "1200 unités",
+        "400 unités",
+        "10 minutes",
+        "diminution",
+        "enceinte éclairée"
+      ],
+      "notion": "Échanges gazeux"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Stomates des feuilles",
+      "keywords": [
+        "stomates",
+        "échanges gazeux",
+        "feuilles",
+        "CO2",
+        "O2"
+      ],
+      "notion": "Échanges gazeux"
+    },
+    {
+      "type": "DOCUMENT",
+      "term": "Schéma anatomique d'une coupe transversale de feuille montrant les stomates",
+      "keywords": [
+        "schéma anatomique",
+        "coupe transversale",
+        "feuille",
+        "cellule épidermique",
+        "stomate",
+        "CO2",
+        "O2",
+        "face inférieure",
+        "échanges gazeux"
+      ],
+      "notion": "Échanges gazeux"
+    },
+    {
+      "type": "DOCUMENT",
+      "term": "Image microscopique d'une coupe transversale de feuille avec stomates",
+      "keywords": [
+        "microscope optique",
+        "coupe transversale",
+        "stomates",
+        "CO2",
+        "feuille"
+      ],
+      "notion": "Échanges gazeux"
+    },
+    {
+      "type": "PROCEDURE",
+      "term": "Observation des stomates par empreinte",
+      "keywords": [
+        "vernis transparent",
+        "scotch",
+        "empreinte",
+        "microscope",
+        "stomates"
+      ],
+      "steps": [
+        "Étaler vernis sur face inférieure de feuille",
+        "Laisser sécher",
+        "Déposer scotch et soulever",
+        "Observer empreinte au microscope",
+        "Légender les stomates"
+      ],
+      "notion": "Échanges gazeux"
+    }
+  ],
+  "notions": [
+    "Prélèvement de matière minérale",
+    "Échanges gazeux"
+  ]
+}

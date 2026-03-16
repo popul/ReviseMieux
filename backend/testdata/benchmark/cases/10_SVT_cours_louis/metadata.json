@@ -1,0 +1,34 @@
+{
+  "id": "10_SVT_cours_louis",
+  "subject": "SVT",
+  "level": "5e",
+  "topic": "Prélèvement de matière minérale, organisation et utilisation de la matière par les végétaux",
+  "difficulty": "medium",
+  "has_images": true,
+  "expected_item_count": 13,
+  "expected_types": {
+    "KNOWLEDGE": 4,
+    "PROCEDURE": 3,
+    "DOCUMENT": 6
+  },
+  "ocr_source": "human_expert",
+  "ocr_author": "Paul Musso",
+  "ocr_date": "2026-03-16",
+  "ocr_metadata": {
+    "handwriting_quality": "normal",
+    "ink_types": [
+      "blue_pen",
+      "red_pen",
+      "black_pen"
+    ],
+    "photo_quality": "good",
+    "content_types": [
+      "text",
+      "diagram",
+      "table"
+    ],
+    "support": "notebook_with_printout",
+    "pages": 3
+  },
+  "notes": "Cahier de SVT niveau 5e sur le prélèvement de matière par les végétaux. Contient le chapitre 3 avec cours manuscrit sur l'absorption par les racines et les échanges gazeux, complété par des activités pratiques avec documents imprimés. Présence de schémas de racines, graphiques ExAO, et observations microscopiques des stomates. Écriture lisible avec quelques ratures, utilisation de plusieurs couleurs d'encre pour la mise en forme."
+}
