@@ -1,0 +1,22 @@
+{
+  "id": "12_geographie",
+  "subject": "Géographie",
+  "level": "",
+  "topic": "",
+  "difficulty": "medium",
+  "has_images": true,
+  "expected_item_count": 0,
+  "expected_types": {},
+  "ocr_source": "human_expert",
+  "ocr_author": "",
+  "ocr_date": "",
+  "ocr_metadata": {
+    "handwriting_quality": "",
+    "ink_types": [],
+    "photo_quality": "",
+    "content_types": ["text"],
+    "support": "",
+    "pages": 0
+  },
+  "notes": ""
+}

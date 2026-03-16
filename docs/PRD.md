@@ -577,17 +577,15 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 
 ### 14.1 Vue d'ensemble des composants
 
-| Composant | Techno suggérée | Rôle |
+| Composant | Techno | Rôle |
 |---|---|---|
-| API Gateway / BFF | Node.js / Go | Auth, routing, rate-limit, streaming SSE pour pipeline J0 |
-| OCR Service | Async worker (Python) | Segmentation + OCR parallèle par page (worker pool) |
-| LLM Service | Anthropic API (claude-sonnet) | Génération items, tagging, instanciation questions (lazy) |
+| Backend API | Go + Gin | Auth, routing, rate-limit, streaming SSE pour pipeline J0 |
+| OCR Service | Go (async worker) | Segmentation + OCR parallèle par page (worker pool) |
+| LLM Service | Anthropic API (Sonnet 4.6 + Haiku 4.5) | Structuration + cohérence (Sonnet) ; fidelity check + questions (Haiku). Cf. `docs/llm-strategy.md`. |
 | Cache Layer | Redis | OCR results, item pool, question candidates, sessions |
-| Queue | BullMQ / SQS | Pipeline J0 asynchrone, retry/dead-letter |
-| Base de données | PostgreSQL | Users, Chapters, Items, Mastery, Attempts |
+| Base de données | PostgreSQL (pgx, SQL brut) | Users, Chapters, Items, Mastery, Attempts |
 | Storage | S3 / Object storage | Photos originales (opt-in), crops indexés |
-| Frontend | React / React Native | Mobile-first, SSE pour affichage streaming carte leçon |
-| Admin backoffice | React + API | CRUD packs, lexiques, analytics template_id/tag |
+| Mobile | React Native + Expo + Expo Router | Mobile-first, SSE pour affichage streaming carte leçon |
 
 ### 14.2 Versioning des chapitres
 
@@ -910,6 +908,16 @@ Les intervalles se compriment proportionnellement au temps restant avant le cont
 - Métriques par `template_id` : taux réussite, temps médian, taux partial.
 - Métriques par tag : zones de confusion.
 - Alertes sur dégradation OCR confidence ou pipeline J0 timeout.
+
+#### Observabilité LLM
+
+Les appels LLM sont monitorés en continu (détails dans `docs/llm-strategy.md`) :
+
+- **Choix de modèles** : Sonnet 4.6 pour la structuration et la cohérence (fidélité source, classification nuancée) ; Haiku 4.5 pour le fidelity check et la génération de questions (latence, coût) ; templates sans LLM pour le feedback (Z4-AC09).
+- **Métriques** : latence par type d'appel, tokens consommés, coût, fidelity_score moyen, taux d'hallucinations.
+- **Alertes** : dégradation fidelity (`avg < 0.6` sur 24h), hausse hallucinations (`rate(score < 0.5) > 15%`), latence p95 > seuils, changement de modèle silencieux.
+- **Versioning** : chaque résultat LLM est tagué avec `llm_model_version` + `prompt_template_version` (AC Z2-AC13). Job hebdomadaire de comparaison qualité entre versions ; alerte admin si dégradation > 15%.
+- **Optimisations coût** : Batch API (-50%) pour le pipeline J0, prompt caching (-90% sur system prompts répétitifs).
 
 ---
 

@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "type": "KNOWLEDGE",
+      "term": "L'eau et les sels minéraux sont absorbés par les poils absorbants des racines. Les poils absorbants forment une très grande surface d'échanges (un jeune plant de seigle possède 14 milliards de poils absorbants, soit environ 500 m² de surface).",
+      "keywords": ["poils absorbants", "racines", "eau", "sels minéraux", "surface d'échanges"],
+      "notion": "Absorption racinaire"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Quand les poils absorbants sont dans l'huile, les plantes meurent ; quand ils sont dans l'eau, la plante pousse. Cela prouve que ce sont les poils absorbants qui absorbent l'eau et les sels minéraux.",
+      "keywords": ["poils absorbants", "eau", "huile", "expérience", "absorption"],
+      "notion": "Absorption racinaire"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Les feuilles prélèvent le CO2 de l'air. En présence de feuilles dans une enceinte éclairée, la concentration en CO2 diminue fortement, alors qu'elle reste constante sans feuilles.",
+      "keywords": ["feuilles", "CO2", "absorption", "enceinte éclairée", "concentration"],
+      "notion": "Échanges gazeux des feuilles"
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Les stomates sont des structures situées sur la face inférieure des feuilles qui assurent les échanges gazeux entre l'atmosphère et l'intérieur de la feuille. Ce sont des « portes » qui laissent entrer et sortir les gaz (CO2, O2) dans la plante.",
+      "keywords": ["stomates", "feuilles", "échanges gazeux", "CO2", "O2", "face inférieure"],
+      "notion": "Échanges gazeux des feuilles"
+    },
+    {
+      "type": "PROCEDURE",
+      "term": "Expérience de mise en évidence du rôle des poils absorbants : comparer la croissance de plantes dont les poils trempent dans l'eau vs dans l'huile.",
+      "keywords": ["poils absorbants", "eau", "huile", "expérience", "croissance"],
+      "steps": [
+        "Préparer deux récipients, l'un contenant de l'eau, l'autre de l'huile",
+        "Placer une plante dans chaque récipient de sorte que les poils absorbants trempent dans le liquide",
+        "Observer la croissance des plantes",
+        "Constater que la plante dans l'huile meurt tandis que celle dans l'eau pousse",
+        "Conclure que les poils absorbants absorbent l'eau et les sels minéraux"
+      ],
+      "notion": "Absorption racinaire"
+    },
+    {
+      "type": "PROCEDURE",
+      "term": "Observation des stomates par empreinte au vernis transparent sur la face inférieure d'une feuille.",
+      "keywords": ["stomates", "vernis", "empreinte", "microscope", "feuille", "face inférieure"],
+      "steps": [
+        "Étaler du vernis transparent sur la face inférieure d'une feuille sur 1 cm²",
+        "Laisser sécher",
+        "Déposer un bout de scotch et soulever délicatement pour obtenir une empreinte",
+        "Observer l'empreinte au microscope",
+        "Identifier les stomates sur l'empreinte"
+      ],
+      "notion": "Échanges gazeux des feuilles"
+    },
+    {
+      "type": "DOCUMENT",
+      "term": "Schéma de coupe de feuille montrant les cellules de la feuille, les cellules épidermiques, les stomates sur la face inférieure, et les échanges gazeux (CO2 entrant, O2 sortant) avec l'air atmosphérique.",
+      "keywords": ["schéma", "coupe", "feuille", "stomate", "cellule épidermique", "CO2", "O2"],
+      "notion": "Échanges gazeux des feuilles"
+    }
+  ],
+  "notions": [
+    "Absorption racinaire",
+    "Échanges gazeux des feuilles"
+  ]
+}
