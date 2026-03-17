@@ -58,9 +58,9 @@ func (s *Structurer) StructureBlocks(ctx context.Context, subject string, blocks
 		return nil, fmt.Errorf("anthropic.StructureBlocks: empty response")
 	}
 
-	// Parse JSON response
+	// Parse JSON response (strip markdown fences if present)
 	var raw rawStructurationResponse
-	if err := json.Unmarshal([]byte(text), &raw); err != nil {
+	if err := json.Unmarshal([]byte(stripMarkdownFences(text)), &raw); err != nil {
 		return nil, fmt.Errorf("anthropic.StructureBlocks: parse response: %w", err)
 	}
 

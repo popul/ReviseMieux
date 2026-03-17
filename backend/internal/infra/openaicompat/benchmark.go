@@ -18,35 +18,38 @@ import (
 
 // BenchmarkProvider implements benchmark.Provider for any OpenAI-compatible API.
 type BenchmarkProvider struct {
-	httpClient *http.Client
-	baseURL    string
-	apiKey     string
-	name       string
-	model      string
-	priceIn    float64
-	priceOut   float64
+	httpClient     *http.Client
+	baseURL        string
+	apiKey         string
+	name           string
+	model          string
+	priceIn        float64
+	priceOut       float64
+	reasoningModel bool
 }
 
 // Config holds the configuration for creating an OpenAI-compatible benchmark provider.
 type Config struct {
-	BaseURL  string
-	APIKey   string
-	Name     string
-	Model    string
-	PriceIn  float64 // USD per 1M input tokens
-	PriceOut float64 // USD per 1M output tokens
+	BaseURL        string
+	APIKey         string
+	Name           string
+	Model          string
+	PriceIn        float64 // USD per 1M input tokens
+	PriceOut       float64 // USD per 1M output tokens
+	ReasoningModel bool    // Use max_completion_tokens instead of max_tokens (o3, deepseek-reasoner)
 }
 
 // NewBenchmarkProvider creates a benchmark provider for an OpenAI-compatible API.
 func NewBenchmarkProvider(cfg Config) *BenchmarkProvider {
 	return &BenchmarkProvider{
-		httpClient: &http.Client{Timeout: 120 * time.Second},
-		baseURL:    cfg.BaseURL,
-		apiKey:     cfg.APIKey,
-		name:       cfg.Name,
-		model:      cfg.Model,
-		priceIn:    cfg.PriceIn,
-		priceOut:   cfg.PriceOut,
+		httpClient:     &http.Client{Timeout: 120 * time.Second},
+		baseURL:        cfg.BaseURL,
+		apiKey:         cfg.APIKey,
+		name:           cfg.Name,
+		model:          cfg.Model,
+		priceIn:        cfg.PriceIn,
+		priceOut:       cfg.PriceOut,
+		reasoningModel: cfg.ReasoningModel,
 	}
 }
 
@@ -57,10 +60,11 @@ func (p *BenchmarkProvider) PricePerMOutput() float64 { return p.priceOut }
 
 // chatRequest is the OpenAI chat completions request body.
 type chatRequest struct {
-	Model       string        `json:"model"`
-	Messages    []chatMessage `json:"messages"`
-	MaxTokens   int           `json:"max_tokens,omitempty"`
-	Temperature *float64      `json:"temperature,omitempty"`
+	Model               string        `json:"model"`
+	Messages            []chatMessage `json:"messages"`
+	MaxTokens           int           `json:"max_tokens,omitempty"`
+	MaxCompletionTokens int           `json:"max_completion_tokens,omitempty"`
+	Temperature         *float64      `json:"temperature,omitempty"`
 }
 
 type chatMessage struct {
@@ -72,7 +76,9 @@ type chatMessage struct {
 type chatResponse struct {
 	Choices []struct {
 		Message struct {
-			Content string `json:"content"`
+			Content          string `json:"content"`
+			Reasoning        string `json:"reasoning"`         // OpenRouter reasoning models
+			ReasoningContent string `json:"reasoning_content"` // DeepSeek reasoner
 		} `json:"message"`
 	} `json:"choices"`
 	Usage struct {
@@ -84,15 +90,19 @@ type chatResponse struct {
 
 // StructureBlocks sends the structuration prompt and returns the raw response.
 func (p *BenchmarkProvider) StructureBlocks(ctx context.Context, systemPrompt, userPrompt string) (*benchmark.Response, error) {
-	temp := 0.0
 	reqBody := chatRequest{
 		Model: p.model,
 		Messages: []chatMessage{
 			{Role: "system", Content: systemPrompt},
 			{Role: "user", Content: userPrompt},
 		},
-		MaxTokens:   4096,
-		Temperature: &temp,
+	}
+	if p.reasoningModel {
+		reqBody.MaxCompletionTokens = 8192
+	} else {
+		temp := 0.0
+		reqBody.MaxTokens = 4096
+		reqBody.Temperature = &temp
 	}
 
 	bodyBytes, err := json.Marshal(reqBody)
@@ -135,6 +145,16 @@ func (p *BenchmarkProvider) StructureBlocks(ctx context.Context, systemPrompt, u
 	}
 
 	text := chatResp.Choices[0].Message.Content
+	// Reasoning models may put the answer in reasoning_content (DeepSeek) or reasoning (OpenRouter)
+	if text == "" && chatResp.Choices[0].Message.ReasoningContent != "" {
+		text = chatResp.Choices[0].Message.ReasoningContent
+	}
+	if text == "" && chatResp.Choices[0].Message.Reasoning != "" {
+		text = chatResp.Choices[0].Message.Reasoning
+	}
+	if text == "" {
+		return nil, fmt.Errorf("%s benchmark: empty content in response (tokens_out=%d)", p.name, chatResp.Usage.CompletionTokens)
+	}
 
 	return &benchmark.Response{
 		RawJSON:      []byte(text),
