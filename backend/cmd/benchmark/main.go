@@ -35,6 +35,7 @@ import (
 
 	"github.com/popul/revisemieux/internal/benchmark"
 	llmanthro "github.com/popul/revisemieux/internal/infra/anthropic"
+	"github.com/popul/revisemieux/internal/infra/llm"
 	"github.com/popul/revisemieux/internal/infra/openaicompat"
 )
 
@@ -815,7 +816,7 @@ func saveOCRResults(summaries []benchmark.OCRRunSummary) {
 // structurationPrompts returns the production prompts from infra/anthropic/prompts.go.
 // This ensures the benchmark always tests the same prompts used in production.
 func structurationPrompts(subject string, blocksJSON string) (systemPrompt, userPrompt string) {
-	return llmanthro.StructurationSystemPrompt, llmanthro.BuildUserPrompt(subject, blocksJSON)
+	return llm.StructurationSystemPrompt, llm.BuildUserPrompt(subject, blocksJSON)
 }
 
 func loadTestCases(casesDir, filterID string) ([]benchmark.TestCase, error) {

@@ -2,8 +2,25 @@
 
 > Framework d'évaluation comparative des modèles LLM pour les cas d'usage Révise Mieux.
 > Deux benchmarks indépendants : **OCR** (images → blocs texte) et **IDP** (blocs texte → items structurés).
-> Exécutable à la demande via `go run ./cmd/benchmark/`.
+> Exécutable à la demande via `make bench-idp` / `make bench-ocr` depuis `backend/`.
 > Dernière mise à jour : 2026-03-12.
+
+---
+
+> **Mise à jour mars 2026 — Résultats réels disponibles**
+>
+> Ce document a été rédigé **avant** l'exécution du benchmark. Les résultats estimés, les tableaux de scores fictifs et les recommandations de modèles ci-dessous sont **obsolètes**.
+>
+> Les **résultats réels** (21 modèles IDP, 17 modèles OCR) sont dans [`backend/testdata/benchmark/README.md`](../backend/testdata/benchmark/README.md).
+>
+> Changements majeurs par rapport aux prédictions de ce document :
+> - **Claude Sonnet n'est plus recommandé** — seul modèle avec des hallucinations (8%), et 30-50x plus cher que les alternatives à qualité égale ou supérieure.
+> - **Top 3 IDP** : Qwen3.5-397B (quality 0.88), mistral-small (0.87), gemini-2.5-flash (0.87).
+> - **Top 3 OCR** : Qwen3-VL-32B (quality 0.85), gemini-2.5-flash (0.84), gpt-4o (0.83).
+> - **Exécution locale viable** : Qwen3-VL-32B + Gemma 3 27B via Ollama sur MacBook Pro M5 Max (~2 min/chapitre, coût $0).
+> - **Modèles open-source via OpenRouter** (Qwen, Llama 4, Gemma) sont compétitifs avec les APIs propriétaires.
+>
+> L'architecture du benchmark (métriques, runner, structure des cas) décrite ci-dessous reste valide.
 
 ---
 
@@ -29,31 +46,26 @@ Le fichier `input.json` de chaque cas de test sert de **charnière** : c'est le 
 
 ## 2. Concurrents à évaluer
 
-### 2.1 Modèles retenus pour le benchmark
+### 2.1 Modèles testés
 
-| Provider | Modèle | Catégorie | Input $/M | Output $/M | Vision | Benchmarks | Pourquoi le tester |
-|----------|--------|-----------|-----------|------------|--------|------------|-------------------|
-| **Anthropic** | Claude Sonnet 4.6 | Premium | $3.00 | $15.00 | Oui | OCR + IDP | Baseline actuel pour structuration |
-| **Anthropic** | Claude Haiku 4.5 | Économique | $1.00 | $5.00 | Oui | OCR + IDP | Baseline actuel pour fidelity/questions |
-| **OpenAI** | GPT-4o | Premium | $2.50 | $10.00 | Oui | OCR + IDP | Concurrent direct, vision forte |
-| **OpenAI** | GPT-4o Mini | Économique | $0.15 | $0.60 | Oui | OCR + IDP | Alternative économique avec vision |
-| **OpenAI** | o3-mini | Raisonnement | $1.10 | $4.40 | Non | IDP | Raisonnement avancé, pas de vision |
-| **Google** | Gemini 2.5 Pro | Premium | $1.25 | $10.00 | Oui | OCR + IDP | Multimodal fort, même prix que GPT-4o |
-| **Google** | Gemini 2.5 Flash | Économique | $0.15 | $0.60 | Oui | OCR + IDP | Ultra-compétitif en prix, context 1M |
-| **Mistral** | Mistral Large | Mid-range | $2.00 | $6.00 | Oui | OCR + IDP | Souveraineté EU, bon ratio qualité/prix |
-| **Mistral** | Mistral Small | Économique | $0.10 | $0.30 | Oui | OCR + IDP | Budget EU |
-| **DeepSeek** | deepseek-chat | Budget | $0.27 | $1.10 | Non | IDP | 10-20x moins cher, qualité GPT-4 class |
-| **DeepSeek** | deepseek-reasoner | Raisonnement | $0.55 | $2.19 | Non | IDP | Raisonnement avancé, prix agressif |
+> **Mis à jour mars 2026.** 21 modèles IDP, 17 modèles OCR testés. Voir [`backend/testdata/benchmark/README.md`](../backend/testdata/benchmark/README.md) pour les résultats complets.
 
-### 2.2 Modèles exclus (et pourquoi)
+| Provider | Modèle | Vision | Accès | Benchmarks |
+|----------|--------|--------|-------|------------|
+| **Anthropic** | Claude Sonnet 4.6 | Oui | Direct | OCR + IDP |
+| **Anthropic** | Claude Haiku 4.5 | Oui | Direct | OCR + IDP |
+| **OpenAI** | GPT-4o, GPT-4o Mini, o3-mini | Oui/Oui/Non | Direct | OCR + IDP |
+| **Google** | Gemini 2.5 Pro, Gemini 2.5 Flash | Oui | Direct | OCR + IDP |
+| **Mistral** | Mistral Large, Mistral Small, Mistral Small 3.2, Pixtral 12B | Oui | Direct | OCR + IDP |
+| **DeepSeek** | deepseek-chat, deepseek-reasoner | Non | Direct | IDP |
+| **Qwen** | Qwen3.5-397B, Qwen3.5-9B, Qwen3-VL-235B, Qwen3-VL-32B | Oui (VL) | OpenRouter | OCR + IDP |
+| **Meta** | Llama 4 Maverick, Llama 4 Scout | Oui | OpenRouter | OCR + IDP |
+| **Google** | Gemma 3 27B | Oui | OpenRouter | OCR + IDP |
+| **NVIDIA** | Nemotron Nano VL 12B | Oui | OpenRouter (gratuit) | OCR + IDP |
+| **MiniMax** | MiniMax M2.5 | Non | OpenRouter | IDP |
+| **StepFun** | Step 3.5 Flash | Non | OpenRouter | IDP |
 
-| Modèle | Raison d'exclusion |
-|--------|-------------------|
-| Claude Opus 4.6 | Trop cher ($5/$25) pour le gain marginal vs Sonnet sur nos tâches |
-| GPT-5.2 / GPT-5.4 | Prix premium ($1.75-$2.50/$14-$20), pas de gain attendu sur de l'extraction structurée |
-| GPT-5 Nano | Trop léger (0.05/0.40), risque élevé d'hallucinations |
-| Gemini Flash-Lite | Trop basique pour la structuration |
-| Llama / open-source self-hosted | Hors scope MVP (infrastructure d'hébergement à gérer) |
+Les modèles open-source (Qwen, Llama, Gemma) sont testés via OpenRouter et peuvent aussi tourner en local via Ollama.
 
 ### 2.3 Considérations non-techniques
 
@@ -170,22 +182,23 @@ Ce score permet de comparer directement les modèles sur un axe unique tout en c
 
 ### 4.1 Golden inputs
 
-10 cas de test couvrant la diversité des matières et des difficultés :
+Cas de test disponibles (mars 2026) :
 
-| # | Matière | Niveau | Contenu | Difficulté | Items attendus |
-|---|---------|--------|---------|-----------|----------------|
-| 1 | Physique-Chimie | 5e | Densité et masse volumique | Moyen | 8 (6K + 2P) |
-| 2 | Physique-Chimie | 4e | Circuit électrique (schéma + formules) | Élevé | 10 (5K + 3P + 2D) |
-| 3 | SVT | 5e | Cellule animale vs végétale | Moyen | 7 (6K + 1D) |
-| 4 | SVT | 3e | Génétique et chromosomes | Élevé | 12 (9K + 2P + 1D) |
-| 5 | Histoire | 4e | Révolution française (dates + concepts) | Moyen | 9 (8K + 1D) |
-| 6 | Géographie | 3e | Urbanisation mondiale (données + carte) | Élevé | 8 (5K + 1P + 2D) |
-| 7 | Mathématiques | 4e | Théorème de Pythagore | Moyen | 6 (2K + 4P) |
-| 8 | Mathématiques | 3e | Fonctions affines (graphiques + formules) | Élevé | 10 (3K + 5P + 2D) |
-| 9 | Français | 5e | Conjugaison passé simple | Faible | 5 (2K + 3P) |
-| 10 | Français | 3e | Figures de style | Moyen | 8 (7K + 1P) |
+| # | ID | Matière | Niveau | Contenu | Items | Statut |
+|---|-----|---------|--------|---------|-------|--------|
+| 10 | `10_SVT_cours_louis` | SVT | 5e | Prélèvement de matière par les végétaux | 13 (4K + 3P + 6D) | Validé (golden corrigé manuellement) |
 
 > K = KNOWLEDGE, P = PROCEDURE, D = DOCUMENT
+
+Cas prioritaires à ajouter pour rendre le benchmark fiable (diversité des matières et difficultés OCR) :
+
+| Matière | Intérêt | Difficulté OCR |
+|---------|---------|---------------|
+| Histoire / Français | Beaucoup de texte, peu de schémas | Faible |
+| Maths / Physique | Formules, calculs, tableaux de mesures | Élevé |
+| Cahier brouillon | Écriture difficile, ratures | Élevé |
+
+Voir [`backend/testdata/benchmark/cases/README.md`](../backend/testdata/benchmark/cases/README.md) pour le guide de création de cas.
 
 ### 4.2 Référence humaine (golden output)
 
@@ -333,30 +346,21 @@ Le benchmark produit :
 2. **JSON** : résultats détaillés par cas de test et par provider
 3. **CSV** : export pour analyse dans un tableur
 
-Exemple de sortie console :
+Exemple de sortie console (résultats réels, mars 2026) :
 
 ```
-╔═════════════════════╦══════╦══════╦══════╦══════╦══════╦═══╦═══════╦══════╦════════╦═══════╗
-║ Modèle              ║  Q1  ║  Q3  ║  Q5  ║  Q4  ║  Q6  ║Q7 ║ Coût  ║ Lat. ║ Score  ║ Statut║
-║                      ║Compl.║Fidél.║Hallu.║ Kw.  ║Notion║ JS║$/item ║ ms   ║ comp.  ║       ║
-╠═════════════════════╬══════╬══════╬══════╬══════╬══════╬═══╬═══════╬══════╬════════╬═══════╣
-║ Claude Sonnet 4.6   ║ 0.92 ║ 0.95 ║ 0.02 ║ 0.81 ║ 0.78 ║ ✓ ║ 0.002 ║ 3200 ║  0.87  ║  🏆  ║
-║ GPT-5               ║ 0.89 ║ 0.93 ║ 0.04 ║ 0.78 ║ 0.73 ║ ✓ ║ 0.001 ║ 2800 ║  0.86  ║  ✅  ║
-║ Gemini 2.5 Pro      ║ 0.88 ║ 0.91 ║ 0.05 ║ 0.76 ║ 0.71 ║ ✓ ║ 0.001 ║ 2500 ║  0.85  ║  ✅  ║
-║ Mistral Medium 3    ║ 0.83 ║ 0.88 ║ 0.07 ║ 0.70 ║ 0.65 ║ ✓ ║0.0004 ║ 2100 ║  0.84  ║ ⚠️❌ ║
-║ Gemini 2.5 Flash    ║ 0.81 ║ 0.86 ║ 0.08 ║ 0.68 ║ 0.60 ║ ✓ ║0.0003 ║ 1500 ║  0.83  ║ ⚠️❌ ║
-║ DeepSeek V3.2       ║ 0.80 ║ 0.85 ║ 0.09 ║ 0.65 ║ 0.58 ║ ✓ ║0.0001 ║ 3500 ║  0.82  ║ 🚫RGPD║
-║ GPT-5 Mini          ║ 0.78 ║ 0.84 ║ 0.10 ║ 0.63 ║ 0.55 ║ ✓ ║0.0002 ║ 1800 ║  0.79  ║ ⚠️❌ ║
-║ Claude Haiku 4.5    ║ 0.76 ║ 0.82 ║ 0.11 ║ 0.60 ║ 0.52 ║ ✓ ║0.0001 ║ 1200 ║  0.78  ║ ⚠️❌ ║
-║ DeepSeek R1         ║ 0.85 ║ 0.90 ║ 0.06 ║ 0.72 ║ 0.68 ║ ✓ ║0.0003 ║ 8000 ║  0.77  ║ 🚫RGPD║
-╚═════════════════════╩══════╩══════╩══════╩══════╩══════╩═══╩═══════╩══════╩════════╩═══════╝
-
-Légende statut :
-  🏆 = RECOMMANDÉ    ✅ = éligible    💰 = alternative budget
-  ⚠️❌ = exclu (seuil éliminatoire — voir §8.1)    🚫RGPD = exclu pour non-conformité RGPD
+╔══════════════════════════╦═══════╦═══════╦═══════╦═════════╦════════╦═══════════╗
+║ Modèle                   ║ Compl.║ Fidél.║ Hallu.║ $/item  ║ Lat.ms ║ Score     ║
+╠══════════════════════════╬═══════╬═══════╬═══════╬═════════╬════════╬═══════════╣
+║ mistral-small-latest     ║  0.85 ║  1.00 ║  0.00 ║ 0.00006 ║   8393 ║    0.9055 ║
+║ gemini-2.5-flash         ║  0.85 ║  1.00 ║  0.00 ║ 0.00012 ║  25538 ║    0.8967 ║
+║ deepseek-chat            ║  0.85 ║  1.00 ║  0.00 ║ 0.00021 ║    392 ║    0.8740 ║
+║ claude-haiku-4-5         ║  0.77 ║  1.00 ║  0.00 ║ 0.00105 ║   9302 ║    0.8060 ║
+║ claude-sonnet-4-6        ║  0.77 ║  0.92 ║  0.08 ║ 0.00311 ║  20162 ║    0.5470 ║
+╚══════════════════════════╩═══════╩═══════╩═══════╩═════════╩════════╩═══════════╝
 ```
 
-*(valeurs fictives à titre d'illustration)*
+Voir [`backend/testdata/benchmark/README.md`](../backend/testdata/benchmark/README.md) pour les résultats complets des 21 modèles.
 
 ---
 
@@ -730,42 +734,16 @@ Recommandations :
   - "INSUFFISANT" = aucun modèle ne passe tous les seuils → intervention humaine
 ```
 
-#### Exemple de sortie
+#### Recommandations issues du benchmark (mars 2026)
 
-```
-╔══════════════════════════════════════════════════════════════════════════════╗
-║                         RECOMMANDATION AUTOMATIQUE                          ║
-╠══════════════════════════════════════════════════════════════════════════════╣
-║                                                                              ║
-║  🏆 RECOMMANDÉ IDP : Claude Sonnet 4.6                                      ║
-║     Score composite: 0.87 | Coût/item: $0.002 | Latence: 3200ms              ║
-║     Q1=0.92 Q3=0.95 Q5=0.02 Q6=0.78 Q7=1.0                                ║
-║     ✅ Tous les seuils éliminatoires passés                                  ║
-║     ✅ RGPD conforme (UE, DPA Anthropic)                                     ║
-║                                                                              ║
-║  💰 ALTERNATIVE BUDGET IDP : Gemini 2.5 Flash                               ║
-║     Score composite: 0.83 | Coût/item: $0.0003 | Latence: 1500ms            ║
-║     Q1=0.81 Q3=0.86 Q5=0.08 Q6=0.62 Q7=1.0                                ║
-║     ⚠️  Q5=0.08 proche du seuil éliminatoire (0.05)                        ║
-║                                                                              ║
-║  🏆 RECOMMANDÉ OCR : Claude Sonnet 4.6 (Vision)                            ║
-║     O1=0.95 O2=0.91 O3=0.93 | Coût: $0.04/page                            ║
-║                                                                              ║
-║  💰 ALTERNATIVE BUDGET OCR : Google Cloud Vision                            ║
-║     O1=0.88 O2=0.85 O3=0.90 | Coût: $0.002/page (20x moins cher)          ║
-║                                                                              ║
-║  ❌ EXCLU : DeepSeek V3.2 — RGPD non conforme (transfert Chine)            ║
-║  ❌ EXCLU : DeepSeek R1 — RGPD non conforme (transfert Chine)              ║
-║                                                                              ║
-║  🏆 RECOMMANDÉ PIPELINE : Sonnet OCR + Sonnet IDP                          ║
-║     Q1_pipeline=0.90 | Dégradation=2% | Coût total: $0.07/chapitre         ║
-║                                                                              ║
-║  💰 ALTERNATIVE PIPELINE : Cloud Vision OCR + Sonnet IDP                   ║
-║     Q1_pipeline=0.83 | Dégradation=8% | Coût total: $0.03/chapitre         ║
-║                                                                              ║
-╚══════════════════════════════════════════════════════════════════════════════╝
-(valeurs fictives à titre d'illustration)
-```
+| Stratégie | OCR | IDP | Coût/chapitre |
+|-----------|-----|-----|---------------|
+| **Best quality** | Qwen3-VL-32B (quality 0.85) | Qwen3.5-397B (quality 0.88) | ~$0.003 |
+| **Best value** | gemini-2.5-flash (quality 0.84) | mistral-small (quality 0.87) | ~$0.002 |
+| **Ultra-cheap** | Nemotron Nano VL (gratuit) | Gemma 3 27B (quality 0.84) | ~$0.000 |
+| **Local (Ollama)** | Qwen3-VL-32B Q8 | Gemma 3 27B Q8 | $0 (~2 min/chapitre) |
+
+Voir [`backend/testdata/benchmark/README.md`](../backend/testdata/benchmark/README.md) pour le classement complet.
 
 ### 8.3 Scénarios de décision
 

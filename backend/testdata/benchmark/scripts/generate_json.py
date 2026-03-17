@@ -112,7 +112,7 @@ def extract_json(text: str) -> dict:
 # used by both the Go backend (via //go:embed) and this script.
 
 _PROMPTS_DIR = os.path.join(
-    os.path.dirname(__file__), "..", "..", "..", "internal", "infra", "anthropic", "prompts"
+    os.path.dirname(__file__), "..", "..", "..", "internal", "infra", "llm", "prompts"
 )
 
 
