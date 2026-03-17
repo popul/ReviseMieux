@@ -144,8 +144,7 @@ backend/internal/infra/anthropic/
 ├── structurer.go       # Implémente chapter.LLMService (Sonnet)
 ├── fidelity.go         # Fidelity check (Haiku)
 ├── question_gen.go     # Génération de questions (Haiku)
-├── prompts.go          # Chargement des prompts via //go:embed
-├── prompts/            # Fichiers .txt des prompts (source unique prod + benchmark)
+├── prompts.go          # Réexporte les prompts depuis internal/infra/llm
 └── client_test.go      # Tests de contrat avec golden files
 ```
 

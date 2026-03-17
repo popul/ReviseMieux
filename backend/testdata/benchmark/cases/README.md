@@ -215,7 +215,7 @@ Avant de considérer un cas comme terminé :
 
 Le Makefile à la racine de `benchmark/` génère un **brouillon** des 3 fichiers JSON à partir des photos via l'API Anthropic.
 
-Les prompts utilisés sont les **memes que ceux de la prod** (source unique dans `backend/internal/infra/anthropic/prompts/`).
+Les prompts utilisés sont les **memes que ceux de la prod** (source unique dans `backend/internal/infra/llm/prompts/`).
 
 ### Pré-requis
 
