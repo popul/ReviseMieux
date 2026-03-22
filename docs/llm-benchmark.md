@@ -168,7 +168,7 @@ levenshtein_norm(a, b) = levenshtein(a, b) / max(len(a), len(b))
 Le **score global** combine qualité et coût (même formule pour les deux benchmarks) :
 
 ```
-Score = (Q_weighted × 0.7) + (Cost_efficiency × 0.3)
+Score = (Q_weighted × 0.85) + (Cost_efficiency × 0.15)
 
 Q_weighted = Σ(Qi × poids_i)   // pondéré selon §3.1 (IDP) ou §3.2 (OCR)
 Cost_efficiency = 1 - (coût_modèle / coût_modèle_le_plus_cher)

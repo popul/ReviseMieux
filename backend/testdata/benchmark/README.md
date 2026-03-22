@@ -190,4 +190,4 @@ Le local est ~20x plus lent que les APIs, mais gratuit et privé. Pour le Lot 0 
 
 **OCR :** Detection score (blocs trouvés/attendus), Text accuracy (chevauchement mots), Type accuracy (TEXT/DIAGRAM/TABLE correct).
 
-Le **score composite** combine qualité (70%) et coût-efficacité (30%).
+Le **score composite** combine qualité (85%) et coût-efficacité (15%).

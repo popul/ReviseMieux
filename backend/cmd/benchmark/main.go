@@ -37,6 +37,7 @@ import (
 	llmanthro "github.com/popul/revisemieux/internal/infra/anthropic"
 	"github.com/popul/revisemieux/internal/infra/llm"
 	"github.com/popul/revisemieux/internal/infra/openaicompat"
+	"gopkg.in/yaml.v3"
 )
 
 // modelDef describes a benchmarkable LLM model.
@@ -834,31 +835,31 @@ func loadTestCases(casesDir, filterID string) ([]benchmark.TestCase, error) {
 			continue
 		}
 
-		metaPath := filepath.Join(casesDir, e.Name(), "metadata.json")
-		inputPath := filepath.Join(casesDir, e.Name(), "input.json")
-		goldenPath := filepath.Join(casesDir, e.Name(), "golden_output.json")
+		metaPath := filepath.Join(casesDir, e.Name(), "metadata.yaml")
+		inputPath := filepath.Join(casesDir, e.Name(), "input.yaml")
+		goldenPath := filepath.Join(casesDir, e.Name(), "golden_output.yaml")
 
 		var meta struct {
-			ID         string `json:"id"`
-			Subject    string `json:"subject"`
-			Level      string `json:"level"`
-			Topic      string `json:"topic"`
-			Difficulty string `json:"difficulty"`
-			HasImages  bool   `json:"has_images"`
+			ID         string `yaml:"id"`
+			Subject    string `yaml:"subject"`
+			Level      string `yaml:"level"`
+			Topic      string `yaml:"topic"`
+			Difficulty string `yaml:"difficulty"`
+			HasImages  bool   `yaml:"has_images"`
 		}
-		if err := readJSON(metaPath, &meta); err != nil {
+		if err := readYAML(metaPath, &meta); err != nil {
 			return nil, fmt.Errorf("read metadata %s: %w", e.Name(), err)
 		}
 
 		var input struct {
-			Blocks []benchmark.OCRBlock `json:"blocks"`
+			Blocks []benchmark.OCRBlock `yaml:"blocks"`
 		}
-		if err := readJSON(inputPath, &input); err != nil {
+		if err := readYAML(inputPath, &input); err != nil {
 			return nil, fmt.Errorf("read input %s: %w", e.Name(), err)
 		}
 
 		var golden benchmark.GoldenOutput
-		if err := readJSON(goldenPath, &golden); err != nil {
+		if err := readYAML(goldenPath, &golden); err != nil {
 			return nil, fmt.Errorf("read golden %s: %w", e.Name(), err)
 		}
 
@@ -895,12 +896,12 @@ func loadTestCases(casesDir, filterID string) ([]benchmark.TestCase, error) {
 	return cases, nil
 }
 
-func readJSON(path string, v interface{}) error {
+func readYAML(path string, v interface{}) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(data, v)
+	return yaml.Unmarshal(data, v)
 }
 
 func printModelCatalog() {

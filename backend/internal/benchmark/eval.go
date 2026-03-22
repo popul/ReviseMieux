@@ -19,8 +19,8 @@ const (
 	weightNotions        = 0.05
 	weightSchema         = 0.05
 
-	qualityWeight = 0.70
-	costWeight    = 0.30
+	qualityWeight = 0.85
+	costWeight    = 0.15
 )
 
 // Evaluate computes all quality and performance metrics for a single run.

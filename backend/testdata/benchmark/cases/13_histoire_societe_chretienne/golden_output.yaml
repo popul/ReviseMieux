@@ -1,0 +1,448 @@
+items:
+  - type: KNOWLEDGE
+    term: Le pape est le chef de l'Église catholique, élu par les cardinaux
+    keywords:
+      - pape
+      - chef de l'Église
+      - cardinaux
+      - élection
+    steps: []
+    notion_name: Organisation de l'Église
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Le clergé séculier est le clergé vivant au contact des fidèles (paroisses, diocèses)
+    keywords:
+      - clergé séculier
+      - fidèles
+      - curés
+      - évêque
+      - paroisses
+      - diocèses
+    steps: []
+    notion_name: Organisation de l'Église
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Le clergé régulier est le clergé vivant dans des abbayes à l'écart des fidèles
+    keywords:
+      - clergé régulier
+      - abbayes
+      - moines
+      - écart du monde
+    steps: []
+    notion_name: Organisation de l'Église
+    confidence: 1
+  - type: KNOWLEDGE
+    term: L'abbé est le religieux à la tête d'une abbaye et dirige les moines
+    keywords:
+      - abbé
+      - abbaye
+      - moines
+      - tête de l'abbaye
+    steps: []
+    notion_name: Organisation de l'Église
+    confidence: 1
+  - type: KNOWLEDGE
+    term: L'Église devient riche et puissante grâce aux dons des fidèles et à la dîme (impôt)
+    keywords:
+      - dons
+      - impôt
+      - dîme
+      - riche
+      - puissante
+      - Église
+    steps: []
+    notion_name: Organisation de l'Église
+    confidence: 1
+  - type: DOCUMENT
+    term: "Schéma de l'organisation de l'Église : pape, cardinaux, clergé séculier (évêque, curés), clergé régulier (abbé, moines), laïcs"
+    keywords:
+      - pape
+      - cardinaux
+      - clergé séculier
+      - clergé régulier
+      - évêque
+      - curés
+      - abbé
+      - moines
+      - laïcs
+      - dîme
+    steps: []
+    notion_name: Organisation de l'Église
+    confidence: 1
+  - type: KNOWLEDGE
+    term: L'abbaye de Fontenay, fondée en 1119 en Bourgogne par Bernard de Clairvaux, suit la règle de Cîteaux (règle cistercienne)
+    keywords:
+      - abbaye de Fontenay
+      - "1119"
+      - Bourgogne
+      - Bernard de Clairvaux
+      - règle de Cîteaux
+      - règle cistercienne
+    steps: []
+    notion_name: Le clergé régulier
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Le cloître est le lieu central de l'abbaye
+    keywords:
+      - cloître
+      - lieu central
+      - abbaye
+    steps: []
+    notion_name: Le clergé régulier
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Les occupations quotidiennes des moines sont la prière, la lecture de textes religieux et le travail manuel
+    keywords:
+      - prière
+      - lecture
+      - travail manuel
+      - moines
+      - occupations quotidiennes
+    steps: []
+    notion_name: Le clergé régulier
+    confidence: 1
+  - type: KNOWLEDGE
+    term: "La Règle de saint Benoît, écrite au VIe siècle, organise la vie monastique autour de trois activités : la prière, la lecture et le travail manuel"
+    keywords:
+      - Règle de saint Benoît
+      - VIe siècle
+      - prière
+      - lecture
+      - travail manuel
+      - moines
+    steps: []
+    notion_name: Le clergé régulier
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Les moines passent la plus grande partie de leur journée à la prière
+    keywords:
+      - prière
+      - moines
+      - grande partie de la journée
+    steps: []
+    notion_name: Le clergé régulier
+    confidence: 1
+  - type: DOCUMENT
+    term: "Tableau de l'emploi du temps d'un moine cistercien : offices religieux (1h, 3h30, 6h, 9h, 11h30, 15h, 18h, 19h30), travail (7h-9h, 9h30-11h30, 15h30-18h), repas et repos"
+    keywords:
+      - emploi du temps
+      - moine cistercien
+      - offices
+      - travail
+      - repas
+      - repos
+      - horaires
+    steps: []
+    notion_name: Le clergé régulier
+    confidence: 1
+  - type: DOCUMENT
+    term: "Vue aérienne de l'abbaye de Fontenay avec 15 bâtiments numérotés : église, cloître, salle capitulaire, dortoir, réfectoire, infirmerie, etc."
+    keywords:
+      - abbaye de Fontenay
+      - vue aérienne
+      - bâtiments
+      - "15"
+      - cloître
+      - dortoir
+      - réfectoire
+      - salle capitulaire
+    steps: []
+    notion_name: Le clergé régulier
+    confidence: 1
+  - type: KNOWLEDGE
+    term: "Les abbayes sont des lieux où vit le clergé régulier, appliquant la règle de Saint-Benoît : partage du temps entre prière et travail manuel, vie isolée, ne rien posséder personnellement"
+    keywords:
+      - abbaye
+      - clergé régulier
+      - règle de Saint-Benoît
+      - prière
+      - travail manuel
+      - vie isolée
+      - pauvreté
+    steps: []
+    notion_name: Le clergé régulier
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Le salut désigne la vie après la mort dans le royaume de Dieu (paradis) espérée par les croyants
+    keywords:
+      - salut
+      - vie après la mort
+      - royaume de Dieu
+      - paradis
+      - croyants
+    steps: []
+    notion_name: Encadrement de la société
+    confidence: 1
+  - type: KNOWLEDGE
+    term: La salle capitulaire est la salle où les moines se réunissent pour lire les règles de leur ordre ou discuter de l'organisation de la journée
+    keywords:
+      - salle capitulaire
+      - moines
+      - réunion
+      - règles
+      - organisation
+    steps: []
+    notion_name: Le clergé régulier
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Tout fidèle doit confesser ses péchés au curé au moins une fois par an, accomplir sa pénitence et communier à Pâques
+    keywords:
+      - confession
+      - péchés
+      - curé
+      - pénitence
+      - communion
+      - Pâques
+      - obligations des fidèles
+    steps: []
+    notion_name: Encadrement de la société
+    confidence: 1
+  - type: KNOWLEDGE
+    term: En cas de désobéissance, le fidèle se voit interdire d'entrer dans une église de son vivant et est privé de sépulture chrétienne après sa mort
+    keywords:
+      - interdit d'entrée
+      - églife
+      - privation
+      - sépulture chrétienne
+      - punition
+      - désobéissance
+    steps: []
+    notion_name: Encadrement de la société
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Le pèlerinage est un voyage vers un lieu saint pour prier sur une relique (restes d'un saint)
+    keywords:
+      - pèlerinage
+      - lieu saint
+      - relique
+      - saint
+    steps: []
+    notion_name: Encadrement de la société
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Les lieux de pèlerinage au Moyen Âge sont Saint-Jacques de Compostelle, Jérusalem et Rocamadour
+    keywords:
+      - Saint-Jacques de Compostelle
+      - Jérusalem
+      - Rocamadour
+      - lieux de pèlerinage
+    steps: []
+    notion_name: Encadrement de la société
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Le seigneur fait des dons à l'Église et des pèlerinages pour obtenir le salut de son âme (le paradis)
+    keywords:
+      - dons
+      - Église
+      - pèlerinages
+      - salut
+      - paradis
+      - testament
+    steps: []
+    notion_name: Encadrement de la société
+    confidence: 1
+  - type: KNOWLEDGE
+    term: L'Église dispense les sacrements qui marquent les grands moments de la vie, de la naissance à la mort
+    keywords:
+      - sacraments
+      - naissance
+      - mort
+      - Église
+      - cérémonies religieuses
+    steps: []
+    notion_name: Encadrement de la société
+    confidence: 1
+  - type: DOCUMENT
+    term: "Sculpture du Jugement dernier sur le tympan de la cathédrale de Paris (vers 1230) : Saint-Michel pèse les âmes, Satan, âmes au Paradis, âmes en Enfer, Jérusalem céleste"
+    keywords:
+      - Jugement dernier
+      - tympan
+      - cathédrale de Paris
+      - Saint-Michel
+      - Satan
+      - Paradis
+      - Enfer
+      - Jérusalem céleste
+    steps: []
+    notion_name: Art et religion
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Les chrétiens redoutent l'Enfer et espèrent aller au Paradis après leur mort
+    keywords:
+      - Enfer
+      - Paradis
+      - mort
+      - craint
+      - espoir
+      - chrétiens
+    steps: []
+    notion_name: Art et religion
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Pour mériter le paradis, les chrétiens font des pèlerinages, des aumônes et des dons aux hôpitaux
+    keywords:
+      - paradis
+      - pèlerinages
+      - aumônes
+      - dons
+      - hôpitaux
+      - mériter
+    steps: []
+    notion_name: Encadrement de la société
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Les sculptures du tympan permettent aux chrétiens qui ne savent pas lire de comprendre les messages de l'Église
+    keywords:
+      - tympan
+      - sculptures
+      - messages
+      - Église
+      - ne savent pas lire
+    steps: []
+    notion_name: Art et religion
+    confidence: 1
+  - type: KNOWLEDGE
+    term: L'Inquisition est le tribunal de l'Église qui condamne les hérétiques (personnes ne respectant pas les règles de l'Église)
+    keywords:
+      - Inquisition
+      - tribunal
+      - hérétiques
+      - condamner
+      - Église
+    steps: []
+    notion_name: Contrôle de la société
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Un sacrement est un rite sacré qui doit rapprocher le chrétien de Dieu
+    keywords:
+      - sacrement
+      - rite sacré
+      - Dieu
+      - chrétien
+    steps: []
+    notion_name: Encadrement de la société
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Les reliques sont les restes de saints ou d'objets vénérés par les fidèles qui en espèrent des miracles
+    keywords:
+      - reliques
+      - restes de saints
+      - vénérés
+      - fidèles
+      - miracles
+    steps: []
+    notion_name: Art et religion
+    confidence: 1
+  - type: KNOWLEDGE
+    term: L'art roman (X-XIIe siècle) se caractérise par un plan en forme de croix latine, un chœur orienté vers l'est (Jérusalem), des voûtes en berceau et des contreforts
+    keywords:
+      - art roman
+      - XIIe siècle
+      - croix latine
+      - chœur
+      - Jérusalem
+      - voûte en berceau
+      - contreforts
+    steps: []
+    notion_name: Art roman
+    confidence: 1
+  - type: DOCUMENT
+    term: "Plan de l'église romane en forme de croix latine : nef, bas-côtés, transept, chœur (abside) orienté vers l'est"
+    keywords:
+      - plan
+      - croix latine
+      - nef
+      - bas-côtés
+      - transept
+      - chœur
+      - abside
+      - Jérusalem
+    steps: []
+    notion_name: Art roman
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Le chœur de l'église romane est orienté vers l'est (Jérusalem) et représente la tête du Christ
+    keywords:
+      - chœur
+      - orienté
+      - est
+      - Jérusalem
+      - tête du Christ
+    steps: []
+    notion_name: Art roman
+    confidence: 1
+  - type: KNOWLEDGE
+    term: L'architecture romane traduit les valeurs de simplicité et de pauvreté du christianisme par sa sobriété et son dépouillement
+    keywords:
+      - architecture romane
+      - simplicité
+      - pauvreté
+      - sobriété
+      - dépouillement
+      - christianisme
+    steps: []
+    notion_name: Art roman
+    confidence: 1
+  - type: DOCUMENT
+    term: "Schéma de la voûte en berceau : voûte en arc de cercle soutenue par des murs épais et des contreforts"
+    keywords:
+      - voûte en berceau
+      - arc de cercle
+      - murs épais
+      - contreforts
+      - architecture romane
+    steps: []
+    notion_name: Art roman
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Les arcs romains sont visibles dans la nef et à l'extérieur de l'église romane
+    keywords:
+      - arcs romains
+      - nef
+      - extérieur
+      - église romane
+    steps: []
+    notion_name: Art roman
+    confidence: 1
+  - type: KNOWLEDGE
+    term: La voûte romane en berceau ne s'effondre pas car son poids repose sur des murs épais renforcés par des contreforts
+    keywords:
+      - voûte en berceau
+      - poids
+      - murs épais
+      - contreforts
+      - ne s'effondre pas
+    steps: []
+    notion_name: Art roman
+    confidence: 1
+  - type: KNOWLEDGE
+    term: Les églises romanes sont sombres (petites fenêtres), massives, avec un décor de sculptures (tympan) et de fresques racontant des scènes de la Bible
+    keywords:
+      - églises romanes
+      - sombres
+      - massives
+      - tympan
+      - fresques
+      - Bible
+      - décor
+    steps: []
+    notion_name: Art roman
+    confidence: 1
+  - type: KNOWLEDGE
+    term: L'enfer est représenté dans les églises romanes pour que les chrétiens sachent ce qui les attend s'ils ne respectent pas les règles de l'Église
+    keywords:
+      - enfer
+      - représentation
+      - règles de l'Église
+      - chrétiens
+      - peur
+    steps: []
+    notion_name: Art roman
+    confidence: 1
+notions:
+  - Organisation de l'Église
+  - Le clergé régulier
+  - Encadrement de la société
+  - Art et religion
+  - Contrôle de la société
+  - Art roman

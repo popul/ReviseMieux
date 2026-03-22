@@ -1,0 +1,138 @@
+items:
+  - type: KNOWLEDGE
+    term: La société féodale dans l'Occident médiéval s'étend du XI au XV ème siècle
+    keywords:
+      - société féodale
+      - Occident médiéval
+      - XI ème siècle
+      - XV ème siècle
+    steps: []
+    notion_name: Cadre chronologique
+    confidence: 0.95
+  - type: KNOWLEDGE
+    term: Entre 300 et 1300, la surface forestière diminue considérablement en raison des grands défrichements
+    keywords:
+      - surface forestière
+      - diminue
+      - "300"
+      - "1300"
+      - grands défrichements
+    steps: []
+    notion_name: Les grands défrichements
+    confidence: 0.95
+  - type: KNOWLEDGE
+    term: "Défrichement : abattage des arbres et des broussailles pour rendre la terre cultivable"
+    keywords:
+      - défrichement
+      - abattage
+      - arbres
+      - broussailles
+      - terre cultivable
+    steps: []
+    notion_name: Les grands défrichements
+    confidence: 1.0
+  - type: KNOWLEDGE
+    term: Entre 900 et 1350 l'Europe passe de 23,5 millions à 57,5 millions d'habitants, soit 34 millions d'habitants en plus
+    keywords:
+      - "900"
+      - "1350"
+      - Europe
+      - "23,5 millions"
+      - "57,5 millions"
+      - "34 millions"
+      - population
+    steps: []
+    notion_name: Évolution démographique
+    confidence: 0.95
+  - type: KNOWLEDGE
+    term: "Jachère : la terre est laissée au repos pendant un an pour retrouver sa fertilité"
+    keywords:
+      - jachère
+      - terre
+      - repos
+      - un an
+      - fertilité
+    steps: []
+    notion_name: Techniques agricoles
+    confidence: 1.0
+  - type: KNOWLEDGE
+    term: L'usage du fer permet la diffusion de la hache et la nouvelle charrue permet d'arracher les souches et de labourer plus facilement
+    keywords:
+      - fer
+      - hache
+      - charrue
+      - souches
+      - labourer
+      - progrès techniques
+    steps: []
+    notion_name: Progrès techniques
+    confidence: 0.95
+  - type: KNOWLEDGE
+    term: La seigneurie est composée d'un château et des terres aux alentours, terres cultivables, forêts, rivières et le village
+    keywords:
+      - seigneurie
+      - château
+      - terres cultivables
+      - forêts
+      - rivières
+      - village
+    steps: []
+    notion_name: Organisation seigneuriale
+    confidence: 0.95
+  - type: KNOWLEDGE
+    term: Chaque fois que les villageois utilisent une propriété du seigneur, ils doivent payer un impôt
+    keywords:
+      - villageois
+      - propriété du seigneur
+      - payer
+      - impôt
+    steps: []
+    notion_name: Relations seigneuriales
+    confidence: 0.95
+  - type: KNOWLEDGE
+    term: Les paysans doivent tout au seigneur mais ce dernier ne leur doit rien en retour à part la sécurité
+    keywords:
+      - paysans
+      - seigneur
+      - sécurité
+      - protection
+    steps: []
+    notion_name: Relations seigneuriales
+    confidence: 0.95
+  - type: KNOWLEDGE
+    term: Les serfs sont des paysans qui appartiennent au seigneur et ne peuvent ni se marier, ni quitter leur terre sans l'accord du seigneur
+    keywords:
+      - serfs
+      - paysans
+      - appartiennent
+      - seigneur
+      - marier
+      - quitter
+      - accord
+    steps: []
+    notion_name: Statut des paysans
+    confidence: 0.9
+  - type: DOCUMENT
+    term: Tableau des causes et conséquences des grands défrichements au Moyen Age
+    keywords:
+      - tableau
+      - causes
+      - conséquences
+      - défrichements
+      - population augmente
+      - outils agricoles
+      - XI-XIIème siècle
+      - diminution forêts
+      - nouveaux villages
+    steps: []
+    notion_name: Les grands défrichements
+    confidence: 0.95
+notions:
+  - Cadre chronologique
+  - Les grands défrichements
+  - Évolution démographique
+  - Techniques agricoles
+  - Progrès techniques
+  - Organisation seigneuriale
+  - Relations seigneuriales
+  - Statut des paysans
