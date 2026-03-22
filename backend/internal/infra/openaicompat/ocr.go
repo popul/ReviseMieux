@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	llmanthro "github.com/popul/revisemieux/internal/infra/anthropic"
+	"github.com/popul/revisemieux/internal/infra/llm"
 )
 
 // OCRProcessor implements OCR processing using an OpenAI-compatible vision API.
@@ -65,12 +65,12 @@ func (p *OCRProcessor) ProcessPages(ctx context.Context, imagePaths []string, su
 	}
 	contentParts = append(contentParts, visionContent{
 		Type: "text",
-		Text: llmanthro.BuildOCRUserPrompt(subject),
+		Text: llm.BuildOCRUserPrompt(subject),
 	})
 
 	userContent, _ := json.Marshal(contentParts)
 	// System prompt from production source of truth
-	systemContent, _ := json.Marshal(llmanthro.OCRSystemPrompt)
+	systemContent, _ := json.Marshal(llm.OCRSystemPrompt)
 
 	temp := 0.0
 	reqBody := visionRequest{

@@ -35,7 +35,9 @@ import (
 
 	"github.com/popul/revisemieux/internal/benchmark"
 	llmanthro "github.com/popul/revisemieux/internal/infra/anthropic"
+	"github.com/popul/revisemieux/internal/infra/llm"
 	"github.com/popul/revisemieux/internal/infra/openaicompat"
+	"gopkg.in/yaml.v3"
 )
 
 // modelDef describes a benchmarkable LLM model.
@@ -105,6 +107,7 @@ var modelCatalog = []modelDef{
 			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
 				BaseURL: "https://api.openai.com/v1", APIKey: k, Name: "OpenAI",
 				Model: "o3-mini", PriceIn: 1.10, PriceOut: 4.40,
+				ReasoningModel: true,
 			})
 		},
 		// o3-mini does not support vision
@@ -116,6 +119,7 @@ var modelCatalog = []modelDef{
 			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
 				BaseURL: "https://generativelanguage.googleapis.com/v1beta/openai", APIKey: k, Name: "Google",
 				Model: "gemini-2.5-flash", PriceIn: 0.15, PriceOut: 0.60,
+				ReasoningModel: true,
 			})
 		},
 		OCRBuilder: func(k string) benchmark.OCRProvider {
@@ -131,6 +135,7 @@ var modelCatalog = []modelDef{
 			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
 				BaseURL: "https://generativelanguage.googleapis.com/v1beta/openai", APIKey: k, Name: "Google",
 				Model: "gemini-2.5-pro", PriceIn: 1.25, PriceOut: 10.00,
+				ReasoningModel: true,
 			})
 		},
 		OCRBuilder: func(k string) benchmark.OCRProvider {
@@ -171,6 +176,36 @@ var modelCatalog = []modelDef{
 			})
 		},
 	},
+	{
+		ID: "mistral-small-3.2", Provider: "mistral", EnvKey: "MISTRAL_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://api.mistral.ai/v1", APIKey: k, Name: "Mistral",
+				Model: "mistral-small-2503", PriceIn: 0.06, PriceOut: 0.18,
+			})
+		},
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			return openaicompat.NewOCRBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://api.mistral.ai/v1", APIKey: k, Name: "Mistral",
+				Model: "mistral-small-2503", PriceIn: 0.06, PriceOut: 0.18,
+			})
+		},
+	},
+	{
+		ID: "pixtral-12b", Provider: "mistral", EnvKey: "MISTRAL_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://api.mistral.ai/v1", APIKey: k, Name: "Mistral",
+				Model: "pixtral-12b-2409", PriceIn: 0.13, PriceOut: 0.13,
+			})
+		},
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			return openaicompat.NewOCRBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://api.mistral.ai/v1", APIKey: k, Name: "Mistral",
+				Model: "pixtral-12b-2409", PriceIn: 0.13, PriceOut: 0.13,
+			})
+		},
+	},
 	// DeepSeek
 	{
 		ID: "deepseek-chat", Provider: "deepseek", EnvKey: "DEEPSEEK_API_KEY",
@@ -188,9 +223,158 @@ var modelCatalog = []modelDef{
 			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
 				BaseURL: "https://api.deepseek.com", APIKey: k, Name: "DeepSeek",
 				Model: "deepseek-reasoner", PriceIn: 0.55, PriceOut: 2.19,
+				ReasoningModel: true,
 			})
 		},
 		// deepseek-reasoner does not support vision
+	},
+	// Qwen (via OpenRouter)
+	{
+		ID: "qwen3.5-397b", Provider: "openrouter", EnvKey: "OPENROUTER_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "qwen/qwen3.5-397b-a17b", PriceIn: 0.30, PriceOut: 0.30,
+			})
+		},
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			return openaicompat.NewOCRBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "qwen/qwen3.5-397b-a17b", PriceIn: 0.30, PriceOut: 0.30,
+			})
+		},
+	},
+	{
+		ID: "qwen3.5-9b", Provider: "openrouter", EnvKey: "OPENROUTER_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "qwen/qwen3.5-9b", PriceIn: 0.10, PriceOut: 0.10,
+			})
+		},
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			return openaicompat.NewOCRBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "qwen/qwen3.5-9b", PriceIn: 0.10, PriceOut: 0.10,
+			})
+		},
+	},
+	// Meta Llama 4 (via OpenRouter)
+	{
+		ID: "llama4-maverick", Provider: "openrouter", EnvKey: "OPENROUTER_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "meta-llama/llama-4-maverick", PriceIn: 0.20, PriceOut: 0.20,
+			})
+		},
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			return openaicompat.NewOCRBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "meta-llama/llama-4-maverick", PriceIn: 0.20, PriceOut: 0.20,
+			})
+		},
+	},
+	{
+		ID: "llama4-scout", Provider: "openrouter", EnvKey: "OPENROUTER_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "meta-llama/llama-4-scout", PriceIn: 0.10, PriceOut: 0.10,
+			})
+		},
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			return openaicompat.NewOCRBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "meta-llama/llama-4-scout", PriceIn: 0.10, PriceOut: 0.10,
+			})
+		},
+	},
+	// MiniMax (via OpenRouter)
+	{
+		ID: "minimax-m2.5", Provider: "openrouter", EnvKey: "OPENROUTER_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "minimax/minimax-m2.5", PriceIn: 0.25, PriceOut: 1.20,
+			})
+		},
+		// no vision support
+	},
+	// StepFun (via OpenRouter)
+	{
+		ID: "step3.5-flash", Provider: "openrouter", EnvKey: "OPENROUTER_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "stepfun/step-3.5-flash", PriceIn: 0.10, PriceOut: 0.30,
+				ReasoningModel: true,
+			})
+		},
+		// no vision support
+	},
+	// Qwen3-VL (via OpenRouter)
+	{
+		ID: "qwen3-vl-235b", Provider: "openrouter", EnvKey: "OPENROUTER_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "qwen/qwen3-vl-235b-a22b-instruct", PriceIn: 0.20, PriceOut: 0.88,
+			})
+		},
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			return openaicompat.NewOCRBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "qwen/qwen3-vl-235b-a22b-instruct", PriceIn: 0.20, PriceOut: 0.88,
+			})
+		},
+	},
+	{
+		ID: "qwen3-vl-32b", Provider: "openrouter", EnvKey: "OPENROUTER_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "qwen/qwen3-vl-32b-instruct", PriceIn: 0.10, PriceOut: 0.42,
+			})
+		},
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			return openaicompat.NewOCRBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "qwen/qwen3-vl-32b-instruct", PriceIn: 0.10, PriceOut: 0.42,
+			})
+		},
+	},
+	// NVIDIA (via OpenRouter)
+	{
+		ID: "nemotron-nano-vl", Provider: "openrouter", EnvKey: "OPENROUTER_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "nvidia/nemotron-nano-12b-v2-vl:free", PriceIn: 0.00, PriceOut: 0.00,
+			})
+		},
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			return openaicompat.NewOCRBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "nvidia/nemotron-nano-12b-v2-vl:free", PriceIn: 0.00, PriceOut: 0.00,
+			})
+		},
+	},
+	// Google Gemma 3 (via OpenRouter)
+	{
+		ID: "gemma3-27b", Provider: "openrouter", EnvKey: "OPENROUTER_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "google/gemma-3-27b-it", PriceIn: 0.10, PriceOut: 0.10,
+			})
+		},
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			return openaicompat.NewOCRBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "google/gemma-3-27b-it", PriceIn: 0.10, PriceOut: 0.10,
+			})
+		},
 	},
 }
 
@@ -330,7 +514,7 @@ func runSingleIDPCase(p benchmark.Provider, tc benchmark.TestCase) benchmark.Eva
 	}
 
 	var parsed benchmark.ParsedOutput
-	if err := json.Unmarshal(resp.RawJSON, &parsed); err != nil {
+	if err := json.Unmarshal(benchmark.StripMarkdownFences(resp.RawJSON), &parsed); err != nil {
 		result := benchmark.Evaluate(tc, nil, resp, p)
 		result.Timestamp = time.Now()
 		result.Error = fmt.Sprintf("JSON parse error: %v", err)
@@ -621,6 +805,11 @@ func saveOCRResults(summaries []benchmark.OCRRunSummary) {
 	path := filepath.Join(dir, "summary.json")
 	os.WriteFile(path, data, 0o644)
 	fmt.Printf("\n[OCR] Results saved to %s\n", path)
+
+	reportPath := filepath.Join(dir, "report.html")
+	if err := generateOCRReport(resultsDir, ts, reportPath); err != nil {
+		fmt.Fprintf(os.Stderr, "Warning: could not generate OCR HTML report: %v\n", err)
+	}
 }
 
 // --- Shared helpers ---
@@ -628,7 +817,7 @@ func saveOCRResults(summaries []benchmark.OCRRunSummary) {
 // structurationPrompts returns the production prompts from infra/anthropic/prompts.go.
 // This ensures the benchmark always tests the same prompts used in production.
 func structurationPrompts(subject string, blocksJSON string) (systemPrompt, userPrompt string) {
-	return llmanthro.StructurationSystemPrompt, llmanthro.BuildUserPrompt(subject, blocksJSON)
+	return llm.StructurationSystemPrompt, llm.BuildUserPrompt(subject, blocksJSON)
 }
 
 func loadTestCases(casesDir, filterID string) ([]benchmark.TestCase, error) {
@@ -646,31 +835,31 @@ func loadTestCases(casesDir, filterID string) ([]benchmark.TestCase, error) {
 			continue
 		}
 
-		metaPath := filepath.Join(casesDir, e.Name(), "metadata.json")
-		inputPath := filepath.Join(casesDir, e.Name(), "input.json")
-		goldenPath := filepath.Join(casesDir, e.Name(), "golden_output.json")
+		metaPath := filepath.Join(casesDir, e.Name(), "metadata.yaml")
+		inputPath := filepath.Join(casesDir, e.Name(), "input.yaml")
+		goldenPath := filepath.Join(casesDir, e.Name(), "golden_output.yaml")
 
 		var meta struct {
-			ID         string `json:"id"`
-			Subject    string `json:"subject"`
-			Level      string `json:"level"`
-			Topic      string `json:"topic"`
-			Difficulty string `json:"difficulty"`
-			HasImages  bool   `json:"has_images"`
+			ID         string `yaml:"id"`
+			Subject    string `yaml:"subject"`
+			Level      string `yaml:"level"`
+			Topic      string `yaml:"topic"`
+			Difficulty string `yaml:"difficulty"`
+			HasImages  bool   `yaml:"has_images"`
 		}
-		if err := readJSON(metaPath, &meta); err != nil {
+		if err := readYAML(metaPath, &meta); err != nil {
 			return nil, fmt.Errorf("read metadata %s: %w", e.Name(), err)
 		}
 
 		var input struct {
-			Blocks []benchmark.OCRBlock `json:"blocks"`
+			Blocks []benchmark.OCRBlock `yaml:"blocks"`
 		}
-		if err := readJSON(inputPath, &input); err != nil {
+		if err := readYAML(inputPath, &input); err != nil {
 			return nil, fmt.Errorf("read input %s: %w", e.Name(), err)
 		}
 
 		var golden benchmark.GoldenOutput
-		if err := readJSON(goldenPath, &golden); err != nil {
+		if err := readYAML(goldenPath, &golden); err != nil {
 			return nil, fmt.Errorf("read golden %s: %w", e.Name(), err)
 		}
 
@@ -707,12 +896,12 @@ func loadTestCases(casesDir, filterID string) ([]benchmark.TestCase, error) {
 	return cases, nil
 }
 
-func readJSON(path string, v interface{}) error {
+func readYAML(path string, v interface{}) error {
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return err
 	}
-	return json.Unmarshal(data, v)
+	return yaml.Unmarshal(data, v)
 }
 
 func printModelCatalog() {

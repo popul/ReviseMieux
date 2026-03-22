@@ -1,0 +1,27 @@
+id: "11_histoire"
+subject: Histoire
+level: "5e"
+topic: La société féodale dans l'Occident médiéval (XI-XVème siècles)
+difficulty: medium
+has_images: true
+expected_item_count: 11
+expected_types:
+  KNOWLEDGE: 10
+  PROCEDURE: 0
+  DOCUMENT: 1
+ocr_source: human_expert
+ocr_author: Claude Opus 4.6 (draft)
+ocr_date: "2026-03-17"
+ocr_metadata:
+  handwriting_quality: normal
+  ink_types:
+    - blue_pen
+    - red_pen
+    - black_pen
+  photo_quality: good
+  content_types:
+    - text
+    - table
+  support: pure_notebook
+  pages: 3
+notes: Cours sur la société féodale médiévale avec prise de notes structurée. Contient des définitions importantes (défrichement, jachère), des données démographiques précises, et un tableau de synthèse sur les causes et conséquences des grands défrichements. L'écriture est lisible avec quelques passages en rouge pour les titres et éléments importants. Bon exemple de cours d'histoire niveau 5ème sur la période médiévale.

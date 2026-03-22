@@ -19,8 +19,8 @@ const (
 	weightNotions        = 0.05
 	weightSchema         = 0.05
 
-	qualityWeight = 0.70
-	costWeight    = 0.30
+	qualityWeight = 0.85
+	costWeight    = 0.15
 )
 
 // Evaluate computes all quality and performance metrics for a single run.
@@ -255,10 +255,64 @@ func termSimilarity(a, b string) float64 {
 		}
 	}
 
-	// Word overlap (Jaccard on words)
-	wordsA := strings.Fields(na)
-	wordsB := strings.Fields(nb)
-	return jaccard(wordsA, wordsB)
+	// Coverage-based matching: what fraction of golden's significant words
+	// appear in the parsed term (using prefix matching for morphological variants)?
+	wordsA := filterStopWords(strings.Fields(na))
+	wordsB := filterStopWords(strings.Fields(nb))
+	if len(wordsA) == 0 || len(wordsB) == 0 {
+		return jaccard(strings.Fields(na), strings.Fields(nb))
+	}
+
+	// Use the shorter term as reference for coverage
+	ref, candidate := wordsA, wordsB
+	if len(wordsB) < len(wordsA) {
+		ref, candidate = wordsB, wordsA
+	}
+
+	covered := 0
+	candidateStr := " " + strings.Join(candidate, " ") + " "
+	for _, w := range ref {
+		if wordMatchesAny(w, candidate) || prefixInString(w, candidateStr) {
+			covered++
+		}
+	}
+	return float64(covered) / float64(len(ref))
+}
+
+// wordMatchesAny checks if word matches any candidate word by shared prefix (min 4 chars).
+func wordMatchesAny(word string, candidates []string) bool {
+	for _, c := range candidates {
+		if word == c {
+			return true
+		}
+		// Shared prefix matching: "absorption" and "absorbent" share "absorb" (6 chars)
+		minLen := len(word)
+		if len(c) < minLen {
+			minLen = len(c)
+		}
+		if minLen < 4 {
+			continue
+		}
+		shared := 0
+		for i := 0; i < minLen; i++ {
+			if word[i] != c[i] {
+				break
+			}
+			shared++
+		}
+		if shared >= 4 && float64(shared) >= float64(minLen)*0.6 {
+			return true
+		}
+	}
+	return false
+}
+
+// prefixInString checks if any word in the string starts with the given prefix (min 4 chars).
+func prefixInString(prefix, s string) bool {
+	if len(prefix) < 4 {
+		return strings.Contains(s, " "+prefix+" ")
+	}
+	return strings.Contains(s, prefix[:4])
 }
 
 // isTraceable checks if a term can be traced back to the source OCR text.

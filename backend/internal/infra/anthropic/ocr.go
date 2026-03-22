@@ -191,21 +191,40 @@ type rawOCRBlock struct {
 }
 
 func parseOCRResponse(text string) (*chapter.OCRResult, error) {
+	cleaned := stripMarkdownFences(text)
+
 	// Try {"blocks": [...]}
 	var wrapper struct {
 		Blocks []rawOCRBlock `json:"blocks"`
 	}
-	if err := json.Unmarshal([]byte(text), &wrapper); err == nil && len(wrapper.Blocks) > 0 {
+	if err := json.Unmarshal([]byte(cleaned), &wrapper); err == nil && len(wrapper.Blocks) > 0 {
 		return toOCRResult(wrapper.Blocks), nil
 	}
 
 	// Try direct array [...]
 	var blocks []rawOCRBlock
-	if err := json.Unmarshal([]byte(text), &blocks); err == nil && len(blocks) > 0 {
+	if err := json.Unmarshal([]byte(cleaned), &blocks); err == nil && len(blocks) > 0 {
 		return toOCRResult(blocks), nil
 	}
 
 	return nil, fmt.Errorf("anthropic.ocr: failed to parse OCR response")
+}
+
+// stripMarkdownFences removes ```json ... ``` fences from LLM responses.
+func stripMarkdownFences(s string) string {
+	s = strings.TrimSpace(s)
+	if !strings.HasPrefix(s, "```") {
+		return s
+	}
+	lines := strings.SplitN(s, "\n", 2)
+	if len(lines) < 2 {
+		return s
+	}
+	s = lines[1]
+	if idx := strings.LastIndex(s, "```"); idx >= 0 {
+		s = s[:idx]
+	}
+	return strings.TrimSpace(s)
 }
 
 func toOCRResult(raw []rawOCRBlock) *chapter.OCRResult {

@@ -51,12 +51,20 @@ func TestTermSimilarity(t *testing.T) {
 		{"masse volumique", "Masse Volumique", 1.0},
 		{"la densité", "densité d'un corps", 0.2},
 		{"xyz", "abc", 0.0},
+		// Morphological variants should match (coverage > 0.4)
+		{"Poils absorbants des racines", "Les poils absorbants augmentent la surface d'absorption", 0.5},
+		{"Absorption du CO2 par les feuilles", "Les feuilles absorbent le CO2 atmosphérique", 0.5},
+		{"Stomates des feuilles", "Les stomates : zones d'échanges gazeux des feuilles", 0.5},
+		{"Expérience d'absorption par les racines", "Protocole expérimental : absorption par les racines", 0.5},
+		// Negative: unrelated terms should NOT match
+		{"Stomates des feuilles", "Expérience d'absorption par les racines", 0.0},
 	}
 	for _, tt := range tests {
 		got := termSimilarity(tt.a, tt.b)
 		if got < tt.min {
 			t.Errorf("termSimilarity(%q, %q) = %f, want >= %f", tt.a, tt.b, got, tt.min)
 		}
+		t.Logf("termSimilarity(%q, %q) = %.3f", tt.a, tt.b, got)
 	}
 }
 

@@ -137,21 +137,23 @@ func SummarizeOCR(provider string, model string, results []OCREvalResult) OCRRun
 
 // ParseOCROutput parses the raw JSON response from a vision LLM into OCR blocks.
 func ParseOCROutput(rawJSON []byte) ([]OCRBlock, error) {
+	cleaned := StripMarkdownFences(rawJSON)
+
 	// Try parsing as {"blocks": [...]}
 	var wrapper struct {
 		Blocks []OCRBlock `json:"blocks"`
 	}
-	if err := json.Unmarshal(rawJSON, &wrapper); err == nil && len(wrapper.Blocks) > 0 {
+	if err := json.Unmarshal(cleaned, &wrapper); err == nil && len(wrapper.Blocks) > 0 {
 		return wrapper.Blocks, nil
 	}
 
 	// Try parsing as a direct array [...]
 	var blocks []OCRBlock
-	if err := json.Unmarshal(rawJSON, &blocks); err == nil && len(blocks) > 0 {
+	if err := json.Unmarshal(cleaned, &blocks); err == nil && len(blocks) > 0 {
 		return blocks, nil
 	}
 
-	return nil, json.Unmarshal(rawJSON, &wrapper) // return original error
+	return nil, json.Unmarshal(cleaned, &wrapper) // return original error
 }
 
 // --- Helpers ---

@@ -5,16 +5,30 @@
 
 ---
 
+> **Mise à jour mars 2026 — Choix de modèles révisés après benchmark**
+>
+> Les recommandations de modèles dans ce document (Sonnet pour structuration, Haiku pour fidelity/questions) sont **obsolètes**. Le benchmark réel sur 21 modèles a montré :
+>
+> - **Sonnet hallucine** (8%, seul modèle concerné) et coûte 30-50x plus cher que les alternatives.
+> - **mistral-small** et **Qwen3.5-397B** offrent une meilleure qualité (0.87-0.88) à $0.00006-0.00011/item.
+> - **L'exécution locale est viable** pour le Lot 0 (Qwen3-VL-32B + Gemma 3 27B via Ollama, ~2 min/chapitre, $0).
+>
+> Voir [`backend/testdata/benchmark/README.md`](../backend/testdata/benchmark/README.md) pour les résultats complets et les combos recommandés.
+>
+> L'architecture (ports, prompts versionnés, logging, monitoring, tests) décrite ci-dessous reste valide — seuls les choix de modèles changent.
+
+---
+
 ## 1. Cas d'usage LLM
 
-| # | Cas d'usage | AC | Interface Go | Modèle | Latence cible | Temps réel ? |
-|---|------------|-----|-------------|--------|---------------|-------------|
-| A | Structuration OCR → Items + Notions | Z2-AC01, Z7-AC15 | `chapter.LLMService.StructureBlocks()` | **Sonnet 4.6** | ≤ 60s/page | Non (pipeline J0) |
-| B | Fidelity check (fidélité sémantique) | Z3-AC10 | À créer | **Haiku 4.5** | ≤ 5s/item | Non (pipeline J0) |
-| C | Détection de cohérence (doublons, contradictions) | Z3-AC11 | À créer | **Sonnet 4.6** | ≤ 10s/chapitre | Non (pipeline J0) |
-| D | Génération de questions (lazy generation) | Z4-AC01 | À créer | **Haiku 4.5** | ≤ 500ms | Oui (session) |
-| E | Feedback enrichi | Z4-AC09 | `feedback.go` | **Templates** (pas de LLM) | ≤ 200ms | Oui |
-| F | Multimodal visuel (schémas, graphiques) | Z4-AC17 | Post-MVP | **Sonnet 4.6** | ≤ 2s | Non |
+| # | Cas d'usage | AC | Interface Go | Modèle (initial) | Modèle (post-benchmark) | Latence cible | Temps réel ? |
+|---|------------|-----|-------------|--------|--------|---------------|-------------|
+| A | Structuration OCR → Items + Notions | Z2-AC01, Z7-AC15 | `chapter.LLMService.StructureBlocks()` | ~~Sonnet 4.6~~ | **Qwen3.5-397B** ou **mistral-small** | ≤ 60s/page | Non (pipeline J0) |
+| B | Fidelity check (fidélité sémantique) | Z3-AC10 | À créer | **Haiku 4.5** | À benchmarker | ≤ 5s/item | Non (pipeline J0) |
+| C | Détection de cohérence (doublons, contradictions) | Z3-AC11 | À créer | ~~Sonnet 4.6~~ | À benchmarker | ≤ 10s/chapitre | Non (pipeline J0) |
+| D | Génération de questions (lazy generation) | Z4-AC01 | À créer | **Haiku 4.5** | À benchmarker | ≤ 500ms | Oui (session) |
+| E | Feedback enrichi | Z4-AC09 | `feedback.go` | **Templates** (pas de LLM) | Inchangé | ≤ 200ms | Oui |
+| F | Multimodal visuel (schémas, graphiques) | Z4-AC17 | Post-MVP | ~~Sonnet 4.6~~ | À benchmarker | ≤ 2s | Non |
 
 ---
 
@@ -130,7 +144,7 @@ backend/internal/infra/anthropic/
 ├── structurer.go       # Implémente chapter.LLMService (Sonnet)
 ├── fidelity.go         # Fidelity check (Haiku)
 ├── question_gen.go     # Génération de questions (Haiku)
-├── prompts.go          # Prompt templates versionnés (constantes)
+├── prompts.go          # Réexporte les prompts depuis internal/infra/llm
 └── client_test.go      # Tests de contrat avec golden files
 ```
 
@@ -388,16 +402,20 @@ type LLMCallEntry struct {
 
 ## 8. Résumé des décisions
 
-| Décision | Choix | Raison |
-|----------|-------|--------|
-| Modèle structuration | Sonnet 4.6 | Fidélité source, classification nuancée, JSON structuré |
-| Modèle fidelity check | Haiku 4.5 | Classification binaire, volume élevé, coût |
-| Modèle questions | Haiku 4.5 | Latence critique ≤ 500ms, tâche bien structurée |
-| Modèle cohérence | Sonnet 4.6 | Raisonnement sémantique multi-items |
-| Feedback | Templates (pas de LLM) | Latence ≤ 200ms, cohérence, coût nul |
-| Multimodal visuel | Sonnet 4.6 (post-MVP) | Vision intégrée, extraction de labels |
-| Pipeline non temps-réel | Batch API | -50% sur les coûts |
-| Prompts répétitifs | Prompt caching | -90% sur les system prompts |
-| Tests CI | Golden files + contrat | Rapides, gratuits, chaque PR |
-| Tests qualité | Régression nightly | Appels réels, détection drift |
-| Monitoring | Logs structurés + alertes | Détection proactive des dégradations |
+> **Mis à jour mars 2026** après benchmark réel sur 21 modèles. Voir [`backend/testdata/benchmark/README.md`](../backend/testdata/benchmark/README.md).
+
+| Décision | Choix initial | Choix post-benchmark | Raison du changement |
+|----------|--------------|---------------------|---------------------|
+| Modèle structuration | ~~Sonnet 4.6~~ | **Qwen3.5-397B** ou **mistral-small** | Sonnet hallucine (8%), 30-50x plus cher. Qwen3.5-397B quality 0.88, mistral-small quality 0.87 à $0.00006/item |
+| Modèle OCR | ~~Sonnet 4.6~~ | **Qwen3-VL-32B** ou **gemini-2.5-flash** | Meilleure accuracy texte (0.74), 10-30x moins cher |
+| Modèle fidelity check | Haiku 4.5 | À benchmarker | Pas encore testé sur ce cas d'usage |
+| Modèle questions | Haiku 4.5 | À benchmarker | Pas encore testé sur ce cas d'usage |
+| Modèle cohérence | ~~Sonnet 4.6~~ | À benchmarker | Pas encore testé sur ce cas d'usage |
+| Feedback | Templates (pas de LLM) | Inchangé | Latence ≤ 200ms, cohérence, coût nul |
+| Exécution locale | Hors scope | **Qwen3-VL-32B + Gemma 3 27B via Ollama** | Viable sur MacBook Pro M5 Max 128 Go (~2 min/chapitre, $0) |
+| Prompts | Constantes Go | **Fichiers .txt + `//go:embed`** | Source unique partagée entre prod et benchmark |
+| Pipeline non temps-réel | Batch API | Batch API | Inchangé |
+| Prompts répétitifs | Prompt caching | Prompt caching | Inchangé |
+| Tests CI | Golden files + contrat | Golden files + contrat | Inchangé |
+| Tests qualité | Régression nightly | Régression nightly | Inchangé |
+| Monitoring | Logs structurés + alertes | Logs structurés + alertes | Inchangé |

@@ -1,0 +1,280 @@
+blocks:
+  - text: |
+      III- Une société chrétienne
+      A- Ceux qui prient : l'organisation de l'Église
+    block_type: TEXT
+    confidence: 1
+  - text: "1. Sur le schéma, placez les mots suivants : évêque • séculier • cardinaux • curés • pape • moines • régulier • abbé."
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      2. Qui est le chef de l'Église, et par qui est-il élu ?
+      C'est le pape, élu par les cardinaux
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      3. Quel est le nom du clergé vivant au contact des fidèles ?
+      C'est le clergé séculier
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      4. Quel est le nom du clergé vivant dans des abbayes à l'écart des fidèles ?
+      C'est le clergé régulier
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      5. Quel est le religieux qui est à la tête d'une abbaye, et qui sont ceux qu'il dirige ?
+      C'est l'abbé qui dirige les moines
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      6. D'après le schéma, par quel moyen l'Église devient-elle riche et puissante ?
+      C'est grâce aux dons et aux impôts
+    block_type: TEXT
+    confidence: 1
+  - text: "[Schéma : Organisation de l'Église. En haut, un pape (étiqueté 'pape') est au sommet. Une flèche 'élisent' pointe vers lui depuis un groupe de cardinaux (étiqueté 'cardinaux'). Une flèche 'nomme' part du pape vers les cardinaux. Le pape est connecté à deux branches : 'clergé séculier' (étiqueté 'séculier') et 'clergé régulier' (étiqueté 'régulier'). Le clergé séculier est divisé en 'diocèses' (avec un évêque, étiqueté 'évêque') et 'paroisses' (avec des curés, étiqueté 'curés'). Le clergé régulier est divisé en 'abbayes' (avec un abbé, étiqueté 'abbé') et des moines (étiqueté 'moines'). En bas, un groupe de 'Les laïcs' est montré. Une légende en bas indique : 'Les laïcs (tous ceux qui n'appartiennent pas au clergé) font des dons et paient un impôt (la dîme) à l'Église, qui devient riche et très puissante.']"
+    block_type: DIAGRAM
+    confidence: 1
+  - text: "Un exemple du clergé régulier : l'abbaye de Fontenay"
+    block_type: TEXT
+    confidence: 1
+  - text: "1- Quel est le lieu central de l'abbaye ?"
+    block_type: TEXT
+    confidence: 1
+  - text: C'est le cloître
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      L'abbaye de Fontenay
+      L'abbaye de Fontenay a été fondée en Bourgogne en 1119 par Bernard de Clairvaux. Les moines y suivent la règle de Cîteaux, appelée aussi règle cistercienne.
+      ① L'église. ② Le cloître. ③ La salle capitulaire (salle de réunion). ④ Salle des moines (copie des manuscrits).
+      ⑤ Le dortoir. ⑥ Le chauffoir, seule salle chauffée. ⑦ Le réfectoire et la cuisine. ⑧ La chapelle pour les pauvres et les voyageurs. ⑨ L'hospice où sont accueillis les pauvres, les voyageurs. ⑩ La boulangerie et le four.
+      ⑪ La forge. ⑫ Le moulin. ⑬ L'infirmerie. ⑭ Le colombier. ⑮ Le jardin.
+    block_type: TEXT
+    confidence: 1
+  - text: "[Photo : Vue aérienne en noir et blanc de l'abbaye de Fontenay. L'abbaye est organisée autour d'un cloître central. Des bâtiments sont numérotés de ① à ⑮, correspondant à la légende. Une légende indique 'Fontenay, Bourgogne'.]"
+    block_type: DIAGRAM
+    confidence: 1
+  - text: "2 : Identifiez les occupations quotidiennes des moines."
+    block_type: TEXT
+    confidence: 1
+  - text: Les occupations quotidiennes des moines sont la prière, la lecture de textes religieux et le tracail manuel.
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      Une vie exemplaire
+      Écrite au début du VIe siècle, par Benoît, abbé du mont Cassin (Italie), La Règle est un guide spirituel et pratique pour vivre l'Évangile à travers trois activités principales : la prière, la lecture et le travail manuel. Les moines obéissent à cette règle.
+      « Le premier degré d'humilité est l'obéissance sans délai. Elle convient à ceux qui n'ont rien de plus cher que le Christ. [...] Se remettant toujours devant les yeux la crainte de Dieu, il consiste à fuir toute négligence et à se rappeler sans cesse tout ce que Dieu a commandé. [...] 
+      L'oisiveté est ennemie de l'âme. Les frères doivent donc consacrer certaines heures au travail des mains et d'autres à la lecture des choses divines. »
+      Extraits de La Règle de saint Benoît, VIe siècle.
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      3- A quoi les moines passent-ils la plus grande partie de leur journée ?
+       Les moines passent la plus grande partie de leur journée à la prière.
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      [Tableau : Emploi du temps d'un moine cistercien. Les horaires sont indiqués avec des activités correspondantes.
+      1h : office des mâtinées à l'église
+      2h: repos dans le dortoir(dans son habit)
+      3h30: offce des Laudes à l'église
+      4h30: repos dans le dortoir
+      6h : office de prime à l'église
+      6h30: réunion dans la salle capitulaire autour de l'abbé qui lit et commente un chapitre de la règle de Cîteaux. Les moines confessent leur fautes. Répartition des tâches de la journée.
+      7h: travail dans les champs, la forge, le moulin, le colombier ou la salle pour la copie des manuscrits.
+      9h: office de tierce à l'église
+      9h30: travail
+      11h30 :office de sexte à l'église
+      12h30: repas au réfectoire en silence, pendant qu'un moine lit tout haut la Bible. Pas de viande.
+      13h30: repos dans le dortoir
+      15h: office de none à l'église
+      15h30: travail
+      18h: office de vêpres à l'église
+      18h30: repas du soir, quelques légumes et fruits. Méditation dans le cloître.
+      19h30: office de complies à l'église
+      20h: repos dans le dortoir
+      office religieux - travail - autre (repas, repos ...)
+    block_type: TABLE
+    confidence: 1
+  - text: |
+      Compétence : savoir analyser différents documents de nature différente
+      Objectif : comprendre la vie d'un moine dans une abbaye/monastère
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      Trace écrite :
+      Les abbayes sont des lieux où vit le clergé régulier.
+      Ce clergé y applique la règle de Saint Benoît (les Bénédictins), c'est-à-dire :
+      - partage du temps entre prières pour le salut des morts et travail manuel
+      - vie dans des endroits très isolés du monde extérieur
+      - ne rien posséder personnellement
+      Organisée autour du cloître, une abbaye possède tous les bâtiments nécessaires à une vie à l'écart du monde. Les moines prient dans l'église, discutent de l'organisation dans la salle capitulaire, préparent les repas dans la cuisine, se restaurent dans le réfectoire, se reposent dans le dortoir, sont soignés dans l'infirmerie.
+      Salut : vie après la mort dans le royaume de Dieu, espérée par les croyants. (paradis)
+      Salle capitulaire : salle où les moines ou les moniales se réunissent pour lire les règles de leur ordre ou discuter de l'organisation de la journée
+    block_type: TEXT
+    confidence: 1
+  - text: B- L'Église encadre la société
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      Les obligations du fidèle
+      « Tout fidèle, homme ou femme, doit lui-même confesser ses péchés, sans témoin, à son propre curé au moins une fois par an.
+      Il doit accomplir avec soin, dans la mesure de ses moyens, la pénitence qui lui est imposée.
+      Il doit communier au moins à Pâques.
+      S'il n'obéit pas, qu'il lui soit interdit d'entrer dans une église de son vivant et qu'il soit privé de sépulture chrétienne après sa mort.
+      Que ce décret soit souvent lu publiquement dans les églises pour que personne ne l'ignore. »
+      D'après le concile de Latran IV (assemblée qui réunit le pape et les évêques), 1215.
+      1. Un chrétien de l'Église catholique.
+      2. Une peine imposée par le prêtre ou l'évêque pour sanctionner un péché.
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      1 - Quelles sont les obligations des fidèles ?
+      Les obligations des fidèles sont: confesser leurs péchés au curé au moins une fois par an, accomplir la pénitence qui leur est imposé et de communier au moins à Pâques.
+  - text: |
+      2- Quelle est leur punition en cas de désobéissance ?
+      En cas de désobéissance, il lui est interdit d'entrer dans une église jusqu'à la fin de sa vie et qu'il soit dépourvu de sépulture chrétienne jusqu'à sa mort.
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      Le testament d'un chrétien
+      « Moi, Bernard, seigneur d'Albret, voulant pourvoir au salut de mon âme, je veux que soient données aux monastères les sommes indiquées ci-dessous [...]
+      De même, je donne des sommes à tous les hôpitaux qui sont sur le chemin de Saint Jacques.
+      De même, comme j'ai promis de faire cinq pèlerinages, je veux que ces pèlerinages soient faits par mes fils.
+      En outre, je veux que 10000 livres tournois soient distribuées pour faire de bonnes aumônes, là où mes exécuteurs testamentaires jugeront qu'elles seront les mieux employées pour le salut de mon âme. »
+      D'après le testament de Bernard, seigneur d'Albret, XIVe siècle.
+      1. Saint-Jacques de Compostelle, en Espagne, grand lieu de pèlerinage.
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      3 : Qui bénéficie des dispositions du testament ? Qu'est-ce que le seigneur espère obtenir en échange ?
+      Ceux qui bénéficient des dispositions du testament sont l'Église. Il espère obtenir des pélerinages en échange.
+      Le seigneur Albert espère obtenir le paradis en faisant des dons à l'Église, la charité et en faisant faire à ses fils 5 pélerinages à sa place.
+      Pèlerinage : voyage vers un lieu saint pour prier sur une relique C'est-à-dire "les restes" d'un saint.
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      Citez deux lieux de pèlerinage au MA
+      Saint-Jacques de Compostelle, Jérusalem et Rocamadour
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      compétence : savoir analyser des textes
+      objectif : comprendre comment l'Église encadre-t-elle la société au MA
+    block_type: TEXT
+    confidence: 1
+  - text: L'Église et les chrétiens
+    block_type: TEXT
+    confidence: 1
+  - text: "[Image : Sculpture du Jugement dernier (Détail du portail central occidental de la cathédrale de Paris, vers 1230). La scène montre des âmes étant pesées par Saint-Michel, Satan, des âmes allant au Paradis, des âmes allant en Enfer, et la Jérusalem céleste. Les éléments sont numérotés : ① Saint-Michel pèse les âmes, ② Satan, ③ Les âmes vont au Paradis, ④ Les âmes vont en Enfer, ⑤ La Jérusalem céleste.]"
+    block_type: DIAGRAM
+    confidence: 1
+  - text: |
+      1- D'après cette scène, que redoutent les chrétiens après leur mort et qu'espèrent-ils ?
+      Les chrétiens redoutent l'Enfer et espèrent aller au Paradis.
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      2- Que font les chrétiens pour mériter le paradis après leur mort ?
+      Pour mériter le Paradis après leur mort, ils doivent faire 5 pèlerinages, des bonnes aumônes et faire des dons aux hôpitaux sur le chemin.
+    block_type: TEXT
+    confidence: 1
+  - text: | 
+      3- Quelle partie de l'église les sculptures décorent-elles ?
+      Elles décorent le tympan.
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      4- Pourquoi ?
+      Cela permet aux chretiens de comprendre les messages de l'Eglise car beaucoup ne savent pas lire
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      Compétence : savoir analyser un tympan
+      Objectif : comprendre la place de l'Église au MA
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      Trace écrite :
+      L'Église fixe des obligations religieuses du chrétien : il doit se confesser une fois par an, communier le jour de Pâques...
+      Les cérémonies religieuses marquent de grands moments de la vie, de la naissance à la mort car l'Église dispense les sacrements.
+      Toutes les fêtes sont religieuses et chaque jour porte le nom d'un saint.
+      Les cloches de l'Église rythme le temps de la journée.
+      Sacrement : rite sacré qui doit rapprocher le chrétien de Dieu.
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      La chasse aux hérétiques.
+      Trace écrite :
+      L'Église renforce son contrôle sur la société par le tribunal de l'inquisition qui pourchasse les hérétiques comme les cathares dans le midi de la France.
+
+      Inquisition : tribunal de l'Église qui condamne les hérétiques
+      Hérétique : personne qui, selon l'Église, ne respectent pas les règles de l'Église
+    block_type: TEXT
+    confidence: 1
+  - text: "C- L'art religieux : L'art roman"
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      Compétence : savoir analyser des documents de natures différentes
+      Objectif : comprendre les caractéristiques de l'art roman (X-XIIème siècle)
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      1 - Quelle forme a le plan de l'église ?
+      La forme d'une croix latine
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      2- Vers quelle direction est orienté son chœur ?
+      Vers Jérusalem
+    block_type: TEXT
+    confidence: 1
+  - text: "[Schéma : Plan de l'église. L'église est en forme de croix latine avec une nef centrale, deux bas-côtés, un transept et un chœur semi-circulaire (abside). Le chœur est orienté vers l'est (Jérusalem). Les éléments sont étiquetés : Nef, Bas-côté, Transept, Chœur, Abside (chevet). Une légende indique : 'Chapelles', 'Autel', 'Reliques'. Une échelle de 10 m est présente. Une flèche indique 'NORD'. Une note indique : 'Les fidèles assistaient à la messe dans la nef, debout. Le chœur était réservé aux clercs. Le prêtre faisait la messe en latin devant l'autel, tourné vers Jérusalem.']"
+    block_type: DIAGRAM
+    confidence: 1
+  - text: |
+      Doc 2 p 82
+      1- Comment l'architecture romane de la façade de l'église traduit-elle les valeurs de simplicité du christianisme ?
+      Grâce à sa sobriété et son dépouillement, l'architecture romane traduit la valeur de pauvreté et de simplicité du christianisme. Ici, la pierre est nue sans ornementation particulière.
+    block_type: TEXT
+    confidence: 1
+  - text: 
+    block_type: TEXT
+    confidence: 1
+  - text: "[Schéma : La voûte en berceau. Illustration en 3D montrant une voûte en arc de cercle soutenue par des murs épais. Les éléments sont étiquetés : 'Voûte' et 'Mur épais'. Une légende indique : 'La lourde voûte est tenue par des murs épais et des contreforts.']"
+    block_type: DIAGRAM
+    confidence: 1
+  - text: |
+      1 : Quelle est la forme des arcs visibles dans la nef et à l'extérieur du bâtiment ?
+      Les arcs sont romains
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      2 : Pourquoi la voûte de l'église ne s'effondre-t-elle pas ?
+      La voûte romane est en berceau, elle ne s'effondre pas car son poids repose sur des murs épais, renforcés par de puissants contreforts.
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      Trace écrite :
+      Dès la fin du Xème siècle, l'Occident se couvre d'églises. Les églises romanes sont généralement construites selon un plan en forme de croix latine. Le chœur, orienté vers Jérusalem, représente la tête du Christ ; la nef, son corps et le transept, ses bras.
+      Les églises attirent les fidèles de plus en plus nombreux qui viennent y prier et y vénérer des reliques. Ils se réunissent dans la nef dont le plafond est soutenu par des voûtes. À l'extérieur des contreforts soutiennent l'édifice.
+      Ces églises sont très sombres (petites fenêtres) et ont un aspect massif. Le décor est composé de sculptures (tympan) et de fresques qui racontent des scènes de la Bible car la majorité des Chrétiens ne savent pas lire. L'enfer est représenté afin que les chrétiens sachent ce qui les attend s'ils ne respectent pas les règles de l'Église.
+      Reliques : restes de saints ou d'objets, vénérés par les fidèles qui en espèrent des miracles
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      Feuille de route : La société féodale dans l'Occident médiéval (XI-XVème siècle)
+      Partie III : Une société chrétienne
+      Je connais les mots-clés de la leçon
+      
+      celui qui prient : un sacrement, le salut, le pèlerinage, l'aumône, la dîme, un hérétique (on a vu l'exemple des Cathares), tribunal de l'Inquisition, une relique, une abbaye, excommunier, la paroisse, clergé régulier, clergé séculier, le pape, le cloître, salle capitulaire
+
+      Je connais les repères historiques
+      - art roman : X- XIIème siècle
+
+      Je sais décrire et expliquer
+      - l'organisation de l'Église et comment elle encadre la société médiévale
+    block_type: TEXT
+    confidence: 1

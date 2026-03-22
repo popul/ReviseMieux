@@ -1,0 +1,29 @@
+id: "13_histoire_societe_chretienne"
+subject: Histoire
+level: "3e"
+topic: L'Église et la société chrétienne au Moyen Âge
+difficulty: medium
+has_images: true
+expected_item_count: 48
+expected_types:
+  KNOWLEDGE: 40
+  PROCEDURE: 0
+  DOCUMENT: 8
+ocr_source: human_expert
+ocr_author: Claude Opus 4.6 (draft)
+ocr_date: "2026-03-22"
+ocr_metadata:
+  handwriting_quality: soigné
+  ink_types:
+    - blue_pen
+    - red_pen
+    - black_pen
+    - pencil
+  photo_quality: good
+  content_types:
+    - text
+    - diagram
+    - table
+  support: pure_notebook
+  pages: 8
+notes: Cours d'histoire sur l'Église et la société chrétienne au Moyen Âge. Contenu coverant l'organisation de l'Église (pape, clergé séculier et régulier), le clergé régulier (abbayes, vie monastique, règle de saint Benoît), l'encadrement de la société par l'Église (sacres, confession, pèlerinages), l'art roman (architecture, voûte en berceau, tympan), et le contrôle de la société (Inquisition). Includes des schémas et tableaux (organisation de l'Église, emploi du temps d'un moine, plan de l'église romane).

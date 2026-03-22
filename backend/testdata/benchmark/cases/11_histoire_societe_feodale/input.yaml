@@ -1,0 +1,101 @@
+blocks:
+  - text: LA SOCIÉTÉ FÉODALE DANS L'OCCIDENT MÉDIÉVAL (XI-XV ème SIÈCLES)
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      Problématique : Comment les seigneurs dominaient-ils les campagnes entre le XI ème et le XV ème siècle ?
+      Quels liens existent-ils entre les hommes dans la société féodale à partir du XI ème siècle ?
+      Quelle est la place de l'Eglise dans la société médiévale (= du moyen-âge )?
+    block_type: TEXT
+    confidence: 1
+  - text: I- UNE société seigneuriale dans les campagnes
+    block_type: TEXT
+    confidence: 1
+  - text: A- La formation des campagnes
+    block_type: TEXT
+    confidence: 1
+  - text: "1) Comment les forêts se forment-elles du XI ème au XIV ème siècle ? Entre 300 et 1300, la surface forestière diminue considérablement en raison des grands défrichements."
+    block_type: TEXT
+    confidence: 1
+  - text: "Défrichement : abattage des arbres et des broussailles pour rendre la terre cultivable."
+    block_type: TEXT
+    confidence: 1
+  - text: "1) Comment évolue la population européenne au MA ? Entre 900 et 1350 l'Europe passe de 23,5 millions à 57,5 millions, soit 34 millions d'habitants en plus."
+    block_type: TEXT
+    confidence: 1
+  - text: Pourquoi cette augmentation ? C'est grâce à l'assellement triennal
+    block_type: TEXT
+    confidence: 1
+  - text: "Jachère: La terre est laissée au repos pendant un an pour retrouver sa fertilité."
+    block_type: TEXT
+    confidence: 1
+  - text: "1) Que font les personnages sur cette tapisserie ? Quel est l'objectif d'une tell action ? Les hommes défrichent les forêts en coupant les arbees pour conquérir de nouvelles terres afin de nourrir la population devenue plus nombreuse."
+    block_type: TEXT
+    confidence: 1
+  - text: Quels  progrès techniques permettent les défrichements ? L'usage du fer est de plus en plus important dans les outils, ce qui a permis la diffusion de la hashe. La nouvelle charrue permet d'arracher les souches des arbres et de labourer plus facilement les terres nouvelles.
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      1- Quel personnage a acheté de nouvelles terres ?
+      C'est l'archevequede de Magdebourg.
+    block_type: TEXT
+    confidence: 1
+  - text: "2- Que décide-t-il de faire avec ?  Il les prête à Werner et Gottfried pour qu'ils les mettent en valeur avec de nouveaux habitants et donc de fonder ainsi un nouveau village."
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      3- Les habitants vont-ils payer de nombreuses taxes ?
+       Oui, ils paieront uniquement le cens, une fois par an et une fois les terres rendues fertiles.
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      Trace écrite: Les grands défrichements au Moyen Age.
+      Causes
+      Population ?
+      Elle augmente
+      Progrès techniques ?
+      Outils agricoles améliorés
+      Rôle des seigneurs ?
+      Baisse des taxes seigneuriales
+      Défrichements
+      Période
+      XI-XIIèmesiècle
+      Conséquences
+      Forêts ?
+      Diminution de l'espace forestier
+      Villages ?
+      Création de nouveaux villages
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      B- La seigneurie, cadre de vie du seigneur et de ses paysans
+      1- Le seigneur domine les campagnes
+    block_type: TEXT
+    confidence: 1
+  - text: Doc 1 p 68
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      1: Quels sont les éléments  composant une seigneurie ?
+      La seigneurie est composée d'un château et des terres aux alentours, terres cultivables, forêts, rivières, et aussi les terres sur lesquelles les paysans s'installent, le village.
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      3- Vivre au village au Moyen Age
+      Docs p78 à 81
+      Equipe 2: La communauté villageoise
+      1: A chaque fois que les villageoins utilisent une propriété du seignuer, ils doivent payer un impôt.
+    block_type: TEXT
+    confidence: 1
+  - text: Les paysans doivent tout au seigneur mais ce dernier ne leur doit rien en retour à part la sécurité
+    block_type: TEXT
+    confidence: 1
+  - text: |
+      Correction Q1:
+      Equipe 1: Les paysans labourent les graines avec la charrue, sement les graines fauchent et battent le blé avec un fléau,  et ramassent les glands. Ils peuvent également faire de l'élevage, être meuniers ou encore sauniers.
+      Q2: Les conditions de travail sont très difficiles. Ils travaillent en toute saison, de l'aube au coucher du soleil.
+      Q1: Au sein des communautés villageoises, les paysons élisent des représentants pour faire appliqer les décissions.
+      Q2:
+      Les paysons dépendent du seigneur, ils sont soumis à son pouvoir. La plupart sont des serfs, des payons qui appartiennent au seigneur et ne peuvent ni se marier, ni quitter leur terre sans l'accord du
+    block_type: TEXT
+    confidence: 1

@@ -43,24 +43,24 @@ type TestCase struct {
 
 // OCRBlock mirrors chapter.OCRBlock for benchmark inputs.
 type OCRBlock struct {
-	Text       string  `json:"text"`
-	BlockType  string  `json:"block_type"`
-	Confidence float32 `json:"confidence"`
+	Text       string  `json:"text" yaml:"text"`
+	BlockType  string  `json:"block_type" yaml:"block_type"`
+	Confidence float32 `json:"confidence" yaml:"confidence"`
 }
 
 // GoldenOutput is the human-validated expected output for a test case.
 type GoldenOutput struct {
-	Items   []GoldenItem `json:"items"`
-	Notions []string     `json:"notions"`
+	Items   []GoldenItem `json:"items" yaml:"items"`
+	Notions []string     `json:"notions" yaml:"notions"`
 }
 
 // GoldenItem is a single expected item in the golden output.
 type GoldenItem struct {
-	Type     string   `json:"type"`
-	Term     string   `json:"term"`
-	Keywords []string `json:"keywords"`
-	Steps    []string `json:"steps,omitempty"`
-	Notion   string   `json:"notion"`
+	Type     string   `json:"type" yaml:"type"`
+	Term     string   `json:"term" yaml:"term"`
+	Keywords []string `json:"keywords" yaml:"keywords"`
+	Steps    []string `json:"steps,omitempty" yaml:"steps,omitempty"`
+	Notion   string   `json:"notion" yaml:"notion"`
 }
 
 // ParsedOutput is the LLM output parsed into structured form.
