@@ -76,6 +76,7 @@ Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schém
 - **Répétition espacée.** État SOLID uniquement après 2 réussites espacées d'au moins 24h.
 - **Révision proactive dès J0.** Chaque cours capturé déclenche une première révision le soir même, sans attendre qu'un contrôle soit annoncé. Un élève qui révise un peu chaque soir est mieux armé face aux interros surprises.
 - **Analyse documentaire standardisée :** décrire → prélever → expliquer → conclure.
+- **Double codage (Paivio) & génération de documents originaux.** Le système ne se limite pas à exploiter les visuels extraits du cahier : il **génère des documents inédits** (tableaux de données, graphiques, schémas légendés, cartes simplifiées, diagrammes de classification) cohérents avec le cours mais contenant des valeurs et contextes différents. Ces documents servent de supports d'exercice pour renforcer l'encodage verbal + visuel. Formats : Markdown tables, Mermaid (xychart-beta, flowchart, mindmap, pie), SVG inline, ASCII art.
 - **Human-in-the-loop :** validation rapide des zones incertaines critiques, plutôt que faux sentiment de certitude.
 - **First value rapide :** l'élève doit pouvoir faire un premier exercice en moins de 5 min après upload. La qualité s'affine ensuite.
 - **Anticipation permanente.** Le service connaît l'emploi du temps de l'élève et prépare une révision ciblée la veille de chaque cours, pour couvrir le risque d'interro surprise.
@@ -126,7 +127,9 @@ Le MVP complet représente **171 ACs** répartis en 8 zones de risque, classifi�
 
 **Priorités internes :** P1 (33 ACs) = la boucle fonctionne · P2 (20 ACs) = expérience quotidienne complète.
 
-**Coupé (reporté au MVP) :** multi-utilisateur, notifications push, emploi du temps, orchestration de soirée, RGPD J+30, admin backoffice, mode vacances, fiches PDF.
+**Coupé (reporté au MVP) :** multi-utilisateur, notifications push, emploi du temps, orchestration de soirée, RGPD J+30, admin backoffice, mode vacances, fiches PDF in-app.
+
+> **Note :** la génération de fiches de révision complètes est disponible via le skill `/study-guide` (Claude Code). Ce skill analyse des photos de cours et produit une fiche Markdown autonome avec : résumé, notions clés, documents d'exercice générés (tableaux, graphiques, schémas, cartes — originaux, pas des copies du cahier), 2 sessions de 15 questions (J0 découverte + J2 consolidation), corrigé détaillé (3 composantes Z4-AC09) et plan de progression mastery. Les fiches PDF in-app (génération serveur, QR code, report papier) restent reportées au MVP.
 
 Le tag Lot 0 (P1/P2/—) est porté par chaque AC dans les fichiers `docs/ac/Z*.md`.
 
@@ -325,9 +328,10 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 
 1. **Matching :** filtre des templates éligibles via type + tags + confiance + état validation.
 2. **Composition session :** sélection selon politique 70/20/10 + contraintes pack (1 doc max, 1 rédaction max).
-3. **Instanciation :** remplissage des variables → création Question → stockage en cache session.
-4. **Correction :** AUTO (QCM/keywords/numeric) ou RUBRIC (doc/rédaction).
-5. **Maîtrise :** UNKNOWN → FRAGILE → OK → SOLID (SOLID = 2 réussites espacées ≥ 24h).
+3. **Génération de documents supports :** pour les questions documentaires, le système **génère des documents originaux inédits** (tableaux de données avec valeurs à calculer, graphiques avec données différentes du cours, schémas avec légendes vides, cartes avec zones à identifier). Ces documents ne sont pas des copies du cahier — ils utilisent des valeurs et contextes différents tout en testant les mêmes notions. Formats : Markdown tables, Mermaid, SVG inline, ASCII art. Minimum 1 document par session si des items DOCUMENT existent.
+4. **Instanciation :** remplissage des variables → création Question (avec référence au document généré le cas échéant) → stockage en cache session.
+5. **Correction :** AUTO (QCM/keywords/numeric) ou RUBRIC (doc/rédaction).
+6. **Maîtrise :** UNKNOWN → FRAGILE → OK → SOLID (SOLID = 2 réussites espacées ≥ 24h).
 
 ---
 
@@ -344,6 +348,15 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 | `GEN.MISCONCEPTION.MCQ` | MCQ | 2 | `piege` |
 
 ### Documents — transversal
+
+> **Génération de documents originaux :** les templates documentaires ci-dessous peuvent s'appuyer soit sur des visuels extraits du cahier (via `VisualBlock`), soit sur des **documents générés à la volée** par le système. Les documents générés utilisent des valeurs et contextes inédits (pas de copie du cahier) pour tester les mêmes notions sous un angle nouveau. Cela renforce le double codage et empêche l'apprentissage par simple reconnaissance visuelle du document original.
+>
+> **Types de documents générables :**
+> - **Tableaux de données** (Markdown) — valeurs à calculer (`?`), unités variées, colonnes d'identification
+> - **Graphiques** (Mermaid xychart-beta, SVG, ASCII) — courbes d'évolution, histogrammes, diagrammes circulaires
+> - **Schémas légendés** (SVG, Mermaid flowchart) — légendes vides pour LABEL_COMPLETION, numérotation des éléments
+> - **Cartes simplifiées** (SVG) — zones lettrées à identifier, contours schématiques
+> - **Diagrammes de classification** (Mermaid mindmap) — hiérarchies avec éléments à compléter
 
 | template_id | Type | Diff. | Tags requis |
 |---|---|---|---|
@@ -444,6 +457,7 @@ Les gabarits décrivent la **forme** de l'exercice (réutilisable, indépendant 
 | 3. OCR parallèle | Blocs TEXT/SCHEMA | Texte brut + confidence | Non | < 2 s/bloc |
 | 4. Reconstruction plan | Texte OCR | Plan hiérarchique JSON | Non | < 500 ms |
 | 5. Génération Items | Plan + blocs | Items KNOWLEDGE/PROC/DOC | Non | < 3 s/page |
+| 5b. Génération docs supports | Items DOCUMENT + blocs visuels | Documents originaux (tableaux, graphiques, schémas) | Non | < 2 s/item |
 | 6. Auto-tagging | Items + lexique pack | Items taggés | Non | < 200 ms |
 | 6b. Regroupement Notions | Items taggés | Notions nommées (3–7 clusters par chapitre) | Non | < 500 ms |
 | 7. Détection incertains | Items + confidence | File validation (max 8) | Oui (si critiques) | < 500 ms |
@@ -660,11 +674,12 @@ Diagnostic 5–10 min. Carte de maîtrise par item. États UNKNOWN/FRAGILE/OK/SO
 
 ### Epic 7 — Génération & sessions
 
-Lazy generation questions. Composition session 70/20/10. Contraintes pack : 1 doc/1 rédaction max.
+Lazy generation questions. Composition session 70/20/10. Contraintes pack : 1 doc/1 rédaction max. **Génération de documents originaux** : pour les exercices documentaires, le système crée des supports inédits (tableaux, graphiques, schémas, cartes) avec des valeurs et contextes différents du cahier, renforçant le double codage et évitant l'apprentissage par reconnaissance visuelle du document source.
 
 **Critères d'acceptation :**
 - Session 10–20 min. Reprise après interruption.
 - Couverture tag document garantie si items disponibles (HG).
+- Documents générés utilisent des données originales (pas de copie du cahier), en formats Markdown/Mermaid/SVG.
 - Indicateur de couverture du chapitre visible.
 
 ### Epic 8 — Contrôles blancs
@@ -774,6 +789,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 | **Block** | `id` · `page_id` · `type (TEXT\|PHOTO\|SCHEMA\|MAP\|GRAPH\|TABLE\|CIRCUIT\|DECORATIVE)` · `crop_url?` · `crop_bbox {x, y, w, h}` · `confidence` · `ocr_text?` · `pedagogical_classification (pedagogical\|decorative\|null)` · `classification_confidence?` |
 | **VisualBlock** | `id` · `block_id` · `chapter_id` · `type (diagram\|graph\|table\|figure\|map\|circuit\|photo)` · `image_url` · `thumbnail_url` · `width_px` · `height_px` · `labels[] { text, position {x, y} }` · `axis_labels? { x_label, y_label, x_unit?, y_unit? }` · `table_structure? { rows: int, cols: int, headers[]?, cells[][] }` · `caption?` (légende détectée sous/au-dessus du visuel) · `alt_text` (description textuelle générée par LLM pour accessibilité) · `retention_expires_at` (aligné sur RGPD J+30, cf. Z2-AC12) |
 | **Document** | `id` · `chapter_id` · `type` · `tags[]` · `blocks[]` · `source_image_url?` |
+| **GeneratedDocument** | `id` · `item_id` · `chapter_id` · `type (table\|graph\|schema\|map\|mindmap)` · `format (markdown\|mermaid\|svg\|ascii)` · `content` (le document rendu : Markdown table, code Mermaid, SVG inline, ou ASCII art) · `title` · `source_item_ids[]` (items dont les données servent de base) · `values_seed?` (seed pour reproduire les valeurs générées) · `created_at` · `session_id?` |
 | **Notion** | `id` · `chapter_id` · `name` (libellé lisible généré par le LLM) · `concept_tags[]` · `item_ids[]` · `order (int)` |
 | **Item** | `id` · `chapter_id` · `notion_id?` · `revision_id` · `type (KNOWLEDGE\|PROCEDURE\|DOCUMENT\|WRITING)` · `term?` · `keywords[]?` · `steps[]?` · `linked_doc_id?` · `visual_block_ids[]?` · `tags[]` · `confidence` · `validation_required` · `archived` · `fidelity_score?` · `fidelity_flag? (low\|medium\|null)` · `coherence_flag? (contradiction\|orphan_reference\|null)` · `anomaly_flag? (high_failure_rate\|null)` · `llm_model_version?` · `prompt_template_version?` |
 | **ValidationTask** | `id` · `item_id` · `crop_url` · `suggestion` · `priority` · `status` · `resolved_by?` · `source (uncertainty_detection\|student_report\|anomaly_detection\|coherence_check\|fidelity_check)` · `student_note?` |
@@ -798,7 +814,7 @@ CRUD packs (templates activés, lexiques tags, paramètres). Analytics par templ
 
 **70 %** items dus (`next_due_at ≤ aujourd'hui`) + items FRAGILE/UNKNOWN prioritaires. **20 %** items OK récemment réussis (consolidation). **10 %** items SOLID ou nouveaux (découverte / anti-oubli long terme).
 
-**Contraintes additionnelles :** HG inclut ≥1 exercice document si items document disponibles · PC remonte les questions `unites` si erreurs récurrentes sur les 3 dernières sessions · max 1 rédaction et max 1 `long_problem` par session.
+**Contraintes additionnelles :** HG inclut ≥1 exercice document si items document disponibles · PC remonte les questions `unites` si erreurs récurrentes sur les 3 dernières sessions · max 1 rédaction et max 1 `long_problem` par session · les exercices documentaires utilisent de préférence des **documents générés originaux** (pas les visuels du cahier) pour éviter l'apprentissage par reconnaissance visuelle du document source.
 
 ### 17.1b Sessions proactives
 
