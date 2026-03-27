@@ -1,12 +1,12 @@
 package anthropic
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 	"time"
 
@@ -82,8 +82,11 @@ func (p *OCRProcessor) ProcessPages(ctx context.Context, imagePaths []string, su
 		if err != nil {
 			return nil, nil, fmt.Errorf("anthropic.ocr: read image %s: %w", imgPath, err)
 		}
+		mediaType := detectMediaTypeFromData(data)
+		if err := validateMediaType(mediaType, imgPath); err != nil {
+			return nil, nil, err
+		}
 		encoded := base64.StdEncoding.EncodeToString(data)
-		mediaType := detectMediaType(imgPath)
 		contentBlocks = append(contentBlocks, sdkanthro.NewImageBlockBase64(mediaType, encoded))
 	}
 	contentBlocks = append(contentBlocks, sdkanthro.NewTextBlock(BuildOCRUserPrompt(subject)))
@@ -153,18 +156,49 @@ func (p *OCRProcessor) PromptHash() string {
 
 // --- internal helpers ---
 
-func detectMediaType(path string) string {
-	ext := strings.ToLower(filepath.Ext(path))
-	switch ext {
-	case ".png":
-		return "image/png"
-	case ".gif":
-		return "image/gif"
-	case ".webp":
-		return "image/webp"
-	default:
+// detectMediaTypeFromData sniffs the format from raw image data.
+func detectMediaTypeFromData(data []byte) string {
+	if len(data) < 12 {
 		return "image/jpeg"
 	}
+	return detectMediaTypeFromBytes(data[:12])
+}
+
+func detectMediaTypeFromBytes(header []byte) string {
+	if len(header) < 4 {
+		return "image/jpeg"
+	}
+	// PNG: 89 50 4E 47
+	if bytes.HasPrefix(header, []byte{0x89, 0x50, 0x4E, 0x47}) {
+		return "image/png"
+	}
+	// GIF: 47 49 46 38
+	if bytes.HasPrefix(header, []byte{0x47, 0x49, 0x46, 0x38}) {
+		return "image/gif"
+	}
+	// WebP: RIFF....WEBP
+	if len(header) >= 12 && bytes.Equal(header[:4], []byte("RIFF")) && bytes.Equal(header[8:12], []byte("WEBP")) {
+		return "image/webp"
+	}
+	// HEIC/HEIF: ISO BMFF container with ftyp box
+	if len(header) >= 8 && bytes.Equal(header[4:8], []byte("ftyp")) {
+		return "image/heic"
+	}
+	return "image/jpeg"
+}
+
+var supportedMediaTypes = map[string]bool{
+	"image/jpeg": true,
+	"image/png":  true,
+	"image/gif":  true,
+	"image/webp": true,
+}
+
+func validateMediaType(mediaType, source string) error {
+	if !supportedMediaTypes[mediaType] {
+		return fmt.Errorf("anthropic.ocr: image %q has unsupported format %q (HEIC/HEIF not supported — convert to JPEG first)", source, mediaType)
+	}
+	return nil
 }
 
 // readImage reads image data from a local file path or URL.
@@ -175,7 +209,11 @@ func readImage(imageURL string) ([]byte, string, error) {
 		if err != nil {
 			return nil, "", err
 		}
-		return data, detectMediaType(imageURL), nil
+		mediaType := detectMediaTypeFromData(data)
+		if err := validateMediaType(mediaType, imageURL); err != nil {
+			return nil, "", err
+		}
+		return data, mediaType, nil
 	}
 
 	// For remote URLs, we'd use http.Get — but for now return an error

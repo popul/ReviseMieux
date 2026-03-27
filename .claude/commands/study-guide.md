@@ -8,10 +8,21 @@ Analyser des photos de cahier/cours fournies par l'utilisateur et produire une *
 
 ## Input attendu
 
-L'utilisateur fournit directement dans le prompt :
-- **1 à 5 photos** de pages de cahier, manuels, ou polycopiés
-- (Optionnel) La **matière** et le **niveau** (ex: "PC 4ème", "HG 3ème")
-- (Optionnel) La **date d'un contrôle** à venir
+L'utilisateur fournit un **chemin vers les images** en argument du skill : `$ARGUMENTS`
+
+Le chemin peut être :
+- Un **dossier** contenant des images (ex: `/path/to/photos/`) → toutes les images du dossier seront lues (formats supportés : `.jpg`, `.jpeg`, `.png`, `.webp`, `.gif`, `.heic`)
+- Un ou plusieurs **fichiers image** séparés par des espaces (ex: `/path/photo1.jpg /path/photo2.png`)
+- Un **glob pattern** (ex: `/path/to/photos/*.jpg`)
+
+**Procédure** :
+1. Utiliser le tool `Glob` pour résoudre le chemin et lister les fichiers image
+2. Utiliser le tool `Read` pour lire chaque image (Claude Code supporte la lecture d'images via Read)
+3. Analyser les images lues et produire la fiche
+
+L'utilisateur peut aussi fournir dans le prompt (optionnel) :
+- La **matière** et le **niveau** (ex: "PC 4ème", "HG 3ème")
+- La **date d'un contrôle** à venir
 
 Si la matière n'est pas précisée, la déduire du contenu des photos.
 
@@ -64,33 +75,24 @@ Règles :
 
 #### 3B — Graphiques et courbes
 
-Générer des graphiques sous **deux formats** :
+Générer **tous les graphiques en SVG inline**. Ne jamais utiliser Mermaid.js (le layout automatique produit des résultats médiocres).
 
-**Format 1 — Mermaid** (pour les graphiques rendables) :
-````markdown
-```mermaid
-xychart-beta
-    title "Évolution de la température lors du changement d'état"
-    x-axis "Temps (min)" [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    y-axis "Température (°C)" -5 --> 110
-    line [−2, 0, 0, 0, 25, 50, 75, 100, 100, 100, 105]
-```
-````
-
-**Format 2 — ASCII art** (pour les courbes simples) :
-```
-T(°C)
-100 |          ●───────●
-    |         /         \
- 50 |        /
-    |       /
-  0 |●─────●
-    +──────────────────── t(min)
-    0  1  2  3  4  5  6  7
-         palier = changement d'état
+**Exemple — Courbe SVG** :
+```svg
+<svg viewBox="0 0 400 220" xmlns="http://www.w3.org/2000/svg" style="font-family: sans-serif;">
+  <!-- Axes -->
+  <line x1="50" y1="180" x2="370" y2="180" stroke="#333" stroke-width="1.5"/>
+  <line x1="50" y1="180" x2="50" y2="20" stroke="#333" stroke-width="1.5"/>
+  <!-- Courbe -->
+  <polyline points="50,170 90,150 130,150 170,150 210,110 250,70 290,30 330,30 370,30"
+            fill="none" stroke="#E85D4C" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Graduation + labels axes -->
+  <text x="200" y="210" text-anchor="middle" font-size="11">Temps (min)</text>
+  <text x="15" y="100" font-size="11" transform="rotate(-90 15 100)">T (°C)</text>
+</svg>
 ```
 
-**Format 3 — SVG inline** (pour les graphiques précis, diagrammes circulaires, histogrammes) :
+**Exemple — Histogramme SVG** :
 ```svg
 <svg viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
   <rect x="50" y="20" width="40" height="160" fill="#4A90D9" />
@@ -99,41 +101,40 @@ T(°C)
   <text x="60" y="195" font-size="10">Fer</text>
   <text x="115" y="195" font-size="10">Alu</text>
   <text x="175" y="195" font-size="10">Cuivre</text>
-  <!-- Histogramme de masse volumique -->
 </svg>
 ```
 
 Règles :
-- Utiliser **Mermaid** en priorité pour les graphiques à axes (xychart-beta, pie, bar)
-- Utiliser **SVG** pour les diagrammes complexes, les représentations spatiales, les cercles/secteurs
-- Utiliser **ASCII** en fallback ou pour les courbes très simples
+- **Toujours SVG inline** — jamais Mermaid, jamais ASCII art
 - Toujours inclure des **axes titrés avec unités**
 - Les données du graphique doivent être **différentes** de celles du cours (pas de recopie)
+- Utiliser les couleurs du projet (coral, teal, gold) pour un rendu cohérent
 
 #### 3C — Schémas légendés
 
-Générer des schémas fonctionnels avec légendes. Utiliser **Mermaid** pour les organigrammes/flux et **SVG** pour les représentations spatiales :
+Générer **tous les schémas en SVG inline** (y compris organigrammes, flowcharts, hiérarchies).
 
-**Schéma de processus (Mermaid)** :
-````markdown
-```mermaid
-flowchart TD
-    A[Eau liquide] -->|Chauffage à 100°C| B[Vapeur d'eau]
-    B -->|Refroidissement| A
-    A -->|Refroidissement à 0°C| C[Glace]
-    C -->|Chauffage| A
-    style A fill:#4A90D9
-    style B fill:#FF7043
-    style C fill:#81D4FA
+**Schéma de processus (SVG avec flèches)** :
+```svg
+<svg viewBox="0 0 500 200" xmlns="http://www.w3.org/2000/svg" style="font-family: sans-serif;">
+  <defs>
+    <marker id="arr" viewBox="0 0 10 7" refX="10" refY="3.5" markerWidth="8" markerHeight="6" orient="auto-start-reverse">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#666"/>
+    </marker>
+  </defs>
+  <rect x="20" y="80" width="120" height="40" rx="8" fill="#4A90D9" stroke="#3a78b8" stroke-width="2"/>
+  <text x="80" y="105" text-anchor="middle" fill="white" font-size="12" font-weight="600">Eau liquide</text>
+  <line x1="140" y1="90" x2="210" y2="90" stroke="#666" stroke-width="2" marker-end="url(#arr)"/>
+  <text x="175" y="82" text-anchor="middle" font-size="9" fill="#888">100°C</text>
+  <rect x="213" y="70" width="120" height="40" rx="8" fill="#FF7043" stroke="#e0603a" stroke-width="2"/>
+  <text x="273" y="95" text-anchor="middle" fill="white" font-size="12" font-weight="600">Vapeur</text>
+</svg>
 ```
-````
 
 **Schéma spatial/anatomique (SVG)** :
 ```svg
 <svg viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
-  <!-- Corps de l'appareil -->
   <ellipse cx="150" cy="100" rx="80" ry="50" fill="none" stroke="#333" stroke-width="2"/>
-  <!-- Légendes avec numéros -->
   <circle cx="120" cy="80" r="3" fill="red"/>
   <text x="40" y="80" font-size="9">1. ________</text>
   <line x1="43" y1="78" x2="117" y2="80" stroke="red" stroke-dasharray="3"/>
@@ -144,10 +145,12 @@ flowchart TD
 ```
 
 Règles :
+- **Toujours SVG inline** — jamais Mermaid (layout automatique = résultat moche)
 - Les légendes laissées **vides** (`________`) deviennent des questions LABEL_COMPLETION
 - Inclure **numérotation** des éléments pour référence dans les questions
 - Les schémas doivent représenter un **concept du cours** mais avec un agencement/exemple **différent** de celui du cahier
-- SVG obligatoire si le schéma a une dimension spatiale (anatomie, carte, circuit)
+- Utiliser des `<marker>` SVG pour les flèches dans les flowcharts
+- Privilégier un layout **horizontal** (LR) pour les processus linéaires, **vertical** (TD) pour les hiérarchies
 
 #### 3D — Cartes et plans simplifiés
 
@@ -414,21 +417,84 @@ Générer un tableau par item :
 ## Exemple d'invocation
 
 ```
-/study-guide
-[l'utilisateur joint 2-3 photos de son cahier de PC 4ème sur la masse volumique]
+/study-guide ~/Documents/photos-cahier/pc-masse-volumique/
 Matière : Physique-Chimie, 4ème
 Contrôle dans 5 jours
+```
+
+Ou avec des fichiers spécifiques :
+```
+/study-guide ~/cahier/page1.jpg ~/cahier/page2.jpg
+```
+
+Ou avec un glob :
+```
+/study-guide ~/cahier/*.jpg
 ```
 
 ---
 
 ## Contraintes techniques
 
-- Le skill lit les images fournies dans le prompt (capacité multimodale de Claude)
-- Tout le contenu est généré en un seul fichier Markdown auto-suffisant
+- Le skill reçoit un chemin en `$ARGUMENTS`, résout les fichiers image via `Glob`, puis les lit via `Read` (capacité multimodale de Claude Code)
 - **Documents générés** : utiliser Markdown tables, Mermaid, SVG inline et ASCII art pour créer des supports visuels originaux intégrés dans la fiche
 - La fiche doit être **autonome** : utilisable sans les photos originales grâce aux documents générés
-- Le Markdown utilise la syntaxe GitHub-Flavored (tableaux, blocs de code, listes)
 - SVG inline pour les schémas spatiaux, cartes, anatomie, circuits
 - Mermaid pour les graphiques à axes, flowcharts, mind maps, diagrammes de classification
 - Pas d'emoji dans le contenu sauf dans le corrigé (✅🔍💡) et le plan (📅📌)
+
+---
+
+## Génération HTML obligatoire
+
+La fiche **doit** être générée sous forme d'un **fichier HTML autonome** (`fiche-revision.html`) dans le même dossier que les images source. Ce fichier est la sortie principale du skill.
+
+### Caractéristiques du HTML
+
+1. **Fichier auto-suffisant** : un seul `.html`, pas de fichiers externes
+2. **Photos du cahier embarquées en base64** : encoder chaque image source en `data:image/jpeg;base64,...` via un script shell (`base64 -i`) et les intégrer directement dans le HTML comme `<img>` dans une grille photo avec lightbox au clic
+3. **SVG inline** : les schémas SVG sont directement dans le HTML (pas de fichier externe)
+4. **Mermaid.js via CDN** : charger `https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js` et utiliser des balises `<pre class="mermaid">` pour le rendu côté client
+5. **CSS intégré** : design moderne avec les couleurs du projet (coral #E85D4C, teal #1A4D4D, gold #F5C542, cream #FBF8F3)
+6. **Sommaire cliquable** avec ancres `id` sur chaque section
+7. **Sections visuellement distinctes** : bordures colorées par type (session 1 = bleu, session 2 = or, corrigés = vert, documents = coral)
+8. **Corrigés dans des balises `<details>`** : repliables par défaut pour que l'élève ne voie pas les réponses
+9. **Responsive** : max-width 900px, adapté mobile
+10. **Print-friendly** : `@media print` pour impression propre
+
+### Procédure de génération
+
+1. Produire d'abord le contenu de la fiche (analyse, questions, corrigés) dans la conversation
+2. Générer le HTML complet via un script `Bash` qui :
+   - Encode les images en base64 (`base64 -i <fichier>`)
+   - Injecte les images dans le template HTML via heredoc
+   - Écrit le fichier `fiche-revision.html` dans le dossier source
+3. Ouvrir le fichier dans le navigateur avec `open <fichier>`
+
+### Structure HTML type
+
+```html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Fiche de Révision — [Sujet]</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <style>/* CSS intégré */</style>
+</head>
+<body>
+  <div class="header"><!-- Titre, matière, méta --></div>
+  <div class="toc"><!-- Sommaire cliquable --></div>
+  <div class="section photos"><!-- Photos base64 en grille --></div>
+  <div class="section"><!-- Résumé --></div>
+  <div class="section"><!-- Notions + Mermaid mindmap --></div>
+  <div class="section documents"><!-- Documents générés (SVG, Mermaid, tables) --></div>
+  <div class="section session1"><!-- Questions S1 --></div>
+  <div class="section session2"><!-- Questions S2 --></div>
+  <div class="section corriges"><!-- Corrigés dans <details> --></div>
+  <div class="section"><!-- Plan de révision + tableau mastery --></div>
+  <div class="lightbox"><!-- Lightbox pour photos --></div>
+  <script>mermaid.initialize({startOnLoad:true, theme:'default'});</script>
+</body>
+</html>
+```
