@@ -19,6 +19,7 @@
 //	GOOGLE_AI_API_KEY   — Google Gemini API key
 //	MISTRAL_API_KEY     — Mistral API key
 //	DEEPSEEK_API_KEY    — DeepSeek API key
+//	OPENROUTER_API_KEY  — OpenRouter API key (for Qwen, Llama, MiniMax, GLM, InternVL, etc.)
 package main
 
 import (
@@ -31,11 +32,13 @@ import (
 	"runtime"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/popul/revisemieux/internal/benchmark"
 	llmanthro "github.com/popul/revisemieux/internal/infra/anthropic"
 	"github.com/popul/revisemieux/internal/infra/llm"
+	llmmistral "github.com/popul/revisemieux/internal/infra/mistral"
 	"github.com/popul/revisemieux/internal/infra/openaicompat"
 	"gopkg.in/yaml.v3"
 )
@@ -376,6 +379,79 @@ var modelCatalog = []modelDef{
 			})
 		},
 	},
+	// MiniMax M2.7 (via OpenRouter)
+	{
+		ID: "minimax-m2.7", Provider: "openrouter", EnvKey: "OPENROUTER_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "minimax/minimax-m2.7", PriceIn: 0.30, PriceOut: 1.20,
+			})
+		},
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			return openaicompat.NewOCRBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "minimax/minimax-m2.7", PriceIn: 0.30, PriceOut: 1.20,
+			})
+		},
+	},
+	// Z.AI GLM-4.5V (via OpenRouter)
+	{
+		ID: "glm-4.5v", Provider: "openrouter", EnvKey: "OPENROUTER_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "z-ai/glm-4.5v", PriceIn: 0.60, PriceOut: 1.80,
+			})
+		},
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			return openaicompat.NewOCRBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "z-ai/glm-4.5v", PriceIn: 0.60, PriceOut: 1.80,
+			})
+		},
+	},
+	// InternVL3 78B (via OpenRouter)
+	{
+		ID: "internvl3-78b", Provider: "openrouter", EnvKey: "OPENROUTER_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "opengvlab/internvl3-78b", PriceIn: 0.07, PriceOut: 0.26,
+			})
+		},
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			return openaicompat.NewOCRBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "opengvlab/internvl3-78b", PriceIn: 0.07, PriceOut: 0.26,
+			})
+		},
+	},
+	// InternVL3 14B (via OpenRouter)
+	{
+		ID: "internvl3-14b", Provider: "openrouter", EnvKey: "OPENROUTER_API_KEY",
+		IDPBuilder: func(k string) benchmark.Provider {
+			return openaicompat.NewBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "opengvlab/internvl3-14b", PriceIn: 0.03, PriceOut: 0.10,
+			})
+		},
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			return openaicompat.NewOCRBenchmarkProvider(openaicompat.Config{
+				BaseURL: "https://openrouter.ai/api/v1", APIKey: k, Name: "OpenRouter",
+				Model: "opengvlab/internvl3-14b", PriceIn: 0.03, PriceOut: 0.10,
+			})
+		},
+	},
+	// Mistral OCR 3 (dedicated OCR API — not chat completions)
+	{
+		ID: "mistral-ocr-3", Provider: "mistral", EnvKey: "MISTRAL_API_KEY",
+		// Mistral OCR is OCR-only (dedicated document processing endpoint)
+		OCRBuilder: func(k string) benchmark.OCRProvider {
+			// Pricing: ~$2 per 1000 pages. Token-based approximation: very cheap.
+			return llmmistral.NewOCRBenchmarkProvider(k, "mistral-ocr-latest", 0.05, 0.05)
+		},
+	},
 }
 
 func main() {
@@ -390,6 +466,8 @@ func main() {
 	report := flag.Bool("report", false, "Generate HTML report from latest results (no benchmark run)")
 	reportRun := flag.String("report-run", "", "Generate report from a specific run directory")
 	reportOutput := flag.String("report-output", "", "Output path for the HTML report")
+	parallel := flag.Int("parallel", 8, "Max number of providers to run in parallel")
+	appendTo := flag.String("append-to", "", "Append results to an existing run directory (e.g. 2026-03-27_14h30)")
 	flag.Parse()
 
 	// List models mode
@@ -423,9 +501,9 @@ func main() {
 
 	switch *benchType {
 	case "ocr":
-		runOCRBenchmark(cases, *all, *provider, *models, *runs, *output)
+		runOCRBenchmark(cases, *all, *provider, *models, *runs, *output, *parallel, *appendTo)
 	case "idp":
-		runIDPBenchmark(cases, *all, *provider, *models, *runs, *output)
+		runIDPBenchmark(cases, *all, *provider, *models, *runs, *output, *parallel, *appendTo)
 	default:
 		fmt.Fprintf(os.Stderr, "Unknown benchmark type: %s (use 'ocr' or 'idp')\n", *benchType)
 		os.Exit(1)
@@ -434,7 +512,7 @@ func main() {
 
 // --- IDP Benchmark (structuration LLM) ---
 
-func runIDPBenchmark(cases []benchmark.TestCase, all bool, single, modelFilter string, runs int, output string) {
+func runIDPBenchmark(cases []benchmark.TestCase, all bool, single, modelFilter string, runs int, output string, parallel int, appendTo string) {
 	fmt.Printf("[IDP] Loaded %d test case(s)\n", len(cases))
 
 	providers := buildIDPProviders(all, single, modelFilter)
@@ -442,25 +520,82 @@ func runIDPBenchmark(cases []benchmark.TestCase, all bool, single, modelFilter s
 		fmt.Fprintln(os.Stderr, "No IDP providers configured (check API keys)")
 		os.Exit(1)
 	}
+
+	// Load existing results and skip already-benchmarked models.
+	var existingSummaries []benchmark.RunSummary
+	if appendTo != "" {
+		resultsDir := filepath.Join(testdataDir(), "benchmark", "results", "idp")
+		summaryPath := filepath.Join(resultsDir, appendTo, "summary.json")
+		loaded, err := loadSummaries(summaryPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error loading existing results from %s: %v\n", summaryPath, err)
+			os.Exit(1)
+		}
+		existingSummaries = loaded
+		existing := make(map[string]bool)
+		for _, s := range loaded {
+			existing[s.Model] = true
+		}
+		var filtered []benchmark.Provider
+		for _, p := range providers {
+			if existing[p.ModelID()] {
+				fmt.Printf("[IDP] Skipping %s (already in %s)\n", p.ModelID(), appendTo)
+			} else {
+				filtered = append(filtered, p)
+			}
+		}
+		providers = filtered
+		if len(providers) == 0 {
+			fmt.Println("[IDP] All requested models already present, nothing to run.")
+			return
+		}
+	}
+
 	fmt.Printf("[IDP] Running %d provider(s): %s\n", len(providers), idpProviderNames(providers))
 	fmt.Printf("[IDP] Runs per case: %d\n\n", runs)
 
-	var allResults []benchmark.EvalResult
-	for _, p := range providers {
-		fmt.Printf("--- %s (%s) ---\n", p.Name(), p.ModelID())
-		for _, tc := range cases {
-			for run := 0; run < runs; run++ {
-				result := runSingleIDPCase(p, tc)
-				if runs > 1 {
-					fmt.Printf("  [%s] run %d/%d: Q=%.2f cost=$%.5f latency=%dms\n",
-						tc.ID, run+1, runs, result.QualityScore, result.CostUSD, result.LatencyMs)
-				} else {
-					fmt.Printf("  [%s] Q=%.2f cost=$%.5f latency=%dms items=%d\n",
-						tc.ID, result.QualityScore, result.CostUSD, result.LatencyMs, result.ItemsFound)
+	// Run providers in parallel (cases within a provider stay sequential to avoid rate limits).
+	type providerResults struct {
+		results []benchmark.EvalResult
+	}
+	perProvider := make([]providerResults, len(providers))
+	var wg sync.WaitGroup
+	var mu sync.Mutex // protects stdout
+	sem := make(chan struct{}, parallel)
+
+	for pi, p := range providers {
+		wg.Add(1)
+		go func(pi int, p benchmark.Provider) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			var results []benchmark.EvalResult
+			mu.Lock()
+			fmt.Printf("--- %s (%s) ---\n", p.Name(), p.ModelID())
+			mu.Unlock()
+			for _, tc := range cases {
+				for run := 0; run < runs; run++ {
+					result := runSingleIDPCase(p, tc)
+					mu.Lock()
+					if runs > 1 {
+						fmt.Printf("  [%s/%s] run %d/%d: Q=%.2f cost=$%.5f latency=%dms\n",
+							p.ModelID(), tc.ID, run+1, runs, result.QualityScore, result.CostUSD, result.LatencyMs)
+					} else {
+						fmt.Printf("  [%s/%s] Q=%.2f cost=$%.5f latency=%dms items=%d\n",
+							p.ModelID(), tc.ID, result.QualityScore, result.CostUSD, result.LatencyMs, result.ItemsFound)
+					}
+					mu.Unlock()
+					results = append(results, result)
 				}
-				allResults = append(allResults, result)
 			}
-		}
+			perProvider[pi] = providerResults{results: results}
+		}(pi, p)
+	}
+	wg.Wait()
+
+	var allResults []benchmark.EvalResult
+	for _, pr := range perProvider {
+		allResults = append(allResults, pr.results...)
 	}
 
 	benchmark.ComputeCompositeScores(allResults)
@@ -471,12 +606,15 @@ func runIDPBenchmark(cases []benchmark.TestCase, all bool, single, modelFilter s
 		summaryMap[key] = append(summaryMap[key], r)
 	}
 
-	var summaries []benchmark.RunSummary
+	var newSummaries []benchmark.RunSummary
 	for key, results := range summaryMap {
 		parts := strings.SplitN(key, "|", 2)
 		s := benchmark.Summarize(parts[0], parts[1], results)
-		summaries = append(summaries, s)
+		newSummaries = append(newSummaries, s)
 	}
+
+	// Merge with existing summaries when appending.
+	summaries := append(existingSummaries, newSummaries...)
 
 	sort.Slice(summaries, func(i, j int) bool {
 		return summaries[i].AvgCompositeScore > summaries[j].AvgCompositeScore
@@ -492,7 +630,11 @@ func runIDPBenchmark(cases []benchmark.TestCase, all bool, single, modelFilter s
 		outputIDPConsole(summaries)
 	}
 
-	saveIDPResults(summaries)
+	if appendTo != "" {
+		saveIDPResultsTo(summaries, appendTo)
+	} else {
+		saveIDPResults(summaries)
+	}
 }
 
 func runSingleIDPCase(p benchmark.Provider, tc benchmark.TestCase) benchmark.EvalResult {
@@ -528,7 +670,7 @@ func runSingleIDPCase(p benchmark.Provider, tc benchmark.TestCase) benchmark.Eva
 
 // --- OCR Benchmark (vision/OCR extraction) ---
 
-func runOCRBenchmark(cases []benchmark.TestCase, all bool, single, modelFilter string, runs int, output string) {
+func runOCRBenchmark(cases []benchmark.TestCase, all bool, single, modelFilter string, runs int, output string, parallel int, appendTo string) {
 	// Filter to cases with images only
 	var ocrCases []benchmark.TestCase
 	for _, tc := range cases {
@@ -547,27 +689,84 @@ func runOCRBenchmark(cases []benchmark.TestCase, all bool, single, modelFilter s
 		fmt.Fprintln(os.Stderr, "No OCR providers configured (check API keys and vision support)")
 		os.Exit(1)
 	}
+
+	// Load existing results and skip already-benchmarked models.
+	var existingSummaries []benchmark.OCRRunSummary
+	if appendTo != "" {
+		resultsDir := filepath.Join(testdataDir(), "benchmark", "results", "ocr")
+		summaryPath := filepath.Join(resultsDir, appendTo, "summary.json")
+		loaded, err := loadOCRSummaries(summaryPath)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error loading existing results from %s: %v\n", summaryPath, err)
+			os.Exit(1)
+		}
+		existingSummaries = loaded
+		existing := make(map[string]bool)
+		for _, s := range loaded {
+			existing[s.Model] = true
+		}
+		var filtered []benchmark.OCRProvider
+		for _, p := range providers {
+			if existing[p.ModelID()] {
+				fmt.Printf("[OCR] Skipping %s (already in %s)\n", p.ModelID(), appendTo)
+			} else {
+				filtered = append(filtered, p)
+			}
+		}
+		providers = filtered
+		if len(providers) == 0 {
+			fmt.Println("[OCR] All requested models already present, nothing to run.")
+			return
+		}
+	}
+
 	fmt.Printf("[OCR] Running %d provider(s): %s\n", len(providers), ocrProviderNames(providers))
 	fmt.Printf("[OCR] Runs per case: %d\n\n", runs)
 
-	var allResults []benchmark.OCREvalResult
-	for _, p := range providers {
-		fmt.Printf("--- %s (%s) ---\n", p.Name(), p.ModelID())
-		for _, tc := range ocrCases {
-			for run := 0; run < runs; run++ {
-				result := runSingleOCRCase(p, tc)
-				if runs > 1 {
-					fmt.Printf("  [%s] run %d/%d: Q=%.2f cost=$%.5f latency=%dms blocks=%d/%d\n",
-						tc.ID, run+1, runs, result.QualityScore, result.CostUSD, result.LatencyMs,
-						result.BlocksFound, result.BlocksExpected)
-				} else {
-					fmt.Printf("  [%s] Q=%.2f text=%.2f detect=%.2f cost=$%.5f latency=%dms blocks=%d/%d\n",
-						tc.ID, result.QualityScore, result.TextAccuracy, result.DetectionScore,
-						result.CostUSD, result.LatencyMs, result.BlocksFound, result.BlocksExpected)
+	// Run providers in parallel (cases within a provider stay sequential to avoid rate limits).
+	type ocrProviderResults struct {
+		results []benchmark.OCREvalResult
+	}
+	perProvider := make([]ocrProviderResults, len(providers))
+	var wg sync.WaitGroup
+	var mu sync.Mutex // protects stdout
+	sem := make(chan struct{}, parallel)
+
+	for pi, p := range providers {
+		wg.Add(1)
+		go func(pi int, p benchmark.OCRProvider) {
+			defer wg.Done()
+			sem <- struct{}{}
+			defer func() { <-sem }()
+			var results []benchmark.OCREvalResult
+			mu.Lock()
+			fmt.Printf("--- %s (%s) ---\n", p.Name(), p.ModelID())
+			mu.Unlock()
+			for _, tc := range ocrCases {
+				for run := 0; run < runs; run++ {
+					result := runSingleOCRCase(p, tc)
+					mu.Lock()
+					if runs > 1 {
+						fmt.Printf("  [%s/%s] run %d/%d: Q=%.2f cost=$%.5f latency=%dms blocks=%d/%d\n",
+							p.ModelID(), tc.ID, run+1, runs, result.QualityScore, result.CostUSD, result.LatencyMs,
+							result.BlocksFound, result.BlocksExpected)
+					} else {
+						fmt.Printf("  [%s/%s] Q=%.2f text=%.2f detect=%.2f cost=$%.5f latency=%dms blocks=%d/%d\n",
+							p.ModelID(), tc.ID, result.QualityScore, result.TextAccuracy, result.DetectionScore,
+							result.CostUSD, result.LatencyMs, result.BlocksFound, result.BlocksExpected)
+					}
+					mu.Unlock()
+					results = append(results, result)
 				}
-				allResults = append(allResults, result)
 			}
-		}
+			perProvider[pi] = ocrProviderResults{results: results}
+		}(pi, p)
+	}
+	wg.Wait()
+
+	var allResults []benchmark.OCREvalResult
+	for _, pr := range perProvider {
+		allResults = append(allResults, pr.results...)
 	}
 
 	benchmark.ComputeOCRCompositeScores(allResults)
@@ -578,12 +777,15 @@ func runOCRBenchmark(cases []benchmark.TestCase, all bool, single, modelFilter s
 		summaryMap[key] = append(summaryMap[key], r)
 	}
 
-	var summaries []benchmark.OCRRunSummary
+	var newSummaries []benchmark.OCRRunSummary
 	for key, results := range summaryMap {
 		parts := strings.SplitN(key, "|", 2)
 		s := benchmark.SummarizeOCR(parts[0], parts[1], results)
-		summaries = append(summaries, s)
+		newSummaries = append(newSummaries, s)
 	}
+
+	// Merge with existing summaries when appending.
+	summaries := append(existingSummaries, newSummaries...)
 
 	sort.Slice(summaries, func(i, j int) bool {
 		return summaries[i].AvgCompositeScore > summaries[j].AvgCompositeScore
@@ -599,7 +801,11 @@ func runOCRBenchmark(cases []benchmark.TestCase, all bool, single, modelFilter s
 		outputOCRConsole(summaries)
 	}
 
-	saveOCRResults(summaries)
+	if appendTo != "" {
+		saveOCRResultsTo(summaries, appendTo)
+	} else {
+		saveOCRResults(summaries)
+	}
 }
 
 func runSingleOCRCase(p benchmark.OCRProvider, tc benchmark.TestCase) benchmark.OCREvalResult {
@@ -636,6 +842,9 @@ func buildIDPProviders(all bool, single, modelFilter string) []benchmark.Provide
 	selectedModels := parseModelFilter(modelFilter)
 	var providers []benchmark.Provider
 	for _, def := range modelCatalog {
+		if def.IDPBuilder == nil {
+			continue
+		}
 		if !shouldInclude(def, all, single, selectedModels) {
 			continue
 		}
@@ -737,9 +946,13 @@ func outputIDPCSV(summaries []benchmark.RunSummary) {
 }
 
 func saveIDPResults(summaries []benchmark.RunSummary) {
-	resultsDir := filepath.Join(testdataDir(), "benchmark", "results", "idp")
 	ts := time.Now().Format("2006-01-02_15h04")
-	dir := filepath.Join(resultsDir, ts)
+	saveIDPResultsTo(summaries, ts)
+}
+
+func saveIDPResultsTo(summaries []benchmark.RunSummary, runID string) {
+	resultsDir := filepath.Join(testdataDir(), "benchmark", "results", "idp")
+	dir := filepath.Join(resultsDir, runID)
 	os.MkdirAll(dir, 0o755)
 
 	data, _ := json.MarshalIndent(summaries, "", "  ")
@@ -748,7 +961,7 @@ func saveIDPResults(summaries []benchmark.RunSummary) {
 	fmt.Printf("\n[IDP] Results saved to %s\n", path)
 
 	reportPath := filepath.Join(dir, "report.html")
-	if err := generateReport(resultsDir, ts, reportPath); err != nil {
+	if err := generateReport(resultsDir, runID, reportPath); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: could not generate HTML report: %v\n", err)
 	}
 }
@@ -796,9 +1009,13 @@ func outputOCRCSV(summaries []benchmark.OCRRunSummary) {
 }
 
 func saveOCRResults(summaries []benchmark.OCRRunSummary) {
-	resultsDir := filepath.Join(testdataDir(), "benchmark", "results", "ocr")
 	ts := time.Now().Format("2006-01-02_15h04")
-	dir := filepath.Join(resultsDir, ts)
+	saveOCRResultsTo(summaries, ts)
+}
+
+func saveOCRResultsTo(summaries []benchmark.OCRRunSummary, runID string) {
+	resultsDir := filepath.Join(testdataDir(), "benchmark", "results", "ocr")
+	dir := filepath.Join(resultsDir, runID)
 	os.MkdirAll(dir, 0o755)
 
 	data, _ := json.MarshalIndent(summaries, "", "  ")
@@ -807,7 +1024,7 @@ func saveOCRResults(summaries []benchmark.OCRRunSummary) {
 	fmt.Printf("\n[OCR] Results saved to %s\n", path)
 
 	reportPath := filepath.Join(dir, "report.html")
-	if err := generateOCRReport(resultsDir, ts, reportPath); err != nil {
+	if err := generateOCRReport(resultsDir, runID, reportPath); err != nil {
 		fmt.Fprintf(os.Stderr, "Warning: could not generate OCR HTML report: %v\n", err)
 	}
 }
@@ -838,6 +1055,17 @@ func loadTestCases(casesDir, filterID string) ([]benchmark.TestCase, error) {
 		metaPath := filepath.Join(casesDir, e.Name(), "metadata.yaml")
 		inputPath := filepath.Join(casesDir, e.Name(), "input.yaml")
 		goldenPath := filepath.Join(casesDir, e.Name(), "golden_output.yaml")
+
+		// Skip incomplete case directories (missing required YAML files).
+		if _, err := os.Stat(metaPath); err != nil {
+			continue
+		}
+		if _, err := os.Stat(inputPath); err != nil {
+			continue
+		}
+		if _, err := os.Stat(goldenPath); err != nil {
+			continue
+		}
 
 		var meta struct {
 			ID         string `yaml:"id"`
