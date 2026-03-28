@@ -14,10 +14,12 @@ import (
 	"github.com/popul/revisemieux/internal/app"
 	"github.com/popul/revisemieux/internal/config"
 	"github.com/popul/revisemieux/internal/db"
+	"github.com/popul/revisemieux/internal/domain/chapter"
 	"github.com/popul/revisemieux/internal/domain/event"
 	apphttp "github.com/popul/revisemieux/internal/http"
 	"github.com/popul/revisemieux/internal/http/handler"
 	llmanthro "github.com/popul/revisemieux/internal/infra/anthropic"
+	"github.com/popul/revisemieux/internal/infra/openaicompat"
 	"github.com/popul/revisemieux/internal/infra/eventbus"
 	"github.com/popul/revisemieux/internal/infra/postgres"
 
@@ -71,12 +73,28 @@ func main() {
 	validationRepo := postgres.NewValidationRepository(pool)
 
 	// --- LLM Service ---
-	var llmStructurer *llmanthro.Structurer
-	if cfg.AnthropicAPIKey != "" {
-		llmStructurer = llmanthro.NewStructurer(cfg.AnthropicAPIKey, cfg.AnthropicStructModel)
-		log.Printf("LLM structurer initialized: model=%s", cfg.AnthropicStructModel)
-	} else {
-		log.Println("WARNING: ANTHROPIC_API_KEY not set — LLM structuration disabled")
+	var llmStructurer chapter.LLMService
+	switch cfg.LLMProvider {
+	case "anthropic":
+		if cfg.AnthropicAPIKey != "" {
+			llmStructurer = llmanthro.NewStructurer(cfg.AnthropicAPIKey, cfg.AnthropicStructModel)
+			log.Printf("LLM structurer initialized: provider=anthropic model=%s", cfg.AnthropicStructModel)
+		} else {
+			log.Println("WARNING: ANTHROPIC_API_KEY not set — LLM structuration disabled")
+		}
+	case "gemini":
+		if cfg.GoogleAIAPIKey != "" {
+			llmStructurer = openaicompat.NewStructurer(
+				"https://generativelanguage.googleapis.com/v1beta/openai",
+				cfg.GoogleAIAPIKey,
+				cfg.GeminiStructModel,
+			)
+			log.Printf("LLM structurer initialized: provider=gemini model=%s", cfg.GeminiStructModel)
+		} else {
+			log.Println("WARNING: GOOGLE_AI_API_KEY not set — LLM structuration disabled")
+		}
+	default:
+		log.Printf("WARNING: unknown LLM_PROVIDER %q — LLM structuration disabled", cfg.LLMProvider)
 	}
 	// PipelineService requires Storage + OCR adapters (not yet implemented).
 	// When ready, wire: app.NewPipelineService(chapterRepo, masteryRepo, storage, ocr, llmStructurer, publisher, clock, idGen)
