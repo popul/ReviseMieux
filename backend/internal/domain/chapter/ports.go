@@ -59,3 +59,15 @@ type LLMService interface {
 	// StructureBlocks takes OCR text blocks and produces structured items and notions.
 	StructureBlocks(ctx context.Context, subject string, blocks []OCRBlock) (*StructurationResult, error)
 }
+
+// FidelityResult holds the result of a fidelity check for a single item (Z3-AC10).
+type FidelityResult struct {
+	Score float64 // 0.0 to 1.0
+	Flag  string  // "" (faithful), "low" (hallucinated)
+}
+
+// FidelityChecker is the port for LLM-based fidelity verification (Z3-AC10).
+type FidelityChecker interface {
+	// CheckFidelity compares an item against the source OCR text.
+	CheckFidelity(ctx context.Context, item *Item, sourceText string) (*FidelityResult, error)
+}

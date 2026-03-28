@@ -539,6 +539,131 @@ func TestZ1AC13_CappedAtOKBlocksSolid(t *testing.T) {
 	}
 }
 
+// Z1-AC08 — Resserrement proportionnel si contrôle posé (T=7 jours)
+// GIVEN: Un item en état OK avec un exam dans 7 jours.
+// WHEN:  L'intervalle est recalculé.
+// THEN:  L'intervalle OK passe de J+3 à J+max(1, ⌊7/3⌋) = J+2.
+func TestZ1AC08_ExamTighteningOK_T7(t *testing.T) {
+	m := newTestMastery(t)
+	m.State = Fragile
+	m.ConsecutiveSuccesses = 1
+
+	now := time.Date(2026, 3, 11, 18, 0, 0, 0, time.UTC)
+	err := m.RecordAttempt(0.8, now)
+	if err != nil {
+		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
+	}
+	if m.State != OK {
+		t.Fatalf("state: got %q, want OK", m.State)
+	}
+
+	// Apply exam tightening with T=7 days
+	m.ApplyExamTightening(7, now)
+
+	wantDue := now.Add(2 * 24 * time.Hour) // max(1, floor(7/3)) = 2
+	if !m.NextDueAt.Equal(wantDue) {
+		t.Errorf("next_due_at: got %v, want %v (tightened for T=7)", *m.NextDueAt, wantDue)
+	}
+}
+
+// Z1-AC08 — Resserrement SOLID avec T=7 jours
+func TestZ1AC08_ExamTighteningSolid_T7(t *testing.T) {
+	m := newTestMastery(t)
+	m.State = Solid
+	m.ConsecutiveSuccesses = 3
+
+	now := time.Date(2026, 3, 12, 18, 0, 0, 0, time.UTC)
+	err := m.RecordAttempt(0.9, now)
+	if err != nil {
+		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
+	}
+
+	m.ApplyExamTightening(7, now)
+
+	wantDue := now.Add(3 * 24 * time.Hour) // max(2, floor(7/2)) = 3
+	if !m.NextDueAt.Equal(wantDue) {
+		t.Errorf("next_due_at: got %v, want %v (tightened for T=7)", *m.NextDueAt, wantDue)
+	}
+}
+
+// Z1-AC08 — Resserrement SOLID→OK régression avec T=7
+func TestZ1AC08_ExamTighteningRegressionSolidToOK_T7(t *testing.T) {
+	m := newTestMastery(t)
+	m.State = Solid
+	m.ConsecutiveSuccesses = 3
+
+	now := time.Date(2026, 3, 12, 18, 0, 0, 0, time.UTC)
+	err := m.RecordAttempt(0.2, now) // fail → SOLID→OK, due = now+2
+	if err != nil {
+		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
+	}
+	if m.State != OK {
+		t.Fatalf("state: got %q, want OK", m.State)
+	}
+
+	m.ApplyExamTightening(7, now)
+
+	wantDue := now.Add(1 * 24 * time.Hour) // max(1, floor(7/4)) = 1
+	if !m.NextDueAt.Equal(wantDue) {
+		t.Errorf("next_due_at: got %v, want %v (tightened regression for T=7)", *m.NextDueAt, wantDue)
+	}
+}
+
+// Z1-AC08 — T=3 : intervalles très courts
+func TestZ1AC08_ExamTightening_T3(t *testing.T) {
+	m := newTestMastery(t)
+	m.State = OK
+	m.ConsecutiveSuccesses = 0 // post-regression, cs=0
+
+	now := time.Date(2026, 3, 12, 18, 0, 0, 0, time.UTC)
+	err := m.RecordAttempt(0.8, now) // OK cs=0+1=1 < 2, stays OK, due = now+3
+	if err != nil {
+		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
+	}
+
+	m.ApplyExamTightening(3, now)
+
+	wantDue := now.Add(1 * 24 * time.Hour) // max(1, floor(3/3)) = 1
+	if !m.NextDueAt.Equal(wantDue) {
+		t.Errorf("next_due_at: got %v, want %v (tightened for T=3)", *m.NextDueAt, wantDue)
+	}
+}
+
+// Z1-AC08 — T≤0 (exam passé) : pas de resserrement
+func TestZ1AC08_ExamPastNoTightening(t *testing.T) {
+	m := newTestMastery(t)
+	m.State = OK
+	m.ConsecutiveSuccesses = 0
+
+	now := time.Date(2026, 3, 12, 18, 0, 0, 0, time.UTC)
+	err := m.RecordAttempt(0.8, now) // cs=0→1, stays OK, due=now+3
+	if err != nil {
+		t.Fatalf("RecordAttempt returned unexpected error: %v", err)
+	}
+
+	originalDue := *m.NextDueAt
+	m.ApplyExamTightening(0, now) // T=0, exam already passed
+
+	if !m.NextDueAt.Equal(originalDue) {
+		t.Errorf("next_due_at: got %v, want %v (no tightening when T<=0)", *m.NextDueAt, originalDue)
+	}
+}
+
+// Z1-AC08 — UNKNOWN/FRAGILE incompressible (J+1 toujours)
+func TestZ1AC08_UnknownFragileIncompressible(t *testing.T) {
+	m := newTestMastery(t)
+	now := time.Date(2026, 3, 11, 18, 0, 0, 0, time.UTC)
+
+	m.RecordAttempt(0.8, now) // UNKNOWN → FRAGILE, due = now+1
+	originalDue := *m.NextDueAt
+
+	m.ApplyExamTightening(3, now)
+
+	if !m.NextDueAt.Equal(originalDue) {
+		t.Errorf("next_due_at: got %v, want %v (FRAGILE interval is incompressible)", *m.NextDueAt, originalDue)
+	}
+}
+
 // Z6-AC13 — Items overdue non révisés : aucune pénalité mastery
 // GIVEN: Un item en état OK avec next_due_at = 2 mars. L'élève ne révise pas du 2 au 5.
 // WHEN:  L'élève ouvre une session le 5 mars (item is overdue).

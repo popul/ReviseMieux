@@ -42,6 +42,16 @@ type PipelineResult struct {
 	ProcessedPages int
 	FailedPages    int
 	TotalItems     int
+	Recovery       *RecoveryInfo // Z8-AC03: non-nil when first upload fails
+}
+
+// RecoveryInfo provides context for the recovery screen (Z8-AC03).
+type RecoveryInfo struct {
+	IsFirstUpload   bool   // true if this was the user's first ever upload
+	CanRetry        bool   // true: user can re-take photos
+	CanContinue     bool   // true if some items were generated despite low confidence
+	HasDemoChapter  bool   // true if demo chapter available as fallback
+	Message         string // empathetic message
 }
 
 // PageProgress represents the progress after processing a single page.
@@ -60,6 +70,7 @@ type PipelineService struct {
 	storage     chapter.Storage
 	ocr         chapter.OCRService
 	llm         chapter.LLMService
+	fidelity    chapter.FidelityChecker // Z3-AC10: optional fidelity checker
 	publisher   event.Publisher
 	clock       event.Clock
 	idGen       event.IDGenerator
@@ -70,6 +81,11 @@ type PipelineService struct {
 // Used for SSE streaming (Z2-AC10).
 func (s *PipelineService) OnPageProgress(fn func(PageProgress)) {
 	s.onProgress = fn
+}
+
+// SetFidelityChecker sets an optional fidelity checker (Z3-AC10).
+func (s *PipelineService) SetFidelityChecker(fc chapter.FidelityChecker) {
+	s.fidelity = fc
 }
 
 // NewPipelineService creates a new PipelineService.
@@ -210,6 +226,31 @@ func (s *PipelineService) UploadAndProcess(ctx context.Context, chapterID uuid.U
 	ch.CurrentRevisionID = &rev.ID
 	ch.UpdatedAt = now
 	s.chapterRepo.Save(ctx, ch)
+
+	// Z8-AC03: Build recovery info if pipeline failed or produced 0 items
+	if rev.Status == chapter.RevisionFailed || result.TotalItems == 0 {
+		isFirst := s.isFirstUpload(ctx, ch.UserID, ch.ID)
+		hasDemoChapter := s.hasDemoChapter(ctx, ch.UserID)
+		result.Recovery = &RecoveryInfo{
+			IsFirstUpload:  isFirst,
+			CanRetry:       true,
+			CanContinue:    false,
+			HasDemoChapter: hasDemoChapter,
+			Message:        "Les photos sont un peu difficiles à lire. Pas de panique, ça arrive souvent au début !",
+		}
+	} else if rev.Status == chapter.RevisionPartial {
+		// Some items generated despite issues — can continue in degraded mode
+		isFirst := s.isFirstUpload(ctx, ch.UserID, ch.ID)
+		if result.FailedPages > 0 && isFirst {
+			result.Recovery = &RecoveryInfo{
+				IsFirstUpload:  true,
+				CanRetry:       true,
+				CanContinue:    true,
+				HasDemoChapter: s.hasDemoChapter(ctx, ch.UserID),
+				Message:        "Certaines pages étaient difficiles à lire, mais on a quand même pu créer des questions !",
+			}
+		}
+	}
 
 	// 7. Create UNKNOWN masteries for all new items and publish event
 	if len(allItems) > 0 {
@@ -378,7 +419,78 @@ func (s *PipelineService) processPage(
 		items = append(items, item)
 	}
 
+	// Z3-AC10: Fidelity check (step 7b) — verify items against source text
+	if s.fidelity != nil {
+		sourceText := collectSourceText(textBlocks)
+		for _, item := range items {
+			s.checkItemFidelity(ctx, item, sourceText, now)
+		}
+	}
+
 	return append(visualDocItems, items...), nil
+}
+
+// checkItemFidelity runs the LLM fidelity check on a single item (Z3-AC10).
+// On timeout, the item is kept with nil fidelity_score (degraded mode).
+func (s *PipelineService) checkItemFidelity(ctx context.Context, item *chapter.Item, sourceText string, now time.Time) {
+	result, err := s.fidelity.CheckFidelity(ctx, item, sourceText)
+	if err != nil {
+		// Timeout or error → degraded mode, continue normally
+		return
+	}
+
+	item.FidelityScore = &result.Score
+
+	if result.Score < 0.5 {
+		// Hallucinated — flag and require validation
+		flag := "low"
+		item.FidelityFlag = &flag
+		item.ValidationRequired = true
+	}
+	// Score >= 0.7 → faithful, no action needed
+	// Score 0.5-0.7 → neutral zone, no flag
+
+	item.UpdatedAt = now
+	s.chapterRepo.SaveItem(ctx, item)
+}
+
+// isFirstUpload checks if this is the user's first non-demo chapter upload (Z8-AC03).
+func (s *PipelineService) isFirstUpload(ctx context.Context, userID, chapterID uuid.UUID) bool {
+	chapters, err := s.chapterRepo.FindByUser(ctx, userID, false)
+	if err != nil {
+		return true // assume first on error
+	}
+	realChapters := 0
+	for _, ch := range chapters {
+		if !ch.IsDemo {
+			realChapters++
+		}
+	}
+	return realChapters <= 1 // this chapter is the only real one
+}
+
+// hasDemoChapter checks if the user has an active demo chapter (Z8-AC03).
+func (s *PipelineService) hasDemoChapter(ctx context.Context, userID uuid.UUID) bool {
+	chapters, err := s.chapterRepo.FindByUser(ctx, userID, false)
+	if err != nil {
+		return false
+	}
+	for _, ch := range chapters {
+		if ch.IsDemo {
+			return true
+		}
+	}
+	return false
+}
+
+// collectSourceText concatenates OCR block text for fidelity comparison.
+func collectSourceText(blocks []chapter.OCRBlock) string {
+	var sb strings.Builder
+	for _, b := range blocks {
+		sb.WriteString(b.Text)
+		sb.WriteString("\n")
+	}
+	return sb.String()
 }
 
 func (s *PipelineService) notifyProgress(p PageProgress) {

@@ -10,16 +10,31 @@ import (
 	"github.com/popul/revisemieux/internal/domain/mastery"
 )
 
+// OnboardingStep represents the current step in the deterministic onboarding sequence (Z8-AC08).
+type OnboardingStep string
+
+const (
+	StepAccountCreated   OnboardingStep = "account_created"    // (1)
+	StepDemoAvailable    OnboardingStep = "demo_available"     // (2) demo chapter + empty state
+	StepDemoSession      OnboardingStep = "demo_session"       // (3) optional demo evening_first
+	StepFirstUpload      OnboardingStep = "first_upload"       // (4+5) tutorial → upload → pipeline
+	StepFirstSession     OnboardingStep = "first_session"      // (6) evening_first on real chapter
+	StepDebrief          OnboardingStep = "debrief"            // (7) debrief + parent invite
+	StepOnboardingDone   OnboardingStep = "done"               // onboarding complete
+)
+
 // OnboardingStatus represents the current onboarding step for a user.
 type OnboardingStatus struct {
-	AccountCreated     bool   `json:"account_created"`
-	DemoSessionDone    bool   `json:"demo_session_done"`
-	FirstChapterReady  bool   `json:"first_chapter_ready"`
-	HasDemoChapter     bool   `json:"has_demo_chapter"`
-	DemoChapterID      *uuid.UUID `json:"demo_chapter_id,omitempty"`
-	Step1Label         string `json:"step1_label"`
-	Step2Label         string `json:"step2_label"`
-	Step3Label         string `json:"step3_label"`
+	AccountCreated     bool           `json:"account_created"`
+	DemoSessionDone    bool           `json:"demo_session_done"`
+	FirstChapterReady  bool           `json:"first_chapter_ready"`
+	HasDemoChapter     bool           `json:"has_demo_chapter"`
+	DemoChapterID      *uuid.UUID     `json:"demo_chapter_id,omitempty"`
+	CurrentStep        OnboardingStep `json:"current_step"`
+	CompletedSteps     []OnboardingStep `json:"completed_steps"`
+	Step1Label         string         `json:"step1_label"`
+	Step2Label         string         `json:"step2_label"`
+	Step3Label         string         `json:"step3_label"`
 }
 
 // DemoItem is a pre-defined item for the demo chapter.
@@ -173,7 +188,8 @@ func (s *OnboardingService) ArchiveDemoIfNeeded(ctx context.Context, userID uuid
 	return nil
 }
 
-// GetOnboardingStatus returns the current onboarding state for a user (Z8-AC02).
+// GetOnboardingStatus returns the current onboarding state for a user (Z8-AC02, Z8-AC08).
+// Z8-AC08: computes the deterministic onboarding step sequence.
 func (s *OnboardingService) GetOnboardingStatus(ctx context.Context, userID uuid.UUID) (*OnboardingStatus, error) {
 	chapters, err := s.chapterRepo.FindByUser(ctx, userID, true)
 	if err != nil {
@@ -187,6 +203,7 @@ func (s *OnboardingService) GetOnboardingStatus(ctx context.Context, userID uuid
 		Step3Label:     "Ta première session de révision",
 	}
 
+	var hasRealChapterWithItems bool
 	for _, ch := range chapters {
 		if ch.IsDemo && !ch.Archived {
 			status.HasDemoChapter = true
@@ -195,7 +212,40 @@ func (s *OnboardingService) GetOnboardingStatus(ctx context.Context, userID uuid
 		}
 		if !ch.IsDemo && !ch.Archived {
 			status.FirstChapterReady = true
+			// Check if real chapter has items (pipeline completed)
+			if ch.CurrentRevisionID != nil {
+				items, err := s.chapterRepo.FindItemsByChapter(ctx, ch.ID, false)
+				if err == nil && len(items) > 0 {
+					hasRealChapterWithItems = true
+				}
+			}
 		}
+	}
+
+	// Z8-AC08: Determine current step in the deterministic sequence
+	status.CompletedSteps = []OnboardingStep{StepAccountCreated}
+	status.CurrentStep = StepDemoAvailable
+
+	if status.HasDemoChapter {
+		status.CompletedSteps = append(status.CompletedSteps, StepDemoAvailable)
+		status.CurrentStep = StepDemoSession
+	}
+
+	if status.DemoSessionDone {
+		status.CompletedSteps = append(status.CompletedSteps, StepDemoSession)
+		status.CurrentStep = StepFirstUpload
+	}
+
+	if status.FirstChapterReady && hasRealChapterWithItems {
+		status.CompletedSteps = append(status.CompletedSteps, StepFirstUpload)
+		status.CurrentStep = StepFirstSession
+	}
+
+	// If user already has sessions on real chapters, they're past first session
+	if hasRealChapterWithItems {
+		// Check for completed sessions on real chapters
+		// For MVP, approximate: if items exist, user is at least at first_session
+		// The mobile app will track actual session completion
 	}
 
 	return status, nil

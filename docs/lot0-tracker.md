@@ -59,8 +59,8 @@ Coeur du produit. Machine à états + espacement.
 | 2.5 | Indépendance mastery entre items | `[x]` | Z1-AC09 | P1 |
 | 2.6 | Échec sur item UNKNOWN | `[x]` | Z1-AC11 | P1 |
 | 2.7 | Maintien SOLID sur succès continu | `[x]` | Z1-AC12 | P1 |
-| 2.8 | Resserrement proportionnel si exam posé | `[—]` | Z1-AC08 | P2 |
-| 2.9 | Scoring par type de question (RUBRIC, NUMERIC, KEYWORDS) | `[—]` | Z1-AC10 | P2 |
+| 2.8 | Resserrement proportionnel si exam posé | `[x]` | Z1-AC08 | P2 |
+| 2.9 | Scoring par type de question (RUBRIC, NUMERIC, KEYWORDS) | `[x]` | Z1-AC10 | P2 |
 | 2.10 | Plafond maîtrise OK pour items restreints | `[x]` | Z1-AC13 | P2 |
 | 2.11 | Tests unitaires exhaustifs (≥ 12 cas de transition) | `[x]` | Z1-AC01→AC13 | P1 |
 | 2.12 | Repository `masteries` (CRUD + requêtes due/state) | `[x]` | — | P1 |
@@ -100,7 +100,7 @@ Composition, lazy generation, feedback.
 |---|---|---|---|---|
 | 4.1 | Session evening_first déclenchée après upload | `[x]` | Z6-AC04 | P1 |
 | 4.2 | evening_first : 100% UNKNOWN, difficulté 1 | `[x]` | Z6-AC05 | P1 |
-| 4.3 | Composition session avec contraintes pack | `[—]` | Z4-AC05 | P1 |
+| 4.3 | Composition session avec contraintes pack | `[x]` | Z4-AC05 | P1 |
 | 4.4 | Pool vide : dégradation gracieuse | `[x]` | Z4-AC06 | P1 |
 | 4.5 | Reprise session interrompue | `[x]` | Z4-AC04 | P1 |
 | 4.6 | Feedback enrichi après réponse incorrecte | `[x]` | Z4-AC09 | P1 |
@@ -126,7 +126,7 @@ Boucle de qualité parent/admin.
 | 5.5 | Action « Je ne sais pas » sur ValidationTask | `[x]` | Z3-AC04 | P2 |
 | 5.6 | Action Ignorer sur ValidationTask | `[x]` | Z3-AC05 | P2 |
 | 5.7 | Pas de ValidationTask si confidence > 0.85 | `[x]` | Z3-AC09 | P2 |
-| 5.8 | Vérification croisée LLM (fidelity check) | `[—]` | Z3-AC10 | P2 |
+| 5.8 | Vérification croisée LLM (fidelity check) | `[x]` | Z3-AC10 | P2 |
 
 ---
 
@@ -139,8 +139,8 @@ Première expérience utilisateur.
 | 6.1 | Chapitre démo pré-chargé (cold start) | `[x]` | Z8-AC01 | P1 |
 | 6.2 | Empty state guidé avant premier upload | `[x]` | Z8-AC02 | P1 |
 | 6.3 | Écran de progression pendant le traitement J0 | `[x]` | Z8-AC04 | P1 |
-| 6.4 | UX de recovery si le premier OCR échoue | `[ ]` | Z8-AC03 | P2 |
-| 6.5 | Séquence d'onboarding déterministe (Day 0) | `[ ]` | Z8-AC08 | P2 |
+| 6.4 | UX de recovery si le premier OCR échoue | `[x]` | Z8-AC03 | P2 |
+| 6.5 | Séquence d'onboarding déterministe (Day 0) | `[x]` | Z8-AC08 | P2 |
 
 ---
 
@@ -189,7 +189,7 @@ Vérification exhaustive : chaque AC Lot 0 est rattachée à une tâche.
 | Z2-AC10 | 3.8 | `[x]` |
 | Z3-AC06 | 5.1 | `[x]` |
 | Z4-AC04 | 4.5 | `[x]` |
-| Z4-AC05 | 4.3 | `[—]` |
+| Z4-AC05 | 4.3 | `[x]` |
 | Z4-AC06 | 4.4 | `[x]` |
 | Z4-AC09 | 4.6 | `[x]` |
 | Z5-AC01 | 3.14 | `[x]` |
@@ -208,8 +208,8 @@ Vérification exhaustive : chaque AC Lot 0 est rattachée à une tâche.
 
 | AC | Phase.Tâche | Statut |
 |---|---|---|
-| Z1-AC08 | 2.8 | `[—]` |
-| Z1-AC10 | 2.9 | `[—]` |
+| Z1-AC08 | 2.8 | `[x]` |
+| Z1-AC10 | 2.9 | `[x]` |
 | Z1-AC13 | 2.10 | `[x]` |
 | Z2-AC02 | 3.9 | `[x]` |
 | Z2-AC03 | 3.10 | `[x]` |
@@ -222,12 +222,12 @@ Vérification exhaustive : chaque AC Lot 0 est rattachée à une tâche.
 | Z3-AC04 | 5.5 | `[x]` |
 | Z3-AC05 | 5.6 | `[x]` |
 | Z3-AC09 | 5.7 | `[x]` |
-| Z3-AC10 | 5.8 | `[—]` |
+| Z3-AC10 | 5.8 | `[x]` |
 | Z4-AC07 | 4.10 | `[x]` |
 | Z6-AC10 | 4.11 | `[x]` |
 | Z7-AC16 | 4.12 | `[x]` |
-| Z8-AC03 | 6.4 | `[ ]` |
-| Z8-AC08 | 6.5 | `[ ]` |
+| Z8-AC03 | 6.4 | `[x]` |
+| Z8-AC08 | 6.5 | `[x]` |
 
 ---
 

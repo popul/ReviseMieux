@@ -337,6 +337,78 @@ func TestZ8AC02_OnboardingStatusEmptyState(t *testing.T) {
 	}
 }
 
+// Z8-AC08: Deterministic onboarding sequence — new user at demo_session step
+func TestZ8AC08_DeterministicSequence_DemoAvailable(t *testing.T) {
+	userID := uuid.New()
+	demoID := uuid.New()
+
+	chapterRepo := &mockChapterRepoOnboarding{
+		chapters: []*chapter.Chapter{
+			{ID: demoID, UserID: userID, IsDemo: true, Archived: false},
+		},
+	}
+	masteryRepo := &mockMasteryRepoOnboarding{}
+	now := time.Date(2026, 3, 12, 20, 0, 0, 0, time.UTC)
+	clock := &fixedClock{t: now}
+	idGen := &fixedIDGen{}
+
+	svc := NewOnboardingService(chapterRepo, masteryRepo, clock, idGen)
+
+	status, err := svc.GetOnboardingStatus(context.Background(), userID)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if status.CurrentStep != StepDemoSession {
+		t.Errorf("current_step: got %q, want %q", status.CurrentStep, StepDemoSession)
+	}
+	if len(status.CompletedSteps) < 2 {
+		t.Fatalf("expected at least 2 completed steps, got %d", len(status.CompletedSteps))
+	}
+	if status.CompletedSteps[0] != StepAccountCreated {
+		t.Errorf("completed_steps[0]: got %q, want %q", status.CompletedSteps[0], StepAccountCreated)
+	}
+	if status.CompletedSteps[1] != StepDemoAvailable {
+		t.Errorf("completed_steps[1]: got %q, want %q", status.CompletedSteps[1], StepDemoAvailable)
+	}
+}
+
+// Z8-AC08: After first real chapter with items → at first_session step
+func TestZ8AC08_DeterministicSequence_FirstUploadDone(t *testing.T) {
+	userID := uuid.New()
+	realChID := uuid.New()
+	revID := uuid.New()
+
+	chapterRepo := &mockChapterRepoOnboarding{
+		chapters: []*chapter.Chapter{
+			{ID: uuid.New(), UserID: userID, IsDemo: true, Archived: true},
+			{ID: realChID, UserID: userID, IsDemo: false, Archived: false, CurrentRevisionID: &revID},
+		},
+		items: []*chapter.Item{
+			{ID: uuid.New(), ChapterID: realChID, ItemType: chapter.ItemKnowledge},
+			{ID: uuid.New(), ChapterID: realChID, ItemType: chapter.ItemKnowledge},
+		},
+	}
+	masteryRepo := &mockMasteryRepoOnboarding{}
+	now := time.Date(2026, 3, 12, 20, 0, 0, 0, time.UTC)
+	clock := &fixedClock{t: now}
+	idGen := &fixedIDGen{}
+
+	svc := NewOnboardingService(chapterRepo, masteryRepo, clock, idGen)
+
+	status, err := svc.GetOnboardingStatus(context.Background(), userID)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	if status.CurrentStep != StepFirstSession {
+		t.Errorf("current_step: got %q, want %q", status.CurrentStep, StepFirstSession)
+	}
+	if !status.FirstChapterReady {
+		t.Error("first_chapter_ready should be true")
+	}
+}
+
 // Z8-AC02: Empty state disappears after first real chapter
 func TestZ8AC02_EmptyStateDisappearsWithRealChapter(t *testing.T) {
 	userID := uuid.New()

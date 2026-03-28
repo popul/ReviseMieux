@@ -94,6 +94,7 @@ func (s *SessionService) ProposeEveningFirst(ctx context.Context, userID, chapte
 }
 
 // ComposeDaily creates a daily session for a chapter.
+// Z4-AC05: applies pack constraints (max_writing, must_include_doc).
 // Z4-AC06: returns error if no items available (no empty session created).
 func (s *SessionService) ComposeDaily(ctx context.Context, userID, chapterID uuid.UUID) (*session.Session, error) {
 	now := s.clock.Now()
@@ -104,25 +105,33 @@ func (s *SessionService) ComposeDaily(ctx context.Context, userID, chapterID uui
 		return nil, fmt.Errorf("session_service: find due: %w", err)
 	}
 
-	// Filter to items from this chapter
+	// Get chapter items with their types
 	chapterItems, err := s.chapterRepo.FindItemsByChapter(ctx, chapterID, false)
 	if err != nil {
 		return nil, fmt.Errorf("session_service: find items: %w", err)
 	}
 
-	chapterItemSet := make(map[uuid.UUID]bool)
+	chapterItemMap := make(map[uuid.UUID]*chapter.Item)
 	for _, item := range chapterItems {
-		chapterItemSet[item.ID] = true
+		chapterItemMap[item.ID] = item
 	}
 
 	var eligibleMasteries []*mastery.Mastery
 	for _, m := range dueMasteries {
-		if chapterItemSet[m.ItemID] {
+		if _, ok := chapterItemMap[m.ItemID]; ok {
 			eligibleMasteries = append(eligibleMasteries, m)
 		}
 	}
 
 	if len(eligibleMasteries) == 0 {
+		return nil, session.ErrEmptyPool
+	}
+
+	// Z4-AC05: Apply pack constraints
+	pack := session.DefaultPackConstraints()
+	selected := applyPackConstraints(eligibleMasteries, chapterItemMap, pack, 10)
+
+	if len(selected) == 0 {
 		return nil, session.ErrEmptyPool
 	}
 
@@ -133,19 +142,13 @@ func (s *SessionService) ComposeDaily(ctx context.Context, userID, chapterID uui
 		return nil, fmt.Errorf("session_service: save session: %w", err)
 	}
 
-	// Select up to 10 items
-	maxQuestions := 10
-	if len(eligibleMasteries) < maxQuestions {
-		maxQuestions = len(eligibleMasteries)
-	}
-
-	for i := 0; i < maxQuestions; i++ {
+	for i, m := range selected {
 		templateID := difficulty1Templates[i%len(difficulty1Templates)]
 		q := &session.Question{
 			ID:         s.idGen.New(),
 			SessionID:  sess.ID,
 			TemplateID: templateID,
-			ItemID:     eligibleMasteries[i].ItemID,
+			ItemID:     m.ItemID,
 			CreatedAt:  now,
 		}
 		if err := s.sessionRepo.SaveQuestion(ctx, q); err != nil {
@@ -154,6 +157,66 @@ func (s *SessionService) ComposeDaily(ctx context.Context, userID, chapterID uui
 	}
 
 	return sess, nil
+}
+
+// applyPackConstraints selects masteries respecting pack constraints (Z4-AC05).
+// Returns at most maxItems masteries, ensuring:
+// - At most pack.MaxWritingPerSession WRITING items
+// - At least 1 DOCUMENT item if pack.SessionMustIncludeDoc and available
+func applyPackConstraints(
+	masteries []*mastery.Mastery,
+	itemMap map[uuid.UUID]*chapter.Item,
+	pack session.PackConstraints,
+	maxItems int,
+) []*mastery.Mastery {
+	var docMasteries, writingMasteries, otherMasteries []*mastery.Mastery
+
+	for _, m := range masteries {
+		item, ok := itemMap[m.ItemID]
+		if !ok {
+			continue
+		}
+		switch item.ItemType {
+		case chapter.ItemDocument:
+			docMasteries = append(docMasteries, m)
+		case chapter.ItemWriting:
+			writingMasteries = append(writingMasteries, m)
+		default:
+			otherMasteries = append(otherMasteries, m)
+		}
+	}
+
+	var selected []*mastery.Mastery
+
+	// 1. Include exactly 1 document item if required and available
+	if pack.SessionMustIncludeDoc && len(docMasteries) > 0 {
+		selected = append(selected, docMasteries[0])
+		docMasteries = docMasteries[1:]
+	}
+
+	// 2. Include writing items up to the cap
+	writingCap := pack.MaxWritingPerSession
+	for i := 0; i < len(writingMasteries) && i < writingCap && len(selected) < maxItems; i++ {
+		selected = append(selected, writingMasteries[i])
+	}
+
+	// 3. Fill with other items (knowledge, procedure)
+	for _, m := range otherMasteries {
+		if len(selected) >= maxItems {
+			break
+		}
+		selected = append(selected, m)
+	}
+
+	// 4. Fill remaining slots with extra doc items
+	for _, m := range docMasteries {
+		if len(selected) >= maxItems {
+			break
+		}
+		selected = append(selected, m)
+	}
+
+	return selected
 }
 
 // ResumeSession allows resuming an in-progress session.
