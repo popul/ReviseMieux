@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "expo": {
+      "command": "npx",
+      "args": ["expo-mcp@latest"],
+      "cwd": "mobile"
+    }
+  }
+}
