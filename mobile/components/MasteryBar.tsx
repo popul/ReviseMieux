@@ -46,7 +46,8 @@ export function MasteryBar({ breakdown, height = 10, showLabel = true }: Props) 
           <RNView
             key={seg.key}
             style={{
-              flex: seg.value,
+              width: `${(seg.value / total) * 100}%`,
+              height: '100%',
               backgroundColor: seg.color,
             }}
           />
