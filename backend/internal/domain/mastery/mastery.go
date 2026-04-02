@@ -156,6 +156,46 @@ func (m *Mastery) spacingMet(prevSuccessAt *time.Time, now time.Time) bool {
 	return now.Sub(*prevSuccessAt) >= time.Duration(SpacingHours)*time.Hour
 }
 
+// ApplyExamTightening adjusts NextDueAt based on the number of days until the
+// nearest exam (Z1-AC08). T is the number of days until the exam.
+// UNKNOWN/FRAGILE intervals are incompressible (always J+1).
+// If T ≤ 0 (exam already passed), no tightening is applied.
+func (m *Mastery) ApplyExamTightening(daysUntilExam int, now time.Time) {
+	if daysUntilExam <= 0 || m.NextDueAt == nil {
+		return
+	}
+
+	T := daysUntilExam
+	var tightenedDays int
+
+	switch m.State {
+	case Unknown, Fragile:
+		// Incompressible — J+1 always
+		return
+	case OK:
+		// Check if this is a regression (SOLID→OK produces a 2-day interval)
+		standardDays := int(m.NextDueAt.Sub(now).Hours() / 24)
+		if standardDays <= 2 {
+			// Regression SOLID→OK: J + max(1, ⌊T/4⌋)
+			tightenedDays = max(1, T/4)
+		} else {
+			// Normal OK: J + max(1, ⌊T/3⌋)
+			tightenedDays = max(1, T/3)
+		}
+	case Solid:
+		// J + max(2, ⌊T/2⌋)
+		tightenedDays = max(2, T/2)
+	default:
+		return
+	}
+
+	tightened := now.Add(time.Duration(tightenedDays) * 24 * time.Hour)
+	// Only tighten, never loosen
+	if tightened.Before(*m.NextDueAt) {
+		m.NextDueAt = &tightened
+	}
+}
+
 // IsDue returns true if the mastery is due for review at the given time.
 func (m *Mastery) IsDue(at time.Time) bool {
 	if m.NextDueAt == nil {

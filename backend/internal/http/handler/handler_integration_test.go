@@ -70,12 +70,12 @@ func setupTestApp(t *testing.T) *testApp {
 	// Services
 	chapterSvc := app.NewChapterService(chapterRepo, masteryRepo)
 	masterySvc := app.NewMasteryService(masteryRepo, publisher, clock)
-	sessionSvc := app.NewSessionService(sessionRepo, chapterRepo, masteryRepo, publisher, clock, idGen)
+	sessionSvc := app.NewSessionService(sessionRepo, chapterRepo, masteryRepo, publisher, clock, idGen, nil)
 	valSvc := app.NewValidationService(valRepo, chapterRepo, publisher, clock, idGen)
 	onboardingSvc := app.NewOnboardingService(chapterRepo, masteryRepo, clock, idGen)
 
 	// Handlers
-	chapterHandler := handler.NewChapter(chapterSvc, chapterRepo, idGen, clock)
+	chapterHandler := handler.NewChapter(chapterSvc, chapterRepo, masteryRepo, idGen, clock)
 	masteryHandler := handler.NewMastery(masterySvc)
 	sessionHandler := handler.NewSession(sessionSvc)
 	valHandler := handler.NewValidation(valSvc)

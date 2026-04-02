@@ -19,6 +19,7 @@ type RouterConfig struct {
 	SessionHandler    *handler.Session
 	ValidationHandler *handler.Validation
 	OnboardingHandler *handler.Onboarding
+	DevHandler        *handler.Dev
 }
 
 // NewRouter creates and configures the Gin router with all routes.
@@ -32,6 +33,11 @@ func NewRouter(cfg RouterConfig) *gin.Engine {
 	// --- Public routes ---
 	health := handler.NewHealth(cfg.Version)
 	r.GET("/health", health.Check)
+
+	// Dev token (only registered when DevHandler is provided, i.e. debug mode)
+	if cfg.DevHandler != nil {
+		r.GET("/dev/token", cfg.DevHandler.Token)
+	}
 
 	// --- Authenticated routes ---
 	api := r.Group("/api/v1")
@@ -66,16 +72,17 @@ func NewRouter(cfg RouterConfig) *gin.Engine {
 		// Sessions
 		if cfg.SessionHandler != nil {
 			api.POST("/sessions/daily", cfg.SessionHandler.ComposeDaily)
-			api.GET("/sessions/:id", cfg.SessionHandler.GetByID)
-			api.POST("/sessions/:id/resume", cfg.SessionHandler.Resume)
-			api.GET("/sessions/:id/questions", cfg.SessionHandler.GetQuestions)
-			api.POST("/sessions/:id/answer", cfg.SessionHandler.SubmitAnswer)
+			api.GET("/sessions/:session_id", cfg.SessionHandler.GetByID)
+			api.POST("/sessions/:session_id/resume", cfg.SessionHandler.Resume)
+			api.GET("/sessions/:session_id/questions", cfg.SessionHandler.GetQuestions)
+			api.POST("/sessions/:session_id/answer", cfg.SessionHandler.SubmitAnswer)
+			api.GET("/sessions/:session_id/debrief", cfg.SessionHandler.Debrief)
 		}
 
 		// Validation
 		if cfg.ValidationHandler != nil {
 			api.GET("/validations", cfg.ValidationHandler.ListPending)
-			api.POST("/validations/:id/resolve", cfg.ValidationHandler.Resolve)
+			api.POST("/validations/:validation_id/resolve", cfg.ValidationHandler.Resolve)
 		}
 	}
 

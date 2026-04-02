@@ -30,28 +30,51 @@ func GenerateFeedback(templateID string, expectedAnswer, studentAnswer []byte) F
 
 func generateKeywordsFeedback(expectedAnswer, _ []byte) Feedback {
 	var expected struct {
-		Keywords []string `json:"keywords"`
+		Answer   string   `json:"answer"`
+		Keywords string   `json:"keywords"`
+		KeywordsList []string `json:"keywords_list"`
 	}
 	json.Unmarshal(expectedAnswer, &expected)
 
+	// keywords can be a comma-separated string or a list
+	kw := expected.Keywords
+	if kw == "" && len(expected.KeywordsList) > 0 {
+		kw = strings.Join(expected.KeywordsList, ", ")
+	}
+	answer := expected.Answer
+	if answer == "" {
+		answer = kw
+	}
+
 	return Feedback{
-		CorrectAnswer:  fmt.Sprintf("Les mots-clés attendus étaient : %s", strings.Join(expected.Keywords, ", ")),
-		WhatWasMissing: fmt.Sprintf("Mots-clés manquants : %s", strings.Join(expected.Keywords, ", ")),
-		Hint:           fmt.Sprintf("Retiens les termes essentiels : %s.", strings.Join(expected.Keywords, ", ")),
+		CorrectAnswer:  fmt.Sprintf("La réponse attendue était : %s", answer),
+		WhatWasMissing: fmt.Sprintf("Mots-clés attendus : %s", kw),
+		Hint:           fmt.Sprintf("Retiens les termes essentiels : %s.", kw),
 	}
 }
 
 func generateMCQFeedback(expectedAnswer, _ []byte) Feedback {
 	var expected struct {
+		Answer      string `json:"answer"`
 		Correct     string `json:"correct"`
 		Explanation string `json:"explanation"`
 	}
 	json.Unmarshal(expectedAnswer, &expected)
 
+	// Support both "answer" and "correct" fields
+	correctValue := expected.Correct
+	if correctValue == "" {
+		correctValue = expected.Answer
+	}
+	explanation := expected.Explanation
+	if explanation == "" {
+		explanation = "Revois cette notion dans ta carte de leçon."
+	}
+
 	return Feedback{
-		CorrectAnswer:  fmt.Sprintf("La bonne réponse était : %s", expected.Correct),
-		WhatWasMissing: expected.Explanation,
-		Hint:           expected.Explanation,
+		CorrectAnswer:  fmt.Sprintf("La bonne réponse était : %s", correctValue),
+		WhatWasMissing: explanation,
+		Hint:           explanation,
 	}
 }
 

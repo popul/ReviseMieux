@@ -222,8 +222,14 @@ func (m *mockMasteryRepo) FindByID(_ context.Context, _ uuid.UUID) (*mastery.Mas
 func (m *mockMasteryRepo) FindByUserAndItem(_ context.Context, _, _ uuid.UUID) (*mastery.Mastery, error) {
 	return nil, mastery.ErrNotFound
 }
-func (m *mockMasteryRepo) FindDueByUser(_ context.Context, _ uuid.UUID, _ time.Time) ([]*mastery.Mastery, error) {
-	return nil, nil
+func (m *mockMasteryRepo) FindDueByUser(_ context.Context, userID uuid.UUID, before time.Time) ([]*mastery.Mastery, error) {
+	var result []*mastery.Mastery
+	for _, ms := range m.saved {
+		if ms.UserID == userID && ms.IsDue(before) {
+			result = append(result, ms)
+		}
+	}
+	return result, nil
 }
 func (m *mockMasteryRepo) FindByUserAndState(_ context.Context, _ uuid.UUID, _ mastery.State) ([]*mastery.Mastery, error) {
 	return nil, nil
@@ -598,5 +604,154 @@ func TestPipelineService_Z2AC10_ProgressCallback(t *testing.T) {
 	// Check last event
 	if progress[2].PageOrder != 3 {
 		t.Errorf("progress[2].PageOrder = %d, want 3", progress[2].PageOrder)
+	}
+}
+
+// --- Fidelity check mock ---
+
+type mockFidelityChecker struct {
+	score float64
+	err   error
+}
+
+func (m *mockFidelityChecker) CheckFidelity(_ context.Context, _ *chapter.Item, _ string) (*chapter.FidelityResult, error) {
+	if m.err != nil {
+		return nil, m.err
+	}
+	flag := ""
+	if m.score < 0.5 {
+		flag = "low"
+	}
+	return &chapter.FidelityResult{Score: m.score, Flag: flag}, nil
+}
+
+// Z3-AC10 — Faithful item (score >= 0.7): no flag, no validation required
+func TestZ3AC10_FidelityFaithful(t *testing.T) {
+	now := time.Date(2026, 1, 15, 10, 0, 0, 0, time.UTC)
+	clock := fixedClock{t: now}
+	idGen := &fixedIDGen{}
+
+	chRepo := newMockChapterRepo()
+	storage := newMockStorage()
+	ocr := newMockOCR()
+	llm := newMockLLM()
+	masteryRepo := &mockMasteryRepo{}
+	publisher := &mockPublisher{}
+
+	ch := chapter.NewChapter(idGen, uuid.Must(uuid.NewV7()), "SVT", "5e", "Photosynthese", now)
+	chRepo.Save(context.Background(), ch)
+
+	svc := NewPipelineService(chRepo, masteryRepo, storage, ocr, llm, publisher, clock, idGen)
+	svc.SetFidelityChecker(&mockFidelityChecker{score: 0.85})
+
+	photos := []PageUpload{
+		{FileName: "page1.jpg", ContentType: "image/jpeg", Body: strings.NewReader("fake")},
+	}
+	result, err := svc.UploadAndProcess(context.Background(), ch.ID, photos)
+	if err != nil {
+		t.Fatalf("UploadAndProcess: %v", err)
+	}
+	if result.TotalItems != 1 {
+		t.Fatalf("expected 1 item, got %d", result.TotalItems)
+	}
+
+	// Find the item and check fidelity fields
+	items, _ := chRepo.FindItemsByChapter(context.Background(), ch.ID, true)
+	for _, item := range items {
+		if item.ItemType == chapter.ItemKnowledge {
+			if item.FidelityScore == nil || *item.FidelityScore != 0.85 {
+				t.Errorf("fidelity_score: got %v, want 0.85", item.FidelityScore)
+			}
+			if item.FidelityFlag != nil {
+				t.Errorf("fidelity_flag: got %v, want nil", item.FidelityFlag)
+			}
+			if item.ValidationRequired {
+				t.Error("validation_required should be false for faithful item")
+			}
+		}
+	}
+}
+
+// Z3-AC10 — Hallucinated item (score < 0.5): flag=low, validation required
+func TestZ3AC10_FidelityHallucinated(t *testing.T) {
+	now := time.Date(2026, 1, 15, 10, 0, 0, 0, time.UTC)
+	clock := fixedClock{t: now}
+	idGen := &fixedIDGen{}
+
+	chRepo := newMockChapterRepo()
+	storage := newMockStorage()
+	ocr := newMockOCR()
+	llm := newMockLLM()
+	masteryRepo := &mockMasteryRepo{}
+	publisher := &mockPublisher{}
+
+	ch := chapter.NewChapter(idGen, uuid.Must(uuid.NewV7()), "SVT", "5e", "Photosynthese", now)
+	chRepo.Save(context.Background(), ch)
+
+	svc := NewPipelineService(chRepo, masteryRepo, storage, ocr, llm, publisher, clock, idGen)
+	svc.SetFidelityChecker(&mockFidelityChecker{score: 0.3})
+
+	photos := []PageUpload{
+		{FileName: "page1.jpg", ContentType: "image/jpeg", Body: strings.NewReader("fake")},
+	}
+	_, err := svc.UploadAndProcess(context.Background(), ch.ID, photos)
+	if err != nil {
+		t.Fatalf("UploadAndProcess: %v", err)
+	}
+
+	items, _ := chRepo.FindItemsByChapter(context.Background(), ch.ID, true)
+	for _, item := range items {
+		if item.ItemType == chapter.ItemKnowledge {
+			if item.FidelityScore == nil || *item.FidelityScore != 0.3 {
+				t.Errorf("fidelity_score: got %v, want 0.3", item.FidelityScore)
+			}
+			if item.FidelityFlag == nil || *item.FidelityFlag != "low" {
+				t.Errorf("fidelity_flag: got %v, want 'low'", item.FidelityFlag)
+			}
+			if !item.ValidationRequired {
+				t.Error("validation_required should be true for hallucinated item")
+			}
+		}
+	}
+}
+
+// Z3-AC10 — Fidelity timeout: item kept with nil score, pipeline continues
+func TestZ3AC10_FidelityTimeout(t *testing.T) {
+	now := time.Date(2026, 1, 15, 10, 0, 0, 0, time.UTC)
+	clock := fixedClock{t: now}
+	idGen := &fixedIDGen{}
+
+	chRepo := newMockChapterRepo()
+	storage := newMockStorage()
+	ocr := newMockOCR()
+	llm := newMockLLM()
+	masteryRepo := &mockMasteryRepo{}
+	publisher := &mockPublisher{}
+
+	ch := chapter.NewChapter(idGen, uuid.Must(uuid.NewV7()), "SVT", "5e", "Photosynthese", now)
+	chRepo.Save(context.Background(), ch)
+
+	svc := NewPipelineService(chRepo, masteryRepo, storage, ocr, llm, publisher, clock, idGen)
+	svc.SetFidelityChecker(&mockFidelityChecker{err: fmt.Errorf("timeout")})
+
+	photos := []PageUpload{
+		{FileName: "page1.jpg", ContentType: "image/jpeg", Body: strings.NewReader("fake")},
+	}
+	result, err := svc.UploadAndProcess(context.Background(), ch.ID, photos)
+	if err != nil {
+		t.Fatalf("UploadAndProcess: %v (pipeline should continue on fidelity timeout)", err)
+	}
+	if result.TotalItems != 1 {
+		t.Errorf("expected 1 item despite fidelity timeout, got %d", result.TotalItems)
+	}
+
+	// Item should have nil fidelity score
+	items, _ := chRepo.FindItemsByChapter(context.Background(), ch.ID, true)
+	for _, item := range items {
+		if item.ItemType == chapter.ItemKnowledge {
+			if item.FidelityScore != nil {
+				t.Errorf("fidelity_score should be nil on timeout, got %v", *item.FidelityScore)
+			}
+		}
 	}
 }

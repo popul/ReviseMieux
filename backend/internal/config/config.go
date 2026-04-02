@@ -21,10 +21,17 @@ type Config struct {
 	S3SecretKey string
 	S3Region    string
 
+	// LLM provider selection: "gemini" (default), "anthropic"
+	LLMProvider string
+
 	// Anthropic LLM
 	AnthropicAPIKey        string
 	AnthropicStructModel   string // Model for structuration (default: claude-sonnet-4-6)
 	AnthropicFidelityModel string // Model for fidelity check (default: claude-haiku-4-5)
+
+	// Google Gemini LLM
+	GoogleAIAPIKey   string
+	GeminiStructModel string // Model for structuration (default: gemini-2.5-flash)
 }
 
 // Load reads configuration from environment variables with sensible defaults.
@@ -42,9 +49,14 @@ func Load() (*Config, error) {
 		S3SecretKey: envOrDefault("S3_SECRET_KEY", ""),
 		S3Region:    envOrDefault("S3_REGION", "us-east-1"),
 
+		LLMProvider: envOrDefault("LLM_PROVIDER", "gemini"),
+
 		AnthropicAPIKey:        envOrDefault("ANTHROPIC_API_KEY", ""),
 		AnthropicStructModel:   envOrDefault("ANTHROPIC_STRUCT_MODEL", "claude-sonnet-4-6"),
 		AnthropicFidelityModel: envOrDefault("ANTHROPIC_FIDELITY_MODEL", "claude-haiku-4-5"),
+
+		GoogleAIAPIKey:    envOrDefault("GOOGLE_AI_API_KEY", ""),
+		GeminiStructModel: envOrDefault("GEMINI_STRUCT_MODEL", "gemini-2.5-flash"),
 	}
 
 	if cfg.JWTSecret == "" {

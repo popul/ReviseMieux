@@ -103,7 +103,7 @@ func TestZ6AC04_EveningFirstProposedAfterPipeline(t *testing.T) {
 	ch := chapter.NewChapter(idGen, uuid.Must(uuid.NewV7()), "Physique", "5e", "Mouvement", now)
 	chRepo.Save(context.Background(), ch)
 
-	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen)
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
 
 	// Simulate: pipeline produced 12 items, all UNKNOWN
 	var itemIDs []uuid.UUID
@@ -144,7 +144,7 @@ func TestZ6AC05_EveningFirstComposition(t *testing.T) {
 	ch := chapter.NewChapter(idGen, uuid.Must(uuid.NewV7()), "Physique", "5e", "Mouvement", now)
 	chRepo.Save(context.Background(), ch)
 
-	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen)
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
 
 	// 12 UNKNOWN items
 	var itemIDs []uuid.UUID
@@ -188,7 +188,7 @@ func TestZ4AC04_ResumeInterruptedSession(t *testing.T) {
 	masteryRepo := &mockMasteryRepo{}
 	publisher := &mockPublisher{}
 
-	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen)
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
 
 	// Create a session with 10 questions, student answered 4
 	userID := uuid.Must(uuid.NewV7())
@@ -221,7 +221,7 @@ func TestZ4AC04_CannotResumeCompletedSession(t *testing.T) {
 	masteryRepo := &mockMasteryRepo{}
 	publisher := &mockPublisher{}
 
-	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen)
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
 
 	userID := uuid.Must(uuid.NewV7())
 	sess := session.NewSession(idGen, userID, session.TypeDaily, session.TriggerManual, now)
@@ -249,7 +249,7 @@ func TestZ4AC06_PoolEmptyGracefulDegradation(t *testing.T) {
 	ch := chapter.NewChapter(idGen, uuid.Must(uuid.NewV7()), "Physique", "5e", "Mouvement", now)
 	chRepo.Save(context.Background(), ch)
 
-	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen)
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
 
 	_, err := svc.ComposeDaily(context.Background(), ch.UserID, ch.ID)
 	if err == nil {
@@ -276,7 +276,7 @@ func TestZ6AC11_DegradedModeWithoutSchedule(t *testing.T) {
 	ch := chapter.NewChapter(idGen, uuid.Must(uuid.NewV7()), "Physique", "5e", "Mouvement", now)
 	chRepo.Save(context.Background(), ch)
 
-	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen)
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
 
 	// Without schedule, daily/evening_first/mock_exam should still be available
 	types := svc.AvailableSessionTypes(false) // hasSchedule = false
@@ -301,6 +301,96 @@ func contains(types []session.SessionType, target session.SessionType) bool {
 		}
 	}
 	return false
+}
+
+// Z4-AC05: pack constraints — max 1 writing, must include 1 document
+func TestZ4AC05_PackConstraints(t *testing.T) {
+	now := time.Date(2026, 3, 12, 18, 0, 0, 0, time.UTC)
+	clock := fixedClock{t: now}
+	idGen := &fixedIDGen{}
+
+	sessionRepo := newMockSessionRepo()
+	chRepo := newMockChapterRepo()
+	masteryRepo := &mockMasteryRepo{}
+	publisher := &mockPublisher{}
+
+	userID := uuid.Must(uuid.NewV7())
+	ch := chapter.NewChapter(idGen, userID, "HG", "4e", "Inegalites", now)
+	chRepo.Save(context.Background(), ch)
+
+	// Create 5 document items + 8 knowledge items + 3 writing items
+	var docItemIDs, knowledgeItemIDs, writingItemIDs []uuid.UUID
+
+	for i := 0; i < 5; i++ {
+		item := &chapter.Item{ID: uuid.Must(uuid.NewV7()), ChapterID: ch.ID, ItemType: chapter.ItemDocument, CreatedAt: now, UpdatedAt: now}
+		chRepo.SaveItem(context.Background(), item)
+		docItemIDs = append(docItemIDs, item.ID)
+	}
+	for i := 0; i < 8; i++ {
+		item := &chapter.Item{ID: uuid.Must(uuid.NewV7()), ChapterID: ch.ID, ItemType: chapter.ItemKnowledge, CreatedAt: now, UpdatedAt: now}
+		chRepo.SaveItem(context.Background(), item)
+		knowledgeItemIDs = append(knowledgeItemIDs, item.ID)
+	}
+	for i := 0; i < 3; i++ {
+		item := &chapter.Item{ID: uuid.Must(uuid.NewV7()), ChapterID: ch.ID, ItemType: chapter.ItemWriting, CreatedAt: now, UpdatedAt: now}
+		chRepo.SaveItem(context.Background(), item)
+		writingItemIDs = append(writingItemIDs, item.ID)
+	}
+
+	// All items are due
+	allItemIDs := append(append(docItemIDs, knowledgeItemIDs...), writingItemIDs...)
+	for _, itemID := range allItemIDs {
+		m := mastery.NewMastery(idGen, userID, itemID, now)
+		// Make them due by setting NextDueAt in the past
+		past := now.Add(-1 * time.Hour)
+		m.NextDueAt = &past
+		masteryRepo.saved = append(masteryRepo.saved, m)
+	}
+
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
+
+	sess, err := svc.ComposeDaily(context.Background(), userID, ch.ID)
+	if err != nil {
+		t.Fatalf("ComposeDaily: %v", err)
+	}
+
+	questions, _ := sessionRepo.FindQuestionsBySession(context.Background(), sess.ID)
+
+	// Count item types in session
+	docCount := 0
+	writingCount := 0
+	docSet := make(map[uuid.UUID]bool)
+	for _, id := range docItemIDs {
+		docSet[id] = true
+	}
+	writingSet := make(map[uuid.UUID]bool)
+	for _, id := range writingItemIDs {
+		writingSet[id] = true
+	}
+
+	for _, q := range questions {
+		if docSet[q.ItemID] {
+			docCount++
+		}
+		if writingSet[q.ItemID] {
+			writingCount++
+		}
+	}
+
+	// Z4-AC05: must include at least 1 document
+	if docCount < 1 {
+		t.Errorf("expected at least 1 document question, got %d", docCount)
+	}
+
+	// Z4-AC05: max 1 writing per session
+	if writingCount > 1 {
+		t.Errorf("expected at most 1 writing question, got %d", writingCount)
+	}
+
+	// Total should be ≤ 10
+	if len(questions) > 10 {
+		t.Errorf("expected at most 10 questions, got %d", len(questions))
+	}
 }
 
 // Z4-AC09: feedback contains correct answer, what was missing, hint

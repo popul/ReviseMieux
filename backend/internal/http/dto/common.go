@@ -16,3 +16,9 @@ type HealthResponse struct {
 type MessageResponse struct {
 	Message string `json:"message" example:"operation successful"`
 }
+
+// DevTokenResponse is the response for the dev token endpoint.
+type DevTokenResponse struct {
+	Token  string `json:"token"`
+	UserID string `json:"user_id"`
+}

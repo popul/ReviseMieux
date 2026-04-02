@@ -67,7 +67,7 @@ func (h *Validation) Resolve(c *gin.Context) {
 		return
 	}
 
-	taskID, err := uuid.Parse(c.Param("id"))
+	taskID, err := uuid.Parse(c.Param("validation_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: "invalid task id"})
 		return
@@ -83,7 +83,7 @@ func (h *Validation) Resolve(c *gin.Context) {
 	case "confirm":
 		err = h.svc.Confirm(c.Request.Context(), taskID, userID)
 	case "correct":
-		err = h.svc.Correct(c.Request.Context(), taskID, userID, req.CorrectedTerm)
+		err = h.svc.Correct(c.Request.Context(), taskID, userID, req.Correction)
 	case "unknown":
 		err = h.svc.MarkUnknown(c.Request.Context(), taskID, userID)
 	case "ignore":
@@ -106,11 +106,18 @@ func (h *Validation) Resolve(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, dto.MessageResponse{Message: "task resolved"})
+	// Fetch updated task to return full representation
+	// TODO: add GetByID to ValidationService for cleaner access
+	updatedTask, fetchErr := h.svc.GetByID(c.Request.Context(), taskID)
+	if fetchErr != nil {
+		c.JSON(http.StatusOK, dto.MessageResponse{Message: "task resolved"})
+		return
+	}
+	c.JSON(http.StatusOK, toValidationTaskDTO(updatedTask))
 }
 
 func toValidationTaskDTO(t *validation.ValidationTask) dto.ValidationTaskResponse {
-	return dto.ValidationTaskResponse{
+	resp := dto.ValidationTaskResponse{
 		ID:         t.ID.String(),
 		ItemID:     t.ItemID.String(),
 		CropURL:    t.CropURL,
@@ -119,5 +126,11 @@ func toValidationTaskDTO(t *validation.ValidationTask) dto.ValidationTaskRespons
 		Status:     string(t.Status),
 		Source:     string(t.Source),
 		CreatedAt:  t.CreatedAt,
+		// TODO: populate ChapterID and ItemTerm — requires joining with chapter/item data
 	}
+	// Use UpdatedAt as ResolvedAt when task is resolved
+	if t.IsResolved() {
+		resp.ResolvedAt = &t.UpdatedAt
+	}
+	return resp
 }

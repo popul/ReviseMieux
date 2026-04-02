@@ -153,6 +153,7 @@ func toMasteryDTO(m *mastery.Mastery) dto.MasteryResponse {
 		LastReviewAt:         m.LastReviewAt,
 		ConsecutiveSuccesses: m.ConsecutiveSuccesses,
 		ConsecutiveFailures:  m.ConsecutiveFailures,
+		LastSuccessAt:        m.LastSuccessAt,
 		CappedAtOK:           m.CappedAtOK,
 	}
 }

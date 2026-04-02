@@ -400,14 +400,121 @@ type LLMCallEntry struct {
 
 ---
 
-## 8. Résumé des décisions
+## 8. Strategie OCR/IDP — Pipeline d'extraction des cahiers
+
+> Ajouté le 2 avril 2026 suite à l'évaluation des approches ABBYY, Tesseract, PaddleOCR et VLM.
+
+### 8.1 Contenu des cahiers de collégiens
+
+Les pages contiennent un mix hétérogène de :
+- Texte imprimé (polycopiés collés)
+- Écriture manuscrite (notes de l'élève, corrections)
+- Tableaux (résultats d'expériences, données)
+- Schémas et dessins (SVT, physique, techno)
+- Formules mathématiques
+- Photos collées
+
+Le pipeline doit extraire et structurer **tout ça en contexte** pour générer des items de révision pertinents.
+
+### 8.2 Approches évaluées
+
+| Approche | Description | Coût/page | Qualité manuscrit | Compréhension images |
+|----------|------------|-----------|-------------------|---------------------|
+| **ABBYY Vantage** | Pipeline IDP entreprise (K8s, multi-modèles spécialisés) | $0.01-0.05 | Bon (ICR dédié) | Non (détection seule) |
+| **Tesseract 5.5** | OCR open-source LSTM | ~$0 | Quasi nul | Non |
+| **PaddleOCR-VL 1.5** | VLM OCR open-source 0.9B | ~$0 | Limité | Non (catégorise mais ne décrit pas) |
+| **Layout + routing** | PP-DocLayoutV2 → PaddleOCR (texte) + VLM (manuscrit/images) | ~$0.0008 | Bon (via VLM) | Oui (via VLM) |
+| **VLM direct (page entière)** | Gemini Flash sur l'image complète | ~$0.0013 | Très bon (zero-shot) | Oui |
+
+### 8.3 Décision : VLM direct, pas de layout detection
+
+**Choix retenu : envoyer la page entière à Gemini 2.5 Flash en un seul appel.**
+
+**Raisons :**
+
+1. **Contexte sémantique préservé.** Un VLM qui voit la page entière comprend le lien entre un schéma et le texte à côté. Le cropping par zones perd ce contexte — or c'est exactement ce qui fait la qualité pédagogique des items générés. Un schéma de circuit électrique avec des annotations manuscrites à côté d'un tableau de mesures doit être compris comme un ensemble.
+
+2. **Gain économique négligeable.** L'écart entre le VLM direct ($0.0013/page) et le pipeline hybride ($0.0008/page) est ~$0.0005/page, soit ~$5/mois pour 10K pages. La complexité ajoutée (3 étapes au lieu d'1, routing, maintenance de 2 modèles) ne justifie pas cette économie.
+
+3. **Robustesse sur les cahiers réels.** Les cahiers d'ados sont chaotiques — collages, dessins dans les marges, flèches, ratures, stickers. Un layout detector va régulièrement se tromper sur ces documents, causant des erreurs en cascade. Un VLM généraliste encaisse mieux le chaos.
+
+4. **Manuscrit = point fort des VLMs.** Les benchmarks HTR (mars 2025) montrent que Claude et Gemini surpassent les OCR spécialisés (Transkribus, TrOCR) en zero-shot sur le manuscrit moderne. PaddleOCR-VL est bon sur le texte imprimé mais limité sur le manuscrit français.
+
+5. **PaddleOCR-VL ne décrit pas les images.** Il catégorise les zones visuelles ("figure") mais ne les décrit pas sémantiquement. Pour un schéma de cellule en SVT, il retourne un placeholder, pas "schéma de la cellule animale avec noyau et mitochondries". Le VLM fait les deux.
+
+6. **Simplicité pipeline.** Un seul appel API au lieu de 3 étapes (layout → OCR → VLM). Moins de code, moins de points de failure, moins d'infra à maintenir.
+
+### 8.4 Pourquoi Gemini Flash et pas Claude pour l'OCR
+
+| Critère | Gemini 2.5 Flash | Claude Haiku 4.5 | Claude Sonnet 4.6 |
+|---------|-----------------|-----------------|-------------------|
+| Coût input/Mtok | $0.30 | $1.00 | $3.00 |
+| Tokens par image | ~258 | ~1,334 | ~1,334 |
+| **Coût/page vision** | **$0.0013** | $0.0038 | $0.0115 |
+| 10K pages/mois | **$13** | $38 | $115 |
+
+Gemini tokenise les images ~5x plus efficacement que Claude. Pour l'OCR (extraction de texte/structure), Gemini Flash est 3x moins cher que Haiku et 9x moins cher que Sonnet, pour une qualité comparable sur cette tâche.
+
+**Principe : utiliser chaque modèle là où il excelle.**
+- **Gemini Flash** → extraction OCR + scoring réponses (vision, bas coût)
+- **Claude Sonnet** → génération pédagogique (qualité rédaction française)
+
+### 8.5 Quand reconsidérer
+
+| Condition | Action |
+|-----------|--------|
+| > 100K pages/mois | Évaluer PaddleOCR-VL en pré-traitement pour le texte imprimé |
+| Self-hosting requis | Qwen2.5-VL-7B + PaddleOCR-VL en local |
+| Qualité insuffisante Gemini | Benchmark Haiku 4.5 ou Gemini 2.5 Pro sur les cas en échec |
+| Baisse de prix LLM | Réévaluer — si l'API coûte 10x moins, le layout detection perd tout intérêt |
+
+### 8.6 Comparatif solutions IDP évaluées
+
+| Solution | Forces | Faiblesses pour Révise Mieux |
+|----------|--------|------------------------------|
+| **ABBYY Vantage** | Précision industrielle, 200+ langues, ICR manuscrit dédié | Over-engineered pour un MVP, propriétaire, ~350 MB/core, pas de description sémantique des images |
+| **Tesseract 5.5** | Léger (~100 MB/page), gratuit, mature | Quasi inutilisable sur le manuscrit, pas d'analyse de layout, pas de compréhension structurelle |
+| **PaddleOCR-VL** | 0.9B params, gratuit, SOTA sur benchmarks OCR texte | Ne décrit pas les images, manuscrit français limité, pas de compréhension sémantique |
+| **Gemini 2.5 Flash** | Vision + compréhension en 1 pass, manuscrit zero-shot, $0.0013/page | Dépendance API externe, latence ~3-5s/page |
+
+### 8.7 Estimations de coût consolidées
+
+| Volume | Gemini Flash (VLM direct) | Pipeline hybride | Tout Claude Sonnet |
+|--------|--------------------------|------------------|--------------------|
+| 1K pages/mois | $1.3 | $0.8 | $11.5 |
+| 10K pages/mois | $13 | $8 | $115 |
+| 100K pages/mois | $130 | $80 | $1,150 |
+
+### 8.8 Optimisations coût complémentaires
+
+Les vrais leviers de réduction de coût ne sont pas dans le layout detection mais dans :
+
+1. **Batch API** (-50%) : le pipeline J0 est asynchrone, parfait pour le batch
+2. **Prompt caching** (-90% sur les cache reads) : le system prompt d'extraction est identique entre appels
+3. **Séparation extraction/génération** : l'extraction (Gemini Flash, image) produit du Markdown ; la génération pédagogique (Claude Sonnet, texte seul) consomme ce Markdown sans revoir l'image
+
+### 8.9 Benchmark à réaliser
+
+Avant de finaliser le pipeline J0, benchmarker sur 20+ photos de vrais cahiers :
+
+| Modèle | Type | Critères |
+|--------|------|----------|
+| Gemini 2.5 Flash | API vision | Précision texte imprimé, manuscrit, description schémas |
+| Claude Haiku 4.5 | API vision | Idem (comparaison qualité) |
+| PaddleOCR-VL 1.5 | Self-hosted | Texte imprimé uniquement (baseline gratuite) |
+
+Le framework de benchmark existe dans `backend/cmd/benchmark/`. Il faut ajouter un type `ocr` avec des cas de test sur un corpus de cahiers réels.
+
+---
+
+## 9. Résumé des décisions
 
 > **Mis à jour mars 2026** après benchmark réel sur 21 modèles. Voir [`backend/testdata/benchmark/README.md`](../backend/testdata/benchmark/README.md).
 
 | Décision | Choix initial | Choix post-benchmark | Raison du changement |
 |----------|--------------|---------------------|---------------------|
 | Modèle structuration | ~~Sonnet 4.6~~ | **Qwen3.5-397B** ou **mistral-small** | Sonnet hallucine (8%), 30-50x plus cher. Qwen3.5-397B quality 0.88, mistral-small quality 0.87 à $0.00006/item |
-| Modèle OCR | ~~Sonnet 4.6~~ | **Qwen3-VL-32B** ou **gemini-2.5-flash** | Meilleure accuracy texte (0.74), 10-30x moins cher |
+| Modèle OCR / extraction | ~~Sonnet 4.6~~ | **Gemini 2.5 Flash** (VLM direct, page entière) | 5x plus efficace en tokens image, $0.0013/page, manuscrit zero-shot. Pas de layout detection — cf. section 8. |
 | Modèle fidelity check | Haiku 4.5 | À benchmarker | Pas encore testé sur ce cas d'usage |
 | Modèle questions | Haiku 4.5 | À benchmarker | Pas encore testé sur ce cas d'usage |
 | Modèle cohérence | ~~Sonnet 4.6~~ | À benchmarker | Pas encore testé sur ce cas d'usage |

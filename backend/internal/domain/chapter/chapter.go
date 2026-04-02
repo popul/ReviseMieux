@@ -177,6 +177,8 @@ type Item struct {
 	Steps                 []ItemStep
 	Tags                  []string // Z2-AC08: e.g. ["map"], ["schema"]
 	SourceImageURL        *string  // Z2-AC08: for DOCUMENT items from visual blocks
+	FidelityScore         *float64 // Z3-AC10: 0.0-1.0, nil if not checked
+	FidelityFlag          *string  // Z3-AC10: nil or "low"
 	LLMModelVersion       *string
 	PromptTemplateVersion *string
 	CreatedAt             time.Time
