@@ -3,9 +3,8 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import 'react-native-reanimated';
-
 import { useColorScheme } from '@/components/useColorScheme';
+import { fetchDevToken, setAuthToken, getAuthToken } from '@/services/api';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -27,6 +26,19 @@ export default function RootLayout() {
   useEffect(() => {
     if (loaded) {
       SplashScreen.hideAsync();
+    }
+  }, [loaded]);
+
+  useEffect(() => {
+    if (loaded && !getAuthToken()) {
+      fetchDevToken()
+        .then((res) => {
+          setAuthToken(res.token);
+          console.log('Dev token set for user:', res.user_id);
+        })
+        .catch((err) => {
+          console.warn('Failed to fetch dev token:', err.message);
+        });
     }
   }, [loaded]);
 

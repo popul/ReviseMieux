@@ -103,7 +103,7 @@ func TestZ6AC04_EveningFirstProposedAfterPipeline(t *testing.T) {
 	ch := chapter.NewChapter(idGen, uuid.Must(uuid.NewV7()), "Physique", "5e", "Mouvement", now)
 	chRepo.Save(context.Background(), ch)
 
-	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen)
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
 
 	// Simulate: pipeline produced 12 items, all UNKNOWN
 	var itemIDs []uuid.UUID
@@ -144,7 +144,7 @@ func TestZ6AC05_EveningFirstComposition(t *testing.T) {
 	ch := chapter.NewChapter(idGen, uuid.Must(uuid.NewV7()), "Physique", "5e", "Mouvement", now)
 	chRepo.Save(context.Background(), ch)
 
-	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen)
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
 
 	// 12 UNKNOWN items
 	var itemIDs []uuid.UUID
@@ -188,7 +188,7 @@ func TestZ4AC04_ResumeInterruptedSession(t *testing.T) {
 	masteryRepo := &mockMasteryRepo{}
 	publisher := &mockPublisher{}
 
-	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen)
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
 
 	// Create a session with 10 questions, student answered 4
 	userID := uuid.Must(uuid.NewV7())
@@ -221,7 +221,7 @@ func TestZ4AC04_CannotResumeCompletedSession(t *testing.T) {
 	masteryRepo := &mockMasteryRepo{}
 	publisher := &mockPublisher{}
 
-	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen)
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
 
 	userID := uuid.Must(uuid.NewV7())
 	sess := session.NewSession(idGen, userID, session.TypeDaily, session.TriggerManual, now)
@@ -249,7 +249,7 @@ func TestZ4AC06_PoolEmptyGracefulDegradation(t *testing.T) {
 	ch := chapter.NewChapter(idGen, uuid.Must(uuid.NewV7()), "Physique", "5e", "Mouvement", now)
 	chRepo.Save(context.Background(), ch)
 
-	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen)
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
 
 	_, err := svc.ComposeDaily(context.Background(), ch.UserID, ch.ID)
 	if err == nil {
@@ -276,7 +276,7 @@ func TestZ6AC11_DegradedModeWithoutSchedule(t *testing.T) {
 	ch := chapter.NewChapter(idGen, uuid.Must(uuid.NewV7()), "Physique", "5e", "Mouvement", now)
 	chRepo.Save(context.Background(), ch)
 
-	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen)
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
 
 	// Without schedule, daily/evening_first/mock_exam should still be available
 	types := svc.AvailableSessionTypes(false) // hasSchedule = false
@@ -347,7 +347,7 @@ func TestZ4AC05_PackConstraints(t *testing.T) {
 		masteryRepo.saved = append(masteryRepo.saved, m)
 	}
 
-	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen)
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
 
 	sess, err := svc.ComposeDaily(context.Background(), userID, ch.ID)
 	if err != nil {

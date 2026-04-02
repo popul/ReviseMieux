@@ -37,23 +37,37 @@ type OnboardingStatus struct {
 	Step3Label         string         `json:"step3_label"`
 }
 
+// DemoNotion is a pre-defined notion for the demo chapter.
+type DemoNotion struct {
+	Name      string
+	SortOrder int
+}
+
+// demoNotions contains 3 notions for the demo chapter.
+var demoNotions = []DemoNotion{
+	{Name: "Masse volumique (ρ)", SortOrder: 1},
+	{Name: "Densité et flottabilité", SortOrder: 2},
+	{Name: "Conversions et applications", SortOrder: 3},
+}
+
 // DemoItem is a pre-defined item for the demo chapter.
 type DemoItem struct {
-	Term     string
-	ItemType chapter.ItemType
-	Keywords []string
+	Term       string
+	ItemType   chapter.ItemType
+	Keywords   []string
+	NotionIdx  int // index into demoNotions
 }
 
 // demoItems contains the 8 pre-generated items for the demo chapter (Z8-AC01).
 var demoItems = []DemoItem{
-	{Term: "La masse volumique est le rapport de la masse d'un corps sur son volume.", ItemType: chapter.ItemKnowledge, Keywords: []string{"masse volumique", "rapport", "masse", "volume"}},
-	{Term: "L'unité SI de la masse volumique est le kilogramme par mètre cube (kg/m³).", ItemType: chapter.ItemKnowledge, Keywords: []string{"unité SI", "kg/m³", "masse volumique"}},
-	{Term: "La densité d'un corps est le rapport de sa masse volumique sur celle de l'eau.", ItemType: chapter.ItemKnowledge, Keywords: []string{"densité", "masse volumique", "eau"}},
-	{Term: "Un corps flotte si sa densité est inférieure à 1.", ItemType: chapter.ItemKnowledge, Keywords: []string{"flotte", "densité", "inférieure", "1"}},
-	{Term: "ρ = m / V", ItemType: chapter.ItemProcedure, Keywords: []string{"formule", "masse volumique", "ρ", "m", "V"}},
-	{Term: "Pour convertir g/cm³ en kg/m³, on multiplie par 1000.", ItemType: chapter.ItemProcedure, Keywords: []string{"convertir", "g/cm³", "kg/m³", "1000"}},
-	{Term: "La masse volumique de l'eau est 1000 kg/m³ (ou 1 g/cm³).", ItemType: chapter.ItemKnowledge, Keywords: []string{"eau", "1000 kg/m³", "1 g/cm³"}},
-	{Term: "La masse volumique permet d'identifier un matériau inconnu.", ItemType: chapter.ItemKnowledge, Keywords: []string{"identifier", "matériau", "masse volumique"}},
+	{Term: "La masse volumique est le rapport de la masse d'un corps sur son volume.", ItemType: chapter.ItemKnowledge, Keywords: []string{"masse volumique", "rapport", "masse", "volume"}, NotionIdx: 0},
+	{Term: "L'unité SI de la masse volumique est le kilogramme par mètre cube (kg/m³).", ItemType: chapter.ItemKnowledge, Keywords: []string{"unité SI", "kg/m³", "masse volumique"}, NotionIdx: 0},
+	{Term: "ρ = m / V", ItemType: chapter.ItemProcedure, Keywords: []string{"formule", "masse volumique", "ρ", "m", "V"}, NotionIdx: 0},
+	{Term: "La densité d'un corps est le rapport de sa masse volumique sur celle de l'eau.", ItemType: chapter.ItemKnowledge, Keywords: []string{"densité", "masse volumique", "eau"}, NotionIdx: 1},
+	{Term: "Un corps flotte si sa densité est inférieure à 1.", ItemType: chapter.ItemKnowledge, Keywords: []string{"flotte", "densité", "inférieure", "1"}, NotionIdx: 1},
+	{Term: "La masse volumique de l'eau est 1000 kg/m³ (ou 1 g/cm³).", ItemType: chapter.ItemKnowledge, Keywords: []string{"eau", "1000 kg/m³", "1 g/cm³"}, NotionIdx: 1},
+	{Term: "Pour convertir g/cm³ en kg/m³, on multiplie par 1000.", ItemType: chapter.ItemProcedure, Keywords: []string{"convertir", "g/cm³", "kg/m³", "1000"}, NotionIdx: 2},
+	{Term: "La masse volumique permet d'identifier un matériau inconnu.", ItemType: chapter.ItemKnowledge, Keywords: []string{"identifier", "matériau", "masse volumique"}, NotionIdx: 2},
 }
 
 // OnboardingService handles first-use experience (Z8).
@@ -125,15 +139,34 @@ func (s *OnboardingService) SeedDemoChapter(ctx context.Context, userID uuid.UUI
 		return nil, nil, fmt.Errorf("onboarding_service: link revision: %w", err)
 	}
 
+	// Create notions
+	notionIDs := make([]uuid.UUID, len(demoNotions))
+	for i, dn := range demoNotions {
+		notionID := s.idGen.New()
+		notionIDs[i] = notionID
+		notion := &chapter.Notion{
+			ID:        notionID,
+			ChapterID: ch.ID,
+			Name:      dn.Name,
+			SortOrder: dn.SortOrder,
+			CreatedAt: now,
+		}
+		if err := s.chapterRepo.SaveNotion(ctx, notion); err != nil {
+			return nil, nil, fmt.Errorf("onboarding_service: save notion: %w", err)
+		}
+	}
+
 	// Create items and masteries
 	var items []*chapter.Item
 	var masteries []*mastery.Mastery
 	for _, di := range demoItems {
 		term := di.Term
+		notionID := notionIDs[di.NotionIdx]
 		item := &chapter.Item{
 			ID:                 s.idGen.New(),
 			ChapterID:          ch.ID,
 			RevisionID:         revID,
+			NotionID:           &notionID,
 			ItemType:           di.ItemType,
 			Term:               &term,
 			Confidence:         1.0, // demo items are trusted

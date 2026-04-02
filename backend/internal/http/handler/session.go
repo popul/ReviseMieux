@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -59,7 +60,7 @@ func (h *Session) ComposeDaily(c *gin.Context) {
 			c.JSON(http.StatusUnprocessableEntity, dto.ErrorResponse{Error: "no items available for review"})
 			return
 		}
-		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "failed to compose session"})
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "failed to compose session", Details: err.Error()})
 		return
 	}
 
@@ -78,7 +79,7 @@ func (h *Session) ComposeDaily(c *gin.Context) {
 //	@Failure		409	{object}	dto.ErrorResponse
 //	@Router			/api/v1/sessions/{id}/resume [post]
 func (h *Session) Resume(c *gin.Context) {
-	sessionID, err := uuid.Parse(c.Param("id"))
+	sessionID, err := uuid.Parse(c.Param("session_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: "invalid session id"})
 		return
@@ -111,7 +112,7 @@ func (h *Session) Resume(c *gin.Context) {
 //	@Failure		404	{object}	dto.ErrorResponse
 //	@Router			/api/v1/sessions/{id} [get]
 func (h *Session) GetByID(c *gin.Context) {
-	sessionID, err := uuid.Parse(c.Param("id"))
+	sessionID, err := uuid.Parse(c.Param("session_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: "invalid session id"})
 		return
@@ -139,7 +140,7 @@ func (h *Session) GetByID(c *gin.Context) {
 //	@Success		200	{array}		dto.QuestionResponse
 //	@Router			/api/v1/sessions/{id}/questions [get]
 func (h *Session) GetQuestions(c *gin.Context) {
-	sessionID, err := uuid.Parse(c.Param("id"))
+	sessionID, err := uuid.Parse(c.Param("session_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: "invalid session id"})
 		return
@@ -176,7 +177,7 @@ func (h *Session) SubmitAnswer(c *gin.Context) {
 		return
 	}
 
-	sessionID, err := uuid.Parse(c.Param("id"))
+	sessionID, err := uuid.Parse(c.Param("session_id"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: "invalid session id"})
 		return
@@ -194,7 +195,14 @@ func (h *Session) SubmitAnswer(c *gin.Context) {
 		return
 	}
 
-	result, err := h.svc.SubmitAnswer(c.Request.Context(), sessionID, questionID, userID, []byte(req.Answer), req.Score)
+	// Wrap answer as valid JSON if it's not already JSON
+	answerBytes := []byte(req.Answer)
+	if len(answerBytes) == 0 || (answerBytes[0] != '{' && answerBytes[0] != '[' && answerBytes[0] != '"') {
+		quoted, _ := json.Marshal(req.Answer)
+		answerBytes = quoted
+	}
+
+	result, err := h.svc.SubmitAnswer(c.Request.Context(), sessionID, questionID, userID, answerBytes, req.Score)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "failed to submit answer", Details: err.Error()})
 		return
@@ -215,6 +223,51 @@ func (h *Session) SubmitAnswer(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
+// Debrief godoc
+//
+//	@Summary		Get session debrief
+//	@Description	Returns score, total, percentage after session completion
+//	@Tags			sessions
+//	@Produce		json
+//	@Param			id	path		string	true	"Session ID"
+//	@Success		200	{object}	dto.DebriefResponse
+//	@Failure		404	{object}	dto.ErrorResponse
+//	@Router			/api/v1/sessions/{id}/debrief [get]
+func (h *Session) Debrief(c *gin.Context) {
+	sessionID, err := uuid.Parse(c.Param("session_id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: "invalid session id"})
+		return
+	}
+
+	result, err := h.svc.GetDebrief(c.Request.Context(), sessionID)
+	if err != nil {
+		if errors.Is(err, session.ErrNotFound) {
+			c.JSON(http.StatusNotFound, dto.ErrorResponse{Error: "session not found"})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "failed to get debrief"})
+		return
+	}
+
+	transitions := make([]dto.MasteryTransition, len(result.Transitions))
+	for i, t := range result.Transitions {
+		transitions[i] = dto.MasteryTransition{
+			ItemID:   t.ItemID.String(),
+			ItemTerm: t.ItemTerm,
+			From:     t.From,
+			To:       t.To,
+		}
+	}
+
+	c.JSON(http.StatusOK, dto.DebriefResponse{
+		Score:       result.Score,
+		Total:       result.Total,
+		Percentage:  result.Percentage,
+		Transitions: transitions,
+	})
+}
+
 func toSessionDTO(s *session.Session) dto.SessionResponse {
 	chapterIDs := make([]string, len(s.ChapterIDs))
 	for i, id := range s.ChapterIDs {
@@ -233,12 +286,30 @@ func toSessionDTO(s *session.Session) dto.SessionResponse {
 	}
 }
 
+// templateQuestionType maps template IDs to their question type.
+var templateQuestionType = map[string]string{
+	"GEN.KNOW.FLASH_MCQ":      "MCQ",
+	"GEN.KNOW.DEF_SHORT":      "SHORT_ANSWER",
+	"GEN.KNOW.CLOZE_KEYWORDS": "CLOZE",
+}
+
+// templateChoices provides choices for MCQ templates.
+var templateChoices = map[string][]string{
+	"GEN.KNOW.FLASH_MCQ": {"Vrai", "Faux"},
+}
+
 func toQuestionDTO(q *session.Question) dto.QuestionResponse {
+	qType := templateQuestionType[q.TemplateID]
+	if qType == "" {
+		qType = "SHORT_ANSWER"
+	}
 	return dto.QuestionResponse{
 		ID:             q.ID.String(),
 		TemplateID:     q.TemplateID,
 		ItemID:         q.ItemID.String(),
+		QuestionType:   qType,
 		RenderedPrompt: q.RenderedPrompt,
+		Choices:        templateChoices[q.TemplateID],
 		VisualURL:      q.RenderedVisualURL,
 	}
 }

@@ -243,6 +243,11 @@ func (s *ValidationService) CreateValidationTasksIfNeeded(ctx context.Context, i
 	return tasks
 }
 
+// GetByID returns a single validation task by its ID.
+func (s *ValidationService) GetByID(ctx context.Context, taskID uuid.UUID) (*validation.ValidationTask, error) {
+	return s.valRepo.FindByID(ctx, taskID)
+}
+
 // ListPending returns pending validation tasks.
 func (s *ValidationService) ListPending(ctx context.Context, limit int) ([]*validation.ValidationTask, error) {
 	return s.valRepo.FindPendingAll(ctx, limit)

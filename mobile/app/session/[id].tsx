@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   StyleSheet,
   ScrollView,
@@ -6,190 +6,163 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { View as RNView, Text as RNText } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useColors, Card, Button, ProgressBar, Badge } from '@/components/Themed';
+import { useColors, Card, Button, ProgressBar } from '@/components/Themed';
 import { MasteryBadge } from '@/components/MasteryBar';
-import { masteryColors } from '@/constants/Colors';
 import { typography, spacing, radius } from '@/constants/Typography';
+import {
+  startDailySession,
+  getQuestions,
+  submitAnswer,
+  getDebrief,
+  getLessonCard,
+} from '@/services/api';
+import type { Question, SubmitAnswerResponse, DebriefResponse, ItemResponse } from '@/services/api';
 
 // --- Types ---
 
-type QuestionType = 'MCQ' | 'SHORT_ANSWER' | 'NUMERIC' | 'KEYWORDS' | 'CLOZE' | 'RUBRIC';
-
-type MockQuestion = {
-  id: string;
-  type: QuestionType;
-  itemType: string;
-  prompt: string;
-  choices?: string[];
-  unit?: string;
-  expectedAnswer: string;
-  hint: string;
-  masteryFrom?: string;
-  masteryTo?: string;
-};
-
-type ViewState = 'question' | 'feedback' | 'debrief';
-
-// --- Mock questions ---
-
-const MOCK_QUESTIONS: MockQuestion[] = [
-  {
-    id: 'q1',
-    type: 'SHORT_ANSWER',
-    itemType: 'CONNAISSANCES',
-    prompt: 'Quelle est la formule de la masse volumique ?',
-    expectedAnswer: 'ρ = m / V',
-    hint: 'Pense à "rho" comme "ratio masse/volume".',
-    masteryFrom: 'fragile',
-    masteryTo: 'ok',
-  },
-  {
-    id: 'q2',
-    type: 'MCQ',
-    itemType: 'CONNAISSANCES',
-    prompt: 'Quelle est l\'unité SI de la masse volumique ?',
-    choices: ['g/L', 'kg/m³', 'g/cm³', 'kg/L'],
-    expectedAnswer: 'kg/m³',
-    hint: 'L\'unité SI utilise les mètres cubes, pas les litres.',
-  },
-  {
-    id: 'q3',
-    type: 'NUMERIC',
-    itemType: 'PROCÉDURE',
-    prompt: 'Un objet de 150g occupe un volume de 50 cm³. Calcule sa masse volumique.',
-    unit: 'g/cm³',
-    expectedAnswer: '3 g/cm³',
-    hint: 'ρ = m/V = 150/50',
-    masteryFrom: 'unknown',
-    masteryTo: 'fragile',
-  },
-  {
-    id: 'q4',
-    type: 'KEYWORDS',
-    itemType: 'CONNAISSANCES',
-    prompt: 'Cite les conditions pour qu\'un objet flotte dans un liquide.',
-    expectedAnswer: 'densité inférieure, masse volumique plus faible que le liquide',
-    hint: 'Compare la densité de l\'objet à celle du liquide.',
-  },
-  {
-    id: 'q5',
-    type: 'SHORT_ANSWER',
-    itemType: 'CONNAISSANCES',
-    prompt: 'Quel instrument mesure précisément un volume de liquide au laboratoire ?',
-    expectedAnswer: 'Éprouvette graduée',
-    hint: 'C\'est un tube gradué en verre.',
-    masteryFrom: 'ok',
-    masteryTo: 'solid',
-  },
-  {
-    id: 'q6',
-    type: 'MCQ',
-    itemType: 'ANALYSE',
-    prompt: 'Un glaçon flotte dans l\'eau. Que peut-on en déduire ?',
-    choices: [
-      'La glace est plus dense que l\'eau',
-      'La glace est moins dense que l\'eau',
-      'La glace a la même densité que l\'eau',
-      'On ne peut rien déduire',
-    ],
-    expectedAnswer: 'La glace est moins dense que l\'eau',
-    hint: 'Si ça flotte, c\'est que la densité est plus faible.',
-    masteryFrom: 'fragile',
-    masteryTo: 'ok',
-  },
-  {
-    id: 'q7',
-    type: 'CLOZE',
-    itemType: 'CONNAISSANCES',
-    prompt: 'La poussée d\'Archimède est égale au _____ du fluide déplacé.',
-    expectedAnswer: 'poids',
-    hint: 'Principe d\'Archimède : tout corps plongé...',
-  },
-  {
-    id: 'q8',
-    type: 'SHORT_ANSWER',
-    itemType: 'PROCÉDURE',
-    prompt: 'Comment mesurer la masse volumique d\'un solide irrégulier ?',
-    expectedAnswer: 'Peser le solide puis mesurer son volume par déplacement d\'eau dans une éprouvette',
-    hint: 'Utilise deux instruments : une balance et une éprouvette.',
-  },
-  {
-    id: 'q9',
-    type: 'NUMERIC',
-    itemType: 'PROCÉDURE',
-    prompt: 'Convertis 2,5 L en cm³.',
-    unit: 'cm³',
-    expectedAnswer: '2500 cm³',
-    hint: '1 L = 1000 cm³',
-    masteryFrom: 'fragile',
-    masteryTo: 'ok',
-  },
-  {
-    id: 'q10',
-    type: 'MCQ',
-    itemType: 'CONNAISSANCES',
-    prompt: 'La masse volumique de l\'eau pure est :',
-    choices: ['0,5 g/cm³', '1 g/cm³', '10 g/cm³', '100 g/cm³'],
-    expectedAnswer: '1 g/cm³',
-    hint: 'C\'est la valeur de référence.',
-    masteryFrom: 'ok',
-    masteryTo: 'solid',
-  },
-];
+type ViewState = 'loading' | 'error' | 'question' | 'self-score' | 'feedback' | 'debrief';
 
 export default function SessionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const colors = useColors();
   const insets = useSafeAreaInsets();
 
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [view, setView] = useState<ViewState>('question');
+  const [view, setView] = useState<ViewState>('loading');
+  const [error, setError] = useState<string | null>(null);
   const [answer, setAnswer] = useState('');
-  const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
-  const [isCorrect, setIsCorrect] = useState(false);
-  const [skipsLeft, setSkipsLeft] = useState(2);
   const [score, setScore] = useState(0);
   const [startTime] = useState(Date.now());
+  const [submitting, setSubmitting] = useState(false);
+  const [lastFeedback, setLastFeedback] = useState<SubmitAnswerResponse | null>(null);
+  const [debriefData, setDebriefData] = useState<DebriefResponse | null>(null);
+  const [itemsMap, setItemsMap] = useState<Record<string, ItemResponse>>({});
+  const [showLessonModal, setShowLessonModal] = useState(false);
 
-  const question = MOCK_QUESTIONS[currentIdx];
-  const total = MOCK_QUESTIONS.length;
+  const question = questions[currentIdx];
+  const total = questions.length;
 
-  const handleSubmit = () => {
-    // Simple scoring simulation
-    const correct = Math.random() > 0.3; // 70% success rate for demo
-    setIsCorrect(correct);
-    if (correct) setScore((s) => s + 1);
-    setView('feedback');
+  // Load session, questions, and lesson card items on mount
+  useEffect(() => {
+    if (!id) return;
+
+    // Load lesson card items for "Voir cours" modal (Z1-AC21)
+    getLessonCard(id)
+      .then((lc) => {
+        const map: Record<string, ItemResponse> = {};
+        lc.items.forEach((item) => { map[item.id] = item; });
+        setItemsMap(map);
+      })
+      .catch(() => {}); // non-blocking
+
+    startDailySession(id)
+      .then((session) => {
+        setSessionId(session.id);
+        return getQuestions(session.id);
+      })
+      .then((qs) => {
+        if (qs.length === 0) {
+          setError('Aucune question disponible pour ce chapitre.');
+          setView('error');
+        } else {
+          setQuestions(qs);
+          setView('question');
+        }
+      })
+      .catch((err) => {
+        setError(err.message ?? 'Impossible de lancer la session.');
+        setView('error');
+      });
+  }, [id]);
+
+  const handleSelfScore = (userScore: number) => {
+    if (!sessionId || !question) return;
+    setSubmitting(true);
+    submitAnswer(sessionId, question.id, answer, userScore)
+      .then((res) => {
+        setLastFeedback(res);
+        if (userScore >= 0.5) setScore((s) => s + 1);
+        setView('feedback');
+      })
+      .catch((err) => {
+        setError(err.message ?? 'Erreur lors de la soumission.');
+        setView('error');
+      })
+      .finally(() => setSubmitting(false));
   };
 
   const handleNext = () => {
     if (currentIdx + 1 >= total) {
-      setView('debrief');
+      // Fetch debrief
+      if (!sessionId) return;
+      setView('loading');
+      getDebrief(sessionId)
+        .then((data) => {
+          setDebriefData(data);
+          setView('debrief');
+        })
+        .catch(() => {
+          // Fallback debrief from local data
+          setDebriefData({
+            score,
+            total,
+            percentage: Math.round((score / total) * 100),
+            transitions: [],
+          });
+          setView('debrief');
+        });
       return;
     }
     setCurrentIdx((i) => i + 1);
     setAnswer('');
-    setSelectedChoice(null);
+    setLastFeedback(null);
     setView('question');
   };
 
-  const handleSkip = () => {
-    if (skipsLeft <= 0) return;
-    setSkipsLeft((s) => s - 1);
-    handleNext();
-  };
+  // --- Loading ---
+  if (view === 'loading') {
+    return (
+      <RNView style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top, justifyContent: 'center', alignItems: 'center' }]}>
+        <ActivityIndicator size="large" color={colors.tint} />
+        <RNText style={[typography.body, { color: colors.textSecondary, marginTop: spacing.md }]}>
+          Chargement de la session...
+        </RNText>
+      </RNView>
+    );
+  }
 
-  if (view === 'debrief') {
+  // --- Error ---
+  if (view === 'error') {
+    return (
+      <RNView style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top, justifyContent: 'center', alignItems: 'center', paddingHorizontal: spacing.lg }]}>
+        <RNText style={{ fontSize: 48 }}>😕</RNText>
+        <RNText style={[typography.h3, { color: colors.text, textAlign: 'center', marginTop: spacing.md }]}>
+          {error}
+        </RNText>
+        <Button
+          title="Retour"
+          variant="outline"
+          onPress={() => router.back()}
+          style={{ marginTop: spacing.lg }}
+        />
+      </RNView>
+    );
+  }
+
+  // --- Debrief ---
+  if (view === 'debrief' && debriefData) {
     const elapsed = Math.round((Date.now() - startTime) / 1000);
     return (
       <DebriefView
-        score={score}
-        total={total}
+        debrief={debriefData}
         elapsed={elapsed}
         colors={colors}
         insets={insets}
@@ -198,12 +171,15 @@ export default function SessionScreen() {
     );
   }
 
-  if (view === 'feedback') {
+  // --- Feedback ---
+  if (view === 'feedback' && lastFeedback) {
+    const wasCorrect = lastFeedback.score >= 0.5;
     return (
       <FeedbackView
         question={question}
-        isCorrect={isCorrect}
-        answer={question.type === 'MCQ' ? selectedChoice ?? '' : answer}
+        feedback={lastFeedback}
+        isCorrect={wasCorrect}
+        answer={answer}
         currentIdx={currentIdx}
         total={total}
         colors={colors}
@@ -213,6 +189,89 @@ export default function SessionScreen() {
     );
   }
 
+  // --- Self-score (user typed answer, now self-assesses) ---
+  if (view === 'self-score') {
+    return (
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <RNView style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
+          {/* Header */}
+          <RNView style={styles.sessionHeader}>
+            <Pressable onPress={() => router.back()}>
+              <RNText style={[typography.body, { color: colors.tint }]}>← Quitter</RNText>
+            </Pressable>
+            <RNText style={[typography.captionBold, { color: colors.text }]}>Session</RNText>
+            <RNText style={[typography.caption, { color: colors.textSecondary }]}>
+              Q {currentIdx + 1}/{total}
+            </RNText>
+          </RNView>
+          <RNView style={{ paddingHorizontal: spacing.md }}>
+            <ProgressBar progress={(currentIdx + 1) / total} height={4} />
+          </RNView>
+
+          <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: spacing.xxl }}>
+            <RNText style={[typography.h3, { color: colors.text }]}>
+              {question.rendered_prompt}
+            </RNText>
+
+            <RNView style={{ marginTop: spacing.lg }}>
+              <RNText style={[typography.captionBold, { color: colors.textSecondary }]}>Ta reponse :</RNText>
+              <Card style={{ marginTop: spacing.xs }}>
+                <RNText style={[typography.body, { color: colors.text }]}>{answer || '—'}</RNText>
+              </Card>
+            </RNView>
+
+            {/* Show expected answer from item so student can self-assess */}
+            {itemsMap[question.item_id] && (
+              <RNView style={{ marginTop: spacing.md }}>
+                <RNText style={[typography.captionBold, { color: colors.textSecondary }]}>Reponse attendue :</RNText>
+                <Card style={{ marginTop: spacing.xs, backgroundColor: colors.tintLight }}>
+                  <RNText style={[typography.bodyBold, { color: colors.tint }]}>
+                    {itemsMap[question.item_id].term}
+                  </RNText>
+                </Card>
+              </RNView>
+            )}
+
+            <RNText style={[typography.bodyBold, { color: colors.text, textAlign: 'center', marginTop: spacing.xl }]}>
+              Compare et juge : avais-tu bon ?
+            </RNText>
+          </ScrollView>
+
+          {/* Self-score buttons */}
+          <RNView style={[styles.bottomActions, { borderTopColor: colors.border, paddingBottom: insets.bottom + spacing.sm }]}>
+            <RNView style={{ flexDirection: 'row', gap: spacing.sm }}>
+              <RNView style={{ flex: 1 }}>
+                <Button
+                  title="J'avais faux"
+                  variant="outline"
+                  fullWidth
+                  onPress={() => handleSelfScore(0.0)}
+                  disabled={submitting}
+                />
+              </RNView>
+              <RNView style={{ flex: 1 }}>
+                <Button
+                  title="J'avais bon"
+                  variant="primary"
+                  fullWidth
+                  onPress={() => handleSelfScore(1.0)}
+                  disabled={submitting}
+                />
+              </RNView>
+            </RNView>
+            {submitting && (
+              <ActivityIndicator size="small" color={colors.tint} style={{ marginTop: spacing.sm }} />
+            )}
+          </RNView>
+        </RNView>
+      </KeyboardAvoidingView>
+    );
+  }
+
+  // --- Question ---
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -224,7 +283,7 @@ export default function SessionScreen() {
           <Pressable onPress={() => router.back()}>
             <RNText style={[typography.body, { color: colors.tint }]}>← Quitter</RNText>
           </Pressable>
-          <RNText style={[typography.captionBold, { color: colors.text }]}>Physique</RNText>
+          <RNText style={[typography.captionBold, { color: colors.text }]}>Session</RNText>
           <RNText style={[typography.caption, { color: colors.textSecondary }]}>
             Q {currentIdx + 1}/{total}
           </RNText>
@@ -235,22 +294,20 @@ export default function SessionScreen() {
 
         {/* Question content */}
         <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: spacing.xxl }}>
-          <Badge label={question.itemType} />
-
           <RNText style={[typography.h3, { color: colors.text, marginTop: spacing.lg }]}>
-            {question.prompt}
+            {question.rendered_prompt}
           </RNText>
 
-          {/* Input area based on question type */}
+          {/* Answer input — MCQ choices or text */}
           <RNView style={{ marginTop: spacing.xl }}>
-            {question.type === 'MCQ' && question.choices && (
+            {question.choices && question.choices.length > 0 ? (
               <RNView style={{ gap: spacing.sm }}>
                 {question.choices.map((choice, idx) => {
-                  const isSelected = selectedChoice === choice;
+                  const isSelected = answer === choice;
                   return (
                     <Pressable
                       key={idx}
-                      onPress={() => setSelectedChoice(choice)}
+                      onPress={() => setAnswer(choice)}
                       style={[
                         styles.choiceBtn,
                         {
@@ -269,9 +326,7 @@ export default function SessionScreen() {
                   );
                 })}
               </RNView>
-            )}
-
-            {(question.type === 'SHORT_ANSWER' || question.type === 'CLOZE' || question.type === 'KEYWORDS' || question.type === 'RUBRIC') && (
+            ) : (
               <TextInput
                 style={[
                   styles.textInput,
@@ -279,38 +334,15 @@ export default function SessionScreen() {
                     backgroundColor: colors.backgroundSecondary,
                     borderColor: colors.border,
                     color: colors.text,
-                    minHeight: question.type === 'RUBRIC' ? 120 : 50,
                   },
                 ]}
-                placeholder="Ta réponse..."
+                placeholder="Ta reponse..."
                 placeholderTextColor={colors.textSecondary}
                 value={answer}
                 onChangeText={setAnswer}
-                multiline={question.type === 'RUBRIC'}
+                multiline
                 autoFocus
               />
-            )}
-
-            {question.type === 'NUMERIC' && (
-              <RNView>
-                <TextInput
-                  style={[
-                    styles.textInput,
-                    { backgroundColor: colors.backgroundSecondary, borderColor: colors.border, color: colors.text },
-                  ]}
-                  placeholder="Ta réponse..."
-                  placeholderTextColor={colors.textSecondary}
-                  value={answer}
-                  onChangeText={setAnswer}
-                  keyboardType="numeric"
-                  autoFocus
-                />
-                {question.unit && (
-                  <RNText style={[typography.caption, { color: colors.textSecondary, marginTop: spacing.xs }]}>
-                    Unité : {question.unit}
-                  </RNText>
-                )}
-              </RNView>
             )}
           </RNView>
         </ScrollView>
@@ -318,24 +350,107 @@ export default function SessionScreen() {
         {/* Bottom actions */}
         <RNView style={[styles.bottomActions, { borderTopColor: colors.border, paddingBottom: insets.bottom + spacing.sm }]}>
           <Button
-            title="Valider ✓"
+            title="Valider"
             variant="primary"
             fullWidth
-            onPress={handleSubmit}
+            onPress={() => {
+              if (question.choices && question.choices.length > 0) {
+                // MCQ: auto-score by comparing answer to expected (choices[0] = correct)
+                const autoScore = answer === question.choices[0] ? 1.0 : 0.0;
+                handleSelfScore(autoScore);
+              } else {
+                // Text: backend will auto-score via LLM
+                handleSelfScore(0.0);
+              }
+            }}
+            disabled={answer.trim().length === 0}
           />
           <RNView style={styles.secondaryActions}>
-            <Pressable onPress={handleSkip} disabled={skipsLeft === 0}>
-              <RNText style={[typography.caption, { color: skipsLeft > 0 ? colors.textSecondary : colors.border }]}>
-                Passer ({skipsLeft}/2)
-              </RNText>
-            </Pressable>
-            <Pressable onPress={() => router.push(`/chapter/${id}`)}>
+            <Pressable onPress={() => setShowLessonModal(true)}>
               <RNText style={[typography.caption, { color: colors.tint }]}>Voir cours</RNText>
             </Pressable>
           </RNView>
         </RNView>
+        {/* Z1-AC21: Lesson card modal */}
+        {showLessonModal && question && (
+          <LessonModal
+            item={itemsMap[question.item_id]}
+            colors={colors}
+            insets={insets}
+            onClose={() => setShowLessonModal(false)}
+          />
+        )}
       </RNView>
     </KeyboardAvoidingView>
+  );
+}
+
+// --- Lesson Modal (Z1-AC21) ---
+
+function LessonModal({
+  item,
+  colors,
+  insets,
+  onClose,
+}: {
+  item?: ItemResponse;
+  colors: any;
+  insets: { top: number; bottom: number };
+  onClose: () => void;
+}) {
+  return (
+    <RNView style={[styles.modalOverlay, { paddingTop: insets.top + spacing.xl, paddingBottom: insets.bottom + spacing.lg }]}>
+      <RNView style={[styles.modalContent, { backgroundColor: colors.background }]}>
+        <RNView style={styles.modalHeader}>
+          <RNText style={[typography.h3, { color: colors.text, flex: 1 }]}>Extrait du cours</RNText>
+          <Pressable onPress={onClose}>
+            <RNText style={[typography.h3, { color: colors.textSecondary }]}>✕</RNText>
+          </Pressable>
+        </RNView>
+
+        <ScrollView style={{ marginTop: spacing.md }}>
+          {item ? (
+            <>
+              <Card style={{ marginBottom: spacing.md }}>
+                <RNText style={[typography.captionBold, { color: colors.textSecondary, marginBottom: spacing.xs }]}>
+                  {item.item_type}
+                </RNText>
+                <RNText style={[typography.body, { color: colors.text }]}>
+                  {item.term ?? 'Contenu non disponible'}
+                </RNText>
+              </Card>
+
+              {item.keywords && item.keywords.length > 0 && (
+                <RNView>
+                  <RNText style={[typography.captionBold, { color: colors.textSecondary, marginBottom: spacing.xs }]}>
+                    Mots-cles
+                  </RNText>
+                  <RNView style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs }}>
+                    {item.keywords.map((kw, i) => (
+                      <RNView key={i} style={[styles.keywordChip, { backgroundColor: colors.tintLight }]}>
+                        <RNText style={[typography.small, { color: colors.tint }]}>{kw}</RNText>
+                      </RNView>
+                    ))}
+                  </RNView>
+                </RNView>
+              )}
+            </>
+          ) : (
+            <RNText style={[typography.body, { color: colors.textSecondary, textAlign: 'center' }]}>
+              Contenu non disponible pour cette question.
+            </RNText>
+          )}
+        </ScrollView>
+
+        <Button
+          title="Fermer"
+          variant="outline"
+          fullWidth
+          onPress={onClose}
+          style={{ marginTop: spacing.lg }}
+        />
+      </RNView>
+    </RNView>
   );
 }
 
@@ -343,6 +458,7 @@ export default function SessionScreen() {
 
 function FeedbackView({
   question,
+  feedback,
   isCorrect,
   answer,
   currentIdx,
@@ -351,7 +467,8 @@ function FeedbackView({
   insets,
   onNext,
 }: {
-  question: MockQuestion;
+  question: Question;
+  feedback: SubmitAnswerResponse;
   isCorrect: boolean;
   answer: string;
   currentIdx: number;
@@ -365,7 +482,7 @@ function FeedbackView({
       {/* Header */}
       <RNView style={styles.sessionHeader}>
         <RNView />
-        <RNText style={[typography.captionBold, { color: colors.text }]}>Physique</RNText>
+        <RNText style={[typography.captionBold, { color: colors.text }]}>Session</RNText>
         <RNText style={[typography.caption, { color: colors.textSecondary }]}>
           Q {currentIdx + 1}/{total}
         </RNText>
@@ -385,38 +502,39 @@ function FeedbackView({
 
         {/* User answer */}
         <RNView style={{ marginTop: spacing.lg }}>
-          <RNText style={[typography.captionBold, { color: colors.textSecondary }]}>Ta réponse :</RNText>
+          <RNText style={[typography.captionBold, { color: colors.textSecondary }]}>Ta reponse :</RNText>
           <Card style={{ marginTop: spacing.xs }}>
             <RNText style={[typography.body, { color: colors.text }]}>{answer || '—'}</RNText>
           </Card>
         </RNView>
 
-        {/* Expected answer */}
-        <RNView style={{ marginTop: spacing.md }}>
-          <RNText style={[typography.captionBold, { color: colors.textSecondary }]}>Réponse attendue :</RNText>
-          <RNText style={[typography.bodyBold, { color: colors.text, marginTop: spacing.xs }]}>
-            {question.expectedAnswer}
-          </RNText>
-        </RNView>
-
-        {/* Hint */}
-        <Card style={{ marginTop: spacing.lg, backgroundColor: colors.tintLight }}>
-          <RNText style={[typography.body, { color: colors.tint }]}>
-            💡 {question.hint}
-          </RNText>
-        </Card>
-
-        {/* Mastery transition */}
-        {question.masteryFrom && question.masteryTo && isCorrect && (
-          <RNView style={[styles.transitionRow, { marginTop: spacing.lg }]}>
-            <RNText style={{ fontSize: 16 }}>📈</RNText>
-            <MasteryBadge state={question.masteryFrom as any} />
-            <RNText style={[typography.body, { color: colors.textSecondary }]}>→</RNText>
-            <MasteryBadge state={question.masteryTo as any} />
-            <RNText style={[typography.caption, { color: colors.success, flex: 1 }]}>
-              Tu progresses !
+        {/* Expected answer from feedback */}
+        {feedback.feedback?.correct_answer && (
+          <RNView style={{ marginTop: spacing.md }}>
+            <RNText style={[typography.captionBold, { color: colors.textSecondary }]}>Reponse attendue :</RNText>
+            <RNText style={[typography.bodyBold, { color: colors.text, marginTop: spacing.xs }]}>
+              {feedback.feedback.correct_answer}
             </RNText>
           </RNView>
+        )}
+
+        {/* What was missing */}
+        {feedback.feedback?.what_was_missing && !isCorrect && (
+          <RNView style={{ marginTop: spacing.md }}>
+            <RNText style={[typography.captionBold, { color: colors.textSecondary }]}>Ce qui manquait :</RNText>
+            <RNText style={[typography.body, { color: colors.text, marginTop: spacing.xs }]}>
+              {feedback.feedback.what_was_missing}
+            </RNText>
+          </RNView>
+        )}
+
+        {/* Hint */}
+        {feedback.feedback?.hint && (
+          <Card style={{ marginTop: spacing.lg, backgroundColor: colors.tintLight }}>
+            <RNText style={[typography.body, { color: colors.tint }]}>
+              💡 {feedback.feedback.hint}
+            </RNText>
+          </Card>
         )}
       </ScrollView>
 
@@ -436,31 +554,20 @@ function FeedbackView({
 // --- Debrief View ---
 
 function DebriefView({
-  score,
-  total,
+  debrief,
   elapsed,
   colors,
   insets,
   chapterId,
 }: {
-  score: number;
-  total: number;
+  debrief: DebriefResponse;
   elapsed: number;
   colors: any;
   insets: { top: number; bottom: number };
   chapterId: string;
 }) {
-  const pct = Math.round((score / total) * 100);
   const minutes = Math.floor(elapsed / 60);
   const seconds = elapsed % 60;
-
-  const transitions = [
-    { term: 'Formule ρ=m/V', from: 'fragile', to: 'ok' },
-    { term: 'Condition flotte/coule', from: 'ok', to: 'solid' },
-    { term: 'Conversion L↔cm³', from: 'ok', to: 'fragile' },
-  ];
-
-  const toConsolidate = ['Poussée d\'Archimède', 'Protocole mesure volume'];
 
   return (
     <RNView style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top + spacing.lg }]}>
@@ -469,17 +576,17 @@ function DebriefView({
         <RNView style={{ alignItems: 'center', paddingHorizontal: spacing.lg }}>
           <RNText style={{ fontSize: 48 }}>🎉</RNText>
           <RNText style={[typography.h1, { color: colors.text, marginTop: spacing.md }]}>
-            Bravo Hugo !
+            Bravo !
           </RNText>
         </RNView>
 
         {/* Score card */}
         <Card style={[styles.scoreCard, { marginTop: spacing.lg }]}>
           <RNText style={[typography.h1, { color: colors.tint, textAlign: 'center' }]}>
-            {score} / {total}
+            {debrief.score} / {debrief.total}
           </RNText>
           <RNText style={[typography.h3, { color: colors.text, textAlign: 'center' }]}>
-            {pct}%
+            {debrief.percentage}%
           </RNText>
           <RNText style={[typography.caption, { color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs }]}>
             ⏱ {minutes} min {seconds.toString().padStart(2, '0')}s
@@ -487,37 +594,30 @@ function DebriefView({
         </Card>
 
         {/* Transitions */}
-        <RNView style={styles.debriefSection}>
-          <RNText style={[typography.captionBold, { color: colors.textSecondary, marginBottom: spacing.sm }]}>
-            PROGRESSIONS
-          </RNText>
-          {transitions.map((t, idx) => {
-            const isUp = ['fragile', 'unknown'].includes(t.from) && ['ok', 'solid', 'fragile'].includes(t.to) && t.from !== t.to;
-            const icon = t.to === 'fragile' && t.from === 'ok' ? '📉' : '📈';
-            return (
-              <RNView key={idx} style={styles.transitionRow}>
-                <RNText>{icon}</RNText>
-                <RNText style={[typography.body, { color: colors.text, flex: 1 }]}>{t.term}</RNText>
-                <MasteryBadge state={t.from as any} />
-                <RNText style={[typography.caption, { color: colors.textSecondary }]}>→</RNText>
-                <MasteryBadge state={t.to as any} />
-              </RNView>
-            );
-          })}
-        </RNView>
-
-        {/* To consolidate */}
-        <RNView style={styles.debriefSection}>
-          <RNText style={[typography.captionBold, { color: colors.textSecondary, marginBottom: spacing.sm }]}>
-            À CONSOLIDER
-          </RNText>
-          {toConsolidate.map((item, idx) => (
-            <RNView key={idx} style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xs }}>
-              <RNText style={[typography.body, { color: colors.warning }]}>·</RNText>
-              <RNText style={[typography.body, { color: colors.text }]}>{item}</RNText>
-            </RNView>
-          ))}
-        </RNView>
+        {debrief.transitions.length > 0 && (
+          <RNView style={styles.debriefSection}>
+            <RNText style={[typography.captionBold, { color: colors.textSecondary, marginBottom: spacing.sm }]}>
+              PROGRESSIONS
+            </RNText>
+            {debrief.transitions.map((t, idx) => {
+              const isRegression =
+                (t.from === 'solid' && t.to !== 'solid') ||
+                (t.from === 'ok' && (t.to === 'fragile' || t.to === 'unknown'));
+              const icon = isRegression ? '📉' : '📈';
+              return (
+                <RNView key={idx} style={styles.transitionRow}>
+                  <RNText>{icon}</RNText>
+                  <RNText style={[typography.body, { color: colors.text, flex: 1 }]}>
+                    {t.item_term || `Item ${t.item_id.slice(0, 8)}`}
+                  </RNText>
+                  <MasteryBadge state={t.from as any} />
+                  <RNText style={[typography.caption, { color: colors.textSecondary }]}>→</RNText>
+                  <MasteryBadge state={t.to as any} />
+                </RNView>
+              );
+            })}
+          </RNView>
+        )}
       </ScrollView>
 
       {/* Bottom actions */}
@@ -533,7 +633,6 @@ function DebriefView({
           variant="primary"
           fullWidth
           onPress={() => {
-            // Reset session — in real app, would call API
             router.replace(`/session/${chapterId}`);
           }}
           style={{ marginTop: spacing.sm }}
@@ -554,8 +653,8 @@ const styles = StyleSheet.create({
   },
   content: { flex: 1, paddingHorizontal: spacing.md, paddingTop: spacing.lg },
   choiceBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
     gap: spacing.md,
     padding: spacing.md,
     borderRadius: radius.md,
@@ -568,6 +667,7 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
     fontSize: 16,
     textAlignVertical: 'top',
+    minHeight: 50,
   },
   bottomActions: {
     paddingHorizontal: spacing.md,
@@ -594,4 +694,29 @@ const styles = StyleSheet.create({
   },
   scoreCard: { marginHorizontal: spacing.md, alignItems: 'center' as const, paddingVertical: spacing.lg },
   debriefSection: { paddingHorizontal: spacing.md, marginTop: spacing.lg },
+  modalOverlay: {
+    position: 'absolute' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center' as const,
+    paddingHorizontal: spacing.md,
+  },
+  modalContent: {
+    borderRadius: radius.lg,
+    padding: spacing.lg,
+    maxHeight: '80%' as any,
+  },
+  modalHeader: {
+    flexDirection: 'row' as const,
+    alignItems: 'center' as const,
+    justifyContent: 'space-between' as const,
+  },
+  keywordChip: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.sm,
+  },
 });

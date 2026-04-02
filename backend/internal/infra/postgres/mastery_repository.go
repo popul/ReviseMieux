@@ -76,8 +76,8 @@ func (r *MasteryRepository) FindDueByUser(ctx context.Context, userID uuid.UUID,
 		       last_success_at, consecutive_successes, consecutive_failures,
 		       current_difficulty, created_at, updated_at
 		FROM masteries
-		WHERE user_id = $1 AND next_due_at IS NOT NULL AND next_due_at <= $2
-		ORDER BY next_due_at ASC`
+		WHERE user_id = $1 AND (next_due_at IS NULL OR next_due_at <= $2)
+		ORDER BY next_due_at ASC NULLS FIRST`
 
 	rows, err := r.pool.Query(ctx, q, userID, before)
 	if err != nil {

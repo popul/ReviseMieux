@@ -1,9 +1,10 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
   RefreshControl,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import { View as RNView, Text as RNText } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,71 +13,42 @@ import { router } from 'expo-router';
 import { useColors, Card, Button, ProgressBar } from '@/components/Themed';
 import { MasteryBar } from '@/components/MasteryBar';
 import { typography, spacing, radius } from '@/constants/Typography';
-import type { Chapter } from '@/services/api';
-
-// Mock data until API is connected
-const MOCK_CHAPTERS: Chapter[] = [
-  {
-    id: '1',
-    subject: 'Physique',
-    title: 'Densité et masse volumique',
-    is_demo: false,
-    mastery_breakdown: { unknown: 1, fragile: 1, ok: 3, solid: 3 },
-    item_count: 8,
-    last_revised_at: new Date(Date.now() - 2 * 3600_000).toISOString(),
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: '2',
-    subject: 'Maths',
-    title: 'Fractions et proportionnalité',
-    is_demo: false,
-    mastery_breakdown: { unknown: 4, fragile: 4, ok: 3, solid: 1 },
-    item_count: 12,
-    last_revised_at: new Date(Date.now() - 24 * 3600_000).toISOString(),
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'demo',
-    subject: 'SVT',
-    title: 'La cellule (DEMO)',
-    is_demo: true,
-    mastery_breakdown: { unknown: 5, fragile: 1, ok: 0, solid: 0 },
-    item_count: 6,
-    last_revised_at: null,
-    created_at: new Date().toISOString(),
-  },
-];
-
-function timeAgo(date: string | null): string {
-  if (!date) return 'Jamais révisé';
-  const diff = Date.now() - new Date(date).getTime();
-  const hours = Math.floor(diff / 3600_000);
-  if (hours < 1) return 'Révisé à l\'instant';
-  if (hours < 24) return `Révisé il y a ${hours}h`;
-  const days = Math.floor(hours / 24);
-  return `Révisé il y a ${days}j`;
-}
+import { listChapters, seedDemo } from '@/services/api';
+import type { Chapter, MasteryBreakdown } from '@/services/api';
 
 export default function DashboardScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const [refreshing, setRefreshing] = useState(false);
-  const [chapters] = useState<Chapter[]>(MOCK_CHAPTERS);
+  const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    listChapters()
+      .then(setChapters)
+      .catch(console.warn)
+      .finally(() => setLoading(false));
+  }, []);
 
   const globalBreakdown = chapters.reduce(
-    (acc, c) => ({
-      unknown: acc.unknown + c.mastery_breakdown.unknown,
-      fragile: acc.fragile + c.mastery_breakdown.fragile,
-      ok: acc.ok + c.mastery_breakdown.ok,
-      solid: acc.solid + c.mastery_breakdown.solid,
-    }),
+    (acc, c) => {
+      const bd = c.mastery_breakdown ?? { unknown: 0, fragile: 0, ok: 0, solid: 0 };
+      return {
+        unknown: acc.unknown + bd.unknown,
+        fragile: acc.fragile + bd.fragile,
+        ok: acc.ok + bd.ok,
+        solid: acc.solid + bd.solid,
+      };
+    },
     { unknown: 0, fragile: 0, ok: 0, solid: 0 },
   );
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 800);
+    listChapters()
+      .then(setChapters)
+      .catch(console.warn)
+      .finally(() => setRefreshing(false));
   }, []);
 
   const hasChapters = chapters.length > 0;
@@ -100,6 +72,42 @@ export default function DashboardScreen() {
         )}
       </RNView>
 
+      {/* Loading state */}
+      {loading && (
+        <RNView style={{ alignItems: 'center', marginTop: spacing.xl }}>
+          <ActivityIndicator size="large" color={colors.tint} />
+          <RNText style={[typography.body, { color: colors.textSecondary, marginTop: spacing.sm }]}>
+            Chargement...
+          </RNText>
+        </RNView>
+      )}
+
+      {/* Empty state — seed demo */}
+      {!loading && !hasChapters && (
+        <Card style={[styles.section, { alignItems: 'center' as const }]}>
+          <RNText style={{ fontSize: 48, marginBottom: spacing.md }}>🧪</RNText>
+          <RNText style={[typography.h3, { color: colors.text, textAlign: 'center' }]}>
+            Aucun chapitre
+          </RNText>
+          <RNText style={[typography.body, { color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs }]}>
+            Essaie le chapitre démo pour découvrir l'app !
+          </RNText>
+          <Button
+            title="Charger le chapitre démo"
+            variant="primary"
+            onPress={() => {
+              setLoading(true);
+              seedDemo()
+                .then(() => listChapters())
+                .then(setChapters)
+                .catch(console.warn)
+                .finally(() => setLoading(false));
+            }}
+            style={{ marginTop: spacing.md }}
+          />
+        </Card>
+      )}
+
       {/* Global progress */}
       {hasChapters && (
         <Card style={styles.section}>
@@ -116,14 +124,16 @@ export default function DashboardScreen() {
       )}
 
       {/* Chapters */}
-      <RNView style={styles.section}>
-        <RNText style={[typography.h3, { color: colors.text, marginBottom: spacing.md }]}>
-          Mes chapitres
-        </RNText>
-        {chapters.map((chapter) => (
-          <ChapterCard key={chapter.id} chapter={chapter} />
-        ))}
-      </RNView>
+      {hasChapters && (
+        <RNView style={styles.section}>
+          <RNText style={[typography.h3, { color: colors.text, marginBottom: spacing.md }]}>
+            Mes chapitres
+          </RNText>
+          {chapters.map((chapter) => (
+            <ChapterCard key={chapter.id} chapter={chapter} />
+          ))}
+        </RNView>
+      )}
 
       {/* Capture CTA */}
       <RNView style={[styles.section, { alignItems: 'center' }]}>
@@ -140,12 +150,9 @@ export default function DashboardScreen() {
 
 function ChapterCard({ chapter }: { chapter: Chapter }) {
   const colors = useColors();
-  const mastered =
-    chapter.mastery_breakdown.ok + chapter.mastery_breakdown.solid;
-  const total =
-    mastered +
-    chapter.mastery_breakdown.fragile +
-    chapter.mastery_breakdown.unknown;
+  const bd = chapter.mastery_breakdown ?? { unknown: 0, fragile: 0, ok: 0, solid: 0 };
+  const mastered = bd.ok + bd.solid;
+  const total = mastered + bd.fragile + bd.unknown;
   const pct = total > 0 ? Math.round((mastered / total) * 100) : 0;
 
   return (
@@ -157,17 +164,17 @@ function ChapterCard({ chapter }: { chapter: Chapter }) {
               {chapter.is_demo ? '🧪 ' : ''}{chapter.subject}
             </RNText>
             <RNText style={[typography.bodyBold, { color: colors.text, marginTop: 2 }]}>
-              {chapter.title}
+              {chapter.name}
             </RNText>
           </RNView>
           <RNText style={[typography.h2, { color: colors.tint }]}>{pct}%</RNText>
         </RNView>
 
-        <MasteryBar breakdown={chapter.mastery_breakdown} showLabel={false} />
+        <MasteryBar breakdown={bd} showLabel={false} />
 
         <RNView style={[styles.chapterFooter, { marginTop: spacing.sm }]}>
           <RNText style={[typography.small, { color: colors.textSecondary }]}>
-            {chapter.item_count} items · {timeAgo(chapter.last_revised_at)}
+            {chapter.item_count} items
           </RNText>
           <Button
             title={chapter.is_demo ? 'Essayer' : 'Réviser'}

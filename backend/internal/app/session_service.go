@@ -2,7 +2,9 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/popul/revisemieux/internal/domain/chapter"
@@ -10,6 +12,60 @@ import (
 	"github.com/popul/revisemieux/internal/domain/mastery"
 	"github.com/popul/revisemieux/internal/domain/session"
 )
+
+// renderQuestionFromItem generates a prompt and expected answer from an item and template.
+func renderQuestionFromItem(item *chapter.Item, templateID string) (prompt string, expectedAnswer []byte) {
+	term := ""
+	if item.Term != nil {
+		term = *item.Term
+	}
+	keywords := strings.Join(item.Keywords, ", ")
+
+	isProcedure := item.ItemType == chapter.ItemProcedure
+
+	switch templateID {
+	case "GEN.KNOW.DEF_SHORT":
+		if isProcedure {
+			prompt = fmt.Sprintf("Quelle est la formule ou la méthode pour : %s ?", firstWords(term, 8))
+		} else {
+			prompt = fmt.Sprintf("Définis : %s", firstWords(term, 8))
+		}
+		expectedAnswer, _ = json.Marshal(map[string]string{"answer": term})
+	case "GEN.KNOW.FLASH_MCQ":
+		prompt = fmt.Sprintf("Vrai ou faux : %s", term)
+		expectedAnswer, _ = json.Marshal(map[string]string{"answer": "Vrai"})
+	case "GEN.KNOW.CLOZE_KEYWORDS":
+		if isProcedure || len(keywords) < 3 {
+			// Cloze doesn't work well with formulas or short items — use short answer instead
+			prompt = fmt.Sprintf("Explique en une phrase : %s", firstWords(term, 8))
+		} else {
+			prompt = fmt.Sprintf("Complète : %s", maskedTerm(term))
+		}
+		expectedAnswer, _ = json.Marshal(map[string]string{"answer": term, "keywords": keywords})
+	default:
+		prompt = fmt.Sprintf("Qu'est-ce que : %s ?", firstWords(term, 8))
+		expectedAnswer, _ = json.Marshal(map[string]string{"answer": term})
+	}
+	return
+}
+
+func firstWords(s string, n int) string {
+	words := strings.Fields(s)
+	if len(words) <= n {
+		return s
+	}
+	return strings.Join(words[:n], " ") + "..."
+}
+
+func maskedTerm(s string) string {
+	words := strings.Fields(s)
+	for i := range words {
+		if len(words[i]) > 4 && i%3 == 1 {
+			words[i] = "____"
+		}
+	}
+	return strings.Join(words, " ")
+}
 
 // Difficulty-1 templates eligible for evening_first sessions.
 var difficulty1Templates = []string{
@@ -26,9 +82,11 @@ type SessionService struct {
 	publisher   event.Publisher
 	clock       event.Clock
 	idGen       event.IDGenerator
+	scorer      session.Scorer
 }
 
 // NewSessionService creates a new SessionService.
+// The scorer parameter is optional (can be nil) — when nil, client-provided scores are used.
 func NewSessionService(
 	sessionRepo session.Repository,
 	chapterRepo chapter.Repository,
@@ -36,6 +94,7 @@ func NewSessionService(
 	publisher event.Publisher,
 	clock event.Clock,
 	idGen event.IDGenerator,
+	scorer session.Scorer,
 ) *SessionService {
 	return &SessionService{
 		sessionRepo: sessionRepo,
@@ -44,6 +103,7 @@ func NewSessionService(
 		publisher:   publisher,
 		clock:       clock,
 		idGen:       idGen,
+		scorer:      scorer,
 	}
 }
 
@@ -75,15 +135,28 @@ func (s *SessionService) ProposeEveningFirst(ctx context.Context, userID, chapte
 
 	selectedItems := itemIDs[:maxQuestions]
 
+	// Fetch items for rendering
+	chapterItems, _ := s.chapterRepo.FindItemsByChapter(ctx, chapterID, false)
+	itemMap := make(map[uuid.UUID]*chapter.Item)
+	for _, it := range chapterItems {
+		itemMap[it.ID] = it
+	}
+
 	// Generate questions using difficulty 1 templates (round-robin)
 	for i, itemID := range selectedItems {
 		templateID := difficulty1Templates[i%len(difficulty1Templates)]
+		prompt, expectedAnswer := "", []byte(`{"answer":""}`)
+		if item, ok := itemMap[itemID]; ok {
+			prompt, expectedAnswer = renderQuestionFromItem(item, templateID)
+		}
 		q := &session.Question{
-			ID:         s.idGen.New(),
-			SessionID:  sess.ID,
-			TemplateID: templateID,
-			ItemID:     itemID,
-			CreatedAt:  now,
+			ID:             s.idGen.New(),
+			SessionID:      sess.ID,
+			TemplateID:     templateID,
+			ItemID:         itemID,
+			RenderedPrompt: prompt,
+			ExpectedAnswer: expectedAnswer,
+			CreatedAt:      now,
 		}
 		if err := s.sessionRepo.SaveQuestion(ctx, q); err != nil {
 			return nil, fmt.Errorf("session_service: save question: %w", err)
@@ -144,12 +217,16 @@ func (s *SessionService) ComposeDaily(ctx context.Context, userID, chapterID uui
 
 	for i, m := range selected {
 		templateID := difficulty1Templates[i%len(difficulty1Templates)]
+		item := chapterItemMap[m.ItemID]
+		prompt, expectedAnswer := renderQuestionFromItem(item, templateID)
 		q := &session.Question{
-			ID:         s.idGen.New(),
-			SessionID:  sess.ID,
-			TemplateID: templateID,
-			ItemID:     m.ItemID,
-			CreatedAt:  now,
+			ID:             s.idGen.New(),
+			SessionID:      sess.ID,
+			TemplateID:     templateID,
+			ItemID:         m.ItemID,
+			RenderedPrompt: prompt,
+			ExpectedAnswer: expectedAnswer,
+			CreatedAt:      now,
 		}
 		if err := s.sessionRepo.SaveQuestion(ctx, q); err != nil {
 			return nil, fmt.Errorf("session_service: save question: %w", err)
@@ -261,6 +338,20 @@ func (s *SessionService) SubmitAnswer(ctx context.Context, sessionID, questionID
 		return nil, fmt.Errorf("session_service: find question: %w", err)
 	}
 
+	// Auto-score text answers via LLM (non-MCQ questions)
+	if s.scorer != nil && !strings.Contains(q.TemplateID, "MCQ") {
+		var expected struct {
+			Answer string `json:"answer"`
+		}
+		if json.Unmarshal(q.ExpectedAnswer, &expected) == nil && expected.Answer != "" {
+			result, err := s.scorer.ScoreAnswer(ctx, q.RenderedPrompt, expected.Answer, string(answer))
+			if err == nil {
+				score = result.Score
+			}
+			// On error, fall back to client-provided score silently
+		}
+	}
+
 	// Create and save the attempt
 	attempt := session.NewAttempt(s.idGen, sessionID, questionID, userID, answer, score, now)
 	if err := s.sessionRepo.SaveAttempt(ctx, attempt); err != nil {
@@ -299,18 +390,16 @@ func (s *SessionService) ComposeMockExam(ctx context.Context, userID uuid.UUID, 
 	}
 
 	// Gather all items from all chapters
-	var allItemIDs []uuid.UUID
+	var allItems []*chapter.Item
 	for _, chID := range chapterIDs {
 		items, err := s.chapterRepo.FindItemsByChapter(ctx, chID, false)
 		if err != nil {
 			return nil, fmt.Errorf("session_service: find items for chapter: %w", err)
 		}
-		for _, item := range items {
-			allItemIDs = append(allItemIDs, item.ID)
-		}
+		allItems = append(allItems, items...)
 	}
 
-	if len(allItemIDs) == 0 {
+	if len(allItems) == 0 {
 		return nil, session.ErrEmptyPool
 	}
 
@@ -323,18 +412,22 @@ func (s *SessionService) ComposeMockExam(ctx context.Context, userID uuid.UUID, 
 
 	// Select up to 20 questions for a mock exam
 	maxQuestions := 20
-	if len(allItemIDs) < maxQuestions {
-		maxQuestions = len(allItemIDs)
+	if len(allItems) < maxQuestions {
+		maxQuestions = len(allItems)
 	}
 
 	for i := 0; i < maxQuestions; i++ {
 		templateID := difficulty1Templates[i%len(difficulty1Templates)]
+		item := allItems[i]
+		prompt, expectedAnswer := renderQuestionFromItem(item, templateID)
 		q := &session.Question{
-			ID:         s.idGen.New(),
-			SessionID:  sess.ID,
-			TemplateID: templateID,
-			ItemID:     allItemIDs[i],
-			CreatedAt:  now,
+			ID:             s.idGen.New(),
+			SessionID:      sess.ID,
+			TemplateID:     templateID,
+			ItemID:         item.ID,
+			RenderedPrompt: prompt,
+			ExpectedAnswer: expectedAnswer,
+			CreatedAt:      now,
 		}
 		if err := s.sessionRepo.SaveQuestion(ctx, q); err != nil {
 			return nil, fmt.Errorf("session_service: save mock exam question: %w", err)
@@ -342,6 +435,55 @@ func (s *SessionService) ComposeMockExam(ctx context.Context, userID uuid.UUID, 
 	}
 
 	return sess, nil
+}
+
+// DebriefResult contains the computed debrief data for a completed session.
+type DebriefResult struct {
+	Score       float64
+	Total       int
+	Percentage  float64
+	Transitions []TransitionInfo
+}
+
+// TransitionInfo describes a mastery state change for an item.
+type TransitionInfo struct {
+	ItemID   uuid.UUID
+	ItemTerm string
+	From     string
+	To       string
+}
+
+// GetDebrief computes score statistics for a session's attempts.
+func (s *SessionService) GetDebrief(ctx context.Context, sessionID uuid.UUID) (*DebriefResult, error) {
+	// Verify session exists
+	_, err := s.sessionRepo.FindByID(ctx, sessionID)
+	if err != nil {
+		return nil, fmt.Errorf("session_service: get debrief: %w", err)
+	}
+
+	attempts, err := s.sessionRepo.FindAttemptsBySession(ctx, sessionID)
+	if err != nil {
+		return nil, fmt.Errorf("session_service: find attempts: %w", err)
+	}
+
+	result := &DebriefResult{
+		Transitions: []TransitionInfo{},
+	}
+
+	if len(attempts) == 0 {
+		return result, nil
+	}
+
+	var totalScore float64
+	for _, a := range attempts {
+		totalScore += a.Score
+	}
+
+	result.Score = totalScore
+	result.Total = len(attempts)
+	result.Percentage = (totalScore / float64(len(attempts))) * 100
+
+	return result, nil
 }
 
 // AvailableSessionTypes returns session types available based on schedule status.

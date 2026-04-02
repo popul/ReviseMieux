@@ -2,14 +2,24 @@ package dto
 
 // ChapterResponse represents a chapter in API responses.
 type ChapterResponse struct {
-	ID                string  `json:"id"`
-	UserID            string  `json:"user_id"`
-	Subject           string  `json:"subject"`
-	ClassLevel        string  `json:"class_level"`
-	Name              string  `json:"name"`
-	CurrentRevisionID *string `json:"current_revision_id,omitempty"`
-	Archived          bool    `json:"archived"`
-	IsDemo            bool    `json:"is_demo"`
+	ID                string            `json:"id"`
+	UserID            string            `json:"user_id"`
+	Subject           string            `json:"subject"`
+	ClassLevel        string            `json:"class_level"`
+	Name              string            `json:"name"`
+	CurrentRevisionID *string           `json:"current_revision_id,omitempty"`
+	Archived          bool              `json:"archived"`
+	IsDemo            bool              `json:"is_demo"`
+	ItemCount         int               `json:"item_count"`
+	MasteryBreakdown  *MasteryBreakdown `json:"mastery_breakdown,omitempty"`
+}
+
+// MasteryBreakdown holds item counts per mastery state.
+type MasteryBreakdown struct {
+	Unknown int `json:"unknown"`
+	Fragile int `json:"fragile"`
+	Ok      int `json:"ok"`
+	Solid   int `json:"solid"`
 }
 
 // CreateChapterRequest is the request body for creating a chapter.

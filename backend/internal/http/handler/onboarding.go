@@ -74,7 +74,7 @@ func (h *Onboarding) SeedDemo(c *gin.Context) {
 
 	ch, items, err := h.svc.SeedDemoChapter(c.Request.Context(), userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "failed to seed demo chapter"})
+		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "failed to seed demo chapter", Details: err.Error()})
 		return
 	}
 

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { StyleSheet } from 'react-native';
 import { View as RNView, Text as RNText } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -5,10 +6,23 @@ import { router } from 'expo-router';
 
 import { useColors, Card, Button } from '@/components/Themed';
 import { typography, spacing, radius } from '@/constants/Typography';
+import { seedDemo } from '@/services/api';
 
 export default function OnboardingScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const [seeding, setSeeding] = useState(false);
+
+  const handleSeedDemo = () => {
+    setSeeding(true);
+    seedDemo()
+      .then(() => router.replace('/(tabs)'))
+      .catch((err) => {
+        console.warn('Seed failed:', err.message);
+        router.replace('/(tabs)'); // go anyway
+      })
+      .finally(() => setSeeding(false));
+  };
 
   return (
     <RNView style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top + spacing.xl }]}>
@@ -70,9 +84,10 @@ export default function OnboardingScreen() {
             8 questions prêtes · 3 min
           </RNText>
           <Button
-            title="Essayer →"
+            title={seeding ? 'Chargement...' : 'Essayer →'}
             variant="secondary"
-            onPress={() => router.replace('/(tabs)')}
+            onPress={handleSeedDemo}
+            disabled={seeding}
             style={{ marginTop: spacing.md }}
           />
         </Card>

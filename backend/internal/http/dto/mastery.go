@@ -12,6 +12,7 @@ type MasteryResponse struct {
 	LastReviewAt         *time.Time `json:"last_review_at,omitempty"`
 	ConsecutiveSuccesses int        `json:"consecutive_successes"`
 	ConsecutiveFailures  int        `json:"consecutive_failures"`
+	LastSuccessAt        *time.Time `json:"last_success_at,omitempty"`
 	CappedAtOK           bool       `json:"capped_at_ok"`
 }
 

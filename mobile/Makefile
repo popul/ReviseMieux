@@ -2,8 +2,10 @@
 # Révise Mieux — Mobile Makefile (Expo + React Native)
 # ============================================================
 
-.PHONY: help deps dev start android ios web test lint typecheck \
-        build clean
+.PHONY: help deps dev start android ios web test test-watch lint typecheck \
+        build build-dev build-dev-sim build-preview \
+        device-register eas-login eas-whoami \
+        clean prebuild nuke
 
 .DEFAULT_GOAL := help
 
@@ -13,13 +15,23 @@
 
 NPM     := npm
 NPXE    := npx expo
+NPXEAS  := npx eas
 TSC     := npx tsc
 
 # Couleurs
-GREEN  := \033[32m
-CYAN   := \033[36m
-YELLOW := \033[33m
-RESET  := \033[0m
+ifneq ($(TERM),)
+  GREEN  := \033[32m
+  CYAN   := \033[36m
+  YELLOW := \033[33m
+  RED    := \033[31m
+  RESET  := \033[0m
+else
+  GREEN  :=
+  CYAN   :=
+  YELLOW :=
+  RED    :=
+  RESET  :=
+endif
 
 # ------------------------------------------------------------
 # Help
@@ -27,8 +39,14 @@ RESET  := \033[0m
 
 help: ## Affiche cette aide
 	@echo ""
-	@echo "$(CYAN)Mobile$(RESET) — Expo + React Native"
+	@echo "$(CYAN)Mobile$(RESET) — Expo 55 + React Native"
 	@echo ""
+	@echo "$(YELLOW)Démarrage rapide :$(RESET)"
+	@echo "  1. make deps"
+	@echo "  2. make build-dev          (build iPhone — première fois uniquement)"
+	@echo "  3. make dev                (serveur Metro)"
+	@echo ""
+	@echo "$(YELLOW)Toutes les cibles :$(RESET)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  $(GREEN)%-22s$(RESET) %s\n", $$1, $$2}'
 	@echo ""
@@ -46,28 +64,66 @@ deps: ## Installe les dépendances npm
 # Dev
 # ------------------------------------------------------------
 
-dev: ## Lance Expo (mode dev)
-	@$(NPXE) start
+dev: ## Lance Expo (dev client, même réseau Wi-Fi)
+	@$(NPXE) start --dev-client
 
 start: dev ## Alias de dev
 
 android: ## Lance sur Android
 	@$(NPXE) start --android
 
-ios: ## Lance sur iOS
+ios: ## Lance sur iOS simulator
 	@$(NPXE) start --ios
 
 web: ## Lance sur web
 	@$(NPXE) start --web
 
 # ------------------------------------------------------------
+# EAS — Authentification & Devices
+# ------------------------------------------------------------
+
+eas-login: ## Connexion au compte Expo (EAS)
+	@$(NPXEAS) login
+
+eas-whoami: ## Vérifie le compte Expo connecté
+	@$(NPXEAS) whoami
+
+device-register: ## Enregistre un iPhone pour les builds dev (QR code)
+	@echo "$(CYAN)Scanne le QR code avec ton iPhone pour l'enregistrer...$(RESET)"
+	@$(NPXEAS) device:create
+
+# ------------------------------------------------------------
+# EAS Build — Builds natifs
+# ------------------------------------------------------------
+
+build-dev: ## Build dev client pour iPhone physique (EAS Cloud)
+	@echo "$(CYAN)Build dev client iOS (device)...$(RESET)"
+	@$(NPXEAS) build --profile development --platform ios
+	@echo "$(GREEN)Build terminé — installe l'app via le lien ci-dessus$(RESET)"
+
+build-dev-sim: ## Build dev client pour simulateur iOS
+	@echo "$(CYAN)Build dev client iOS (simulator)...$(RESET)"
+	@$(NPXEAS) build --profile development-simulator --platform ios
+
+build-preview: ## Build preview (TestFlight-ready, sans dev tools)
+	@echo "$(CYAN)Build preview iOS...$(RESET)"
+	@$(NPXEAS) build --profile preview --platform ios
+
+build-android: ## Build dev client Android (EAS Cloud)
+	@echo "$(CYAN)Build dev client Android...$(RESET)"
+	@$(NPXEAS) build --profile development --platform android
+
+# ------------------------------------------------------------
 # Tests
 # ------------------------------------------------------------
 
-test: ## Lance les tests
+test: ## Lance les tests Jest
 	@echo "$(CYAN)Tests...$(RESET)"
 	@$(NPM) test -- --passWithNoTests
 	@echo "$(GREEN)Tests OK$(RESET)"
+
+test-watch: ## Tests en mode watch
+	@$(NPM) test -- --watch
 
 # ------------------------------------------------------------
 # Qualité
@@ -82,18 +138,27 @@ lint: typecheck ## Lint (TypeScript check)
 	@echo "$(GREEN)Lint OK$(RESET)"
 
 # ------------------------------------------------------------
-# Build
+# Build local
 # ------------------------------------------------------------
 
-build: ## Build Expo (EAS)
+build: ## Export Expo (bundle web/static)
 	@echo "$(CYAN)Expo export...$(RESET)"
 	@$(NPXE) export
 	@echo "$(GREEN)Build OK$(RESET)"
+
+prebuild: ## Génère les projets natifs ios/ et android/ (pour debug natif)
+	@echo "$(CYAN)Expo prebuild...$(RESET)"
+	@$(NPXE) prebuild
+	@echo "$(GREEN)Prebuild OK$(RESET)"
 
 # ------------------------------------------------------------
 # Clean
 # ------------------------------------------------------------
 
-clean: ## Supprime node_modules et caches
-	@rm -rf node_modules .expo dist
+clean: ## Supprime caches Expo et dist
+	@rm -rf .expo dist
 	@echo "$(GREEN)Clean OK$(RESET)"
+
+nuke: ## Supprime tout (node_modules, caches, natifs)
+	@rm -rf node_modules .expo dist ios android
+	@echo "$(GREEN)Nuke OK — relance make deps$(RESET)"

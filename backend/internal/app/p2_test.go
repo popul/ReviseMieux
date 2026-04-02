@@ -387,7 +387,7 @@ func TestZ4AC07_MockExamIndependentOfDaily(t *testing.T) {
 	}
 
 	sessionRepo := &mockSessionRepoP2{sessions: make(map[uuid.UUID]*session.Session)}
-	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen)
+	svc := NewSessionService(sessionRepo, chRepo, masteryRepo, publisher, clock, idGen, nil)
 
 	userID := uuid.New()
 

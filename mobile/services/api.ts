@@ -1,7 +1,13 @@
 import Constants from 'expo-constants';
 
+// Use Mac's local IP for iPhone testing, fallback to localhost
 const BASE_URL =
-  Constants.expoConfig?.extra?.apiUrl ?? 'http://localhost:8080/api/v1';
+  Constants.expoConfig?.extra?.apiUrl ?? 'http://192.168.1.19:8080/api/v1';
+
+const DEV_TOKEN_URL =
+  Constants.expoConfig?.extra?.apiUrl
+    ? Constants.expoConfig.extra.apiUrl.replace('/api/v1', '/dev/token')
+    : 'http://192.168.1.19:8080/dev/token';
 
 type RequestOptions = {
   method?: string;
@@ -13,6 +19,10 @@ let authToken: string | null = null;
 
 export function setAuthToken(token: string | null) {
   authToken = token;
+}
+
+export function getAuthToken(): string | null {
+  return authToken;
 }
 
 async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
@@ -48,145 +58,212 @@ export class ApiError extends Error {
   }
 }
 
+// --- Dev Auth ---
+
+export type DevTokenResponse = {
+  token: string;
+  user_id: string;
+};
+
+export async function fetchDevToken(): Promise<DevTokenResponse> {
+  const res = await fetch(DEV_TOKEN_URL);
+  if (!res.ok) throw new ApiError(res.status, 'Failed to get dev token');
+  return res.json();
+}
+
 // --- Chapter ---
+
+export type MasteryBreakdown = {
+  unknown: number;
+  fragile: number;
+  ok: number;
+  solid: number;
+};
 
 export type Chapter = {
   id: string;
+  user_id: string;
   subject: string;
-  title: string;
-  is_demo: boolean;
-  mastery_breakdown: { unknown: number; fragile: number; ok: number; solid: number };
-  item_count: number;
-  last_revised_at: string | null;
-  created_at: string;
-};
-
-export type Notion = {
-  id: string;
+  class_level: string;
   name: string;
-  items: Item[];
-  mastery_breakdown: { unknown: number; fragile: number; ok: number; solid: number };
+  current_revision_id?: string;
+  archived: boolean;
+  is_demo: boolean;
+  item_count: number;
+  mastery_breakdown?: MasteryBreakdown;
 };
 
-export type Item = {
+export type ItemResponse = {
   id: string;
-  type: string;
-  term: string;
-  definition: string;
-  mastery_state: string;
-  fidelity_flag: string | null;
+  chapter_id: string;
+  notion_id?: string;
+  item_type: string;
+  term?: string;
+  confidence: number;
+  validation_required: boolean;
+  archived: boolean;
+  keywords?: string[];
+};
+
+export type NotionResponse = {
+  id: string;
+  chapter_id: string;
+  name: string;
+  sort_order: number;
+};
+
+export type LessonCardResponse = {
+  chapter: Chapter;
+  items: ItemResponse[];
+  notions: NotionResponse[];
 };
 
 export function listChapters() {
   return request<Chapter[]>('/chapters');
 }
 
-export function getChapter(id: string) {
-  return request<{ chapter: Chapter; notions: Notion[] }>(`/chapters/${id}`);
+export function getLessonCard(chapterId: string) {
+  return request<LessonCardResponse>(`/chapters/${chapterId}/lesson-card`);
+}
+
+// --- Mastery ---
+
+export type MasteryResponse = {
+  id: string;
+  user_id: string;
+  item_id: string;
+  state: string;
+  consecutive_successes: number;
+  next_due_at?: string;
+};
+
+export function getMasteries(state?: string) {
+  const query = state ? `?state=${state}` : '';
+  return request<MasteryResponse[]>(`/masteries${query}`);
+}
+
+export function getMasteryForItem(itemId: string) {
+  return request<MasteryResponse>(`/masteries/${itemId}`);
 }
 
 // --- Session ---
 
 export type Session = {
   id: string;
-  type: string;
+  user_id: string;
+  session_type: string;
   status: string;
-  chapter_ids: string[];
-  total_questions: number;
-  answered: number;
-  score: number | null;
-  created_at: string;
+  trigger_type: string;
+  started_at?: string;
+  completed_at?: string;
+  current_question_index: number;
+  chapter_ids?: string[];
 };
 
 export type Question = {
   id: string;
+  template_id: string;
   item_id: string;
-  type: string;
-  prompt: string;
+  question_type: string;
+  rendered_prompt: string;
   choices?: string[];
-  unit?: string;
-  context?: string;
+  visual_url?: string;
 };
 
-export type AttemptResult = {
-  correct: boolean;
+export type SubmitAnswerResponse = {
+  attempt_id: string;
   score: number;
-  score_class: string;
-  expected_answer: string;
-  hint: string;
-  mastery_transition: { from: string; to: string } | null;
-};
-
-export type SessionDebrief = {
-  score: number;
-  total: number;
-  percentage: number;
-  duration_seconds: number;
-  transitions: { item_term: string; from: string; to: string }[];
-  to_consolidate: string[];
-};
-
-export function startSession(chapterIds: string[], type: string = 'daily') {
-  return request<Session>('/sessions', {
-    method: 'POST',
-    body: { chapter_ids: chapterIds, type },
-  });
-}
-
-export function getNextQuestion(sessionId: string) {
-  return request<Question | null>(`/sessions/${sessionId}/next`);
-}
-
-export function submitAnswer(sessionId: string, questionId: string, answer: string) {
-  return request<AttemptResult>(`/sessions/${sessionId}/questions/${questionId}/answer`, {
-    method: 'POST',
-    body: { answer },
-  });
-}
-
-export function getSessionDebrief(sessionId: string) {
-  return request<SessionDebrief>(`/sessions/${sessionId}/debrief`);
-}
-
-// --- Pipeline ---
-
-export type PipelineStatus = {
-  status: 'processing' | 'completed' | 'failed';
-  phase: number;
-  progress: number;
-  chapter_id: string | null;
-  recovery?: {
-    message: string;
-    can_retry: boolean;
-    items_generated: number;
+  feedback?: {
+    correct_answer: string;
+    what_was_missing: string;
+    hint: string;
   };
 };
 
-export function uploadPages(chapterId: string | null, subject: string, formData: FormData) {
-  return fetch(`${BASE_URL}/pipeline/upload`, {
+export type DebriefResponse = {
+  score: number;
+  total: number;
+  percentage: number;
+  transitions: { item_id: string; item_term: string; from: string; to: string }[];
+};
+
+export function startDailySession(chapterId: string) {
+  return request<Session>('/sessions/daily', {
     method: 'POST',
-    headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
-    body: formData,
-  }).then((res) => {
-    if (!res.ok) throw new ApiError(res.status, 'Upload failed');
-    return res.json() as Promise<{ pipeline_id: string }>;
+    body: { chapter_id: chapterId },
   });
 }
 
-export function getPipelineStatus(pipelineId: string) {
-  return request<PipelineStatus>(`/pipeline/${pipelineId}/status`);
+export function getSession(sessionId: string) {
+  return request<Session>(`/sessions/${sessionId}`);
+}
+
+export function getQuestions(sessionId: string) {
+  return request<Question[]>(`/sessions/${sessionId}/questions`);
+}
+
+export function submitAnswer(sessionId: string, questionId: string, answer: string, score: number) {
+  return request<SubmitAnswerResponse>(`/sessions/${sessionId}/answer`, {
+    method: 'POST',
+    body: { question_id: questionId, answer, score },
+  });
+}
+
+export function getDebrief(sessionId: string) {
+  return request<DebriefResponse>(`/sessions/${sessionId}/debrief`);
 }
 
 // --- Onboarding ---
 
 export type OnboardingStatus = {
-  current_step: string;
-  completed_steps: string[];
-  has_demo: boolean;
-  has_chapters: boolean;
-  has_sessions: boolean;
+  account_created: boolean;
+  demo_session_done: boolean;
+  first_chapter_ready: boolean;
+  has_demo_chapter: boolean;
+  demo_chapter_id?: string;
+  step1_label: string;
+  step2_label: string;
+  step3_label: string;
+};
+
+export type SeedDemoResponse = {
+  chapter_id: string;
+  item_count: number;
+  message: string;
 };
 
 export function getOnboardingStatus() {
   return request<OnboardingStatus>('/onboarding/status');
+}
+
+export function seedDemo() {
+  return request<SeedDemoResponse>('/onboarding/seed-demo', { method: 'POST' });
+}
+
+// --- Pipeline ---
+
+export type PipelineProgress = {
+  revision_id: string;
+  status: 'PROCESSING' | 'READY' | 'PARTIAL' | 'FAILED';
+  total_pages: number;
+  processed_pages: number;
+  failed_pages: number;
+  total_items: number;
+  phase: string;
+  phase_message: string;
+};
+
+export function uploadPages(chapterId: string | null, subject: string, formData: FormData) {
+  return fetch(`${BASE_URL}/chapters/${chapterId}/upload`, {
+    method: 'POST',
+    headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
+    body: formData,
+  }).then((res) => {
+    if (!res.ok) throw new ApiError(res.status, 'Upload failed');
+    return res.json() as Promise<{ revision_id: string }>;
+  });
+}
+
+export function getRevisionProgress(revisionId: string) {
+  return request<PipelineProgress>(`/revisions/${revisionId}/progress`);
 }

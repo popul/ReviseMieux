@@ -10,13 +10,14 @@ import {
   setAuthToken,
   ApiError,
   listChapters,
-  getChapter,
-  startSession,
-  getNextQuestion,
+  getLessonCard,
+  startDailySession,
+  getQuestions,
   submitAnswer,
-  getSessionDebrief,
-  getPipelineStatus,
+  getDebrief,
+  getRevisionProgress,
   getOnboardingStatus,
+  seedDemo,
 } from '@/services/api';
 
 // Mock global fetch
@@ -86,7 +87,7 @@ describe('API client', () => {
 
   describe('Chapter endpoints', () => {
     it('listChapters calls GET /chapters', async () => {
-      const chapters = [{ id: '1', title: 'Test' }];
+      const chapters = [{ id: '1', name: 'Test' }];
       mockJsonResponse(chapters);
       const result = await listChapters();
       expect(mockFetch).toHaveBeenCalledTimes(1);
@@ -96,68 +97,77 @@ describe('API client', () => {
       expect(result).toEqual(chapters);
     });
 
-    it('getChapter calls GET /chapters/:id', async () => {
-      const data = { chapter: { id: '123' }, notions: [] };
+    it('getLessonCard calls GET /chapters/:id/lesson-card', async () => {
+      const data = { chapter: { id: '123' }, items: [], notions: [] };
       mockJsonResponse(data);
-      const result = await getChapter('123');
+      const result = await getLessonCard('123');
       const [url] = mockFetch.mock.calls[0];
-      expect(url).toContain('/chapters/123');
+      expect(url).toContain('/chapters/123/lesson-card');
       expect(result).toEqual(data);
     });
   });
 
   describe('Session endpoints', () => {
-    it('startSession calls POST /sessions with chapter_ids and type', async () => {
-      mockJsonResponse({ id: 's1', status: 'in_progress' });
-      await startSession(['c1', 'c2'], 'daily');
+    it('startDailySession calls POST /sessions/daily with chapter_id', async () => {
+      mockJsonResponse({ id: 's1', status: 'COMPOSING' });
+      await startDailySession('c1');
       const [url, opts] = mockFetch.mock.calls[0];
-      expect(url).toContain('/sessions');
+      expect(url).toContain('/sessions/daily');
       expect(opts.method).toBe('POST');
       const body = JSON.parse(opts.body);
-      expect(body.chapter_ids).toEqual(['c1', 'c2']);
-      expect(body.type).toBe('daily');
+      expect(body.chapter_id).toBe('c1');
     });
 
-    it('getNextQuestion calls GET /sessions/:id/next', async () => {
-      mockJsonResponse({ id: 'q1', prompt: 'What is...' });
-      await getNextQuestion('s1');
+    it('getQuestions calls GET /sessions/:id/questions', async () => {
+      mockJsonResponse([{ id: 'q1', rendered_prompt: 'What is...' }]);
+      await getQuestions('s1');
       const [url] = mockFetch.mock.calls[0];
-      expect(url).toContain('/sessions/s1/next');
+      expect(url).toContain('/sessions/s1/questions');
     });
 
-    it('submitAnswer calls POST with answer body', async () => {
-      mockJsonResponse({ correct: true, score: 1.0 });
-      await submitAnswer('s1', 'q1', 'my answer');
+    it('submitAnswer calls POST /sessions/:id/answer with question_id, answer and score', async () => {
+      mockJsonResponse({ attempt_id: 'a1', score: 1.0 });
+      await submitAnswer('s1', 'q1', 'my answer', 1.0);
       const [url, opts] = mockFetch.mock.calls[0];
-      expect(url).toContain('/sessions/s1/questions/q1/answer');
+      expect(url).toContain('/sessions/s1/answer');
       expect(opts.method).toBe('POST');
       const body = JSON.parse(opts.body);
+      expect(body.question_id).toBe('q1');
       expect(body.answer).toBe('my answer');
+      expect(body.score).toBe(1.0);
     });
 
-    it('getSessionDebrief calls GET /sessions/:id/debrief', async () => {
-      mockJsonResponse({ score: 7, total: 10 });
-      await getSessionDebrief('s1');
+    it('getDebrief calls GET /sessions/:id/debrief', async () => {
+      mockJsonResponse({ score: 7, total: 10, percentage: 70 });
+      await getDebrief('s1');
       const [url] = mockFetch.mock.calls[0];
       expect(url).toContain('/sessions/s1/debrief');
     });
   });
 
   describe('Pipeline endpoints', () => {
-    it('getPipelineStatus calls GET /pipeline/:id/status', async () => {
-      mockJsonResponse({ status: 'processing', phase: 2, progress: 0.5 });
-      await getPipelineStatus('p1');
+    it('getRevisionProgress calls GET /revisions/:id/progress', async () => {
+      mockJsonResponse({ revision_id: 'r1', status: 'PROCESSING', total_pages: 3, processed_pages: 1, failed_pages: 0, total_items: 0, phase: 'ocr', phase_message: 'Processing pages' });
+      await getRevisionProgress('r1');
       const [url] = mockFetch.mock.calls[0];
-      expect(url).toContain('/pipeline/p1/status');
+      expect(url).toContain('/revisions/r1/progress');
     });
   });
 
-  describe('Onboarding endpoint', () => {
+  describe('Onboarding endpoints', () => {
     it('getOnboardingStatus calls GET /onboarding/status', async () => {
-      mockJsonResponse({ current_step: 'demo_available', completed_steps: ['account_created'] });
+      mockJsonResponse({ account_created: true, has_demo_chapter: false });
       await getOnboardingStatus();
       const [url] = mockFetch.mock.calls[0];
       expect(url).toContain('/onboarding/status');
+    });
+
+    it('seedDemo calls POST /onboarding/seed-demo', async () => {
+      mockJsonResponse({ chapter_id: 'c1', item_count: 8 });
+      await seedDemo();
+      const [url, opts] = mockFetch.mock.calls[0];
+      expect(url).toContain('/onboarding/seed-demo');
+      expect(opts.method).toBe('POST');
     });
   });
 });

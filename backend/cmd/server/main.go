@@ -16,6 +16,7 @@ import (
 	"github.com/popul/revisemieux/internal/db"
 	"github.com/popul/revisemieux/internal/domain/chapter"
 	"github.com/popul/revisemieux/internal/domain/event"
+	"github.com/popul/revisemieux/internal/domain/session"
 	apphttp "github.com/popul/revisemieux/internal/http"
 	"github.com/popul/revisemieux/internal/http/handler"
 	llmanthro "github.com/popul/revisemieux/internal/infra/anthropic"
@@ -100,15 +101,38 @@ func main() {
 	// When ready, wire: app.NewPipelineService(chapterRepo, masteryRepo, storage, ocr, llmStructurer, publisher, clock, idGen)
 	_ = llmStructurer
 
+	// --- Answer Scorer (LLM-based auto-scoring for text answers) ---
+	var scorer session.Scorer
+	switch cfg.LLMProvider {
+	case "gemini":
+		if cfg.GoogleAIAPIKey != "" {
+			scorer = openaicompat.NewAnswerScorer(
+				"https://generativelanguage.googleapis.com/v1beta/openai",
+				cfg.GoogleAIAPIKey,
+				cfg.GeminiStructModel,
+			)
+			log.Printf("Answer scorer initialized: provider=gemini model=%s", cfg.GeminiStructModel)
+		}
+	case "anthropic":
+		// TODO: implement anthropic scorer if needed
+	}
+
 	// --- Application Services ---
 	chapterSvc := app.NewChapterService(chapterRepo)
 	masterySvc := app.NewMasteryService(masteryRepo, publisher, clock)
-	sessionSvc := app.NewSessionService(sessionRepo, chapterRepo, masteryRepo, publisher, clock, idGen)
+	sessionSvc := app.NewSessionService(sessionRepo, chapterRepo, masteryRepo, publisher, clock, idGen, scorer)
 	validationSvc := app.NewValidationService(validationRepo, chapterRepo, publisher, clock, idGen)
 	onboardingSvc := app.NewOnboardingService(chapterRepo, masteryRepo, clock, idGen)
 
+	// --- Dev Handler (debug mode only) ---
+	var devHandler *handler.Dev
+	if cfg.GinMode == "debug" {
+		devHandler = handler.NewDev(cfg.JWTSecret, pool)
+		log.Println("Dev token endpoint enabled: GET /dev/token")
+	}
+
 	// --- HTTP Handlers ---
-	chapterHandler := handler.NewChapter(chapterSvc, chapterRepo, idGen, clock)
+	chapterHandler := handler.NewChapter(chapterSvc, chapterRepo, masteryRepo, idGen, clock)
 	masteryHandler := handler.NewMastery(masterySvc)
 	sessionHandler := handler.NewSession(sessionSvc)
 	validationHandler := handler.NewValidation(validationSvc)
@@ -123,6 +147,7 @@ func main() {
 		SessionHandler:    sessionHandler,
 		ValidationHandler: validationHandler,
 		OnboardingHandler: onboardingHandler,
+		DevHandler:        devHandler,
 	})
 
 	// --- HTTP server with graceful shutdown ---
