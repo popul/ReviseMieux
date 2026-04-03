@@ -4,7 +4,7 @@
 
 .PHONY: help deps build run dev test test-unit test-integration \
         lint fmt vet db-migrate db-create-migration swagger clean \
-        bench bench-idp bench-ocr bench-all bench-report
+        docker-build bench bench-idp bench-ocr bench-all bench-report
 
 .DEFAULT_GOAL := help
 
@@ -233,6 +233,13 @@ bench-report: ## Génère le rapport HTML depuis les derniers résultats
 	@echo "$(CYAN)Génération du rapport HTML...$(RESET)"
 	@$(GO) run $(BENCH_CMD) --report $(if $(RUN),--report-run=$(RUN)) $(if $(REPORT_OUTPUT),--report-output=$(REPORT_OUTPUT))
 	@echo "$(GREEN)Rapport généré.$(RESET)"
+
+# ------------------------------------------------------------
+# Docker
+# ------------------------------------------------------------
+
+docker-build: ## Build l'image Docker du backend
+	docker build -t revisemieux-backend .
 
 # ------------------------------------------------------------
 # Clean
