@@ -1179,3 +1179,51 @@ export async function listerPlansParCours(coursId: string): Promise<PlanRevision
     return []
   }
 }
+
+// ============================================================
+// Validation HITL (parent)
+// ============================================================
+
+export interface TacheValidation {
+  id: string
+  item_id: string
+  chapter_id?: string
+  crop_url?: string
+  suggestion?: string
+  priority: number
+  status: string
+  source: string
+  item_term?: string
+  created_at: string
+  resolved_at?: string
+}
+
+export interface ReponseValidations {
+  succes: boolean
+  validations: TacheValidation[]
+  erreur?: ErreurAPI
+}
+
+export interface ReponseValidation {
+  succes: boolean
+  validation?: TacheValidation
+  erreur?: ErreurAPI
+}
+
+export async function listerValidations(): Promise<ReponseValidations> {
+  const response = await fetch(`${API_BASE}/validations`)
+  return gererReponse<ReponseValidations>(response)
+}
+
+export async function resoudreValidation(
+  taskId: string,
+  action: string,
+  correction?: Record<string, unknown>
+): Promise<ReponseValidation> {
+  const response = await fetch(`${API_BASE}/validations/${taskId}/resolve`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action, ...(correction ? { correction } : {}) }),
+  })
+  return gererReponse<ReponseValidation>(response)
+}

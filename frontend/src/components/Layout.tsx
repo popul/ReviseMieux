@@ -16,6 +16,7 @@ const menuPrincipal: LienNavigation[] = [
 const menuBibliotheque: LienNavigation[] = [
   { vers: '/cours', libelle: 'Mes cours', icone: '📚' },
   { vers: '/analyser', libelle: 'Analyser une copie', icone: '🔍' },
+  { vers: '/validation', libelle: 'Validation (parent)', icone: '✅' },
   { vers: '/accessibilite', libelle: 'Accessibilite', icone: '♿' },
 ]
 

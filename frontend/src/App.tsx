@@ -14,6 +14,7 @@ import ExamenBlanc from './pages/ExamenBlanc'
 import PlanRevisionNouveau from './pages/PlanRevisionNouveau'
 import PlanRevisionPage from './pages/PlanRevisionPage'
 import Accessibilite from './pages/Accessibilite'
+import Validation from './pages/Validation'
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
             <Route path="plans/nouveau" element={<PlanRevisionNouveau />} />
             <Route path="plans/:id" element={<PlanRevisionPage />} />
             <Route path="accessibilite" element={<Accessibilite />} />
+            <Route path="validation" element={<Validation />} />
           </Route>
         </Routes>
       </BrowserRouter>
