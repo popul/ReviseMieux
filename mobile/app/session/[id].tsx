@@ -199,7 +199,7 @@ export default function SessionScreen() {
         <RNView style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
           {/* Header */}
           <RNView style={styles.sessionHeader}>
-            <Pressable onPress={() => router.back()}>
+            <Pressable testID="session-quit-btn" onPress={() => router.back()}>
               <RNText style={[typography.body, { color: colors.tint }]}>← Quitter</RNText>
             </Pressable>
             <RNText style={[typography.captionBold, { color: colors.text }]}>Session</RNText>
@@ -280,7 +280,7 @@ export default function SessionScreen() {
       <RNView style={[styles.container, { backgroundColor: colors.background, paddingTop: insets.top }]}>
         {/* Header */}
         <RNView style={styles.sessionHeader}>
-          <Pressable onPress={() => router.back()}>
+          <Pressable testID="session-quit-btn" onPress={() => router.back()}>
             <RNText style={[typography.body, { color: colors.tint }]}>← Quitter</RNText>
           </Pressable>
           <RNText style={[typography.captionBold, { color: colors.text }]}>Session</RNText>
@@ -289,12 +289,12 @@ export default function SessionScreen() {
           </RNText>
         </RNView>
         <RNView style={{ paddingHorizontal: spacing.md }}>
-          <ProgressBar progress={(currentIdx + 1) / total} height={4} />
+          <ProgressBar testID="session-progress-bar" progress={(currentIdx + 1) / total} height={4} />
         </RNView>
 
         {/* Question content */}
         <ScrollView style={styles.content} contentContainerStyle={{ paddingBottom: spacing.xxl }}>
-          <RNText style={[typography.h3, { color: colors.text, marginTop: spacing.lg }]}>
+          <RNText testID="session-question-text" style={[typography.h3, { color: colors.text, marginTop: spacing.lg }]}>
             {question.rendered_prompt}
           </RNText>
 
@@ -328,6 +328,7 @@ export default function SessionScreen() {
               </RNView>
             ) : (
               <TextInput
+                testID="session-answer-input"
                 style={[
                   styles.textInput,
                   {
@@ -350,6 +351,7 @@ export default function SessionScreen() {
         {/* Bottom actions */}
         <RNView style={[styles.bottomActions, { borderTopColor: colors.border, paddingBottom: insets.bottom + spacing.sm }]}>
           <Button
+            testID="session-validate-btn"
             title="Valider"
             variant="primary"
             fullWidth
@@ -541,6 +543,7 @@ function FeedbackView({
       {/* Next button */}
       <RNView style={[styles.bottomActions, { borderTopColor: colors.border, paddingBottom: insets.bottom + spacing.sm }]}>
         <Button
+          testID="session-next-btn"
           title={currentIdx + 1 >= total ? 'Voir le bilan' : 'Suivant →'}
           variant="primary"
           fullWidth

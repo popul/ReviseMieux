@@ -54,6 +54,7 @@ export default function OnboardingScreen() {
           colors={colors}
         />
         <Button
+          testID="onboarding-start-btn"
           title="📸  Capturer"
           variant="primary"
           fullWidth
@@ -84,6 +85,7 @@ export default function OnboardingScreen() {
             8 questions prêtes · 3 min
           </RNText>
           <Button
+            testID="onboarding-seed-btn"
             title={seeding ? 'Chargement...' : 'Essayer →'}
             variant="secondary"
             onPress={handleSeedDemo}

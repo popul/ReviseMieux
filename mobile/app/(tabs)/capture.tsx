@@ -54,6 +54,7 @@ export default function CaptureScreen() {
           Cadre ton cahier{'\n'}dans le rectangle
         </RNText>
         <Button
+          testID="capture-photo-btn"
           title="📸  Prendre une photo"
           variant="primary"
           onPress={handleCapture}
@@ -89,6 +90,7 @@ export default function CaptureScreen() {
       {/* Actions */}
       <RNView style={[styles.actions, { paddingBottom: insets.bottom + spacing.md }]}>
         <Button
+          testID="capture-gallery-btn"
           title="🖼  Galerie"
           variant="outline"
           onPress={() => {/* TODO: image picker */}}
