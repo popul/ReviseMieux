@@ -17,6 +17,25 @@ services:
       timeout: 5s
       retries: 5
 
+  # MinIO (S3-compatible object storage)
+  minio:
+    image: minio/minio:latest
+    container_name: revisemieux-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   # Go Backend API
   backend:
     build:
@@ -28,11 +47,19 @@ services:
       PORT: "8080"
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       MISTRAL_API_KEY: ${MISTRAL_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       STORAGE_PATH: /app/storage
+      S3_ENDPOINT: minio:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+      S3_BUCKET: revisemieux
+      S3_USE_SSL: "false"
     ports:
       - "8081:8080"
     depends_on:
       db:
+        condition: service_healthy
+      minio:
         condition: service_healthy
     volumes:
       - backend_storage:/app/storage
@@ -57,3 +84,4 @@ services:
 volumes:
   postgres_data:
   backend_storage:
+  minio_data:

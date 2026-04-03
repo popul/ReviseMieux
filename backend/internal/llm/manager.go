@@ -160,5 +160,34 @@ func (g *GestionnaireLLM) doitFallback(err error) bool {
 	return true
 }
 
+// NouveauGestionnaireAvecClesComplet cree un gestionnaire avec Gemini, OpenAI et Mistral.
+// Priorite : Gemini > OpenAI > Mistral. Le premier disponible est le primaire,
+// le suivant est le fallback.
+func NouveauGestionnaireAvecClesComplet(cleGemini, cleOpenAI, cleMistral string) *GestionnaireLLM {
+	var adaptateurs []AdaptateurLLM
+
+	if cleGemini != "" {
+		adaptateurs = append(adaptateurs, NouveauClientGemini(cleGemini))
+	}
+	if cleOpenAI != "" {
+		adaptateurs = append(adaptateurs, NouveauClientOpenAI(cleOpenAI))
+	}
+	if cleMistral != "" {
+		adaptateurs = append(adaptateurs, NouveauClientMistral(cleMistral))
+	}
+
+	if len(adaptateurs) == 0 {
+		return nil
+	}
+
+	var primaire, fallback AdaptateurLLM
+	primaire = adaptateurs[0]
+	if len(adaptateurs) > 1 {
+		fallback = adaptateurs[1]
+	}
+
+	return NouveauGestionnaire(primaire, fallback)
+}
+
 // Vérifie que GestionnaireLLM implémente AdaptateurLLM
 var _ AdaptateurLLM = (*GestionnaireLLM)(nil)

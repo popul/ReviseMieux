@@ -40,14 +40,14 @@ func main() {
 
 	// Créer le gestionnaire LLM avec fallback automatique
 	var gestionnaireLLM *llm.GestionnaireLLM
-	if cfg.OpenAIAPIKey != "" || cfg.MistralAPIKey != "" {
-		gestionnaireLLM = llm.NouveauGestionnaireAvecCles(cfg.OpenAIAPIKey, cfg.MistralAPIKey)
+	if cfg.GeminiAPIKey != "" || cfg.OpenAIAPIKey != "" || cfg.MistralAPIKey != "" {
+		gestionnaireLLM = llm.NouveauGestionnaireAvecClesComplet(cfg.GeminiAPIKey, cfg.OpenAIAPIKey, cfg.MistralAPIKey)
 		if gestionnaireLLM != nil {
 			log.Printf("✓ Service LLM configuré (fournisseur: %s)", gestionnaireLLM.Nom())
 		}
 	}
 	if gestionnaireLLM == nil {
-		log.Printf("⚠️  Avertissement: aucune clé API LLM configurée (OPENAI_API_KEY ou MISTRAL_API_KEY)")
+		log.Printf("⚠️  Avertissement: aucune clé API LLM configurée (GEMINI_API_KEY, OPENAI_API_KEY ou MISTRAL_API_KEY)")
 		log.Printf("   L'OCR et la génération de contenu ne seront pas disponibles")
 	}
 
@@ -159,13 +159,33 @@ func main() {
 		log.Println("✓ Service plans de révision initialisé")
 	}
 
-	// Créer le service de stockage
+	// Créer le service de stockage (S3/MinIO si configuré, sinon filesystem local)
 	var serviceStorage *services.ServiceStorage
-	serviceStorage, err = services.NouveauServiceStorage(cfg.StoragePath)
-	if err != nil {
-		log.Printf("⚠️  Avertissement: erreur lors de la création du service de stockage: %v", err)
-	} else {
-		log.Printf("✓ Service stockage initialisé (chemin: %s)", cfg.StoragePath)
+	var serviceStorageS3 *services.ServiceStorageS3
+
+	if cfg.S3AccessKey != "" && cfg.S3SecretKey != "" {
+		serviceStorageS3, err = services.NouveauServiceStorageS3(services.ConfigS3{
+			Endpoint:  cfg.S3Endpoint,
+			AccessKey: cfg.S3AccessKey,
+			SecretKey: cfg.S3SecretKey,
+			Bucket:    cfg.S3Bucket,
+			UseSSL:    cfg.S3UseSSL,
+		})
+		if err != nil {
+			log.Printf("⚠️  Avertissement: erreur S3/MinIO: %v — fallback sur stockage local", err)
+		} else {
+			log.Printf("✓ Service stockage S3/MinIO initialisé (endpoint: %s, bucket: %s)", cfg.S3Endpoint, cfg.S3Bucket)
+		}
+	}
+
+	// Toujours initialiser le stockage local (fallback ou mode par défaut)
+	if serviceStorageS3 == nil {
+		serviceStorage, err = services.NouveauServiceStorage(cfg.StoragePath)
+		if err != nil {
+			log.Printf("⚠️  Avertissement: erreur lors de la création du service de stockage: %v", err)
+		} else {
+			log.Printf("✓ Service stockage local initialisé (chemin: %s)", cfg.StoragePath)
+		}
 	}
 
 	// Créer le routeur Gin
