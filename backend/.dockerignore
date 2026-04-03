@@ -1,0 +1,25 @@
+# Build artifacts
+bin/
+*.exe
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test artifacts
+coverage.out
+*.test
+
+# Environment files (secrets)
+.env
+.env.*
+
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+LICENSE

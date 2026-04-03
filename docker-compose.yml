@@ -53,6 +53,19 @@ services:
     profiles:
       - storage
 
+  # -----------------------------------------------------------
+  # Backend API (uncomment for containerised backend)
+  # -----------------------------------------------------------
+  # backend:
+  #   build: ./backend
+  #   ports: ['8080:8080']
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   env_file: .env
+
 volumes:
   pg_data:
   redis_data:
