@@ -75,8 +75,12 @@ func TestChapterRepository_FindByUser(t *testing.T) {
 		Subject: "PC", ClassLevel: "4e", Name: "Chapitre 2",
 		Archived: true, CreatedAt: now, UpdatedAt: now,
 	}
-	repo.Save(ctx, ch1)
-	repo.Save(ctx, ch2)
+	if err := repo.Save(ctx, ch1); err != nil {
+		t.Fatalf("Save ch1: %v", err)
+	}
+	if err := repo.Save(ctx, ch2); err != nil {
+		t.Fatalf("Save ch2: %v", err)
+	}
 
 	// Exclude archived
 	active, err := repo.FindByUser(ctx, userID, false)
@@ -109,13 +113,20 @@ func TestChapterRepository_SaveUpsert(t *testing.T) {
 		Subject: "SVT", ClassLevel: "5e", Name: "Original",
 		CreatedAt: now, UpdatedAt: now,
 	}
-	repo.Save(ctx, ch)
+	if err := repo.Save(ctx, ch); err != nil {
+		t.Fatalf("Save (insert): %v", err)
+	}
 
 	ch.Name = "Updated"
 	ch.UpdatedAt = now.Add(time.Hour)
-	repo.Save(ctx, ch)
+	if err := repo.Save(ctx, ch); err != nil {
+		t.Fatalf("Save (upsert): %v", err)
+	}
 
-	got, _ := repo.FindByID(ctx, ch.ID)
+	got, err := repo.FindByID(ctx, ch.ID)
+	if err != nil {
+		t.Fatalf("FindByID: %v", err)
+	}
 	if got.Name != "Updated" {
 		t.Errorf("Name = %q, want Updated", got.Name)
 	}
@@ -149,9 +160,14 @@ func TestChapterRepository_RevisionCRUD(t *testing.T) {
 
 	// Update status
 	rev.Status = chapter.RevisionReady
-	repo.SaveRevision(ctx, rev)
+	if err := repo.SaveRevision(ctx, rev); err != nil {
+		t.Fatalf("SaveRevision (update): %v", err)
+	}
 
-	got, _ = repo.FindRevisionByID(ctx, rev.ID)
+	got, err = repo.FindRevisionByID(ctx, rev.ID)
+	if err != nil {
+		t.Fatalf("FindRevisionByID (after update): %v", err)
+	}
 	if got.Status != chapter.RevisionReady {
 		t.Errorf("Status = %v, want READY", got.Status)
 	}
@@ -377,9 +393,17 @@ func TestChapterRepository_NotionCRUD(t *testing.T) {
 
 	// Upsert
 	n.Name = "Masse volumique (updated)"
-	repo.SaveNotion(ctx, n)
+	if err := repo.SaveNotion(ctx, n); err != nil {
+		t.Fatalf("SaveNotion (upsert): %v", err)
+	}
 
-	notions, _ = repo.FindNotionsByChapter(ctx, ch.ID)
+	notions, err = repo.FindNotionsByChapter(ctx, ch.ID)
+	if err != nil {
+		t.Fatalf("FindNotionsByChapter (after upsert): %v", err)
+	}
+	if len(notions) == 0 {
+		t.Fatal("no notions found after upsert")
+	}
 	if notions[0].Name != "Masse volumique (updated)" {
 		t.Errorf("upserted Name = %q", notions[0].Name)
 	}
