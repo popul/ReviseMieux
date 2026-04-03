@@ -67,12 +67,32 @@
 
 ---
 
+### DEC-2026-04-04-004 — Workflow CI intégration avec PostgreSQL
+
+| | |
+|---|---|
+| **Date** | 2026-04-04 |
+| **Cycle** | #4 |
+| **Finding** | FL-2026-04-04-030 |
+| **Type** | COUVERTURE |
+| **Decision** | Accepter |
+
+**Contexte** : 30+ tests tagués `//go:build integration` ne tournaient pas en CI (pas de PostgreSQL, pas de tag).
+
+**Proposition** : Créer `.github/workflows/integration.yml` avec PostgreSQL 16 en service, sur PR + nightly.
+
+**Decision PO** : Accepter.
+
+**Action** : Workflow créé et pushé.
+
+---
+
 ## Statistiques
 
 | Métrique | Valeur |
 |----------|--------|
-| Total decisions | 3 |
-| Acceptées | 3 |
+| Total decisions | 4 |
+| Acceptées | 4 |
 | Modifiées | 0 |
 | Rejetées | 0 |
 | Reportées | 0 |
