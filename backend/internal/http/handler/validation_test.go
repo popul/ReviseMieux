@@ -131,7 +131,7 @@ func TestValidation_ListPending_WithTasks(t *testing.T) {
 	}
 }
 
-func TestValidation_Resolve_Confirm(t *testing.T) {
+func TestValidation_Resolve_Confirm_Unit(t *testing.T) {
 	taskID := uuid.Must(uuid.NewV7())
 	valRepo := &mockValidationRepo{
 		tasks: []*validation.ValidationTask{
@@ -159,7 +159,7 @@ func TestValidation_Resolve_Confirm(t *testing.T) {
 	}
 }
 
-func TestValidation_Resolve_InvalidAction(t *testing.T) {
+func TestValidation_Resolve_InvalidAction_Unit(t *testing.T) {
 	taskID := uuid.Must(uuid.NewV7())
 	valRepo := &mockValidationRepo{
 		tasks: []*validation.ValidationTask{
