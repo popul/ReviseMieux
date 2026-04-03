@@ -1,0 +1,4547 @@
+
+<!doctype html>
+<html lang="fr" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://popul.github.io/ReviseMieux/architecture/ocr-idp-incremental/">
+      
+      
+        <link rel="prev" href="../">
+      
+      
+        <link rel="next" href="../merge-decision-table/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>OCR/IDP incremental - Revise Mieux — Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#architecture-ocridp-incremental-revise-mieux" class="md-skip">
+          Aller au contenu
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="En-tête">
+    <a href="../.." title="Revise Mieux — Documentation" class="md-header__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Revise Mieux — Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              OCR/IDP incremental
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode sombre"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mode sombre" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode clair"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mode clair" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Rechercher" placeholder="Rechercher" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Recherche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Effacer" aria-label="Effacer" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initialisation de la recherche
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Onglets" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Accueil
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Demarrage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../PRD/" class="md-tabs__link">
+          
+  
+  
+  Produit
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../ac/Z1/" class="md-tabs__link">
+          
+  
+  
+  Criteres d'acceptation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../ux/user-flow-complete/" class="md-tabs__link">
+          
+  
+  
+  UX
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/" class="md-tabs__link">
+          
+  
+  
+  Design System
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../llm-strategy/" class="md-tabs__link">
+          
+  
+  
+  Technique
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-journeys/first-connection/" class="md-tabs__link">
+          
+  
+  
+  Parcours
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/" class="md-tabs__link">
+          
+  
+  
+  Contribuer
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Revise Mieux — Documentation" class="md-nav__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Revise Mieux — Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accueil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demarrage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Produit
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Produit
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../PRD/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PRD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MVP-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope MVP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lot0-tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracker Lot 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Criteres d'acceptation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Criteres d'acceptation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z1 — Mastery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z2 — Pipeline J0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z3 — Validation HITL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z4 — Sessions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z5 — Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z6 — Schedule
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z7 — Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z8 — Onboarding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OCR/IDP incremental
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OCR/IDP incremental
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-cadrage-du-probleme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Cadrage du problème
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Cadrage du problème">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-ocr-educatif-vs-extraction-documentaire-generique" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 OCR éducatif vs. extraction documentaire générique
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-ce-qui-rend-lingestion-incrementale-difficile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Ce qui rend l'ingestion incrémentale difficile
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-risques-dune-architecture-mal-concue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Risques d'une architecture mal conçue
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-architecture-recommandee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Architecture recommandée
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Architecture recommandée">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-architecture-2-etages-avec-format-pivot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Architecture 2 étages avec format pivot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-couches-immutables-vs-mutables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Couches immutables vs mutables
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-design-du-format-pivot-canonique" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Design du format pivot canonique
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Design du format pivot canonique">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-principes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Principes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-structure-du-pivotdocument" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Structure du PivotDocument
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-sections-du-pivot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Sections du pivot
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-json-schema-et-exemples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. JSON Schema et exemples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-workflow-dingestion-incrementale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Workflow d'ingestion incrémentale
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Workflow d&#39;ingestion incrémentale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-diagramme-de-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Diagramme de séquence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-detail-des-10-etapes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Détail des 10 étapes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.2 Détail des 10 étapes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#etape-1-upload-et-stockage-s3-pages-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 1 : Upload et stockage (S3 + pages table)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-2-rattachement-au-chapter-existant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 2 : Rattachement au Chapter existant
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-3-ocr-analyse-de-layout-vlm-page-entiere" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 3 : OCR / analyse de layout (VLM page entière)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-4-extraction-de-blocs-table-blocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 4 : Extraction de blocs (table blocks)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-5-structuration-pedagogique-llm-idp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 5 : Structuration pédagogique (LLM IDP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-6-matching-avec-les-structures-existantes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 6 : Matching avec les structures existantes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-7-merge-append-split-gestion-de-conflits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 7 : Merge / append / split / gestion de conflits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-8-review-basee-sur-la-confiance-hitl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 8 : Review basée sur la confiance (HITL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-9-invalidation-ciblee-du-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 9 : Invalidation ciblée du cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-10-publication-des-domain-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 10 : Publication des domain events
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-regles-de-merge-resolution-de-conflits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Règles de merge / résolution de conflits
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Règles de merge / résolution de conflits">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-resume-des-regles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Résumé des règles
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-continuite-du-cours-dans-le-temps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Continuité du cours dans le temps
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Continuité du cours dans le temps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-heuristiques-de-classification-des-nouvelles-pages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Heuristiques de classification des nouvelles pages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-points-de-validation-humaine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Points de validation humaine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-stabilite-des-notion-ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Stabilité des Notion IDs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-impact-sur-les-mastery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Impact sur les Mastery
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Impact sur les Mastery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-tableau-de-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Tableau de décision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-transfert-de-mastery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Transfert de Mastery
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-workflow-de-review-humaine-hitl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Workflow de review humaine (HITL)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Workflow de review humaine (HITL)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-integration-avec-validationtask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Intégration avec ValidationTask
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-seuils-de-confiance-pour-hitl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 Seuils de confiance pour HITL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-file-de-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 File de validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-impact-sur-la-generation-downstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Impact sur la génération downstream
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Impact sur la génération downstream">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-invalidation-ciblee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 Invalidation ciblée
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-articulation-avec-le-bounded-context-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 Articulation avec le bounded context Session
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-signatures-go-des-methodes-domaine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Signatures Go des méthodes domaine
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Signatures Go des méthodes domaine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-nouveaux-domain-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.1 Nouveaux domain events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-merge-engine-domain-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.2 Merge Engine (domain service)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123-enhanced-llmservice-port" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.3 Enhanced LLMService port
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#124-application-service-orchestration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.4 Application service orchestration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-migrations-sql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Migrations SQL
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. Migrations SQL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#131-nouvelles-colonnes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.1 Nouvelles colonnes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#132-backfill-canonical-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.2 Backfill canonical keys
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-risques-et-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Risques et mitigations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-strategie-dimplementation-mvp-vs-evolution-future" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Stratégie d'implémentation : MVP vs évolution future
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. Stratégie d&#39;implémentation : MVP vs évolution future">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-mvp-lot-0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase MVP (Lot 0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-v2-incremental-basique" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase V2 : Incrémental basique
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-v3-knowledge-graph-educatif" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase V3 : Knowledge graph éducatif
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-recommandation-finale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. Recommandation finale
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../merge-decision-table/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regles de merge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UX
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UX
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/user-flow-complete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/personas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Personas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/screen-inventory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ecrans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/state-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modele d'etats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/edge-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Edge cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/open-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions ouvertes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/design-principles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Principes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/color-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Couleurs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/typography/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Typographie
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/component-philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/do-dont/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Do / Don't
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/moodboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Moodboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/scalability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scalabilite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technique
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Technique
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llm-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strategie LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llm-benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process/feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parcours
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Parcours
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-journeys/first-connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Premiere connexion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contribuer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contribuer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide contribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploiement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-cadrage-du-probleme" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Cadrage du problème
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Cadrage du problème">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-ocr-educatif-vs-extraction-documentaire-generique" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 OCR éducatif vs. extraction documentaire générique
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-ce-qui-rend-lingestion-incrementale-difficile" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Ce qui rend l'ingestion incrémentale difficile
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-risques-dune-architecture-mal-concue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Risques d'une architecture mal conçue
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-architecture-recommandee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Architecture recommandée
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Architecture recommandée">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-architecture-2-etages-avec-format-pivot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Architecture 2 étages avec format pivot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-couches-immutables-vs-mutables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Couches immutables vs mutables
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-design-du-format-pivot-canonique" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Design du format pivot canonique
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Design du format pivot canonique">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-principes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Principes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-structure-du-pivotdocument" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Structure du PivotDocument
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-sections-du-pivot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Sections du pivot
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-json-schema-et-exemples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. JSON Schema et exemples
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-workflow-dingestion-incrementale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Workflow d'ingestion incrémentale
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Workflow d&#39;ingestion incrémentale">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-diagramme-de-sequence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Diagramme de séquence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-detail-des-10-etapes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Détail des 10 étapes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.2 Détail des 10 étapes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#etape-1-upload-et-stockage-s3-pages-table" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 1 : Upload et stockage (S3 + pages table)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-2-rattachement-au-chapter-existant" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 2 : Rattachement au Chapter existant
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-3-ocr-analyse-de-layout-vlm-page-entiere" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 3 : OCR / analyse de layout (VLM page entière)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-4-extraction-de-blocs-table-blocks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 4 : Extraction de blocs (table blocks)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-5-structuration-pedagogique-llm-idp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 5 : Structuration pédagogique (LLM IDP)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-6-matching-avec-les-structures-existantes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 6 : Matching avec les structures existantes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-7-merge-append-split-gestion-de-conflits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 7 : Merge / append / split / gestion de conflits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-8-review-basee-sur-la-confiance-hitl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 8 : Review basée sur la confiance (HITL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-9-invalidation-ciblee-du-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 9 : Invalidation ciblée du cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etape-10-publication-des-domain-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Étape 10 : Publication des domain events
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-regles-de-merge-resolution-de-conflits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Règles de merge / résolution de conflits
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Règles de merge / résolution de conflits">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-resume-des-regles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Résumé des règles
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-continuite-du-cours-dans-le-temps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Continuité du cours dans le temps
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Continuité du cours dans le temps">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-heuristiques-de-classification-des-nouvelles-pages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Heuristiques de classification des nouvelles pages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-points-de-validation-humaine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Points de validation humaine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-stabilite-des-notion-ids" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Stabilité des Notion IDs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-impact-sur-les-mastery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Impact sur les Mastery
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Impact sur les Mastery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#91-tableau-de-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.1 Tableau de décision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#92-transfert-de-mastery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9.2 Transfert de Mastery
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-workflow-de-review-humaine-hitl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Workflow de review humaine (HITL)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Workflow de review humaine (HITL)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#101-integration-avec-validationtask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.1 Intégration avec ValidationTask
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#102-seuils-de-confiance-pour-hitl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.2 Seuils de confiance pour HITL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#103-file-de-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10.3 File de validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-impact-sur-la-generation-downstream" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Impact sur la génération downstream
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="11. Impact sur la génération downstream">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#111-invalidation-ciblee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.1 Invalidation ciblée
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#112-articulation-avec-le-bounded-context-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11.2 Articulation avec le bounded context Session
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-signatures-go-des-methodes-domaine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Signatures Go des méthodes domaine
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Signatures Go des méthodes domaine">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#121-nouveaux-domain-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.1 Nouveaux domain events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#122-merge-engine-domain-service" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.2 Merge Engine (domain service)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#123-enhanced-llmservice-port" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.3 Enhanced LLMService port
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#124-application-service-orchestration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12.4 Application service orchestration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13-migrations-sql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. Migrations SQL
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="13. Migrations SQL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#131-nouvelles-colonnes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.1 Nouvelles colonnes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#132-backfill-canonical-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13.2 Backfill canonical keys
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#14-risques-et-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        14. Risques et mitigations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#15-strategie-dimplementation-mvp-vs-evolution-future" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        15. Stratégie d'implémentation : MVP vs évolution future
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="15. Stratégie d&#39;implémentation : MVP vs évolution future">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-mvp-lot-0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase MVP (Lot 0)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-v2-incremental-basique" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase V2 : Incrémental basique
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-v3-knowledge-graph-educatif" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase V3 : Knowledge graph éducatif
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#16-recommandation-finale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        16. Recommandation finale
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="architecture-ocridp-incremental-revise-mieux">Architecture OCR/IDP incrémental -- Révise Mieux<a class="headerlink" href="#architecture-ocridp-incremental-revise-mieux" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Document d'architecture technique pour le pipeline d'ingestion incrémental de contenu scolaire.
+Dernière mise à jour : 2026-04-03.</p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary<a class="headerlink" href="#1-executive-summary" title="Permanent link">&para;</a></h2>
+<p>Révise Mieux ingère des photos de cahiers de collégiens pour en faire des assets de révision structurés. Le problème central n'est pas l'OCR lui-même -- c'est l'ingestion <strong>incrémentale dans le temps</strong> : un élève ajoute des pages jour après jour, re-photographie des pages floues, et complète son cours sur des semaines. Le système doit intégrer chaque batch sans régénérer le chapitre entier, tout en maintenant la cohérence des Notions, Items et Mastery existants.</p>
+<p>Ce document définit : (1) un format pivot canonique entre OCR et LLM, (2) le workflow d'ingestion incrémentale en 10 étapes, (3) les règles de merge avec seuils concrets, (4) l'impact sur les Mastery existants, (5) l'intégration avec le bounded context Validation (HITL), et (6) les signatures Go et migrations SQL nécessaires.</p>
+<p><strong>Modèles retenus</strong> : Gemini 2.5 Flash (OCR, $0.001/page) + mistral-small ou Qwen3.5-397B (IDP, $0.00006-0.00011/item). Pipeline local viable via Qwen3-VL-32B + Gemma 3 27B ($0, ~2 min/chapitre).</p>
+<hr />
+<h2 id="2-cadrage-du-probleme">2. Cadrage du problème<a class="headerlink" href="#2-cadrage-du-probleme" title="Permanent link">&para;</a></h2>
+<h3 id="21-ocr-educatif-vs-extraction-documentaire-generique">2.1 OCR éducatif vs. extraction documentaire générique<a class="headerlink" href="#21-ocr-educatif-vs-extraction-documentaire-generique" title="Permanent link">&para;</a></h3>
+<p>L'OCR/IDP éducatif diffère de l'extraction de factures ou de formulaires sur plusieurs axes fondamentaux :</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>IDP générique (factures)</th>
+<th>IDP éducatif (cahiers)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Structure</strong></td>
+<td>Champs fixes, positions connues</td>
+<td>Structure libre, variable selon le prof</td>
+</tr>
+<tr>
+<td><strong>Contenu</strong></td>
+<td>Données factuelles (montants, dates)</td>
+<td>Connaissances sémantiques (définitions, procédures, concepts)</td>
+</tr>
+<tr>
+<td><strong>Visuels</strong></td>
+<td>Logos, signatures (non pertinents)</td>
+<td>Schémas porteurs de sens (cellule, circuit, carte)</td>
+</tr>
+<tr>
+<td><strong>Manuscrit</strong></td>
+<td>Rare (signatures)</td>
+<td>Dominant (notes élève, corrections prof)</td>
+</tr>
+<tr>
+<td><strong>Temporalité</strong></td>
+<td>Document unique, ponctuel</td>
+<td>Cours construit sur des semaines, incrémental</td>
+</tr>
+<tr>
+<td><strong>Qualité cible</strong></td>
+<td>Extraction exacte de champs</td>
+<td>Compréhension sémantique pour générer des exercices</td>
+</tr>
+<tr>
+<td><strong>Conséquence erreur</strong></td>
+<td>Montant incorrect (corrigible)</td>
+<td>Élève qui apprend une erreur (pédagogiquement dangereux)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="22-ce-qui-rend-lingestion-incrementale-difficile">2.2 Ce qui rend l'ingestion incrémentale difficile<a class="headerlink" href="#22-ce-qui-rend-lingestion-incrementale-difficile" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Uploads partiels</strong> : 3 pages lundi, 2 mercredi, 1 vendredi -- le cours est construit dans le temps.</li>
+<li><strong>Pages dans le désordre</strong> : l'élève photographie la page 5 avant la page 2.</li>
+<li><strong>Contenu dupliqué</strong> : re-photographie d'une page floue, ou même notion vue dans deux parties du cours.</li>
+<li><strong>Contenu contradictoire</strong> : corrections du prof qui contredisent la version initiale.</li>
+<li><strong>Incertitude OCR variable</strong> : confiance 0.95 sur du texte imprimé, 0.4 sur du manuscrit raturé.</li>
+<li><strong>Schémas porteurs de sens</strong> : un schéma de cellule sans son texte OCR perd 50% de sa valeur pédagogique.</li>
+<li><strong>Traçabilité obligatoire</strong> : chaque Item doit pouvoir pointer vers sa page source (Z2-AC13).</li>
+<li><strong>Stabilité des identifiants</strong> : les Notion IDs et Item IDs ne doivent pas changer quand de nouvelles pages arrivent.</li>
+</ol>
+<h3 id="23-risques-dune-architecture-mal-concue">2.3 Risques d'une architecture mal conçue<a class="headerlink" href="#23-risques-dune-architecture-mal-concue" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Fragmentation progressive</strong> : le cours se décompose en sous-ensembles incohérents au fil des uploads.</li>
+<li><strong>Doublons Mastery</strong> : un Item dupliqué produit deux Mastery indépendants pour la même connaissance.</li>
+<li><strong>Régression silencieuse</strong> : un re-processing complet change les Item IDs, ce qui reset tous les Mastery.</li>
+<li><strong>Coût exponentiel</strong> : re-traiter tout le chapitre à chaque ajout de page (O(n) au lieu de O(delta)).</li>
+<li><strong>Dérive pédagogique</strong> : des Items contradictoires coexistent, l'élève étudie du contenu faux.</li>
+</ul>
+<hr />
+<h2 id="3-architecture-recommandee">3. Architecture recommandée<a class="headerlink" href="#3-architecture-recommandee" title="Permanent link">&para;</a></h2>
+<h3 id="31-architecture-2-etages-avec-format-pivot">3.1 Architecture 2 étages avec format pivot<a class="headerlink" href="#31-architecture-2-etages-avec-format-pivot" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>graph TD
+    subgraph "Étage 1 : Extraction (vision)"
+        A[Photo page] --&gt;|S3 upload| B[Gemini 2.5 Flash / Qwen3-VL-32B]
+        B --&gt;|Markdown structuré| C[PivotDocument OCR layer]
+    end
+
+    subgraph "Étage 2 : Structuration (texte)"
+        C --&gt;|Blocs texte + descriptions visuelles| D[mistral-small / Qwen3.5-397B]
+        D --&gt;|Items + Notions| E[PivotDocument pedagogical layer]
+    end
+
+    subgraph "Étage 3 : Merge incrémental"
+        E --&gt;|Nouveaux items| F{Merge Engine}
+        G[Existing PivotDocument] --&gt;|État actuel| F
+        F --&gt;|append/enrich/replace/flag| H[Updated PivotDocument]
+        F --&gt;|conflicts| I[ValidationTask HITL]
+    end
+
+    subgraph "Downstream"
+        H --&gt;|Domain events| J[Mastery creation/update]
+        H --&gt;|Cache invalidation| K[Question lazy generation]
+        I --&gt;|HITL resolution| H
+    end</code></pre>
+<h3 id="32-couches-immutables-vs-mutables">3.2 Couches immutables vs mutables<a class="headerlink" href="#32-couches-immutables-vs-mutables" title="Permanent link">&para;</a></h3>
+<p>Le format pivot sépare trois couches avec des règles de mutabilité distinctes :</p>
+<table>
+<thead>
+<tr>
+<th>Couche</th>
+<th>Mutabilité</th>
+<th>Contenu</th>
+<th>Justification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Observations brutes</strong></td>
+<td><strong>Immutable</strong></td>
+<td>OCR text, bounding boxes, confiance, timestamps</td>
+<td>Traçabilité. On ne modifie jamais ce que l'OCR a vu.</td>
+</tr>
+<tr>
+<td><strong>Structure pédagogique</strong></td>
+<td><strong>Mutable enrichissable</strong></td>
+<td>Notions, Items, hiérarchie de sections</td>
+<td>Enrichie quand de nouvelles pages arrivent. Les IDs sont stables.</td>
+</tr>
+<tr>
+<td><strong>Outputs dérivés</strong></td>
+<td><strong>Régénérable</strong></td>
+<td>Questions, fiches, quiz, cache Redis</td>
+<td>Invalidés et régénérés à la demande (lazy generation).</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Principe</strong> : les observations brutes (table <code>blocks</code>) ne sont jamais modifiées après création. Elles servent de "ground truth" pour la traçabilité. La structure pédagogique (tables <code>items</code>, <code>notions</code>) évolue par merge incrémental. Les outputs dérivés (table <code>questions</code>, cache Redis) sont invalidés et régénérés quand la structure change.</p>
+<hr />
+<h2 id="4-design-du-format-pivot-canonique">4. Design du format pivot canonique<a class="headerlink" href="#4-design-du-format-pivot-canonique" title="Permanent link">&para;</a></h2>
+<h3 id="41-principes">4.1 Principes<a class="headerlink" href="#41-principes" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>JSON</strong> -- machine-friendly, inspectable, compatible avec tous les LLM.</li>
+<li><strong>Enveloppe par Chapter</strong> -- un PivotDocument = un Chapter complet à un instant t.</li>
+<li><strong>Versionné</strong> -- chaque mutation incrémente <code>pivot_version</code>.</li>
+<li><strong>Traçable</strong> -- chaque unité extraite pointe vers ses <code>source_refs</code> (Page ID + bbox).</li>
+<li><strong>Confiance explicite</strong> -- <code>confidence</code> sur chaque bloc et item, utilisée pour les décisions de merge.</li>
+<li><strong>Compatible context windows</strong> -- le pivot d'un chapitre de 10 pages tient dans ~8K tokens (compatible Gemma 3 27B, 128K context).</li>
+</ol>
+<h3 id="42-structure-du-pivotdocument">4.2 Structure du PivotDocument<a class="headerlink" href="#42-structure-du-pivotdocument" title="Permanent link">&para;</a></h3>
+<p>Le PivotDocument n'est pas une table SQL séparée. C'est le <strong>modèle conceptuel</strong> qui décrit comment les tables existantes (<code>chapters</code>, <code>chapter_revisions</code>, <code>pages</code>, <code>blocks</code>, <code>items</code>, <code>notions</code>) s'articulent pour former une vue canonique du cours. Le JSON Schema (voir <code>pivot-format-schema.json</code>) décrit cette vue pour le debugging, les tests, et l'export.</p>
+<p>Les tables SQL existantes restent la source de vérité. Le PivotDocument est une <strong>projection</strong> assemblée à la demande.</p>
+<h3 id="43-sections-du-pivot">4.3 Sections du pivot<a class="headerlink" href="#43-sections-du-pivot" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>PivotDocument
+├── metadata (chapter_id, subject, class_level, title, pivot_version, updated_at)
+├── capture_sessions[] (immutable)
+│   ├── revision_id, captured_at
+│   └── pages[]
+│       ├── page_id, page_order, photo_url, ocr_status, ocr_confidence
+│       └── blocks[] (immutable observations)
+│           ├── block_id, block_type, ocr_text, confidence, bbox
+│           └── visual_metadata? (labels, table_structure, caption)
+├── notions[] (mutable, stable IDs)
+│   ├── notion_id, name, concept_tags[], sort_order
+│   └── items[]
+│       ├── item_id, item_type, term, keywords[], steps[], confidence
+│       ├── source_refs[] (page_id + block_ids → traçabilité)
+│       ├── fidelity_score, validation_required, archived
+│       └── merge_status (original | enriched | replaced | conflict)
+└── merge_log[] (audit trail)
+    ├── timestamp, action (append | enrich | replace | archive_dup | flag_conflict)
+    ├── source_item_id, target_item_id?
+    └── reason
+</code></pre></div>
+<hr />
+<h2 id="5-json-schema-et-exemples">5. JSON Schema et exemples<a class="headerlink" href="#5-json-schema-et-exemples" title="Permanent link">&para;</a></h2>
+<p>Voir les fichiers compagnons :
+- <code>pivot-format-schema.json</code> -- JSON Schema complet
+- <code>pivot-format-example-photosynthese.json</code> -- Exemple concret sur "La photosynthèse" avec 3 sessions de capture</p>
+<hr />
+<h2 id="6-workflow-dingestion-incrementale">6. Workflow d'ingestion incrémentale<a class="headerlink" href="#6-workflow-dingestion-incrementale" title="Permanent link">&para;</a></h2>
+<h3 id="61-diagramme-de-sequence">6.1 Diagramme de séquence<a class="headerlink" href="#61-diagramme-de-sequence" title="Permanent link">&para;</a></h3>
+<pre class="mermaid"><code>sequenceDiagram
+    participant E as Élève
+    participant API as Backend API
+    participant S3 as Object Storage
+    participant OCR as Gemini Flash / Qwen3-VL
+    participant IDP as mistral-small / Qwen3.5
+    participant Merge as Merge Engine
+    participant DB as PostgreSQL
+    participant Redis as Redis Cache
+    participant HITL as Validation BC
+
+    E-&gt;&gt;API: POST /chapters/{id}/pages (3 nouvelles photos)
+    API-&gt;&gt;S3: Upload photos
+    API-&gt;&gt;DB: Insert pages (status=UPLOADING)
+    API--&gt;&gt;E: 202 Accepted (SSE stream started)
+
+    loop Pour chaque nouvelle page
+        API-&gt;&gt;OCR: ProcessPage(image_url)
+        OCR--&gt;&gt;API: OCRResult{blocks[], confidence}
+        API-&gt;&gt;DB: Insert blocks (immutable)
+        API-&gt;&gt;DB: Update page status → PROCESSED
+        API--&gt;&gt;E: SSE: page_processed {page_id, block_count}
+    end
+
+    API-&gt;&gt;IDP: StructureBlocks(new_blocks, existing_context)
+    IDP--&gt;&gt;API: StructurationResult{items[], notions[]}
+
+    API-&gt;&gt;DB: Load existing items + notions for chapter
+    API-&gt;&gt;Merge: MergeIncremental(existing, new)
+    Merge--&gt;&gt;API: MergeResult{appended, enriched, replaced, conflicts, duplicates}
+
+    alt Conflits détectés
+        API-&gt;&gt;HITL: CreateValidationTasks(conflicts)
+        API-&gt;&gt;DB: Flag conflicting items
+    end
+
+    API-&gt;&gt;DB: Save merged items + notions
+    API-&gt;&gt;Redis: Invalidate question cache (impacted item_ids only)
+    API-&gt;&gt;DB: Publish domain events (ItemsGenerated, NotionMerged, etc.)
+    API--&gt;&gt;E: SSE: merge_complete {new_items, updated_notions}</code></pre>
+<h3 id="62-detail-des-10-etapes">6.2 Détail des 10 étapes<a class="headerlink" href="#62-detail-des-10-etapes" title="Permanent link">&para;</a></h3>
+<h4 id="etape-1-upload-et-stockage-s3-pages-table">Étape 1 : Upload et stockage (S3 + pages table)<a class="headerlink" href="#etape-1-upload-et-stockage-s3-pages-table" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>Toujours recalculé</strong> : upload S3, création entrées <code>pages</code>.</li>
+<li><strong>Réutilisable</strong> : rien (nouvelles pages).</li>
+<li><strong>Invalidé</strong> : rien encore.</li>
+</ul>
+<p>Les photos sont stockées dans S3 avec la clé <code>chapters/{chapter_id}/revisions/{revision_id}/pages/{page_order}.webp</code>. Les métadonnées sont insérées dans la table <code>pages</code> avec <code>ocr_status = UPLOADING</code>.</p>
+<h4 id="etape-2-rattachement-au-chapter-existant">Étape 2 : Rattachement au Chapter existant<a class="headerlink" href="#etape-2-rattachement-au-chapter-existant" title="Permanent link">&para;</a></h4>
+<p>Les nouvelles pages sont rattachées à la Revision courante du Chapter (Z2-AC14 : pas de nouvelle Revision pour un ajout incrémental). L'<code>page_order</code> continue depuis le dernier numéro existant.</p>
+<ul>
+<li><strong>Réutilisé</strong> : le Chapter et la Revision existants.</li>
+<li><strong>Invalidé</strong> : rien.</li>
+</ul>
+<h4 id="etape-3-ocr-analyse-de-layout-vlm-page-entiere">Étape 3 : OCR / analyse de layout (VLM page entière)<a class="headerlink" href="#etape-3-ocr-analyse-de-layout-vlm-page-entiere" title="Permanent link">&para;</a></h4>
+<p>Chaque page est envoyée au VLM (Gemini 2.5 Flash en API, Qwen3-VL-32B en local) qui produit du Markdown structuré avec descriptions des visuels.</p>
+<ul>
+<li><strong>Toujours recalculé</strong> : OCR sur les nouvelles pages uniquement (Z2-AC14).</li>
+<li><strong>Réutilisé</strong> : les résultats OCR des pages existantes (jamais re-OCRisées).</li>
+<li><strong>Invalidé</strong> : rien encore.</li>
+</ul>
+<h4 id="etape-4-extraction-de-blocs-table-blocks">Étape 4 : Extraction de blocs (table <code>blocks</code>)<a class="headerlink" href="#etape-4-extraction-de-blocs-table-blocks" title="Permanent link">&para;</a></h4>
+<p>Les blocs OCR sont insérés dans la table <code>blocks</code>. Ils sont <strong>immutables</strong> après insertion.</p>
+<ul>
+<li><strong>Toujours recalculé</strong> : parsing du Markdown OCR en blocs structurés.</li>
+<li><strong>Réutilisé</strong> : blocs des pages existantes.</li>
+<li><strong>Invalidé</strong> : rien.</li>
+</ul>
+<h4 id="etape-5-structuration-pedagogique-llm-idp">Étape 5 : Structuration pédagogique (LLM IDP)<a class="headerlink" href="#etape-5-structuration-pedagogique-llm-idp" title="Permanent link">&para;</a></h4>
+<p>Le LLM de structuration (mistral-small / Qwen3.5-397B) reçoit les blocs des nouvelles pages <strong>plus</strong> un résumé du contexte existant (noms des Notions existantes, termes des Items existants) pour assurer la cohérence.</p>
+<div class="highlight"><pre><span></span><code>Prompt IDP enrichi (mode incrémental) :
+  - System: instructions d&#39;extraction + schéma JSON
+  - Context: &quot;Ce chapitre contient déjà les notions : [liste]. Items existants : [termes].&quot;
+  - Input: blocs OCR des nouvelles pages
+  - Output: nouveaux items + rattachement aux notions existantes ou nouvelles
+</code></pre></div>
+<ul>
+<li><strong>Toujours recalculé</strong> : structuration des nouveaux blocs.</li>
+<li><strong>Réutilisé</strong> : items et notions existants (fournis en contexte, pas re-générés).</li>
+<li><strong>Invalidé</strong> : rien directement.</li>
+</ul>
+<h4 id="etape-6-matching-avec-les-structures-existantes">Étape 6 : Matching avec les structures existantes<a class="headerlink" href="#etape-6-matching-avec-les-structures-existantes" title="Permanent link">&para;</a></h4>
+<p>Le Merge Engine compare les nouveaux items avec les existants en utilisant :
+1. <code>CanonicalKey(term, item_type, pack_id)</code> -- matching exact (identité.go existant).
+2. Similarité cosinus sur les keywords (Jaccard &gt; 0.7) -- matching sémantique léger.
+3. Confiance relative -- pour décider append vs replace.</p>
+<p>Voir la section 7 (Règles de merge) pour les seuils détaillés.</p>
+<h4 id="etape-7-merge-append-split-gestion-de-conflits">Étape 7 : Merge / append / split / gestion de conflits<a class="headerlink" href="#etape-7-merge-append-split-gestion-de-conflits" title="Permanent link">&para;</a></h4>
+<p>Le résultat du merge produit 6 types d'actions possibles (voir <code>merge-decision-table.md</code>).</p>
+<ul>
+<li><strong>Toujours recalculé</strong> : la comparaison nouveaux vs existants.</li>
+<li><strong>Réutilisé</strong> : les Items existants non impactés restent inchangés.</li>
+<li><strong>Invalidé</strong> : cache Redis des questions pour les items modifiés/enrichis.</li>
+</ul>
+<h4 id="etape-8-review-basee-sur-la-confiance-hitl">Étape 8 : Review basée sur la confiance (HITL)<a class="headerlink" href="#etape-8-review-basee-sur-la-confiance-hitl" title="Permanent link">&para;</a></h4>
+<p>Les items avec <code>merge_status = conflict</code> ou <code>confidence &lt; 0.5</code> génèrent des <code>ValidationTask</code> dans le bounded context Validation.</p>
+<ul>
+<li><code>source = 'coherence_check'</code> pour les contradictions (Z3-AC11).</li>
+<li><code>source = 'fidelity_check'</code> pour les items de faible fidélité (Z3-AC10).</li>
+</ul>
+<h4 id="etape-9-invalidation-ciblee-du-cache">Étape 9 : Invalidation ciblée du cache<a class="headerlink" href="#etape-9-invalidation-ciblee-du-cache" title="Permanent link">&para;</a></h4>
+<p>Seules les questions liées aux items impactés sont invalidées (Z3-AC07 : invalidation ciblée, pas globale).</p>
+<div class="highlight"><pre><span></span><code>Redis keys invalidated:
+  questions:item:{item_id}  -- pour chaque item modifié/enrichi/remplacé
+</code></pre></div>
+<p>Les questions des items non impactés restent en cache (TTL 24h inchangé).</p>
+<h4 id="etape-10-publication-des-domain-events">Étape 10 : Publication des domain events<a class="headerlink" href="#etape-10-publication-des-domain-events" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Event</th>
+<th>Condition</th>
+<th>Consommateurs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ItemsGenerated</code></td>
+<td>Nouveaux items créés (append)</td>
+<td>Mastery BC (crée Mastery UNKNOWN)</td>
+</tr>
+<tr>
+<td><code>ItemsEnriched</code></td>
+<td>Items existants enrichis</td>
+<td>Cache invalidation</td>
+</tr>
+<tr>
+<td><code>ItemArchived</code></td>
+<td>Doublon détecté et archivé</td>
+<td>Mastery BC (transfert)</td>
+</tr>
+<tr>
+<td><code>ConflictDetected</code></td>
+<td>Contradiction entre items</td>
+<td>Validation BC (crée ValidationTask)</td>
+</tr>
+<tr>
+<td><code>NotionMerged</code></td>
+<td>Nouvelle notion fusionnée avec existante</td>
+<td>UI refresh</td>
+</tr>
+<tr>
+<td><code>BatchProcessed</code></td>
+<td>Fin du traitement incrémental</td>
+<td>SSE notification élève</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-regles-de-merge-resolution-de-conflits">7. Règles de merge / résolution de conflits<a class="headerlink" href="#7-regles-de-merge-resolution-de-conflits" title="Permanent link">&para;</a></h2>
+<p>Voir <code>merge-decision-table.md</code> pour le tableau complet avec seuils.</p>
+<h3 id="71-resume-des-regles">7.1 Résumé des règles<a class="headerlink" href="#71-resume-des-regles" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Action</th>
+<th>Seuil</th>
+<th>Automatique ?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Nouveau concept</td>
+<td><strong>Append</strong></td>
+<td>Aucun match (CanonicalKey miss + Jaccard &lt; 0.5)</td>
+<td>Oui</td>
+</tr>
+<tr>
+<td>Même terme, détails supplémentaires</td>
+<td><strong>Enrich</strong></td>
+<td>CanonicalKey match + new keywords not in existing</td>
+<td>Oui</td>
+</tr>
+<tr>
+<td>Même terme, meilleure confiance</td>
+<td><strong>Replace</strong></td>
+<td>CanonicalKey match + <code>new.confidence &gt; old.confidence + 0.15</code></td>
+<td>Oui</td>
+</tr>
+<tr>
+<td>Même terme, définitions contradictoires</td>
+<td><strong>Flag conflict</strong></td>
+<td>CanonicalKey match + fidelity check contradiction</td>
+<td>Non (HITL)</td>
+</tr>
+<tr>
+<td>Même terme + même keywords</td>
+<td><strong>Mark duplicate</strong></td>
+<td>CanonicalKey match + Jaccard(keywords) &gt; 0.85</td>
+<td>Oui (archive lower confidence)</td>
+</tr>
+<tr>
+<td>Terme proche mais pas identique</td>
+<td><strong>Create alternative</strong></td>
+<td>Jaccard(keywords) 0.5-0.85 + terms differ</td>
+<td>Non (HITL si confidence &lt; 0.7)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-continuite-du-cours-dans-le-temps">8. Continuité du cours dans le temps<a class="headerlink" href="#8-continuite-du-cours-dans-le-temps" title="Permanent link">&para;</a></h2>
+<h3 id="81-heuristiques-de-classification-des-nouvelles-pages">8.1 Heuristiques de classification des nouvelles pages<a class="headerlink" href="#81-heuristiques-de-classification-des-nouvelles-pages" title="Permanent link">&para;</a></h3>
+<p>Quand de nouvelles pages arrivent, le système doit déterminer leur nature :</p>
+<table>
+<thead>
+<tr>
+<th>Classification</th>
+<th>Heuristique</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Enrichissement du même cours</strong></td>
+<td>Même <code>chapter_id</code> (explicite par l'élève via Z5-AC11)</td>
+<td>Merge incrémental</td>
+</tr>
+<tr>
+<td><strong>Re-photographie</strong></td>
+<td>Similarité OCR &gt; 0.8 avec une page existante du même chapitre</td>
+<td>Proposer remplacement si meilleure confiance</td>
+</tr>
+<tr>
+<td><strong>Fiche de correction</strong></td>
+<td>Détection de mots-clés : "correction", "exercice", "corrigé" + contexte temporal post-cours</td>
+<td>Tag <code>is_correction = true</code>, items type PROCEDURE</td>
+</tr>
+<tr>
+<td><strong>Doublon inter-session</strong></td>
+<td>Même CanonicalKey que des items existants</td>
+<td>Merge automatique (archive le doublon)</td>
+</tr>
+<tr>
+<td><strong>Enrichissement tardif</strong></td>
+<td>Upload &gt; 7 jours après le dernier, même chapitre</td>
+<td>Merge incrémental + notification "Chapitre mis à jour"</td>
+</tr>
+</tbody>
+</table>
+<h3 id="82-points-de-validation-humaine">8.2 Points de validation humaine<a class="headerlink" href="#82-points-de-validation-humaine" title="Permanent link">&para;</a></h3>
+<p>Le système demande confirmation à l'élève quand :
+1. Une page ressemble fortement à une page existante (similarité &gt; 0.8) : "Cette page ressemble à la page 3 existante. Remplacer ou ajouter ?"
+2. Le contenu semble appartenir à un autre chapitre (LLM detect subject mismatch) : "Ce contenu parle de [sujet]. L'ajouter à [chapitre actuel] ou créer un nouveau chapitre ?"
+3. Plus de 30 jours entre le dernier upload et le nouveau : "Ce chapitre n'a pas été mis à jour depuis [N] jours. Ajouter des pages ou créer un nouveau chapitre ?"</p>
+<h3 id="83-stabilite-des-notion-ids">8.3 Stabilité des Notion IDs<a class="headerlink" href="#83-stabilite-des-notion-ids" title="Permanent link">&para;</a></h3>
+<p>Les Notion IDs sont <strong>persistants</strong>. Quand de nouvelles pages arrivent :
+- Le LLM IDP reçoit les noms des Notions existantes en contexte.
+- S'il produit un item qui correspond à une Notion existante, il rattache l'item à cette Notion (par nom).
+- Si l'item relève d'un concept nouveau, une nouvelle Notion est créée.
+- Les Notion IDs ne changent jamais. Les noms de Notions peuvent être enrichis (ex: "Photosynthèse" -&gt; "Photosynthèse et respiration cellulaire") si le contenu ajouté justifie un élargissement.</p>
+<hr />
+<h2 id="9-impact-sur-les-mastery">9. Impact sur les Mastery<a class="headerlink" href="#9-impact-sur-les-mastery" title="Permanent link">&para;</a></h2>
+<h3 id="91-tableau-de-decision">9.1 Tableau de décision<a class="headerlink" href="#91-tableau-de-decision" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Événement</th>
+<th>Impact Mastery</th>
+<th>Domain event</th>
+<th>Justification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Nouvel Item</strong> (append)</td>
+<td>Mastery créé à UNKNOWN</td>
+<td><code>ItemsGenerated</code></td>
+<td>Nouveau contenu = nouvelle compétence à acquérir</td>
+</tr>
+<tr>
+<td><strong>Item enrichi</strong> (enrich)</td>
+<td>Mastery <strong>inchangé</strong></td>
+<td><code>ItemsEnriched</code></td>
+<td>L'item reste le même, il est juste plus complet. Le Mastery reflète la maîtrise du concept, pas du détail.</td>
+</tr>
+<tr>
+<td><strong>Item remplacé</strong> (replace)</td>
+<td>Mastery <strong>transféré</strong> de l'ancien vers le nouveau</td>
+<td><code>ItemReplaced</code></td>
+<td>L'ancien item est archivé. Le Mastery est conservé car le concept est le même, seule la formulation change.</td>
+</tr>
+<tr>
+<td><strong>Item archivé</strong> (doublon)</td>
+<td>Mastery du doublon <strong>transféré</strong> vers l'item survivant (Z3-AC11)</td>
+<td><code>ItemArchived</code></td>
+<td>Le Mastery le plus avancé (state + consecutive_successes) est conservé.</td>
+</tr>
+<tr>
+<td><strong>Item splitté</strong></td>
+<td>Mastery de l'item source <strong>copié</strong> vers les deux items résultants, rétrogradé de 1 niveau</td>
+<td><code>ItemSplit</code></td>
+<td>Le split crée de l'incertitude : l'élève maîtrisait le concept global mais pas nécessairement les deux sous-concepts.</td>
+</tr>
+<tr>
+<td><strong>Conflit détecté</strong></td>
+<td>Mastery <strong>gelé</strong> (pas de transition) tant que non résolu</td>
+<td><code>ConflictDetected</code></td>
+<td>Un item sous investigation ne doit pas progresser (Z3-AC12).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="92-transfert-de-mastery">9.2 Transfert de Mastery<a class="headerlink" href="#92-transfert-de-mastery" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// TransferMastery transfers mastery state from a source item to a target item.</span>
+<span class="c1">// If both have masteries, the more advanced state is kept.</span>
+<span class="c1">// Used when archiving duplicates (Z3-AC11) or replacing items.</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">MasteryService</span><span class="p">)</span><span class="w"> </span><span class="nx">TransferMastery</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">sourceItemID</span><span class="p">,</span><span class="w"> </span><span class="nx">targetItemID</span><span class="w"> </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
+</code></pre></div>
+<p>Règles de transfert :
+- Si seul le source a un Mastery -&gt; transfert direct.
+- Si les deux ont un Mastery -&gt; on conserve le plus avancé (SOLID &gt; OK &gt; FRAGILE &gt; UNKNOWN).
+- À état égal, on conserve celui avec le plus de <code>consecutive_successes</code>.
+- Le Mastery source est soft-deleted (conservé pour audit).</p>
+<hr />
+<h2 id="10-workflow-de-review-humaine-hitl">10. Workflow de review humaine (HITL)<a class="headerlink" href="#10-workflow-de-review-humaine-hitl" title="Permanent link">&para;</a></h2>
+<h3 id="101-integration-avec-validationtask">10.1 Intégration avec ValidationTask<a class="headerlink" href="#101-integration-avec-validationtask" title="Permanent link">&para;</a></h3>
+<p>Le pipeline incrémental crée des <code>ValidationTask</code> dans les cas suivants :</p>
+<table>
+<thead>
+<tr>
+<th>Cas</th>
+<th><code>source</code></th>
+<th><code>priority</code></th>
+<th>Résolution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Contradiction entre items (Z3-AC11)</td>
+<td><code>coherence_check</code></td>
+<td>HIGH</td>
+<td>Élève/parent choisit la bonne version</td>
+</tr>
+<tr>
+<td>Fidelity score &lt; 0.5 (Z3-AC10)</td>
+<td><code>fidelity_check</code></td>
+<td>MEDIUM</td>
+<td>Confirmer/corriger l'item</td>
+</tr>
+<tr>
+<td>Re-photographie ambiguë</td>
+<td><code>merge_conflict</code></td>
+<td>LOW</td>
+<td>Confirmer remplacement ou ajout</td>
+</tr>
+<tr>
+<td>Merge incertain (Jaccard 0.5-0.7)</td>
+<td><code>merge_conflict</code></td>
+<td>LOW</td>
+<td>Confirmer fusion ou séparation</td>
+</tr>
+</tbody>
+</table>
+<h3 id="102-seuils-de-confiance-pour-hitl">10.2 Seuils de confiance pour HITL<a class="headerlink" href="#102-seuils-de-confiance-pour-hitl" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>confidence &gt;= 0.85 → Pas de HITL (Z3-AC09)
+confidence 0.50-0.84 → Item utilisable, gabarits simples uniquement (Z3-AC01)
+confidence &lt; 0.50 → HITL obligatoire, item en attente
+OCR confidence &lt; 0.30 → Page marquée BLURRY (Z2-AC03), suggestion re-photographie
+</code></pre></div>
+<h3 id="103-file-de-validation">10.3 File de validation<a class="headerlink" href="#103-file-de-validation" title="Permanent link">&para;</a></h3>
+<p>La file respecte la contrainte Z2-AC09 (max 8 items) :
+- Les items les plus impactants (proches d'un exam, état FRAGILE) sont priorisés.
+- Les items de merge incrémental ont une priorité inférieure aux items de premier pipeline.
+- Le parent en mode actif reçoit max 3 items/semaine (Z3-AC08).</p>
+<hr />
+<h2 id="11-impact-sur-la-generation-downstream">11. Impact sur la génération downstream<a class="headerlink" href="#11-impact-sur-la-generation-downstream" title="Permanent link">&para;</a></h2>
+<h3 id="111-invalidation-ciblee">11.1 Invalidation ciblée<a class="headerlink" href="#111-invalidation-ciblee" title="Permanent link">&para;</a></h3>
+<p>Quand le merge incrémental modifie des items :</p>
+<table>
+<thead>
+<tr>
+<th>Action merge</th>
+<th>Questions impactées</th>
+<th>Invalidation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Append</strong> (nouvel item)</td>
+<td>Aucune existante</td>
+<td>Pas d'invalidation. Nouvelles questions générées lazy.</td>
+</tr>
+<tr>
+<td><strong>Enrich</strong> (item enrichi)</td>
+<td>Questions de cet item</td>
+<td>Invalidation <code>questions:item:{id}</code>. Régénération lazy.</td>
+</tr>
+<tr>
+<td><strong>Replace</strong></td>
+<td>Questions de l'ancien item</td>
+<td>Invalidation. L'ancien item est archivé, nouvelles questions sur le nouveau.</td>
+</tr>
+<tr>
+<td><strong>Archive dup</strong></td>
+<td>Questions du doublon archivé</td>
+<td>Invalidation. Questions du survivant inchangées.</td>
+</tr>
+<tr>
+<td><strong>Conflict</strong></td>
+<td>Questions des deux items</td>
+<td>Invalidation. Gabarits restreints (Z3-AC01) en attendant résolution.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="112-articulation-avec-le-bounded-context-session">11.2 Articulation avec le bounded context Session<a class="headerlink" href="#112-articulation-avec-le-bounded-context-session" title="Permanent link">&para;</a></h3>
+<p>Le Session BC consomme les items via le port <code>chapter.Repository.FindItemsByChapter()</code>. Les items archivés sont filtrés (<code>WHERE NOT archived</code>). Les items en conflit sont restreints aux gabarits simples. Le Session BC n'a pas besoin de connaître le format pivot -- il opère sur les entités <code>Item</code> et <code>Notion</code> existantes.</p>
+<hr />
+<h2 id="12-signatures-go-des-methodes-domaine">12. Signatures Go des méthodes domaine<a class="headerlink" href="#12-signatures-go-des-methodes-domaine" title="Permanent link">&para;</a></h2>
+<h3 id="121-nouveaux-domain-events">12.1 Nouveaux domain events<a class="headerlink" href="#121-nouveaux-domain-events" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// backend/internal/domain/event/events.go</span>
+
+<span class="c1">// ItemsEnriched is emitted when existing items are enriched with new content.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">ItemsEnriched</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">BaseEvent</span>
+<span class="w">    </span><span class="nx">ChapterID</span><span class="w"> </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="w">    </span><span class="nx">ItemIDs</span><span class="w">   </span><span class="p">[]</span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="w"> </span><span class="nx">ItemsEnriched</span><span class="p">)</span><span class="w"> </span><span class="nx">EventName</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;items.enriched&quot;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// ItemReplaced is emitted when an item is replaced by a better extraction.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">ItemReplaced</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">BaseEvent</span>
+<span class="w">    </span><span class="nx">ChapterID</span><span class="w">    </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="w">    </span><span class="nx">OldItemID</span><span class="w">    </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="w">    </span><span class="nx">NewItemID</span><span class="w">    </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="w">    </span><span class="nx">Reason</span><span class="w">       </span><span class="kt">string</span><span class="w"> </span><span class="c1">// &quot;higher_confidence&quot;, &quot;re_photograph&quot;</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="w"> </span><span class="nx">ItemReplaced</span><span class="p">)</span><span class="w"> </span><span class="nx">EventName</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;item.replaced&quot;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// ItemArchived is emitted when a duplicate item is archived.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">ItemArchived</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">BaseEvent</span>
+<span class="w">    </span><span class="nx">ChapterID</span><span class="w">    </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="w">    </span><span class="nx">ArchivedID</span><span class="w">   </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="w">    </span><span class="nx">SurvivorID</span><span class="w">   </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="w"> </span><span class="nx">ItemArchived</span><span class="p">)</span><span class="w"> </span><span class="nx">EventName</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;item.archived&quot;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// ConflictDetected is emitted when contradictory items are found.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">ConflictDetected</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">BaseEvent</span>
+<span class="w">    </span><span class="nx">ChapterID</span><span class="w"> </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="w">    </span><span class="nx">ItemIDs</span><span class="w">   </span><span class="p">[]</span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="w">    </span><span class="nx">Reason</span><span class="w">    </span><span class="kt">string</span><span class="w"> </span><span class="c1">// &quot;contradiction&quot;, &quot;ambiguous_merge&quot;</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="w"> </span><span class="nx">ConflictDetected</span><span class="p">)</span><span class="w"> </span><span class="nx">EventName</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;conflict.detected&quot;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// NotionMerged is emitted when a new notion is merged into an existing one.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">NotionMerged</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">BaseEvent</span>
+<span class="w">    </span><span class="nx">ChapterID</span><span class="w">    </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="w">    </span><span class="nx">SourceID</span><span class="w">     </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="w">    </span><span class="nx">TargetID</span><span class="w">     </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="w"> </span><span class="nx">NotionMerged</span><span class="p">)</span><span class="w"> </span><span class="nx">EventName</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;notion.merged&quot;</span><span class="w"> </span><span class="p">}</span>
+
+<span class="c1">// BatchProcessed is emitted when an incremental batch finishes processing.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">BatchProcessed</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">BaseEvent</span>
+<span class="w">    </span><span class="nx">ChapterID</span><span class="w">   </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="w">    </span><span class="nx">RevisionID</span><span class="w">  </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="w">    </span><span class="nx">PageIDs</span><span class="w">     </span><span class="p">[]</span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="w">    </span><span class="nx">NewItems</span><span class="w">    </span><span class="kt">int</span>
+<span class="w">    </span><span class="nx">Enriched</span><span class="w">    </span><span class="kt">int</span>
+<span class="w">    </span><span class="nx">Conflicts</span><span class="w">   </span><span class="kt">int</span>
+<span class="p">}</span>
+
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="w"> </span><span class="nx">BatchProcessed</span><span class="p">)</span><span class="w"> </span><span class="nx">EventName</span><span class="p">()</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="s">&quot;batch.processed&quot;</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div>
+<h3 id="122-merge-engine-domain-service">12.2 Merge Engine (domain service)<a class="headerlink" href="#122-merge-engine-domain-service" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// backend/internal/domain/chapter/merge.go</span>
+
+<span class="c1">// MergeAction represents the type of merge operation performed.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">MergeAction</span><span class="w"> </span><span class="kt">string</span>
+
+<span class="kd">const</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="nx">MergeAppend</span><span class="w">      </span><span class="nx">MergeAction</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;APPEND&quot;</span>
+<span class="w">    </span><span class="nx">MergeEnrich</span><span class="w">      </span><span class="nx">MergeAction</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;ENRICH&quot;</span>
+<span class="w">    </span><span class="nx">MergeReplace</span><span class="w">     </span><span class="nx">MergeAction</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;REPLACE&quot;</span>
+<span class="w">    </span><span class="nx">MergeFlagConflict</span><span class="w"> </span><span class="nx">MergeAction</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;FLAG_CONFLICT&quot;</span>
+<span class="w">    </span><span class="nx">MergeArchiveDup</span><span class="w">  </span><span class="nx">MergeAction</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;ARCHIVE_DUP&quot;</span>
+<span class="w">    </span><span class="nx">MergeCreateAlt</span><span class="w">   </span><span class="nx">MergeAction</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;CREATE_ALT&quot;</span>
+<span class="p">)</span>
+
+<span class="c1">// MergeDecision represents a single merge decision for one item.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">MergeDecision</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Action</span><span class="w">       </span><span class="nx">MergeAction</span>
+<span class="w">    </span><span class="nx">NewItem</span><span class="w">      </span><span class="o">*</span><span class="nx">StructuredItem</span>
+<span class="w">    </span><span class="nx">ExistingItem</span><span class="w"> </span><span class="o">*</span><span class="nx">Item</span><span class="w">      </span><span class="c1">// nil for APPEND</span>
+<span class="w">    </span><span class="nx">Confidence</span><span class="w">   </span><span class="kt">float32</span>
+<span class="w">    </span><span class="nx">Reason</span><span class="w">       </span><span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// MergeResult holds the complete result of an incremental merge operation.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">MergeResult</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Appended</span><span class="w">  </span><span class="p">[]</span><span class="o">*</span><span class="nx">Item</span>
+<span class="w">    </span><span class="nx">Enriched</span><span class="w">  </span><span class="p">[]</span><span class="o">*</span><span class="nx">Item</span>
+<span class="w">    </span><span class="nx">Replaced</span><span class="w">  </span><span class="p">[]</span><span class="nx">ItemReplacement</span>
+<span class="w">    </span><span class="nx">Archived</span><span class="w">  </span><span class="p">[]</span><span class="nx">ItemArchival</span>
+<span class="w">    </span><span class="nx">Conflicts</span><span class="w"> </span><span class="p">[]</span><span class="nx">ItemConflict</span>
+<span class="p">}</span>
+
+<span class="c1">// ItemReplacement records a replacement decision.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">ItemReplacement</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">OldItem</span><span class="w"> </span><span class="o">*</span><span class="nx">Item</span>
+<span class="w">    </span><span class="nx">NewItem</span><span class="w"> </span><span class="o">*</span><span class="nx">Item</span>
+<span class="w">    </span><span class="nx">Reason</span><span class="w">  </span><span class="kt">string</span>
+<span class="p">}</span>
+
+<span class="c1">// ItemArchival records a duplicate archival.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">ItemArchival</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Archived</span><span class="w"> </span><span class="o">*</span><span class="nx">Item</span>
+<span class="w">    </span><span class="nx">Survivor</span><span class="w"> </span><span class="o">*</span><span class="nx">Item</span>
+<span class="p">}</span>
+
+<span class="c1">// ItemConflict records a detected conflict requiring HITL.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">ItemConflict</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Items</span><span class="w">  </span><span class="p">[]</span><span class="o">*</span><span class="nx">Item</span>
+<span class="w">    </span><span class="nx">Reason</span><span class="w"> </span><span class="kt">string</span><span class="w"> </span><span class="c1">// &quot;contradiction&quot;, &quot;ambiguous_merge&quot;</span>
+<span class="p">}</span>
+
+<span class="c1">// MergeEngine performs incremental merge of new items into existing chapter content.</span>
+<span class="c1">// It is a pure domain service with no infrastructure dependencies.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">MergeEngine</span><span class="w"> </span><span class="kd">struct</span><span class="p">{}</span>
+
+<span class="c1">// NewMergeEngine creates a new MergeEngine.</span>
+<span class="kd">func</span><span class="w"> </span><span class="nx">NewMergeEngine</span><span class="p">()</span><span class="w"> </span><span class="o">*</span><span class="nx">MergeEngine</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="o">&amp;</span><span class="nx">MergeEngine</span><span class="p">{}</span>
+<span class="p">}</span>
+
+<span class="c1">// MergeIncremental compares new structured items against existing items</span>
+<span class="c1">// and produces merge decisions.</span>
+<span class="c1">// existing: current items in the chapter (non-archived).</span>
+<span class="c1">// incoming: newly extracted items from the IDP stage.</span>
+<span class="c1">// packID: optional pack identifier for canonical key computation.</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">m</span><span class="w"> </span><span class="o">*</span><span class="nx">MergeEngine</span><span class="p">)</span><span class="w"> </span><span class="nx">MergeIncremental</span><span class="p">(</span>
+<span class="w">    </span><span class="nx">existing</span><span class="w"> </span><span class="p">[]</span><span class="o">*</span><span class="nx">Item</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">incoming</span><span class="w"> </span><span class="p">[]</span><span class="nx">StructuredItem</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">packID</span><span class="w"> </span><span class="o">*</span><span class="kt">string</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="nx">MergeResult</span>
+</code></pre></div>
+<h3 id="123-enhanced-llmservice-port">12.3 Enhanced LLMService port<a class="headerlink" href="#123-enhanced-llmservice-port" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// backend/internal/domain/chapter/ports.go (extended)</span>
+
+<span class="c1">// LLMService is the port for LLM-based structuration.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">LLMService</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// StructureBlocks takes OCR text blocks and produces structured items and notions.</span>
+<span class="w">    </span><span class="nx">StructureBlocks</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">subject</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span><span class="w"> </span><span class="nx">blocks</span><span class="w"> </span><span class="p">[]</span><span class="nx">OCRBlock</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">StructurationResult</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+
+<span class="w">    </span><span class="c1">// StructureBlocksIncremental takes OCR text blocks and existing context</span>
+<span class="w">    </span><span class="c1">// to produce structured items aligned with existing notions.</span>
+<span class="w">    </span><span class="nx">StructureBlocksIncremental</span><span class="p">(</span>
+<span class="w">        </span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">subject</span><span class="w"> </span><span class="kt">string</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">newBlocks</span><span class="w"> </span><span class="p">[]</span><span class="nx">OCRBlock</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">existingNotions</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">,</span><span class="w">       </span><span class="c1">// names of existing notions</span>
+<span class="w">        </span><span class="nx">existingTerms</span><span class="w"> </span><span class="p">[]</span><span class="kt">string</span><span class="p">,</span><span class="w">          </span><span class="c1">// terms of existing items</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">StructurationResult</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// CoherenceChecker is the port for detecting contradictions between items (Z3-AC11).</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">CoherenceChecker</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// CheckCoherence compares new items against existing items for contradictions.</span>
+<span class="w">    </span><span class="nx">CheckCoherence</span><span class="p">(</span>
+<span class="w">        </span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">existingItems</span><span class="w"> </span><span class="p">[]</span><span class="o">*</span><span class="nx">Item</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">newItems</span><span class="w"> </span><span class="p">[]</span><span class="o">*</span><span class="nx">Item</span><span class="p">,</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="p">([]</span><span class="nx">CoherenceIssue</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// CoherenceIssue represents a detected coherence problem.</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">CoherenceIssue</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Type</span><span class="w">     </span><span class="kt">string</span><span class="w">    </span><span class="c1">// &quot;contradiction&quot;, &quot;duplicate&quot;</span>
+<span class="w">    </span><span class="nx">ItemIDs</span><span class="w">  </span><span class="p">[]</span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span>
+<span class="w">    </span><span class="nx">Detail</span><span class="w">   </span><span class="kt">string</span>
+<span class="w">    </span><span class="nx">Severity</span><span class="w"> </span><span class="kt">float32</span><span class="w">   </span><span class="c1">// 0.0-1.0</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="124-application-service-orchestration">12.4 Application service orchestration<a class="headerlink" href="#124-application-service-orchestration" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// backend/internal/app/pipeline_service.go (extended)</span>
+
+<span class="c1">// ProcessIncrementalBatch orchestrates the incremental pipeline for new pages.</span>
+<span class="c1">// It is the main entry point for Z2-AC14.</span>
+<span class="kd">func</span><span class="w"> </span><span class="p">(</span><span class="nx">s</span><span class="w"> </span><span class="o">*</span><span class="nx">PipelineService</span><span class="p">)</span><span class="w"> </span><span class="nx">ProcessIncrementalBatch</span><span class="p">(</span>
+<span class="w">    </span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">chapterID</span><span class="w"> </span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">pageIDs</span><span class="w"> </span><span class="p">[]</span><span class="nx">uuid</span><span class="p">.</span><span class="nx">UUID</span><span class="p">,</span>
+<span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="o">*</span><span class="nx">event</span><span class="p">.</span><span class="nx">BatchProcessed</span><span class="p">,</span><span class="w"> </span><span class="kt">error</span><span class="p">)</span>
+
+<span class="c1">// The method:</span>
+<span class="c1">// 1. Loads existing items and notions for the chapter</span>
+<span class="c1">// 2. Runs OCR on new pages (ProcessPage per page)</span>
+<span class="c1">// 3. Calls StructureBlocksIncremental with existing context</span>
+<span class="c1">// 4. Runs MergeEngine.MergeIncremental</span>
+<span class="c1">// 5. Runs CoherenceChecker.CheckCoherence (new vs existing only, Z2-AC14)</span>
+<span class="c1">// 6. Runs FidelityChecker.CheckFidelity on new items</span>
+<span class="c1">// 7. Creates ValidationTasks for conflicts and low-fidelity items</span>
+<span class="c1">// 8. Saves merged results</span>
+<span class="c1">// 9. Invalidates Redis cache for impacted items</span>
+<span class="c1">// 10. Publishes domain events</span>
+</code></pre></div>
+<hr />
+<h2 id="13-migrations-sql">13. Migrations SQL<a class="headerlink" href="#13-migrations-sql" title="Permanent link">&para;</a></h2>
+<h3 id="131-nouvelles-colonnes">13.1 Nouvelles colonnes<a class="headerlink" href="#131-nouvelles-colonnes" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">-- Migration: 003_incremental_merge.sql</span>
+
+<span class="c1">-- Add merge tracking to items</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">items</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">merge_status</span><span class="w"> </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;original&#39;</span>
+<span class="w">    </span><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="n">merge_status</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;original&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;enriched&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;replaced&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;conflict&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;alternative&#39;</span><span class="p">));</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">items</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">replaced_by_id</span><span class="w"> </span><span class="n">UUID</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">items</span><span class="p">(</span><span class="n">id</span><span class="p">);</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">items</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">source_block_ids</span><span class="w"> </span><span class="n">UUID</span><span class="p">[]</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="s1">&#39;{}&#39;</span><span class="p">;</span>
+
+<span class="c1">-- Add similarity tracking for deduplication</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">items</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">canonical_key</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">;</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_items_canonical_key</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">items</span><span class="p">(</span><span class="n">canonical_key</span><span class="p">)</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="n">archived</span><span class="p">;</span>
+
+<span class="c1">-- Track which blocks contributed to which items (many-to-many)</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">item_source_blocks</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">item_id</span><span class="w">     </span><span class="n">UUID</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">items</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">block_id</span><span class="w">    </span><span class="n">UUID</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">blocks</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">,</span>
+<span class="w">    </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="w"> </span><span class="p">(</span><span class="n">item_id</span><span class="p">,</span><span class="w"> </span><span class="n">block_id</span><span class="p">)</span>
+<span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_item_source_blocks_block</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">item_source_blocks</span><span class="p">(</span><span class="n">block_id</span><span class="p">);</span>
+
+<span class="c1">-- Merge audit log</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">merge_log</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="n">id</span><span class="w">              </span><span class="n">UUID</span><span class="w"> </span><span class="k">PRIMARY</span><span class="w"> </span><span class="k">KEY</span><span class="p">,</span>
+<span class="w">    </span><span class="n">chapter_id</span><span class="w">      </span><span class="n">UUID</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">chapters</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="k">DELETE</span><span class="w"> </span><span class="k">CASCADE</span><span class="p">,</span>
+<span class="w">    </span><span class="n">action</span><span class="w">          </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">CHECK</span><span class="w"> </span><span class="p">(</span><span class="n">action</span><span class="w"> </span><span class="k">IN</span><span class="w"> </span><span class="p">(</span><span class="s1">&#39;append&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;enrich&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;replace&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;archive_dup&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;flag_conflict&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;create_alt&#39;</span><span class="p">)),</span>
+<span class="w">    </span><span class="n">source_item_id</span><span class="w">  </span><span class="n">UUID</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">items</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">    </span><span class="n">target_item_id</span><span class="w">  </span><span class="n">UUID</span><span class="w"> </span><span class="k">REFERENCES</span><span class="w"> </span><span class="n">items</span><span class="p">(</span><span class="n">id</span><span class="p">),</span>
+<span class="w">    </span><span class="n">reason</span><span class="w">          </span><span class="nb">TEXT</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">confidence</span><span class="w">      </span><span class="nb">REAL</span><span class="p">,</span>
+<span class="w">    </span><span class="n">created_at</span><span class="w">      </span><span class="n">TIMESTAMPTZ</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="w"> </span><span class="k">DEFAULT</span><span class="w"> </span><span class="n">now</span><span class="p">()</span>
+<span class="p">);</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_merge_log_chapter</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">merge_log</span><span class="p">(</span><span class="n">chapter_id</span><span class="p">,</span><span class="w"> </span><span class="n">created_at</span><span class="p">);</span>
+
+<span class="c1">-- Page similarity tracking for re-photograph detection</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TABLE</span><span class="w"> </span><span class="n">pages</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="k">COLUMN</span><span class="w"> </span><span class="n">text_fingerprint</span><span class="w"> </span><span class="nb">TEXT</span><span class="p">;</span><span class="w"> </span><span class="c1">-- hash of OCR text for quick similarity check</span>
+<span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_pages_fingerprint</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">pages</span><span class="p">(</span><span class="n">text_fingerprint</span><span class="p">)</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">text_fingerprint</span><span class="w"> </span><span class="k">IS</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">NULL</span><span class="p">;</span>
+
+<span class="c1">-- Add processing_incremental status to revision_status enum</span>
+<span class="c1">-- Note: PostgreSQL ALTER TYPE ADD VALUE is not transactional, must be separate</span>
+<span class="k">ALTER</span><span class="w"> </span><span class="k">TYPE</span><span class="w"> </span><span class="n">revision_status</span><span class="w"> </span><span class="k">ADD</span><span class="w"> </span><span class="n">VALUE</span><span class="w"> </span><span class="k">IF</span><span class="w"> </span><span class="k">NOT</span><span class="w"> </span><span class="k">EXISTS</span><span class="w"> </span><span class="s1">&#39;PROCESSING_INCREMENTAL&#39;</span><span class="p">;</span>
+</code></pre></div>
+<h3 id="132-backfill-canonical-keys">13.2 Backfill canonical keys<a class="headerlink" href="#132-backfill-canonical-keys" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">-- Migration: 004_backfill_canonical_keys.sql</span>
+<span class="c1">-- Run once after deploying merge support.</span>
+<span class="c1">-- Canonical keys are computed in Go and written back.</span>
+<span class="c1">-- This migration adds a trigger placeholder; actual backfill is done by the Go migration job.</span>
+
+<span class="c1">-- No-op SQL migration. Backfill is performed by:</span>
+<span class="c1">-- go run cmd/migrate/backfill_canonical_keys.go</span>
+</code></pre></div>
+<hr />
+<h2 id="14-risques-et-mitigations">14. Risques et mitigations<a class="headerlink" href="#14-risques-et-mitigations" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Risque</th>
+<th>Impact</th>
+<th>Probabilité</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>Merge incorrect</strong> : deux Items différents fusionnés car CanonicalKey identique</td>
+<td>Perte de contenu, Mastery incohérent</td>
+<td>Moyenne</td>
+<td>Le merge est réversible (merge_log). Items archivés soft-delete. Fallback HITL.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>Conflit non détecté</strong> : contradiction subtile non repérée par le LLM</td>
+<td>Élève étudie du contenu faux</td>
+<td>Faible (fidelity check catch)</td>
+<td>Double filet : fidelity check (Z3-AC10) + détection anomalie par taux d'échec (Z3-AC13).</td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>Context window overflow</strong> : chapitre très long (30+ pages) dépasse le contexte du LLM local</td>
+<td>IDP tronqué, items manquants</td>
+<td>Faible (Lot 0 = 4 chapitres pilotes)</td>
+<td>Chunking par Notion. Résumé condensé du contexte existant (noms + termes, pas le texte complet).</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Latence merge</strong> : le merge engine + coherence check ajoutent de la latence</td>
+<td>UX dégradée lors de l'ajout de pages</td>
+<td>Moyenne</td>
+<td>Coherence check en async (batch). SSE progressive. Merge engine est CPU-bound, pas I/O.</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>Drift OCR</strong> : Gemini Flash change de version, qualité OCR fluctue</td>
+<td>Items mal extraits</td>
+<td>Moyenne</td>
+<td>LLM versioning (Z2-AC13). Monitoring fidelity score. Alertes drift.</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Fragmentation Notion</strong> : les Notions se multiplient au fil des uploads</td>
+<td>Cours illisible, trop de Notions</td>
+<td>Moyenne</td>
+<td>Cap à 7 Notions/chapitre (Z7-AC15). Fusion automatique des Notions &lt; 2 items.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="15-strategie-dimplementation-mvp-vs-evolution-future">15. Stratégie d'implémentation : MVP vs évolution future<a class="headerlink" href="#15-strategie-dimplementation-mvp-vs-evolution-future" title="Permanent link">&para;</a></h2>
+<h3 id="phase-mvp-lot-0">Phase MVP (Lot 0)<a class="headerlink" href="#phase-mvp-lot-0" title="Permanent link">&para;</a></h3>
+<p><strong>Scope</strong> : Pipeline linéaire, pas de merge sophistiqué. Re-processing complet si ajout de pages.</p>
+<table>
+<thead>
+<tr>
+<th>Composant</th>
+<th>Implémentation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OCR</td>
+<td>Gemini 2.5 Flash (API) ou Qwen3-VL-32B (local via Ollama)</td>
+</tr>
+<tr>
+<td>IDP</td>
+<td>mistral-small (API) ou Gemma 3 27B (local)</td>
+</tr>
+<tr>
+<td>Merge</td>
+<td><strong>Aucun</strong>. Ajout de pages = re-run pipeline complet sur toutes les pages du chapitre. Items regénérés from scratch.</td>
+</tr>
+<tr>
+<td>Dedup</td>
+<td>CanonicalKey uniquement (matching exact sur term + type + pack). Archive automatique des doublons.</td>
+</tr>
+<tr>
+<td>HITL</td>
+<td>Fidelity check (Z3-AC10) + coherence basique (Z3-AC11, même terme contradictoire).</td>
+</tr>
+<tr>
+<td>Mastery impact</td>
+<td>Re-génération = nouveaux Item IDs = Mastery reset. Acceptable pour 4 chapitres pilotes.</td>
+</tr>
+<tr>
+<td>Format pivot</td>
+<td>Pas de PivotDocument formel. Les tables SQL existantes suffisent.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Coût</strong> : re-processing de 10 pages = ~$0.02 (API) ou $0 (local). Acceptable pour le Lot 0.</p>
+<h3 id="phase-v2-incremental-basique">Phase V2 : Incrémental basique<a class="headerlink" href="#phase-v2-incremental-basique" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Composant</th>
+<th>Implémentation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Merge</td>
+<td>MergeEngine avec les 6 actions (append/enrich/replace/conflict/dup/alt)</td>
+</tr>
+<tr>
+<td>IDP</td>
+<td><code>StructureBlocksIncremental</code> avec contexte existant</td>
+</tr>
+<tr>
+<td>Dedup</td>
+<td>CanonicalKey + Jaccard keywords (seuils documentés dans merge-decision-table.md)</td>
+</tr>
+<tr>
+<td>Coherence</td>
+<td>LLM coherence check (cross-page, nouveaux vs existants uniquement)</td>
+</tr>
+<tr>
+<td>Mastery</td>
+<td>Transfert de Mastery sur archive/replace. Gel sur conflit.</td>
+</tr>
+<tr>
+<td>Merge log</td>
+<td>Table <code>merge_log</code> pour audit et réversibilité</td>
+</tr>
+<tr>
+<td>Format pivot</td>
+<td>PivotDocument comme projection (pas de table dédiée)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="phase-v3-knowledge-graph-educatif">Phase V3 : Knowledge graph éducatif<a class="headerlink" href="#phase-v3-knowledge-graph-educatif" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Composant</th>
+<th>Implémentation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Graphe de concepts</td>
+<td>Relations typées entre Notions (prérequis, composition, analogie)</td>
+</tr>
+<tr>
+<td>Résolution automatique</td>
+<td>LLM agent pour résoudre les conflits mineurs sans HITL</td>
+</tr>
+<tr>
+<td>Mémoire de cours</td>
+<td>Historique complet des mutations avec undo/redo</td>
+</tr>
+<tr>
+<td>Cross-chapter</td>
+<td>Liens entre Items de chapitres différents de la même matière</td>
+</tr>
+<tr>
+<td>Embeddings</td>
+<td>Vecteurs sémantiques pour la recherche de similarité (pgvector)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="16-recommandation-finale">16. Recommandation finale<a class="headerlink" href="#16-recommandation-finale" title="Permanent link">&para;</a></h2>
+<p><strong>Pour le Lot 0</strong>, implémenter le pipeline linéaire simple (re-processing complet). Le coût est négligeable sur 4 chapitres pilotes et cela évite la complexité du merge.</p>
+<p><strong>Dès la V2</strong>, implémenter le <code>MergeEngine</code> avec les règles de merge documentées ici. C'est le point d'inflexion où l'expérience utilisateur change : l'élève peut ajouter des pages sans perdre sa progression.</p>
+<p><strong>Le format pivot JSON Schema</strong> doit être défini dès maintenant (il l'est dans ce document) car il contraint le contrat entre OCR et IDP. Même si le MVP ne fait pas de merge, le format pivot assure que les données sont structurées correctement pour le merge futur.</p>
+<p><strong>Priorités d'implémentation</strong> :
+1. <code>CanonicalKey</code> (déjà implémenté dans <code>identity.go</code>)
+2. <code>MergeEngine</code> (domaine pur, testable unitairement)
+3. <code>StructureBlocksIncremental</code> (extension du port LLMService)
+4. Migration SQL <code>003_incremental_merge.sql</code>
+5. <code>ProcessIncrementalBatch</code> (orchestration dans app service)
+6. Domain events (<code>ItemsEnriched</code>, <code>ItemReplaced</code>, <code>ItemArchived</code>, <code>ConflictDetected</code>)
+7. Intégration HITL (ValidationTask pour conflits de merge)</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Retour en haut de la page
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/popul/ReviseMieux" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

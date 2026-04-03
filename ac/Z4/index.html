@@ -1,0 +1,3009 @@
+
+<!doctype html>
+<html lang="fr" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://popul.github.io/ReviseMieux/ac/Z4/">
+      
+      
+        <link rel="prev" href="../Z3/">
+      
+      
+        <link rel="next" href="../Z5/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Z4 — Sessions - Revise Mieux — Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#z4-lazy-generation-concurrence-cache" class="md-skip">
+          Aller au contenu
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="En-tête">
+    <a href="../.." title="Revise Mieux — Documentation" class="md-header__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Revise Mieux — Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Z4 — Sessions
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode sombre"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mode sombre" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode clair"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mode clair" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Rechercher" placeholder="Rechercher" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Recherche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Effacer" aria-label="Effacer" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initialisation de la recherche
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Onglets" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Accueil
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Demarrage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../PRD/" class="md-tabs__link">
+          
+  
+  
+  Produit
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Z1/" class="md-tabs__link">
+          
+  
+  
+  Criteres d'acceptation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../ux/user-flow-complete/" class="md-tabs__link">
+          
+  
+  
+  UX
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/" class="md-tabs__link">
+          
+  
+  
+  Design System
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../llm-strategy/" class="md-tabs__link">
+          
+  
+  
+  Technique
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-journeys/first-connection/" class="md-tabs__link">
+          
+  
+  
+  Parcours
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/" class="md-tabs__link">
+          
+  
+  
+  Contribuer
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Revise Mieux — Documentation" class="md-nav__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Revise Mieux — Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accueil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demarrage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Produit
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Produit
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../PRD/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PRD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MVP-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope MVP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lot0-tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracker Lot 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Criteres d'acceptation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Criteres d'acceptation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Z1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z1 — Mastery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Z2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z2 — Pipeline J0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Z3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z3 — Validation HITL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z4 — Sessions
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z4 — Sessions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac01-pas-de-doublons-si-deux-sessions-composees-simultanement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC01 — Pas de doublons si deux sessions composées simultanément
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac02-pool-question-candidates-non-partage-entre-sessions-actives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC02 — Pool question candidates non partagé entre sessions actives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac03-invalidation-cache-hitl-pack-exam" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC03 — Invalidation cache (HITL, pack, exam)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac04-session-interrompue-reprise-depuis-le-dernier-etat-connu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC04 — Session interrompue reprise depuis le dernier état connu
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac05-contraintes-pack-respectees-lors-de-la-composition-lazy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC05 — Contraintes pack respectées lors de la composition lazy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac06-pool-vide-comportement-degrade-gracieux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC06 — Pool vide : comportement dégradé gracieux
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac07-controle-blanc-non-affecte-par-une-session-quotidienne-en-cours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC07 — Contrôle blanc non affecté par une session quotidienne en cours
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac08-variete-de-gabarits-dans-une-session-anti-monotonie" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC08 — Variété de gabarits dans une session (anti-monotonie)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac09-feedback-enrichi-apres-reponse-incorrecte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC09 — Feedback enrichi après réponse incorrecte
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac10-bouton-passer-sur-une-question-sans-penalite-mastery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC10 — Bouton « Passer » sur une question (sans pénalité mastery)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac11-session-viable-sur-petit-chapitre-5-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC11 — Session viable sur petit chapitre (&lt; 5 items)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac12-fallback-contenu-quand-le-llm-est-indisponible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC12 — Fallback contenu quand le LLM est indisponible
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac13-etat-tout-est-a-jour-session-optionnelle-quand-aucun-item-nest-du" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC13 — État « tout est à jour » : session optionnelle quand aucun item n'est dû
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac14-selection-du-gabarit-adaptee-a-letat-de-maitrise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC14 — Sélection du gabarit adaptée à l'état de maîtrise
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac15-interleaving-inter-chapitres-dans-les-sessions-daily" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC15 — Interleaving inter-chapitres dans les sessions daily
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac16-calibration-dynamique-de-la-difficulte-cible-70-85-de-reussite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC16 — Calibration dynamique de la difficulté (cible 70-85% de réussite)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac17-generation-de-gabarits-visuels-par-le-llm-transformation-dimages-pedagogiques" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC17 — Génération de gabarits visuels par le LLM (transformation d'images pédagogiques)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Z5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z5 — Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Z6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z6 — Schedule
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Z7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z7 — Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Z8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z8 — Onboarding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/ocr-idp-incremental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OCR/IDP incremental
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/merge-decision-table/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regles de merge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UX
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UX
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/user-flow-complete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/personas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Personas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/screen-inventory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ecrans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/state-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modele d'etats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/edge-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Edge cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/open-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions ouvertes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/design-principles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Principes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/color-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Couleurs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/typography/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Typographie
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/component-philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/do-dont/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Do / Don't
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/moodboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Moodboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/scalability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scalabilite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technique
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Technique
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llm-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strategie LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llm-benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process/feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parcours
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Parcours
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-journeys/first-connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Premiere connexion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contribuer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contribuer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide contribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploiement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac01-pas-de-doublons-si-deux-sessions-composees-simultanement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC01 — Pas de doublons si deux sessions composées simultanément
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac02-pool-question-candidates-non-partage-entre-sessions-actives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC02 — Pool question candidates non partagé entre sessions actives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac03-invalidation-cache-hitl-pack-exam" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC03 — Invalidation cache (HITL, pack, exam)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac04-session-interrompue-reprise-depuis-le-dernier-etat-connu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC04 — Session interrompue reprise depuis le dernier état connu
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac05-contraintes-pack-respectees-lors-de-la-composition-lazy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC05 — Contraintes pack respectées lors de la composition lazy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac06-pool-vide-comportement-degrade-gracieux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC06 — Pool vide : comportement dégradé gracieux
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac07-controle-blanc-non-affecte-par-une-session-quotidienne-en-cours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC07 — Contrôle blanc non affecté par une session quotidienne en cours
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac08-variete-de-gabarits-dans-une-session-anti-monotonie" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC08 — Variété de gabarits dans une session (anti-monotonie)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac09-feedback-enrichi-apres-reponse-incorrecte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC09 — Feedback enrichi après réponse incorrecte
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac10-bouton-passer-sur-une-question-sans-penalite-mastery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC10 — Bouton « Passer » sur une question (sans pénalité mastery)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac11-session-viable-sur-petit-chapitre-5-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC11 — Session viable sur petit chapitre (&lt; 5 items)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac12-fallback-contenu-quand-le-llm-est-indisponible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC12 — Fallback contenu quand le LLM est indisponible
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac13-etat-tout-est-a-jour-session-optionnelle-quand-aucun-item-nest-du" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC13 — État « tout est à jour » : session optionnelle quand aucun item n'est dû
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac14-selection-du-gabarit-adaptee-a-letat-de-maitrise" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC14 — Sélection du gabarit adaptée à l'état de maîtrise
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac15-interleaving-inter-chapitres-dans-les-sessions-daily" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC15 — Interleaving inter-chapitres dans les sessions daily
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac16-calibration-dynamique-de-la-difficulte-cible-70-85-de-reussite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC16 — Calibration dynamique de la difficulté (cible 70-85% de réussite)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-ac17-generation-de-gabarits-visuels-par-le-llm-transformation-dimages-pedagogiques" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4-AC17 — Génération de gabarits visuels par le LLM (transformation d'images pédagogiques)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="z4-lazy-generation-concurrence-cache">Z4 — Lazy generation — Concurrence &amp; cache<a class="headerlink" href="#z4-lazy-generation-concurrence-cache" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Race conditions · Invalidation · Pool épuisé · Sessions parallèles</p>
+<p>La génération lazy avec cache partagé est le principal vecteur de bugs silencieux en contexte concurrent (plusieurs sessions ouvertes, re-upload, résolution HITL).</p>
+</blockquote>
+<h3 id="z4-ac01-pas-de-doublons-si-deux-sessions-composees-simultanement">Z4-AC01 — Pas de doublons si deux sessions composées simultanément<a class="headerlink" href="#z4-ac01-pas-de-doublons-si-deux-sessions-composees-simultanement" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Deux sessions pour le même <code>(user_id, chapter_id)</code> sont composées en parallèle (ex : onglets multiples ou race condition réseau).</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Les deux requêtes de composition de session arrivent dans un intervalle &lt; 500 ms.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Une seule session est créée (idempotence via lock ou check <code>session_id</code> existante). La deuxième requête retourne la session existante si elle est &lt; 30 min. Aucune question en double n'est générée pour la même session.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z4-ac02-pool-question-candidates-non-partage-entre-sessions-actives">Z4-AC02 — Pool question candidates non partagé entre sessions actives<a class="headerlink" href="#z4-ac02-pool-question-candidates-non-partage-entre-sessions-actives" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>L'élève a une session active S1 avec 10 questions issues du pool. Il ouvre une nouvelle session S2 (contrôle blanc) sur le même chapitre.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>S2 est composée.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>S2 pioche dans le pool de candidats mais les questions déjà assignées à S1 (en <code>status = IN_PROGRESS</code>) sont exclues de S2 si le pool le permet. Si le pool est insuffisant (&lt; 5 candidats uniques disponibles), S2 peut réutiliser des questions de S1 — ceci doit être loggué.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> En MVP, l'exhaustion de pool est acceptable si loggée. Post-MVP : régénération auto.</p>
+</blockquote>
+<h3 id="z4-ac03-invalidation-cache-hitl-pack-exam">Z4-AC03 — Invalidation cache (HITL, pack, exam)<a class="headerlink" href="#z4-ac03-invalidation-cache-hitl-pack-exam" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Le cache <code>question_candidates</code> ou <code>item_pool</code> d'un chapitre existe. Un événement déclencheur survient.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>L'un des événements suivants est persisté : (1) résolution d'une ValidationTask sur un item du chapitre, (2) mise à jour d'un pack (<code>pack_version</code> changé) affectant le chapitre, (3) création, modification (<code>exam_date</code> changée) ou suppression d'un Exam lié au chapitre.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>— <strong>Résolution HITL</strong> : le cache <code>question_candidates</code> des questions liées à l'item résolu est invalidé dans la même transaction (&lt; 1s). — <strong>Pack version</strong> : les caches <code>item_pool</code> et <code>question_candidates</code> des chapitres utilisant ce pack sont invalidés. Les Mastery states ne sont pas touchés. — <strong>CRUD Exam</strong> : le cache <code>question_candidates</code> est invalidé. Les <code>next_due_at</code> sont recalculés (compression Z1-AC08 si exam créé/avancé, décompression aux intervalles standard si exam supprimé). Le cache <code>item_pool</code> n'est pas invalidé (seule la priorité change). Dans tous les cas, les sessions <code>IN_PROGRESS</code> continuent avec les questions déjà générées — pas d'interruption.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> Ces 3 triggers d'invalidation couvrent tous les cas où le contenu ou la priorité des questions change.</p>
+</blockquote>
+<h3 id="z4-ac04-session-interrompue-reprise-depuis-le-dernier-etat-connu">Z4-AC04 — Session interrompue reprise depuis le dernier état connu<a class="headerlink" href="#z4-ac04-session-interrompue-reprise-depuis-le-dernier-etat-connu" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Une session S1 avec 10 questions. L'élève répond à 4 questions puis ferme l'application.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>L'élève rouvre la session (TTL session = 72h).</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>La session reprend à la question 5. Les Mastery states des items 1–4 sont déjà mis à jour. L'état de session (<code>current_question_index = 4</code>) est persisté en base et non uniquement en cache.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z4-ac05-contraintes-pack-respectees-lors-de-la-composition-lazy">Z4-AC05 — Contraintes pack respectées lors de la composition lazy<a class="headerlink" href="#z4-ac05-contraintes-pack-respectees-lors-de-la-composition-lazy" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Chapitre HG-INEG avec 5 items document disponibles et 8 items knowledge. Pack : <code>max_writing_per_session = 1</code>, <code>session_must_include_doc = true</code>.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Une session quotidienne est composée.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>La session inclut exactement 1 exercice de type document (parmi les 5 disponibles). La session inclut au maximum 1 exercice de rédaction (<code>GEN.WRITE.*</code>). Ces contraintes sont respectées même si l'algorithme 70/20/10 sélectionnerait autrement.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z4-ac06-pool-vide-comportement-degrade-gracieux">Z4-AC06 — Pool vide : comportement dégradé gracieux<a class="headerlink" href="#z4-ac06-pool-vide-comportement-degrade-gracieux" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Le cache du pool est expiré et le LLM est indisponible (timeout). L'élève tente de démarrer une session.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>La composition de session échoue à générer des questions.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>L'interface affiche : 'Préparation de tes exercices en cours… réessaie dans quelques secondes.' Aucune session vide n'est créée en base. La page n'affiche pas d'erreur 500. Si après <strong>10 secondes</strong> le LLM n'est toujours pas disponible, le fallback Z4-AC12 est déclenché.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z4-ac07-controle-blanc-non-affecte-par-une-session-quotidienne-en-cours">Z4-AC07 — Contrôle blanc non affecté par une session quotidienne en cours<a class="headerlink" href="#z4-ac07-controle-blanc-non-affecte-par-une-session-quotidienne-en-cours" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>L'élève a une session quotidienne S1 en cours (non terminée). Il lance un contrôle blanc CB1.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>CB1 est composé.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>CB1 est une session indépendante avec son propre pool de questions. CB1 n'est pas bloqué par S1. Les deux sessions coexistent. Les Mastery updates de CB1 sont appliqués indépendamment de S1.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z4-ac08-variete-de-gabarits-dans-une-session-anti-monotonie">Z4-AC08 — Variété de gabarits dans une session (anti-monotonie)<a class="headerlink" href="#z4-ac08-variete-de-gabarits-dans-une-session-anti-monotonie" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Une session <code>daily</code> est composée avec 10 questions. Le pool contient des questions de types FLASH_MCQ, DEF_SHORT, CLOZE_KEYWORDS, ASSOC_TERM_DEF, et DOC.EXTRACT_EVIDENCE.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le moteur de composition ordonne les questions dans la session.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Aucun gabarit identique (<code>template_id</code>) ne peut apparaître plus de <strong>2 fois consécutives</strong>. Si la contrainte ne peut pas être respectée (pool trop petit), elle est relaxée mais loggée. La session alterne les types de questions (<code>question_type</code>) autant que possible : pas 3 MCQ d'affilée si des SHORT_ANSWER sont disponibles. L'ordonnancement est déterministe (pas random) : il alterne les types par round-robin sur les types disponibles.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> 5 flashcards consécutives rendent la session monotone et mécanique. L'alternance des types de questions maintient l'attention et active différents circuits cognitifs (reconnaissance ≠ rappel ≠ production). Cette contrainte n'affecte pas la sélection des items (qui reste 70/20/10), seulement l'ordonnancement des questions dans la session.</p>
+</blockquote>
+<h3 id="z4-ac09-feedback-enrichi-apres-reponse-incorrecte">Z4-AC09 — Feedback enrichi après réponse incorrecte<a class="headerlink" href="#z4-ac09-feedback-enrichi-apres-reponse-incorrecte" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>L'élève répond incorrectement à une question de type KEYWORDS sur l'item « photosynthèse » (keywords attendus : chloroplaste, lumière, CO2). L'élève a répondu « les plantes font de la nourriture ».</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>La correction est affichée.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Le feedback contient <strong>3 éléments obligatoires</strong> : — <strong>1. La réponse correcte</strong> : « Les mots-clés attendus étaient : chloroplaste, lumière, CO2 ». — <strong>2. Ce qui manquait</strong> (spécifique au type) : KEYWORDS → mots-clés manquants listés. NUMERIC → valeur attendue + unité + formule utilisée. MCQ → explication du distractor choisi (« Tu as choisi X — en réalité, X est faux car... »). — <strong>3. Un indice pour la prochaine fois</strong> (1 phrase max) : « Retiens que la photosynthèse se passe dans les chloroplastes grâce à la lumière et au CO2. ». Le feedback est généré par template (pas par LLM en temps réel) pour garantir la cohérence et la vitesse (&lt; 200 ms). Le feedback est toujours factuel, jamais culpabilisant.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> Un feedback qui dit juste « Faux — la bonne réponse est X » n'enseigne rien. L'indice en 1 phrase est le micro-moment d'apprentissage le plus puissant de la session. Le contenu est templaté (pas LLM live) pour garantir la rapidité et éviter les hallucinations dans le feedback lui-même.</p>
+</blockquote>
+<h3 id="z4-ac10-bouton-passer-sur-une-question-sans-penalite-mastery">Z4-AC10 — Bouton « Passer » sur une question (sans pénalité mastery)<a class="headerlink" href="#z4-ac10-bouton-passer-sur-une-question-sans-penalite-mastery" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>L'élève est bloqué sur une question de type NUMERIC. Il ne connaît pas la formule.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>L'élève appuie sur « Passer cette question ».</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>La question est marquée <code>status = SKIPPED</code>. Le Mastery state de l'item n'est <strong>PAS modifié</strong> (ni progression, ni régression). <code>consecutive_successes</code> n'est pas remis à 0. La question est placée en fin de session (si la session a encore ≥ 3 questions restantes) pour une seconde chance. Si l'élève la passe à nouveau, elle est comptée comme non répondue. Le feedback de la réponse correcte est affiché après le 2ème passage (l'élève voit la solution même s'il n'a pas répondu). Maximum 2 « Passer » par session (au-delà, le bouton est grisé).</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> Sans mécanisme « Passer », un élève bloqué sur une question de calcul reste immobile → frustration → fermeture de l'app. Le « Passer » sans pénalité mastery est cohérent avec le principe « seule une réponse incorrecte déclenche une régression » (Z1-AC05 à Z1-AC07). La limite de 2 passes par session empêche l'abus (tout passer sans réfléchir). La solution affichée après le 2ème passage transforme un moment de blocage en moment d'apprentissage.</p>
+</blockquote>
+<h3 id="z4-ac11-session-viable-sur-petit-chapitre-5-items">Z4-AC11 — Session viable sur petit chapitre (&lt; 5 items)<a class="headerlink" href="#z4-ac11-session-viable-sur-petit-chapitre-5-items" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Un chapitre n'a que 3 items valides. Le moteur de composition doit créer une session <code>daily</code>.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>La composition est lancée.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>La session est composée avec <strong>au minimum 4 questions</strong> : chaque item génère au moins 1 question, et l'item le plus fragile en génère 2 (gabarits différents sur le même item). La durée cible est réduite à 3–5 min (au lieu de 10–20 min). Si le pool de gabarits éligibles est épuisé (tous les gabarits déjà utilisés pour ces 3 items), la session utilise des reformulations : même item + même gabarit mais avec des distractors différents (MCQ) ou un ordre de keywords différent (CLOZE). Le message d'introduction adapte les attentes : « Petite session rapide — [N] questions sur ce chapitre ».</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> Un chapitre avec 3 items est courant (élève qui n'a photographié qu'une seule page, ou cours très court). Sans ce AC, la session serait de 2 questions identiques à la veille — l'élève sent qu'il tourne en rond. La reformulation (distractors différents, ordre différent) crée une illusion de nouveauté tout en testant les mêmes connaissances sous des angles différents.</p>
+</blockquote>
+<h3 id="z4-ac12-fallback-contenu-quand-le-llm-est-indisponible">Z4-AC12 — Fallback contenu quand le LLM est indisponible<a class="headerlink" href="#z4-ac12-fallback-contenu-quand-le-llm-est-indisponible" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>L'élève tente de démarrer une session. Le LLM est indisponible depuis &gt; 10 secondes (Z4-AC06 épuisé). Le chapitre a une carte de leçon avec des blocs de texte et des items existants (même sans questions générées).</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le fallback est déclenché.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>L'interface propose un mode « Relecture active » au lieu de laisser l'élève sans rien faire. Ce mode affiche la carte de leçon du chapitre le plus urgent (items dues en priorité) avec des <strong>flashcards textuelles statiques</strong> : pour chaque item KNOWLEDGE, afficher le <code>term</code> en recto et la définition extraite de l'OCR en verso (pas de génération LLM nécessaire). L'élève peut « retourner » chaque flashcard. Un bouton « Je savais » / « Je ne savais pas » permet un auto-évaluation (sans impact mastery — marqué <code>self_assessment = true</code>). Le message affiché est : « Les exercices ne sont pas disponibles pour le moment — en attendant, révise ta leçon avec ces flashcards ! » Le mode fallback se désactive automatiquement dès que le LLM redevient disponible (vérification toutes les 30s). Si aucun item n'est disponible du tout (chapitre vide), un message s'affiche : « Tes exercices arrivent bientôt — reviens dans quelques minutes. »</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> Un élève motivé qui ouvre l'app pour réviser et se retrouve face à un mur « réessaie plus tard » ferme l'app et ne revient pas. Le mode relecture active est un filet de sécurité minimal : il ne remplace pas les exercices adaptatifs mais il offre une activité pédagogique en attendant. Les flashcards textuelles ne nécessitent aucun appel LLM (données OCR déjà en base). L'auto-évaluation sans impact mastery évite la corruption des données tout en gardant l'élève engagé.</p>
+</blockquote>
+<h3 id="z4-ac13-etat-tout-est-a-jour-session-optionnelle-quand-aucun-item-nest-du">Z4-AC13 — État « tout est à jour » : session optionnelle quand aucun item n'est dû<a class="headerlink" href="#z4-ac13-etat-tout-est-a-jour-session-optionnelle-quand-aucun-item-nest-du" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>L'élève a 15 items, tous en état OK ou SOLID. Aucun <code>next_due_at</code> n'est ≤ aujourd'hui. Aucun exam dans les 7 prochains jours. L'élève ouvre l'app et tente de lancer une session.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le moteur de composition ne trouve aucun item éligible pour le bucket 70% (dues) ni le bucket 20% (consolidation récente).</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>L'interface affiche un message positif : « Bravo — tu es à jour sur tous tes chapitres ! Prochaine révision prévue [date du prochain next_due_at]. » Un bouton optionnel « Session de consolidation » est proposé. S'il clique, une session courte (5 questions) est composée à partir des items SOLID les plus anciennement révisés (anti-oubli long terme). Cette session est de type <code>consolidation_optional</code> et n'a aucun impact négatif sur le mastery en cas d'échec ou de score partiel : pas de régression SOLID→OK, pas de reset de <code>consecutive_successes</code> (cf. Z1-AC24, exception consolidation_optional). Seuls les succès sont comptabilisés positivement. En cas d'exam dans les 7 jours, le message change : « Tu es bien préparé pour [nom exam] ! Tu peux refaire un contrôle blanc ou une session de consolidation. »</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> L'élève diligent qui a tout révisé et ouvre l'app face à un écran vide (« rien à faire ») se sent récompensé par... rien. C'est le moment où il décide que l'app est inutile et arrête de l'ouvrir. Le message positif + la session optionnelle sans risque maintiennent l'habitude quotidienne sans punir la surperformance.</p>
+</blockquote>
+<h3 id="z4-ac14-selection-du-gabarit-adaptee-a-letat-de-maitrise">Z4-AC14 — Sélection du gabarit adaptée à l'état de maîtrise<a class="headerlink" href="#z4-ac14-selection-du-gabarit-adaptee-a-letat-de-maitrise" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Le moteur de composition sélectionne une question pour un item donné. L'item a un état mastery connu (UNKNOWN, FRAGILE, OK, SOLID). Le pool de gabarits éligibles contient des templates de difficulté 1 à 3.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le gabarit est choisi pour la question instanciée.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Le gabarit est sélectionné en fonction de l'état mastery de l'item : — <strong>UNKNOWN</strong> : difficulté 1 uniquement (MCQ, CLOZE, DEF_SHORT). La reconnaissance est suffisante pour un premier contact. — <strong>FRAGILE</strong> : difficulté 1-2 (SHORT_ANSWER, ASSOC_TERM_DEF en plus des gabarits difficulté 1). Le rappel indicé remplace progressivement la reconnaissance. — <strong>OK</strong> : difficulté 2-3 (KEYWORDS, NUMERIC, DOC.EXTRACT_EVIDENCE). Les gabarits de production remplacent la reconnaissance. — <strong>SOLID</strong> : difficulté 3 uniquement (RUBRIC, questions d'élaboration « Explique pourquoi… », « Quel lien entre X et Y ? »). La consolidation SOLID vise l'approfondissement, pas la simple répétition. Si le pool ne contient aucun gabarit dans la plage de difficulté cible pour cet item, la plage est élargie d'un cran (OK sans gabarit difficulté 2-3 → accepter difficulté 1) et un log <code>TEMPLATE_FALLBACK</code> est créé. La contrainte Z4-AC08 (variété de gabarits) s'applique après la sélection par mastery.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> La recherche en sciences cognitives (Rawson et al., Smith &amp; Karpicke 2014) établit une hiérarchie claire d'efficacité : MCQ (d=0.36) &lt; rappel indicé (d=0.72) &lt; rappel libre (d=0.81). Mais l'efficacité dépend du succès de la récupération — un item trop dur ne produit aucun apprentissage. L'escalade progressive MCQ → rappel indicé → production → élaboration suit la Zone Proximale de Développement (Vygotsky) : toujours un cran au-dessus du niveau actuel, jamais deux.</p>
+</blockquote>
+<h3 id="z4-ac15-interleaving-inter-chapitres-dans-les-sessions-daily">Z4-AC15 — Interleaving inter-chapitres dans les sessions daily<a class="headerlink" href="#z4-ac15-interleaving-inter-chapitres-dans-les-sessions-daily" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Une session <code>daily</code> est composée avec 12 questions couvrant 3 chapitres (A: 5 questions, B: 4 questions, C: 3 questions).</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le moteur de composition ordonne les questions dans la session (après sélection 70/20/10 et contrainte Z4-AC08).</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>L'ordonnancement alterne les chapitres : jamais <strong>3 questions consécutives du même chapitre</strong> si d'autres chapitres sont représentés dans la session. L'alternance suit un round-robin pondéré : A-B-C-A-B-A-C-B-A-B-A-C (proportionnel au poids de chaque chapitre). Si la session ne couvre qu'un seul chapitre, l'alternance se fait par <strong>Notion</strong> (Z7-AC15) : jamais 3 items consécutifs de la même Notion. Si un seul chapitre avec une seule Notion, la contrainte est relaxée (loggée). L'interleaving s'applique <strong>après</strong> la contrainte de variété de gabarits Z4-AC08 — les deux contraintes sont composées (gabarit ET chapitre alternés). En cas de conflit (impossible de satisfaire les deux), la variété de gabarits est prioritaire (plus d'impact sur l'engagement immédiat).</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> L'interleaving (mélange de sujets) produit un effet large (d=0.64, Rohrer et al. 2015) sur la rétention long terme, principalement parce qu'il force la discrimination entre concepts similaires et empêche le « pilote automatique » cognitif. Les élèves préfèrent le blocking (un sujet à la fois) — c'est une illusion métacognitive classique. Le blocking reste approprié pour le premier contact (evening_first = 100% UNKNOWN d'un chapitre, Z6-AC05), mais dès la phase de consolidation (daily), l'interleaving est supérieur.</p>
+</blockquote>
+<h3 id="z4-ac16-calibration-dynamique-de-la-difficulte-cible-70-85-de-reussite">Z4-AC16 — Calibration dynamique de la difficulté (cible 70-85% de réussite)<a class="headerlink" href="#z4-ac16-calibration-dynamique-de-la-difficulte-cible-70-85-de-reussite" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>L'élève a complété au moins 3 sessions <code>daily</code> dans les 7 derniers jours. Le taux de réussite moyen observé sur ces sessions est calculé : <code>avg_success_rate = total_correct / total_attempted</code>.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le moteur de composition prépare une nouvelle session <code>daily</code>.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>La difficulté moyenne des gabarits sélectionnés est ajustée pour cibler un taux de réussite de <strong>70-85%</strong> : — Si <code>avg_success_rate &lt; 60%</code> : la difficulté est abaissée d'un cran pour <strong>tous les items</strong> de la session (la plage de Z4-AC14 est décalée vers le bas : OK utilise difficulté 1-2 au lieu de 2-3, SOLID utilise difficulté 2-3 au lieu de 3). Un message contextuel s'affiche dans le débrief : « Les prochaines sessions seront un peu plus accessibles — c'est normal, on ajuste à ton rythme ! » — Si <code>avg_success_rate &gt; 92%</code> : la difficulté est relevée d'un cran (FRAGILE utilise difficulté 2-3, OK utilise difficulté 3). Aucun message — la montée en difficulté doit être invisible pour ne pas créer de pression. — Si <code>avg_success_rate</code> est dans la plage 60-92% : pas d'ajustement, les plages Z4-AC14 standards s'appliquent. Le calcul est par-élève, pas global. Le taux de réussite est calculé par type de gabarit (<code>success_rate_by_template</code>) pour un ajustement plus fin : si l'élève réussit 95% des MCQ mais 40% des NUMERIC, les MCQ sont remplacées par des templates plus exigeants tandis que les NUMERIC conservent leur difficulté actuelle. Les sessions <code>evening_first</code> et <code>mock_exam</code> ne sont <strong>pas</strong> affectées par la calibration (la première est toujours difficulté 1, le second est représentatif du vrai niveau).</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> Wilson et al. (2019) montrent que ~85% de réussite est le point optimal pour l'apprentissage (« the 85% rule »). En dessous de 60%, la difficulté cesse d'être « désirable » au sens de Bjork et devient simplement frustrante — l'élève accumule des échecs sans bénéfice mnésique. Au-dessus de 92%, les questions ne déclenchent plus l'effort de récupération nécessaire à la consolidation. La plage 70-85% est volontairement large pour absorber la variance naturelle (un mauvais jour ≠ un problème systémique). L'ajustement par type de gabarit évite le piège du « tout facile » : un élève fort en MCQ mais faible en NUMERIC doit monter en MCQ et rester stable en NUMERIC.</p>
+</blockquote>
+<h3 id="z4-ac17-generation-de-gabarits-visuels-par-le-llm-transformation-dimages-pedagogiques">Z4-AC17 — Génération de gabarits visuels par le LLM (transformation d'images pédagogiques)<a class="headerlink" href="#z4-ac17-generation-de-gabarits-visuels-par-le-llm-transformation-dimages-pedagogiques" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Le pipeline J0 a détecté des blocs visuels pédagogiques (cf. Z2-AC15) pour un chapitre. Les <code>VisualBlock</code> sont créés avec <code>image_url</code>, <code>labels[]</code>, <code>table_structure?</code>, <code>type</code>. Le LLM de structuration (étape 5) reçoit ces visuels en contexte multimodal.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le LLM génère les items et gabarits associés au chapitre (étape 5 du pipeline J0, puis lazy generation Z4-AC01).</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Le LLM génère des <strong>gabarits visuels</strong> adaptés au type de chaque VisualBlock. Chaque gabarit visuel produit un <code>rendered_visual_url</code> (image transformée) en plus du prompt texte. Les types d'interaction visuelle sont : <strong>(1) LABEL_COMPLETION</strong> (schéma, carte, circuit) : les <code>labels[]</code> extraits du VisualBlock sont masqués sur l'image (remplacés par des cases numérotées ①②③…). Le prompt demande : « Complète les légendes du schéma ». L'<code>expected_answer</code> contient les labels originaux associés à chaque numéro. Le masquage est réalisé par image processing (inpainting rectangulaire blanc sur chaque <code>label.position</code>, puis superposition du numéro) — pas de re-génération LLM de l'image. Si le VisualBlock a &lt; 3 labels, le gabarit LABEL_COMPLETION n'est pas généré (trop simple, sans intérêt pédagogique). <strong>(2) DESCRIBE</strong> (graphique, photo, schéma) : l'image originale est affichée telle quelle. Le prompt demande : « Que représente ce [graphique/schéma/document] ? Décris les éléments principaux. » C'est un gabarit ouvert évalué par rubrique (RUBRIC) avec les labels comme éléments attendus. <strong>(3) MATCHING</strong> (schéma annoté, circuit) : les éléments visuels sont numérotés sur l'image (①②③…) et une liste de fonctions/définitions est proposée. L'élève associe chaque numéro à sa fonction. L'<code>expected_answer</code> est le mapping numéro→fonction extrait des labels et du contexte item. <strong>(4) READ_VALUE</strong> (graphique, tableau) : l'image originale est affichée. Le prompt demande de lire une valeur précise : « D'après le graphique, quelle est la valeur de Y quand X = [valeur] ? » Les valeurs-clés sont extraites des <code>axis_labels</code> et <code>labels[]</code> du VisualBlock. Pour les tableaux, la question porte sur une cellule spécifique. <strong>(5) IDENTIFY_ZONE</strong> (carte, schéma) : une zone de l'image est surlignée (overlay coloré semi-transparent). Le prompt demande : « Identifie la zone surlignée » ou « Quelle est la fonction de cette partie ? ». <strong>Contraintes de génération</strong> : un VisualBlock avec ≥ 5 labels génère au maximum 3 gabarits visuels (pour éviter la saturation d'un seul schéma). Les gabarits visuels sont marqués <code>template.uses_visual = true</code> et <code>template.visual_interaction_type</code> correspondant. La Question instanciée porte le <code>visual_block_id</code> et le <code>rendered_visual_url</code>. Si le VisualBlock n'a aucun label exploitable ET aucune <code>table_structure</code>, seul le gabarit DESCRIBE (type 2) est généré — pas de masquage ni matching possible. <strong>Cache et invalidation</strong> : les <code>rendered_visual_url</code> (images transformées) sont cachées avec la même TTL que les questions (Z4-AC02, 24h). L'invalidation suit les règles Z4-AC03 (validation HITL d'un item → invalidation des questions visuelles liées).</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> La génération de gabarits visuels est le pont entre le dual coding (Z2-AC15) et l'exploitation pédagogique effective. Sans cette étape, les visuels seraient stockés mais jamais utilisés dans les sessions — du stockage inutile. Le masquage de légendes par image processing (pas par LLM) est déterministe, rapide (&lt; 100ms) et ne risque pas d'hallucination. L'approche est progressive : LABEL_COMPLETION (difficulté 2, recall indicé par l'image) → MATCHING (difficulté 3, association) → DESCRIBE (difficulté 3, production libre). La limite de 3 gabarits par VisualBlock empêche qu'un schéma riche (cellule animale avec 12 légendes) ne monopolise une session entière. Les 5 types d'interaction couvrent les cas d'usage principaux des 4 matières pilotes : schémas annotés (SVT), graphiques (PC, Géographie), tableaux (PC, HG), cartes (HG), circuits (PC).</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Retour en haut de la page
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/popul/ReviseMieux" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

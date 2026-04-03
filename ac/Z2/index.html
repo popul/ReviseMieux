@@ -1,0 +1,3049 @@
+
+<!doctype html>
+<html lang="fr" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://popul.github.io/ReviseMieux/ac/Z2/">
+      
+      
+        <link rel="prev" href="../Z1/">
+      
+      
+        <link rel="next" href="../Z3/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Z2 — Pipeline J0 - Revise Mieux — Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#z2-pipeline-j0-error-paths-timeouts" class="md-skip">
+          Aller au contenu
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="En-tête">
+    <a href="../.." title="Revise Mieux — Documentation" class="md-header__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Revise Mieux — Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Z2 — Pipeline J0
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode sombre"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mode sombre" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode clair"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mode clair" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Rechercher" placeholder="Rechercher" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Recherche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Effacer" aria-label="Effacer" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initialisation de la recherche
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Onglets" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Accueil
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Demarrage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../PRD/" class="md-tabs__link">
+          
+  
+  
+  Produit
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../Z1/" class="md-tabs__link">
+          
+  
+  
+  Criteres d'acceptation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../ux/user-flow-complete/" class="md-tabs__link">
+          
+  
+  
+  UX
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/" class="md-tabs__link">
+          
+  
+  
+  Design System
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../llm-strategy/" class="md-tabs__link">
+          
+  
+  
+  Technique
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-journeys/first-connection/" class="md-tabs__link">
+          
+  
+  
+  Parcours
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/" class="md-tabs__link">
+          
+  
+  
+  Contribuer
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Revise Mieux — Documentation" class="md-nav__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Revise Mieux — Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accueil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demarrage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Produit
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Produit
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../PRD/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PRD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MVP-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope MVP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lot0-tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracker Lot 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Criteres d'acceptation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Criteres d'acceptation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Z1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z1 — Mastery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z2 — Pipeline J0
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z2 — Pipeline J0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac01-carte-de-lecon-partielle-si-ocr-en-cours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC01 — Carte de leçon partielle si OCR en cours
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac02-timeout-ocr-sur-une-page-intermediaire" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC02 — Timeout OCR sur une page intermédiaire
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac03-photo-floue-detectee-confidence-globale-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC03 — Photo floue détectée (confidence globale &lt; 0.3)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac04-aucun-item-genere-sur-une-page-page-vide-ou-illisible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC04 — Aucun item généré sur une page (page vide ou illisible)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac05-echec-generation-items-erreur-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC05 — Échec génération Items (erreur LLM)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac06-re-tentative-pipeline-apres-interruption-idempotence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC06 — Re-tentative pipeline après interruption (idempotence)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac07-diagnostic-impossible-si-0-items-valides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC07 — Diagnostic impossible si 0 items valides
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac08-bloc-schemamap-non-ocrise-conserve-comme-document-image" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC08 — Bloc SCHEMA/MAP non OCRisé conservé comme Document image
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac09-file-de-validation-non-depassee-max-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC09 — File de validation non dépassée (max 8)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac10-streaming-carte-de-lecon-premiere-page-disponible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC10 — Streaming carte de leçon (première page disponible)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac11-relance-eleve-pour-pages-en-echec-de-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC11 — Relance élève pour pages en échec de génération
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac12-retention-crops-et-ocr-alignee-sur-politique-photos-rgpd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC12 — Rétention crops et OCR alignée sur politique photos (RGPD)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac13-versioning-du-modele-llm-pour-reproductibilite-et-detection-de-drift" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC13 — Versioning du modèle LLM pour reproductibilité et détection de drift
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac14-pipeline-incremental-pour-ajout-de-pages-pas-de-re-traitement-des-pages-existantes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC14 — Pipeline incrémental pour ajout de pages (pas de re-traitement des pages existantes)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac15-detection-et-preservation-des-zones-visuelles-dual-coding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC15 — Détection et préservation des zones visuelles (dual coding)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac16-extraction-de-la-structure-des-tableaux-dessines-lignescolonnes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC16 — Extraction de la structure des tableaux dessinés (lignes/colonnes)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac17-qualite-minimale-des-crops-visuels-resolution-cadrage-stockage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC17 — Qualité minimale des crops visuels (résolution, cadrage, stockage)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac18-rendu-des-visuels-pendant-les-sessions-de-revision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC18 — Rendu des visuels pendant les sessions de révision
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Z3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z3 — Validation HITL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Z4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z4 — Sessions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Z5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z5 — Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Z6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z6 — Schedule
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Z7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z7 — Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../Z8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z8 — Onboarding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/ocr-idp-incremental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OCR/IDP incremental
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/merge-decision-table/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regles de merge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UX
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UX
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/user-flow-complete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/personas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Personas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/screen-inventory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ecrans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/state-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modele d'etats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/edge-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Edge cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/open-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions ouvertes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/design-principles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Principes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/color-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Couleurs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/typography/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Typographie
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/component-philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/do-dont/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Do / Don't
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/moodboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Moodboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/scalability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scalabilite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technique
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Technique
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llm-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strategie LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llm-benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process/feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parcours
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Parcours
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-journeys/first-connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Premiere connexion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contribuer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contribuer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide contribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploiement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac01-carte-de-lecon-partielle-si-ocr-en-cours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC01 — Carte de leçon partielle si OCR en cours
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac02-timeout-ocr-sur-une-page-intermediaire" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC02 — Timeout OCR sur une page intermédiaire
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac03-photo-floue-detectee-confidence-globale-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC03 — Photo floue détectée (confidence globale &lt; 0.3)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac04-aucun-item-genere-sur-une-page-page-vide-ou-illisible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC04 — Aucun item généré sur une page (page vide ou illisible)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac05-echec-generation-items-erreur-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC05 — Échec génération Items (erreur LLM)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac06-re-tentative-pipeline-apres-interruption-idempotence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC06 — Re-tentative pipeline après interruption (idempotence)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac07-diagnostic-impossible-si-0-items-valides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC07 — Diagnostic impossible si 0 items valides
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac08-bloc-schemamap-non-ocrise-conserve-comme-document-image" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC08 — Bloc SCHEMA/MAP non OCRisé conservé comme Document image
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac09-file-de-validation-non-depassee-max-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC09 — File de validation non dépassée (max 8)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac10-streaming-carte-de-lecon-premiere-page-disponible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC10 — Streaming carte de leçon (première page disponible)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac11-relance-eleve-pour-pages-en-echec-de-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC11 — Relance élève pour pages en échec de génération
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac12-retention-crops-et-ocr-alignee-sur-politique-photos-rgpd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC12 — Rétention crops et OCR alignée sur politique photos (RGPD)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac13-versioning-du-modele-llm-pour-reproductibilite-et-detection-de-drift" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC13 — Versioning du modèle LLM pour reproductibilité et détection de drift
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac14-pipeline-incremental-pour-ajout-de-pages-pas-de-re-traitement-des-pages-existantes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC14 — Pipeline incrémental pour ajout de pages (pas de re-traitement des pages existantes)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac15-detection-et-preservation-des-zones-visuelles-dual-coding" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC15 — Détection et préservation des zones visuelles (dual coding)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac16-extraction-de-la-structure-des-tableaux-dessines-lignescolonnes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC16 — Extraction de la structure des tableaux dessinés (lignes/colonnes)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac17-qualite-minimale-des-crops-visuels-resolution-cadrage-stockage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC17 — Qualité minimale des crops visuels (résolution, cadrage, stockage)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-ac18-rendu-des-visuels-pendant-les-sessions-de-revision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2-AC18 — Rendu des visuels pendant les sessions de révision
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="z2-pipeline-j0-error-paths-timeouts">Z2 — Pipeline J0 — Error paths &amp; timeouts<a class="headerlink" href="#z2-pipeline-j0-error-paths-timeouts" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>OCR failures · Timeouts · Partial processing · État cohérent en cas d'erreur</p>
+<p>Le pipeline J0 est le point d'entrée critique. Une erreur non gérée ici peut laisser le chapitre dans un état partiellement initialisé, invisiblement corrompu pour les sessions suivantes.</p>
+</blockquote>
+<h3 id="z2-ac01-carte-de-lecon-partielle-si-ocr-en-cours">Z2-AC01 — Carte de leçon partielle si OCR en cours<a class="headerlink" href="#z2-ac01-carte-de-lecon-partielle-si-ocr-en-cours" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>L'élève uploade 10 pages. Le traitement des pages 1–3 est terminé. Les pages 4–10 sont en cours de traitement (OCR worker en cours).</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>L'élève ouvre la carte de leçon.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>La carte affiche les items des pages 1–3. Un indicateur de progression (3/10 pages analysées) est visible. Les pages non traitées apparaissent comme placeholders. L'élève peut commencer un diagnostic sur les items disponibles.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> La carte partielle est fonctionnelle. L'absence de pages ne bloque pas l'accès.</p>
+</blockquote>
+<h3 id="z2-ac02-timeout-ocr-sur-une-page-intermediaire">Z2-AC02 — Timeout OCR sur une page intermédiaire<a class="headerlink" href="#z2-ac02-timeout-ocr-sur-une-page-intermediaire" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Le pipeline traite 10 pages. La page 4 dépasse le timeout (10 s, après 3 retries).</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le worker abandonne la page 4.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>La page 4 est marquée <code>status = FAILED</code> avec <code>reason = 'ocr_timeout'</code>. Les pages 5–10 continuent leur traitement normalement. L'élève voit un badge 'Zone illisible · page 4' sur la carte. Le chapitre n'est PAS bloqué. Aucune exception non gérée n'est propagée.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z2-ac03-photo-floue-detectee-confidence-globale-03">Z2-AC03 — Photo floue détectée (confidence globale &lt; 0.3)<a class="headerlink" href="#z2-ac03-photo-floue-detectee-confidence-globale-03" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Une page uploadée a une confidence OCR globale &lt; 0.3 sur tous ses blocs.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le worker finalise l'analyse de cette page.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Un message non-bloquant est affiché : 'Photo floue — vous pouvez reprendre cette photo pour de meilleurs résultats'. La page reste dans le chapitre avec ses blocs marqués UNCERTAIN. L'élève peut continuer sans reprendre la photo.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z2-ac04-aucun-item-genere-sur-une-page-page-vide-ou-illisible">Z2-AC04 — Aucun item généré sur une page (page vide ou illisible)<a class="headerlink" href="#z2-ac04-aucun-item-genere-sur-une-page-page-vide-ou-illisible" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Une page OCRisée ne produit aucun Item après la phase de génération (texte vide ou uniquement des artefacts).</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>La génération d'items se termine pour cette page.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Aucun Item n'est créé pour cette page. La page est marquée <code>status = 'no_items_extracted'</code>. La carte de leçon ne montre pas de section vide pour cette page. Le chapitre est valide si au moins une autre page a produit des items.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z2-ac05-echec-generation-items-erreur-llm">Z2-AC05 — Échec génération Items (erreur LLM)<a class="headerlink" href="#z2-ac05-echec-generation-items-erreur-llm" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>L'OCR d'une page a réussi. L'appel LLM pour la génération d'items retourne une erreur (timeout, quota, ou réponse malformée).</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le worker LLM épuise ses retries (x2 avec back-off).</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Les blocs de cette page sont conservés avec leur texte OCR brut. Aucun Item n'est créé pour cette page. La page est marquée <code>status = 'items_generation_failed'</code>. Une ValidationTask admin est créée pour re-traitement manuel. Le reste du pipeline n'est pas affecté.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z2-ac06-re-tentative-pipeline-apres-interruption-idempotence">Z2-AC06 — Re-tentative pipeline après interruption (idempotence)<a class="headerlink" href="#z2-ac06-re-tentative-pipeline-apres-interruption-idempotence" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Le pipeline J0 a été interrompu après les étapes 1–4 (upload, segmentation, OCR, plan). L'élève ou le système relance le traitement du chapitre.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le pipeline redémarre.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Les étapes déjà complétées ne sont pas ré-exécutées (les résultats OCR en cache permanent sont réutilisés). Le pipeline reprend à partir de l'étape non complétée. Aucun Item en double n'est créé.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z2-ac07-diagnostic-impossible-si-0-items-valides">Z2-AC07 — Diagnostic impossible si 0 items valides<a class="headerlink" href="#z2-ac07-diagnostic-impossible-si-0-items-valides" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Le pipeline J0 se termine avec 0 items produits (toutes pages échouées ou illisibles).</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>L'élève tente de lancer le diagnostic initial.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Le bouton diagnostic est désactivé. Un message explicite est affiché : 'Aucun contenu n'a pu être extrait — vérifiez la qualité des photos et ré-uploadez.' Le chapitre reste en état <code>PENDING_UPLOAD</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z2-ac08-bloc-schemamap-non-ocrise-conserve-comme-document-image">Z2-AC08 — Bloc SCHEMA/MAP non OCRisé conservé comme Document image<a class="headerlink" href="#z2-ac08-bloc-schemamap-non-ocrise-conserve-comme-document-image" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Un bloc de type MAP ou SCHEMA a une confidence OCR &lt; 0.5.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>L'étape OCR se termine pour ce bloc.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Le bloc n'est PAS OCRisé. Un Document de type correspondant est créé avec <code>source_image_url = crop_url</code> et <code>tags = ['map']</code> ou <code>['schema']</code>. Ce Document est éligible aux gabarits <code>GEN.DOC.MAP.READ_ZONES</code> ou <code>GEN.DOC.IMAGE.DESCRIBE_INTERPRET</code>. Aucun texte OCR n'est stocké.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z2-ac09-file-de-validation-non-depassee-max-8">Z2-AC09 — File de validation non dépassée (max 8)<a class="headerlink" href="#z2-ac09-file-de-validation-non-depassee-max-8" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Le pipeline J0 détecte 15 items avec <code>validation_required = true</code> sur un chapitre.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>La file de validation est constituée.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Seuls les 8 items avec la priorité la plus haute (score d'impact sur la note) sont inclus dans la ValidationTask. Les 7 autres items restent avec <code>validation_required = true</code> mais ne sont pas soumis à l'élève. Ils peuvent être traités par l'admin en backoffice.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z2-ac10-streaming-carte-de-lecon-premiere-page-disponible">Z2-AC10 — Streaming carte de leçon (première page disponible)<a class="headerlink" href="#z2-ac10-streaming-carte-de-lecon-premiere-page-disponible" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Le chapitre a 8 pages en cours de traitement. La page 1 est la première traitée.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le traitement de la page 1 se termine (OCR + items + tags).</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>La carte de leçon est mise à jour en temps réel via SSE avec les items de la page 1. L'élève peut interagir avec ces items avant que les pages 2–8 soient traitées. Les pages suivantes s'ajoutent progressivement sans recharger la vue.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="z2-ac11-relance-eleve-pour-pages-en-echec-de-generation">Z2-AC11 — Relance élève pour pages en échec de génération<a class="headerlink" href="#z2-ac11-relance-eleve-pour-pages-en-echec-de-generation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Une page du chapitre est en <code>status = 'items_generation_failed'</code> (erreur LLM après retries). Le texte OCR brut est conservé.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>L'élève consulte la carte de leçon du chapitre.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Un badge 'Exercices non générés · page X' est affiché avec un bouton 'Réessayer'. Le clic déclenche un nouveau passage par l'étape 7 du pipeline (génération items) en réutilisant le texte OCR en cache. Si le retry réussit, les items sont ajoutés à la carte et le badge disparaît. Si le retry échoue à nouveau, le badge réapparaît avec le message 'Génération toujours indisponible — réessaie plus tard'. Maximum 3 retries manuels par page. Au-delà, seul l'admin peut relancer.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> Ce mécanisme complète Z2-AC05 en offrant une action côté élève. L'admin reste le fallback ultime mais l'élève n'est plus bloqué sans recours en cas d'indisponibilité temporaire du LLM.</p>
+</blockquote>
+<h3 id="z2-ac12-retention-crops-et-ocr-alignee-sur-politique-photos-rgpd">Z2-AC12 — Rétention crops et OCR alignée sur politique photos (RGPD)<a class="headerlink" href="#z2-ac12-retention-crops-et-ocr-alignee-sur-politique-photos-rgpd" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Une page a été traitée par le pipeline. Les crops (Block.crop, Document.source_image_url) et le texte OCR brut sont stockés. La photo originale est supprimée à J+30 (politique par défaut).</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le job de nettoyage RGPD s'exécute à J+30 pour cette page.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Si l'utilisateur n'a PAS opté pour la conservation : les crops d'image sont supprimés en même temps que la photo originale. Les <code>crop_url</code> des blocs sont remplacés par <code>null</code>. Les <code>source_image_url</code> des Documents sont remplacés par <code>null</code>. Le texte OCR brut est conservé (il ne contient pas l'image de l'écriture manuscrite). Les ValidationTasks en cours conservent un <code>crop_snapshot_text</code> (description textuelle du crop) mais pas l'image. Les gabarits de type <code>GEN.DOC.IMAGE.*</code> deviennent inéligibles pour les Documents dont le <code>source_image_url</code> est <code>null</code> — ces items sont restreints aux gabarits textuels.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> Le PRD §20 Q2 mentionne la suppression des « photos originales » à J+30, mais les crops (fragments d'image) et les <code>source_image_url</code> des Documents n'avaient pas de politique de rétention explicite. Cela créait un trou RGPD : un parent pensait les photos supprimées alors que des fragments persistaient indéfiniment. Ce AC aligne la rétention des crops sur celle des photos originales.</p>
+</blockquote>
+<h3 id="z2-ac13-versioning-du-modele-llm-pour-reproductibilite-et-detection-de-drift">Z2-AC13 — Versioning du modèle LLM pour reproductibilité et détection de drift<a class="headerlink" href="#z2-ac13-versioning-du-modele-llm-pour-reproductibilite-et-detection-de-drift" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Le pipeline J0 (segmentation, item generation, fidelity check) et la lazy generation utilisent des appels LLM. Le modèle LLM sous-jacent peut changer (mise à jour provider, bascule de modèle, changement de prompt).</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Un appel LLM est effectué à n'importe quelle étape du pipeline ou de la génération.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Chaque résultat LLM (Item, Question, fidelity_score) est taggé avec <code>llm_model_version</code> (identifiant du modèle, e.g. <code>gpt-4o-2024-08-06</code>) et <code>prompt_template_version</code> (hash ou version sémantique du prompt utilisé). Le champ <code>llm_model_version</code> est indexé. Un changement de modèle ou de prompt déclenche une alerte admin <code>LLM_VERSION_CHANGED</code>. Un job hebdomadaire compare les métriques qualité (taux fidelity_score &lt; 0.6, taux signalements élève) entre l'ancienne et la nouvelle version. Si le taux de dégradation dépasse 15% sur l'un des indicateurs, l'admin reçoit une alerte <code>LLM_DRIFT_DETECTED</code> avec détail comparatif.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> Sans versioning LLM, un changement de modèle silencieux (ex. le provider met à jour le modèle derrière la même API) peut dégrader la qualité des items générés sans qu'on puisse identifier la cause. Le versioning permet le diagnostic (« depuis quand les fidelity_score baissent-ils ? ») et le rollback informé. C'est aussi une exigence de traçabilité pour un produit éducatif destiné à des mineurs.</p>
+</blockquote>
+<h3 id="z2-ac14-pipeline-incremental-pour-ajout-de-pages-pas-de-re-traitement-des-pages-existantes">Z2-AC14 — Pipeline incrémental pour ajout de pages (pas de re-traitement des pages existantes)<a class="headerlink" href="#z2-ac14-pipeline-incremental-pour-ajout-de-pages-pas-de-re-traitement-des-pages-existantes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Le chapitre « Mouvement et vitesse » a 3 pages existantes (pipeline déjà terminé, 8 items générés). L'élève ajoute les pages 4-6 via « Ajouter des pages » (Z5-AC11).</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le pipeline J0 se déclenche pour les pages ajoutées.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Le pipeline s'exécute <strong>uniquement</strong> sur les pages 4-6. Les étapes sont : (1) segmentation des pages 4-6 en blocs, (2) OCR des blocs textuels, (3) génération d'items à partir des blocs, (4) fidelity check des nouveaux items, (5) cohérence cross-page : les nouveaux items sont comparés aux items <strong>existants</strong> du chapitre pour détecter doublons (similarité cosinus keywords &gt; 0.9) et contradictions — mais les items existants ne sont <strong>pas</strong> comparés entre eux (déjà fait lors du pipeline initial). Le statut du pipeline au niveau chapitre passe à <code>processing_incremental</code> (distinct de <code>processing</code> pour un pipeline complet). En cas d'échec sur une page ajoutée, le retry élève Z2-AC11 est disponible. Un échec sur les pages 4-6 n'affecte pas les items des pages 1-3. Les pages ajoutées héritent de <code>revision_id = R1</code> (pas de nouvelle révision). L'idempotence Z2-AC06 s'applique : si le pipeline incrémental est interrompu et relancé, aucun doublon n'est créé.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> Le pipeline incrémental est le pendant technique de Z5-AC11 (ajout de pages). Sans lui, ajouter 3 pages à un chapitre de 10 pages relancerait le pipeline complet sur 13 pages — coût OCR x4, latence x4, et risque de drift OCR sur les pages existantes. Le statut <code>processing_incremental</code> permet à l'UI d'afficher « Ajout de 3 pages en cours… » plutôt que « Traitement du chapitre… » (qui inquiéterait l'élève sur ses données existantes).</p>
+</blockquote>
+<h3 id="z2-ac15-detection-et-preservation-des-zones-visuelles-dual-coding">Z2-AC15 — Détection et préservation des zones visuelles (dual coding)<a class="headerlink" href="#z2-ac15-detection-et-preservation-des-zones-visuelles-dual-coding" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>L'élève uploade des pages de cours contenant du texte et des éléments visuels (diagrammes, schémas annotés, graphiques, figures légendées, tableaux dessinés).</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le pipeline J0 segmente les pages en blocs (étape 1, PRD §6.1).</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Le pipeline distingue 3 types de blocs : <strong>(1) Texte</strong> (OCR standard), <strong>(2) Visuel pédagogique</strong> (diagramme, schéma, graphique, figure annotée — détecté par le modèle de segmentation), <strong>(3) Décoratif</strong> (dessin sans valeur pédagogique, marge, rature — ignoré). Les blocs visuels pédagogiques sont : (a) sauvegardés comme images recadrées (<code>visual_block.image_url</code>, <code>visual_block.type = 'diagram' | 'graph' | 'table' | 'figure'</code>), (b) associés aux items du même passage via le champ <code>Item.visual_block_ids[]</code>, (c) les légendes/labels détectés dans le visuel sont extraits par OCR et ajoutés aux métadonnées (<code>visual_block.labels[]</code>). Le LLM de structuration (étape 2) reçoit les visuels en contexte et peut générer des gabarits spécifiques : « Complète les légendes de ce schéma » (image affichée avec labels retirés), « Que représente ce graphique ? » (image affichée, question ouverte), « Associe chaque élément du schéma à sa fonction » (matching). Ces gabarits visuels sont marqués <code>template.uses_visual = true</code> et <code>template.visual_block_id</code>. La carte de leçon (Z1-AC21, « Voir ma leçon ») affiche les blocs visuels associés à la Notion en cours, intercalés avec le texte. Si le modèle de segmentation ne détecte aucun visuel, le pipeline continue normalement (texte uniquement). Le tagging est conservatif : en cas de doute sur la nature pédagogique d'un visuel, il est classé « décoratif » (faux négatif préférable au faux positif).</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> La théorie du double codage (Paivio) montre que l'encodage simultané verbal + visuel améliore le rappel de façon substantielle (Butcher 2006, d=0.48 ; Mayer 2009, +89% sur le transfert). Les cahiers de collégiens sont riches en schémas (SVT : cycle de l'eau, cellule ; Physique : circuits, schémas de forces ; Géographie : cartes, graphiques). Ignorer ces visuels revient à perdre 30-50% de la valeur pédagogique du cahier. Le coût d'implémentation est concentré dans le modèle de segmentation (distinguer texte/visuel/décoratif) — le reste (association item-visuel, gabarits visuels) s'intègre dans le pipeline existant. Le tagging conservatif protège contre les faux positifs (un gribouillage classé « schéma » dégraderait l'expérience).</p>
+</blockquote>
+<h3 id="z2-ac16-extraction-de-la-structure-des-tableaux-dessines-lignescolonnes">Z2-AC16 — Extraction de la structure des tableaux dessinés (lignes/colonnes)<a class="headerlink" href="#z2-ac16-extraction-de-la-structure-des-tableaux-dessines-lignescolonnes" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Le pipeline segmente une page contenant un tableau dessiné à la main (lignes horizontales/verticales formant une grille) ou un tableau imprimé collé dans le cahier. Le bloc est classé <code>type = TABLE</code>.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>L'étape 2 (segmentation) et l'étape 3 (OCR) traitent ce bloc.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Le pipeline extrait la <strong>structure du tableau</strong> en plus du texte OCR brut : <strong>(1) Détection de grille</strong> : les lignes horizontales et verticales sont détectées (Hough transform ou modèle spécialisé). Le nombre de lignes (<code>rows</code>) et colonnes (<code>cols</code>) est déterminé. <strong>(2) Extraction cellule par cellule</strong> : chaque cellule est OCRisée individuellement (meilleure précision que l'OCR global sur le bloc entier). Le résultat est stocké dans <code>VisualBlock.table_structure = { rows: int, cols: int, headers: string[]?, cells: string[][] }</code>. <strong>(3) Détection d'en-têtes</strong> : la première ligne (et/ou première colonne) est détectée comme en-tête si elle contient des termes différents du reste (style, taille, position). <code>headers[]</code> contient les en-têtes détectés. <strong>(4) Limites</strong> : si le tableau dépasse <strong>8 colonnes</strong> ou contient des <strong>cellules fusionnées</strong> détectées (bounding boxes chevauchantes), le pipeline bascule en mode image (le bloc est reclassé <code>SCHEMA</code> et traité comme un visuel simple, pas comme une table structurée). Un log <code>TABLE_FALLBACK_TO_SCHEMA</code> est créé. <strong>(5) Gabarits spécifiques</strong> : les tableaux structurés sont éligibles aux gabarits <code>GEN.DOC.TABLE.READ_VALUE</code> (lire une valeur dans le tableau) et <code>GEN.DOC.TABLE.COMPLETE_CELL</code> (compléter une cellule masquée). Les tableaux en mode image (fallback SCHEMA) sont éligibles uniquement à <code>GEN.DOC.IMAGE.DESCRIBE_INTERPRET</code>. <strong>(6) Qualité</strong> : si la confidence OCR d'une cellule &lt; 0.4, la cellule est marquée <code>uncertain</code> dans la structure. Si &gt; 30% des cellules sont <code>uncertain</code>, le tableau entier bascule en mode image.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> Les tableaux sont omniprésents dans les cahiers de collège : tableaux de conversion (Physique-Chimie), tableaux de données expérimentales (SVT), tableaux chronologiques (Histoire), tableaux de comparaison (Géographie). Un tableau OCRisé « en vrac » (tout le texte mélangé sans structure) perd sa valeur pédagogique — l'élève ne peut plus répondre « Quelle est la densité du fer ? » si le tableau est un blob de texte. L'extraction cellule par cellule est 2-3x plus précise que l'OCR global car chaque cellule est un bloc compact avec peu de bruit. Le fallback vers le mode image pour les tableaux complexes (≥ 8 colonnes, fusions) est pragmatique : ces tableaux sont rares dans les cahiers de collège et l'extraction structurée serait fragile.</p>
+</blockquote>
+<h3 id="z2-ac17-qualite-minimale-des-crops-visuels-resolution-cadrage-stockage">Z2-AC17 — Qualité minimale des crops visuels (résolution, cadrage, stockage)<a class="headerlink" href="#z2-ac17-qualite-minimale-des-crops-visuels-resolution-cadrage-stockage" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Le pipeline segmente un bloc visuel pédagogique (SCHEMA, MAP, GRAPH, TABLE, CIRCUIT, PHOTO) et génère un crop (image recadrée).</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>Le crop est généré et prêt à être stocké.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>Le crop respecte les contraintes de qualité suivantes : <strong>(1) Résolution minimale</strong> : 300×300 px. Si le crop brut est plus petit (schéma dans une marge, petit graphique), un upscaling bilinéaire conservatif est appliqué pour atteindre 300×300 px. Si le crop brut est &lt; 100×100 px, le bloc est reclassé <code>DECORATIVE</code> (trop petit pour être un visuel pédagogique — probablement un symbole, une flèche, un numéro de page). <strong>(2) Marge de cadrage</strong> : 5% de la bounding box détectée est ajouté de chaque côté pour capturer les légendes et annotations environnantes (une légende coupée rend le schéma incompréhensible). Si la marge dépasse les bords de la page, elle est tronquée au bord. <strong>(3) Format de stockage</strong> : WebP, qualité 85 (compression ~60% vs JPEG, qualité visuelle équivalente). L'URL est stockée dans <code>Block.crop_url</code> et <code>VisualBlock.image_url</code>. <strong>(4) Thumbnail</strong> : un thumbnail 150×150 px est généré en parallèle pour l'affichage dans les listes (carte leçon, navigation rapide). Stocké dans <code>VisualBlock.thumbnail_url</code>. <strong>(5) Métadonnées</strong> : <code>VisualBlock.width_px</code>, <code>VisualBlock.height_px</code> sont renseignés pour permettre un layout responsive sans reflow (le client connaît les dimensions avant le chargement). <strong>(6) Rétention</strong> : <code>VisualBlock.retention_expires_at</code> est fixé à J+30 (aligné sur Z2-AC12 RGPD). À expiration, <code>image_url</code> et <code>thumbnail_url</code> sont remplacés par <code>null</code>. Les gabarits <code>uses_visual = true</code> liés à ce VisualBlock deviennent inéligibles (même logique que Z2-AC12 pour <code>source_image_url</code>).</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> Un crop de mauvaise qualité (flou, coupé, trop petit) rend les gabarits visuels inutilisables : « Complète les légendes de ce schéma » avec un schéma illisible est pire qu'aucune question visuelle. La marge de 5% est un compromis : trop large capture du bruit (texte environnant non pertinent), trop étroite coupe les légendes. Le format WebP est supporté par tous les navigateurs modernes et réduit le stockage de 60% — important pour un SaaS avec potentiellement des milliers de photos uploadées. Le threshold 100×100 px pour reclassification en DECORATIVE élimine les faux positifs les plus courants (numéros de page, puces, petites flèches détectées comme « blocs visuels »).</p>
+</blockquote>
+<h3 id="z2-ac18-rendu-des-visuels-pendant-les-sessions-de-revision">Z2-AC18 — Rendu des visuels pendant les sessions de révision<a class="headerlink" href="#z2-ac18-rendu-des-visuels-pendant-les-sessions-de-revision" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lot 0</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>GIVEN</strong></td>
+<td>Une question instanciée utilise un gabarit visuel (<code>template.uses_visual = true</code>). La question a un <code>visual_block_id</code> et un <code>rendered_visual_url</code> (visuel transformé : légendes masquées, zones floutées, etc.) ou le <code>VisualBlock.image_url</code> original.</td>
+</tr>
+<tr>
+<td><strong>WHEN</strong></td>
+<td>L'élève voit cette question dans une session.</td>
+</tr>
+<tr>
+<td><strong>THEN</strong></td>
+<td>L'affichage suit les règles suivantes : <strong>(1) Layout</strong> : l'image est affichée <strong>au-dessus</strong> de la question texte, occupant toute la largeur disponible (max 100% container, hauteur proportionnelle). Sur mobile (&lt; 768 px), l'image occupe la pleine largeur. Sur desktop, l'image est centrée avec <code>max-width: 600px</code>. <strong>(2) Zoom</strong> : un tap/clic sur l'image ouvre un viewer plein écran (pinch-to-zoom sur mobile, scroll-zoom sur desktop) pour que l'élève puisse lire les détails fins (légendes, valeurs d'axes). Un bouton « Fermer » ou swipe-down referme le viewer. <strong>(3) Chargement</strong> : l'image est lazy-loaded avec un placeholder aux dimensions exactes (<code>width_px × height_px</code> du VisualBlock) pour éviter le reflow. Un spinner s'affiche pendant le chargement. Si l'image ne charge pas (erreur réseau), un message s'affiche : « Image indisponible — réponds à partir du texte si possible. » La question reste répondable (le score n'est pas pénalisé si l'image est absente). <strong>(4) Visuels transformés</strong> : si la question utilise un <code>rendered_visual_url</code> (légendes masquées, cellules effacées), c'est cette version qui s'affiche — pas l'original. L'original est accessible via le bouton « Voir ma leçon » (Z1-AC21) pour contexte. <strong>(5) Accessibilité</strong> : le <code>alt_text</code> du VisualBlock est utilisé comme attribut <code>alt</code> de l'image. Les légendes extraites (<code>labels[]</code>) sont affichées sous l'image en texte pour les lecteurs d'écran. <strong>(6) Feedback post-réponse</strong> : après réponse, si la question était « complète les légendes », le feedback affiche le visuel <strong>original</strong> (avec légendes) à côté du visuel transformé (avec les légendes que l'élève a complétées) pour une comparaison directe.</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>NOTE :</strong> L'affichage du visuel est critique pour l'efficacité du dual coding — un visuel mal rendu (trop petit, pas zoomable, layout cassé) annule le bénéfice pédagogique. Le zoom est indispensable sur mobile : les schémas de cahier contiennent souvent des détails fins (légendes, valeurs numériques) illisibles en taille réduite. Le placeholder aux dimensions exactes évite le « saut » de layout (CLS, Cumulative Layout Shift) qui dégrade l'expérience utilisateur et perd le focus de l'élève. La comparaison côte-à-côte dans le feedback (original vs complété) est la forme la plus efficace de correction pour les gabarits visuels — l'élève voit immédiatement où sont ses erreurs.</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Retour en haut de la page
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/popul/ReviseMieux" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

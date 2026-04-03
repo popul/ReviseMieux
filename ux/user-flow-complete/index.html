@@ -1,0 +1,3868 @@
+
+<!doctype html>
+<html lang="fr" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://popul.github.io/ReviseMieux/ux/user-flow-complete/">
+      
+      
+        <link rel="prev" href="../../architecture/merge-decision-table/">
+      
+      
+        <link rel="next" href="../personas/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>User Flow - Revise Mieux — Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#user-flow-complet-revise-mieux" class="md-skip">
+          Aller au contenu
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="En-tête">
+    <a href="../.." title="Revise Mieux — Documentation" class="md-header__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Revise Mieux — Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              User Flow
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode sombre"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mode sombre" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode clair"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mode clair" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Rechercher" placeholder="Rechercher" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Recherche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Effacer" aria-label="Effacer" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initialisation de la recherche
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Onglets" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Accueil
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Demarrage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../PRD/" class="md-tabs__link">
+          
+  
+  
+  Produit
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../ac/Z1/" class="md-tabs__link">
+          
+  
+  
+  Criteres d'acceptation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  UX
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/" class="md-tabs__link">
+          
+  
+  
+  Design System
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../llm-strategy/" class="md-tabs__link">
+          
+  
+  
+  Technique
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-journeys/first-connection/" class="md-tabs__link">
+          
+  
+  
+  Parcours
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/" class="md-tabs__link">
+          
+  
+  
+  Contribuer
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Revise Mieux — Documentation" class="md-nav__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Revise Mieux — Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accueil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demarrage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Produit
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Produit
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../PRD/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PRD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MVP-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope MVP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lot0-tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracker Lot 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Criteres d'acceptation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Criteres d'acceptation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z1 — Mastery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z2 — Pipeline J0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z3 — Validation HITL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z4 — Sessions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z5 — Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z6 — Schedule
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z7 — Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z8 — Onboarding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/ocr-idp-incremental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OCR/IDP incremental
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/merge-decision-table/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regles de merge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UX
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UX
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Flow
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-defi-ux-produit-la-double-adoption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Defi UX produit : la double adoption
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Defi UX produit : la double adoption">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pourquoi-ce-nest-pas-une-app-standard-a-audience-unique" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pourquoi ce n'est PAS une app standard a audience unique
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tensions-entre-les-deux-audiences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tensions entre les deux audiences
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#risques-dadoption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risques d'adoption
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quest-ce-qui-fait-revenir-un-collegien-de-13-ans-chaque-soir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Qu'est-ce qui fait revenir un collegien de 13 ans chaque soir ?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quest-ce-qui-fait-quun-parent-de-45-ans-fait-confiance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Qu'est-ce qui fait qu'un parent de 45 ans fait confiance ?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-personas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Personas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-parcours-produit-cles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Parcours produit cles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Parcours produit cles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parcours-1-onboarding-premiere-connexion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 1 : Onboarding -- premiere connexion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-2-capture-j0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 2 : Capture J0
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-3-dashboard-eleve-plan-daction-quotidien" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 3 : Dashboard eleve -- plan d'action quotidien
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-4-session-de-revision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 4 : Session de revision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-5-revue-des-erreurs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 5 : Revue des erreurs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-6-retour-apres-absence-3-7-jours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 6 : Retour apres absence (3-7 jours)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-7-dashboard-parent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 7 : Dashboard parent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-8-validation-hitl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 8 : Validation HITL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-9-gestion-de-contenu-ocr-incomplet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 9 : Gestion de contenu OCR incomplet
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-flow-detaille-ecran-par-ecran" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Flow detaille ecran par ecran
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-modele-detats-par-ecran-critique" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Modele d'etats par ecran critique
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-edge-cases-et-chemins-de-recuperation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Edge cases et chemins de recuperation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-principes-ux-pedagogiques" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Principes UX pedagogiques
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Principes UX pedagogiques">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#principe-1-rappel-actif-relecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principe 1 : Rappel actif &gt; relecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#principe-2-repetition-espacee-invisible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principe 2 : Repetition espacee invisible
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#principe-3-espacement-obligatoire-pour-solid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principe 3 : Espacement obligatoire pour SOLID
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#principe-4-double-codage-paivio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principe 4 : Double codage (Paivio)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#principe-5-growth-mindset-dans-tous-les-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principe 5 : Growth mindset dans tous les messages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#principe-6-pas-de-streak-pas-de-gamification-punitive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principe 6 : Pas de streak, pas de gamification punitive
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-principes-dequilibre-parenteleve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Principes d'equilibre parent/eleve
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Principes d&#39;equilibre parent/eleve">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ce-que-le-parent-doit-voir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ce que le parent DOIT voir
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ce-que-le-parent-ne-doit-pas-dominer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ce que le parent NE DOIT PAS dominer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comment-leleve-percoit-la-presence-du-parent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comment l'eleve percoit la presence du parent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#design-principles-pour-lintergenerationnel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design principles pour l'intergenerationnel
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-implications-pour-limplementation-react-native" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Implications pour l'implementation React Native
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Implications pour l&#39;implementation React Native">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#liste-des-ecrans-et-routes-expo-router" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Liste des ecrans et routes Expo Router
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logique-de-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logique de navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etat-partage-context-vs-local-vs-tanstack-query-prevu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Etat partage : Context vs local vs TanStack Query (prevu)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#patterns-reutilisables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patterns reutilisables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#types-typescript-props-majeurs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Types TypeScript (props majeurs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-decisions-produit-ouvertes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Decisions produit ouvertes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-recommandations-ux-finales" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Recommandations UX finales
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Recommandations UX finales">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#r1-prioriser-le-time-to-first-quiz-ttfq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R1 : Prioriser le "Time to First Quiz" (TTFQ)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r2-le-plan-de-soiree-est-le-produit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R2 : Le plan de soiree est le produit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r3-investir-dans-le-feedback-enrichi-z4-ac09-avant-tout-le-reste" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R3 : Investir dans le feedback enrichi (Z4-AC09) avant tout le reste
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r4-tester-le-mode-express-z7-ac08-des-la-premiere-semaine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R4 : Tester le mode express (Z7-AC08) des la premiere semaine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r5-la-notification-routine-terminee-est-le-killer-feature-parent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R5 : La notification "routine terminee" est le killer feature parent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r6-ne-jamais-montrer-un-ecran-vide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R6 : Ne jamais montrer un ecran vide
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r7-mesurer-le-taux-dechec-du-premier-ocr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R7 : Mesurer le taux d'echec du premier OCR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r8-implementer-la-persistance-locale-des-reponses-z6-ac31-tot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R8 : Implementer la persistance locale des reponses (Z6-AC31) tot
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../personas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Personas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../screen-inventory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ecrans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../state-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modele d'etats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../edge-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Edge cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../open-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions ouvertes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/design-principles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Principes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/color-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Couleurs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/typography/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Typographie
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/component-philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/do-dont/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Do / Don't
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/moodboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Moodboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/scalability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scalabilite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technique
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Technique
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llm-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strategie LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llm-benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process/feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parcours
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Parcours
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-journeys/first-connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Premiere connexion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contribuer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contribuer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide contribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploiement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-defi-ux-produit-la-double-adoption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Defi UX produit : la double adoption
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Defi UX produit : la double adoption">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pourquoi-ce-nest-pas-une-app-standard-a-audience-unique" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pourquoi ce n'est PAS une app standard a audience unique
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tensions-entre-les-deux-audiences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tensions entre les deux audiences
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#risques-dadoption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risques d'adoption
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quest-ce-qui-fait-revenir-un-collegien-de-13-ans-chaque-soir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Qu'est-ce qui fait revenir un collegien de 13 ans chaque soir ?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#quest-ce-qui-fait-quun-parent-de-45-ans-fait-confiance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Qu'est-ce qui fait qu'un parent de 45 ans fait confiance ?
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-personas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Personas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-parcours-produit-cles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Parcours produit cles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Parcours produit cles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#parcours-1-onboarding-premiere-connexion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 1 : Onboarding -- premiere connexion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-2-capture-j0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 2 : Capture J0
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-3-dashboard-eleve-plan-daction-quotidien" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 3 : Dashboard eleve -- plan d'action quotidien
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-4-session-de-revision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 4 : Session de revision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-5-revue-des-erreurs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 5 : Revue des erreurs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-6-retour-apres-absence-3-7-jours" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 6 : Retour apres absence (3-7 jours)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-7-dashboard-parent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 7 : Dashboard parent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-8-validation-hitl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 8 : Validation HITL
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parcours-9-gestion-de-contenu-ocr-incomplet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parcours 9 : Gestion de contenu OCR incomplet
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-flow-detaille-ecran-par-ecran" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Flow detaille ecran par ecran
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-modele-detats-par-ecran-critique" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Modele d'etats par ecran critique
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-edge-cases-et-chemins-de-recuperation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Edge cases et chemins de recuperation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-principes-ux-pedagogiques" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Principes UX pedagogiques
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Principes UX pedagogiques">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#principe-1-rappel-actif-relecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principe 1 : Rappel actif &gt; relecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#principe-2-repetition-espacee-invisible" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principe 2 : Repetition espacee invisible
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#principe-3-espacement-obligatoire-pour-solid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principe 3 : Espacement obligatoire pour SOLID
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#principe-4-double-codage-paivio" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principe 4 : Double codage (Paivio)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#principe-5-growth-mindset-dans-tous-les-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principe 5 : Growth mindset dans tous les messages
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#principe-6-pas-de-streak-pas-de-gamification-punitive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Principe 6 : Pas de streak, pas de gamification punitive
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-principes-dequilibre-parenteleve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Principes d'equilibre parent/eleve
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Principes d&#39;equilibre parent/eleve">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ce-que-le-parent-doit-voir" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ce que le parent DOIT voir
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ce-que-le-parent-ne-doit-pas-dominer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ce que le parent NE DOIT PAS dominer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#comment-leleve-percoit-la-presence-du-parent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Comment l'eleve percoit la presence du parent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#design-principles-pour-lintergenerationnel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Design principles pour l'intergenerationnel
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-implications-pour-limplementation-react-native" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Implications pour l'implementation React Native
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="10. Implications pour l&#39;implementation React Native">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#liste-des-ecrans-et-routes-expo-router" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Liste des ecrans et routes Expo Router
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logique-de-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Logique de navigation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etat-partage-context-vs-local-vs-tanstack-query-prevu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Etat partage : Context vs local vs TanStack Query (prevu)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#patterns-reutilisables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Patterns reutilisables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#types-typescript-props-majeurs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Types TypeScript (props majeurs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-decisions-produit-ouvertes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Decisions produit ouvertes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-recommandations-ux-finales" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. Recommandations UX finales
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="12. Recommandations UX finales">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#r1-prioriser-le-time-to-first-quiz-ttfq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R1 : Prioriser le "Time to First Quiz" (TTFQ)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r2-le-plan-de-soiree-est-le-produit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R2 : Le plan de soiree est le produit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r3-investir-dans-le-feedback-enrichi-z4-ac09-avant-tout-le-reste" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R3 : Investir dans le feedback enrichi (Z4-AC09) avant tout le reste
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r4-tester-le-mode-express-z7-ac08-des-la-premiere-semaine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R4 : Tester le mode express (Z7-AC08) des la premiere semaine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r5-la-notification-routine-terminee-est-le-killer-feature-parent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R5 : La notification "routine terminee" est le killer feature parent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r6-ne-jamais-montrer-un-ecran-vide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R6 : Ne jamais montrer un ecran vide
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r7-mesurer-le-taux-dechec-du-premier-ocr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R7 : Mesurer le taux d'echec du premier OCR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r8-implementer-la-persistance-locale-des-reponses-z6-ac31-tot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R8 : Implementer la persistance locale des reponses (Z6-AC31) tot
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="user-flow-complet-revise-mieux">User Flow complet -- Revise Mieux<a class="headerlink" href="#user-flow-complet-revise-mieux" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Document UX principal. Couvre le defi produit, les personas, les 9 parcours, le flow ecran par ecran, le modele d'etats, les edge cases, les principes UX pedagogiques, l'equilibre parent/eleve, les implications React Native, les decisions ouvertes et les recommandations finales.</p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1. Executive summary<a class="headerlink" href="#1-executive-summary" title="Permanent link">&para;</a></h2>
+<p>Revise Mieux transforme des photos de cahier en sessions de revision adaptatives pour les collegiens (11-15 ans), avec un dashboard parent integre. Le defi UX central est la <strong>double adoption</strong> : l'eleve decide d'ouvrir l'app chaque soir, le parent decide de payer et d'installer. Chaque decision de design doit satisfaire les deux audiences simultanement sans compromettre ni l'engagement de l'eleve ni la confiance du parent.</p>
+<p>Ce document detaille les 20 ecrans de l'app (8 existants, 12 a creer), les 9 parcours produit cles, les 11 etats d'affichage par ecran critique, et les 30 edge cases identifies. Il est directement exploitable par un developpeur React Native avec Expo Router.</p>
+<p><strong>Chiffres cles</strong> :
+- 53 ACs couverts par le Lot 0 (33 P1 + 20 P2)
+- 171 ACs totaux repartis sur 8 zones
+- 4 chapitres pilotes (HG, SVT, Physique-Chimie)
+- Cible : premiere session reussie en &lt; 3 minutes apres l'install</p>
+<hr />
+<h2 id="2-defi-ux-produit-la-double-adoption">2. Defi UX produit : la double adoption<a class="headerlink" href="#2-defi-ux-produit-la-double-adoption" title="Permanent link">&para;</a></h2>
+<h3 id="pourquoi-ce-nest-pas-une-app-standard-a-audience-unique">Pourquoi ce n'est PAS une app standard a audience unique<a class="headerlink" href="#pourquoi-ce-nest-pas-une-app-standard-a-audience-unique" title="Permanent link">&para;</a></h3>
+<p>La plupart des apps educatives ciblent soit l'eleve (Duolingo, Quizlet) soit le parent (Klassroom, Pronote). Revise Mieux doit convaincre les deux simultanement, dans des cadres temporels differents :</p>
+<ul>
+<li><strong>L'eleve</strong> ouvre l'app le soir, 10-15 min. Sa decision est repetee quotidiennement. Chaque session est un micro-choix : "est-ce que j'ouvre l'app ou je regarde TikTok ?" Le design doit donner envie, pas obliger.</li>
+<li><strong>Le parent</strong> ouvre l'app 1-2 fois par semaine, &lt; 2 min. Sa decision est ponctuelle (installation, renouvellement). Il a besoin d'un signal fiable sans micro-management.</li>
+</ul>
+<h3 id="tensions-entre-les-deux-audiences">Tensions entre les deux audiences<a class="headerlink" href="#tensions-entre-les-deux-audiences" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>L'eleve veut</th>
+<th>Le parent veut</th>
+<th>Tension</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interface attractive, moderne</td>
+<td>Interface serieuse, credible</td>
+<td>Esthetique intergenerationnelle</td>
+</tr>
+<tr>
+<td>Pas de surveillance</td>
+<td>Visibilite sur l'usage</td>
+<td>Transparence vs autonomie</td>
+</tr>
+<tr>
+<td>Pas de culpabilisation</td>
+<td>Alertes si inactivite</td>
+<td>Notification vs bien-etre</td>
+</tr>
+<tr>
+<td>Recompenses implicites (progression)</td>
+<td>Metriques explicites (scores)</td>
+<td>Granularite du feedback</td>
+</tr>
+<tr>
+<td>Sessions courtes et optionnelles</td>
+<td>Usage regulier et mesurable</td>
+<td>Frequence vs liberte</td>
+</tr>
+</tbody>
+</table>
+<h3 id="risques-dadoption">Risques d'adoption<a class="headerlink" href="#risques-dadoption" title="Permanent link">&para;</a></h3>
+<p><strong>Cote eleve</strong> :
+- Friction dans les 30 premieres secondes -&gt; desinstallation
+- Premier OCR echoue sans recovery -&gt; "ca marche pas"
+- Sessions trop longues ou repetitives -&gt; lassitude
+- Sentiment de surveillance parentale -&gt; rejet emotionnel</p>
+<p><strong>Cote parent</strong> :
+- Aucun signal pendant 6 jours -&gt; oubli de l'app
+- Metriques incomprehensibles (UNKNOWN, FRAGILE) -&gt; perte de confiance
+- Trop de notifications -&gt; desactivation complete
+- Score gonfle sur QCM faciles -&gt; fausse securite</p>
+<h3 id="quest-ce-qui-fait-revenir-un-collegien-de-13-ans-chaque-soir">Qu'est-ce qui fait revenir un collegien de 13 ans chaque soir ?<a class="headerlink" href="#quest-ce-qui-fait-revenir-un-collegien-de-13-ans-chaque-soir" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Previsibilite</strong> : "Ce soir : 3 activites, ~15 min." L'engagement est defini, pas ouvert.</li>
+<li><strong>Progression visible</strong> : des items qui passent de UNKNOWN a SOLID. Un % qui monte.</li>
+<li><strong>Permission de fermer</strong> : l'ecran "Fini pour ce soir" dit explicitement "c'est assez".</li>
+<li><strong>Variete</strong> : alternance des types de questions (MCQ, CLOZE, SHORT) et des matieres.</li>
+<li><strong>Pas de punition</strong> : pas de streak, pas de regression par inactivite, pas de "tu as rate".</li>
+</ol>
+<h3 id="quest-ce-qui-fait-quun-parent-de-45-ans-fait-confiance">Qu'est-ce qui fait qu'un parent de 45 ans fait confiance ?<a class="headerlink" href="#quest-ce-qui-fait-quun-parent-de-45-ans-fait-confiance" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Preuve rapide</strong> : digest anticipe J+2 avec temps de revision et matieres couvertes.</li>
+<li><strong>Honnetete</strong> : score_confidence visible, mention des items en verification.</li>
+<li><strong>Engagement minimal</strong> : notification "routine terminee" le soir + digest hebdo le dimanche.</li>
+<li><strong>Labels lisibles</strong> : "Bien acquis" au lieu de "SOLID", "En cours d'apprentissage" au lieu de "FRAGILE".</li>
+<li><strong>Action concrete</strong> : script 3 minutes avec 2-3 questions orales a poser.</li>
+</ol>
+<hr />
+<h2 id="3-personas">3. Personas<a class="headerlink" href="#3-personas" title="Permanent link">&para;</a></h2>
+<p>Voir le document dedie : <a href="../personas/"><code>docs/ux/personas.md</code></a></p>
+<p>4 personas :
+- <strong>Theo (13 ans, 4e)</strong> : motive mais irregulier. Veut 10-15 min/soir, pas plus.
+- <strong>Ines (11 ans, 6e)</strong> : appliquee mais anxieuse. Besoin de reassurance et de "fini".
+- <strong>Lucas (15 ans, 3e)</strong> : desengage. Seuil de friction zero. 30 secondes pour prouver la valeur.
+- <strong>Laurent (45 ans, pere)</strong> : cherche un signal fiable sans micro-manager.</p>
+<hr />
+<h2 id="4-parcours-produit-cles">4. Parcours produit cles<a class="headerlink" href="#4-parcours-produit-cles" title="Permanent link">&para;</a></h2>
+<h3 id="parcours-1-onboarding-premiere-connexion">Parcours 1 : Onboarding -- premiere connexion<a class="headerlink" href="#parcours-1-onboarding-premiere-connexion" title="Permanent link">&para;</a></h3>
+<p><strong>Acteurs</strong> : Eleve (+ parent potentiel)
+<strong>Objectif</strong> : Premiere session reussie en &lt; 3 minutes
+<strong>ACs</strong> : Z8-AC01, Z8-AC02, Z8-AC04, Z8-AC08</p>
+<div class="highlight"><pre><span></span><code>Installation
+    |
+    v
+Dashboard vide + chapitre demo (Z8-AC01, Z8-AC02)
+    |
+    v
+Session demo evening_first (~3 min, 8 questions)
+    |
+    v
+Debrief : 6/8 -&gt; transitions UNKNOWN -&gt; FRAGILE
+    |
+    v
+Dashboard avec progression visible
+    |
+    v
+Capture premier vrai cours (quand l&#39;eleve veut)
+    |
+    v
+Pipeline OCR (processing.tsx) -&gt; chapitre cree
+    |
+    v
+evening_first sur vrai chapitre -&gt; debrief -&gt; invitation parent (Z8-AC07)
+</code></pre></div>
+<p><strong>Gains pedagogiques</strong> : premier contact avec le rappel actif. L'eleve decouvre que repondre a des questions est plus efficace que relire.</p>
+<p><strong>Reduction d'effort</strong> : 0 configuration requise. Pas d'emploi du temps, pas de matiere, pas de formulaire. Un seul tap "Charger le chapitre demo" et c'est parti.</p>
+<hr />
+<h3 id="parcours-2-capture-j0">Parcours 2 : Capture J0<a class="headerlink" href="#parcours-2-capture-j0" title="Permanent link">&para;</a></h3>
+<p><strong>Acteurs</strong> : Eleve
+<strong>Objectif</strong> : Transformer des photos de cahier en items revisables
+<strong>ACs</strong> : Z2-AC01 a AC10, Z5-AC11, Z8-AC04</p>
+<div class="highlight"><pre><span></span><code>Tab Capture -&gt; prendre 1-30 photos
+    |
+    v
+(Optionnel) Saisie emploi du temps matiere (Z6-AC01)
+    |
+    v
+Processing screen (3 phases, Z8-AC04)
+    |
+    v
+    ├── Succes : chapitre cree -&gt; carte de lecon avec items
+    |
+    └── Echec : ecran recovery (Z8-AC03)
+              ├── Reprendre les photos
+              ├── Essayer quand meme
+              └── Chapitre demo
+</code></pre></div>
+<p><strong>Gains pedagogiques</strong> : le contenu de revision est le propre cours de l'eleve, pas un contenu generique. L'ancrage est plus fort car l'eleve reconnait ses notes.</p>
+<hr />
+<h3 id="parcours-3-dashboard-eleve-plan-daction-quotidien">Parcours 3 : Dashboard eleve -- plan d'action quotidien<a class="headerlink" href="#parcours-3-dashboard-eleve-plan-daction-quotidien" title="Permanent link">&para;</a></h3>
+<p><strong>Acteurs</strong> : Eleve
+<strong>Objectif</strong> : Savoir quoi faire maintenant en &lt; 5 secondes
+<strong>ACs</strong> : Z7-AC01, Z7-AC02, Z7-AC04, Z7-AC05, Z7-AC08, Z6-AC30</p>
+<div class="highlight"><pre><span></span><code>Ouverture de l&#39;app (17h-22h)
+    |
+    v
+Dashboard soiree :
+  &quot;Bonsoir Hugo ! Ce soir : 3 activites, ~15 min.&quot;
+    |
+    v
+  [C&#39;est parti !]  ou  [Je n&#39;ai pas beaucoup de temps]
+    |                    |
+    v                    v
+  Plan complet          Mode express (~10 min)
+    |                    |
+    v                    v
+  Completion progressive des etapes
+    |
+    v
+  Ecran de cloture : &quot;Bravo ! Soiree terminee en 14 min.&quot;
+  -&gt; notification parent &quot;routine terminee&quot;
+</code></pre></div>
+<p><strong>Reduction d'anxiete</strong> : l'estimation de duree et l'ecran de cloture encadrent l'effort. L'eleve sait quand il commence et quand il finit.</p>
+<hr />
+<h3 id="parcours-4-session-de-revision">Parcours 4 : Session de revision<a class="headerlink" href="#parcours-4-session-de-revision" title="Permanent link">&para;</a></h3>
+<p><strong>Acteurs</strong> : Eleve
+<strong>Objectif</strong> : Repondre a des questions, recevoir du feedback, progresser
+<strong>ACs</strong> : Z1-AC01 a AC12, Z4-AC04 a AC09, Z6-AC05</p>
+<div class="highlight"><pre><span></span><code>Lancer une session
+    |
+    v
+Question affichee (MCQ / SHORT / CLOZE / NUMERIC)
+    |
+    v
+Reponse + Valider
+    |
+    v
+    ├── MCQ : scoring automatique
+    └── Autres : auto-evaluation &quot;Je savais / Je ne savais pas&quot;
+    |
+    v
+Feedback enrichi (reponse correcte + ce qui manquait + indice)
+    |
+    v
+    ├── Transition positive ? -&gt; micro-celebration
+    └── Question suivante
+    |
+    v
+Debrief : score, progressions, item prioritaire a revoir
+</code></pre></div>
+<p><strong>Gains pedagogiques</strong> : rappel actif (repondre &gt; relire). Feedback immediat avec explication. Alternance de formats pour activer differents circuits cognitifs.</p>
+<hr />
+<h3 id="parcours-5-revue-des-erreurs">Parcours 5 : Revue des erreurs<a class="headerlink" href="#parcours-5-revue-des-erreurs" title="Permanent link">&para;</a></h3>
+<p><strong>Acteurs</strong> : Eleve
+<strong>Objectif</strong> : Comprendre ce qui a ete rate, pas juste constater
+<strong>ACs</strong> : Z4-AC09, Z1-AC19, Z1-AC21</p>
+<p>Le feedback enrichi (Z4-AC09) apres chaque reponse incorrecte contient 3 elements :
+1. La reponse correcte
+2. Ce qui manquait (specifique au type de question)
+3. Un indice pour la prochaine fois (1 phrase max)</p>
+<p>L'eleve peut aussi :
+- "Voir ma lecon" (Z1-AC21) pour le contexte complet
+- "Je ne comprends pas la question" (Z1-AC22) pour une reformulation</p>
+<p>Apres 3 echecs consecutifs sur le meme item, la difficulte descend automatiquement (Z1-AC19).</p>
+<hr />
+<h3 id="parcours-6-retour-apres-absence-3-7-jours">Parcours 6 : Retour apres absence (3-7 jours)<a class="headerlink" href="#parcours-6-retour-apres-absence-3-7-jours" title="Permanent link">&para;</a></h3>
+<p><strong>Acteurs</strong> : Eleve
+<strong>Objectif</strong> : Reprendre sans etre submerge
+<strong>ACs</strong> : Z6-AC13, Z6-AC22, Z6-AC21</p>
+<div class="highlight"><pre><span></span><code>Ouverture apres 5 jours d&#39;absence
+    |
+    v
+Message : &quot;Content de te revoir ! On reprend doucement.&quot;
+    |
+    v
+Session &quot;retour en douceur&quot; :
+  - 5 min max
+  - 4-6 items les plus anciens en retard
+  - Gabarits difficulte 1-2
+    |
+    v
+Debrief : &quot;Bon retour ! Les points restants arrivent demain.&quot;
+    |
+    v
+Items restants etales sur 3-5 jours
+</code></pre></div>
+<p><strong>Principes critiques</strong> : aucune regression par inactivite (Z6-AC13). Pas de streak. Pas de culpabilisation. Le message d'accueil est neutre ou positif.</p>
+<hr />
+<h3 id="parcours-7-dashboard-parent">Parcours 7 : Dashboard parent<a class="headerlink" href="#parcours-7-dashboard-parent" title="Permanent link">&para;</a></h3>
+<p><strong>Acteurs</strong> : Parent
+<strong>Objectif</strong> : Comprendre ce que fait l'app, verifier l'utilite
+<strong>ACs</strong> : Z6-AC27, Z6-AC29, Z6-AC30, Z8-AC05</p>
+<div class="highlight"><pre><span></span><code>Premier acces apres liaison (code 6 caracteres)
+    |
+    v
+Onboarding 3 ecrans (30s) :
+  1. &quot;Voici ce que fait [Prenom]&quot;
+  2. &quot;Votre tableau de bord&quot;
+  3. &quot;Restez informe sans effort&quot;
+    |
+    v
+Dashboard parent :
+  - Maitrise globale (% items OK+SOLID)
+  - Chapitres par matiere avec barres
+  - Activite de la semaine
+  - Script 3 minutes
+  - Validations en attente (si mode actif)
+</code></pre></div>
+<p><strong>Labels traduits</strong> (Z6-AC29) :
+- UNKNOWN -&gt; "Pas encore vu"
+- FRAGILE -&gt; "En cours d'apprentissage"
+- OK -&gt; "Compris, a consolider"
+- SOLID -&gt; "Bien acquis"
+- validation_required -&gt; "En verification"</p>
+<hr />
+<h3 id="parcours-8-validation-hitl">Parcours 8 : Validation HITL<a class="headerlink" href="#parcours-8-validation-hitl" title="Permanent link">&para;</a></h3>
+<p><strong>Acteurs</strong> : Eleve ou parent
+<strong>Objectif</strong> : Valider les items incertains generes par le LLM
+<strong>ACs</strong> : Z3-AC01 a AC06</p>
+<div class="highlight"><pre><span></span><code>Bandeau sur le chapitre : &quot;6 zones a verifier&quot;
+    |
+    v
+Ecran validation : item + suggestion IA
+    |
+    v
+    ├── Confirmer -&gt; confidence boostee, cache invalidee
+    ├── Corriger -&gt; contenu mis a jour, confidence = 1.0
+    ├── Je ne sais pas -&gt; delegue a l&#39;admin, item en mode simple
+    └── Ignorer -&gt; item exclu des sessions, recuperable plus tard
+</code></pre></div>
+<p><strong>Point critique</strong> : le chapitre est TOUJOURS utilisable meme si 0 validations faites (Z3-AC06). La validation est encouragee mais jamais bloquante.</p>
+<hr />
+<h3 id="parcours-9-gestion-de-contenu-ocr-incomplet">Parcours 9 : Gestion de contenu OCR incomplet<a class="headerlink" href="#parcours-9-gestion-de-contenu-ocr-incomplet" title="Permanent link">&para;</a></h3>
+<p><strong>Acteurs</strong> : Eleve, systeme
+<strong>Objectif</strong> : Continuer a travailler malgre des pages problematiques
+<strong>ACs</strong> : Z2-AC01, Z2-AC02, Z2-AC04, Z2-AC05, Z2-AC11</p>
+<div class="highlight"><pre><span></span><code>Pipeline OCR avec 10 pages
+    |
+    v
+Pages 1-3 traitees, 4-10 en cours
+    |
+    v
+Carte de lecon affiche les items des pages 1-3 (Z2-AC01)
+    + indicateur &quot;3/10 pages analysees&quot;
+    |
+    v
+Page 4 timeout -&gt; badge &quot;Zone illisible page 4&quot; (Z2-AC02)
+Page 5 = 0 items -&gt; marquee no_items_extracted (Z2-AC04)
+Page 6 = erreur LLM -&gt; badge &quot;Exercices non generes page 6&quot; + bouton Reessayer (Z2-AC11)
+    |
+    v
+L&#39;eleve peut lancer le diagnostic sur les items disponibles
+Le chapitre N&#39;EST PAS bloque
+</code></pre></div>
+<hr />
+<h2 id="5-flow-detaille-ecran-par-ecran">5. Flow detaille ecran par ecran<a class="headerlink" href="#5-flow-detaille-ecran-par-ecran" title="Permanent link">&para;</a></h2>
+<p>Voir le document dedie : <a href="../screen-inventory/"><code>docs/ux/screen-inventory.md</code></a></p>
+<p><strong>Resume</strong> : 20 ecrans au total.
+- 8 existants : Dashboard, Capture, Settings, Onboarding, Processing, Chapter detail, Session, Debrief
+- 12 a creer : Validation HITL, Recovery OCR, Creation exam, Emploi du temps, Invitation parent, Dashboard parent, Onboarding parent, Angles morts, Fiche PDF, Report papier, Cloture soiree, Controle blanc</p>
+<hr />
+<h2 id="6-modele-detats-par-ecran-critique">6. Modele d'etats par ecran critique<a class="headerlink" href="#6-modele-detats-par-ecran-critique" title="Permanent link">&para;</a></h2>
+<p>Voir le document dedie : <a href="../state-model/"><code>docs/ux/state-model.md</code></a></p>
+<p>11 etats couverts pour 8 ecrans critiques : Default, Loading, Processing, Success, Empty, Partial, Stale, OCR Uncertainty, Error, Blocked, Retry.</p>
+<hr />
+<h2 id="7-edge-cases-et-chemins-de-recuperation">7. Edge cases et chemins de recuperation<a class="headerlink" href="#7-edge-cases-et-chemins-de-recuperation" title="Permanent link">&para;</a></h2>
+<p>Voir le document dedie : <a href="../edge-cases/"><code>docs/ux/edge-cases.md</code></a></p>
+<p>30 edge cases repartis en 6 categories : Capture photo (6), Session de revision (7), Validation HITL (4), Adoption et engagement (6), Connectivite (3), Cas limites techniques (4).</p>
+<hr />
+<h2 id="8-principes-ux-pedagogiques">8. Principes UX pedagogiques<a class="headerlink" href="#8-principes-ux-pedagogiques" title="Permanent link">&para;</a></h2>
+<h3 id="principe-1-rappel-actif-relecture">Principe 1 : Rappel actif &gt; relecture<a class="headerlink" href="#principe-1-rappel-actif-relecture" title="Permanent link">&para;</a></h3>
+<p>Toute session genere des questions. L'eleve ne relit jamais passivement. Meme le mode fallback (LLM indisponible, Z4-AC12) utilise des flashcards avec "Je savais / Je ne savais pas".</p>
+<p><strong>Implication design</strong> : pas d'ecran de "lecture de la lecon" comme activite principale. Le bouton "Voir ma lecon" (Z1-AC21) est contextuel (pendant une question), pas un mode de revision.</p>
+<h3 id="principe-2-repetition-espacee-invisible">Principe 2 : Repetition espacee invisible<a class="headerlink" href="#principe-2-repetition-espacee-invisible" title="Permanent link">&para;</a></h3>
+<p>L'algorithme SRS (UNKNOWN -&gt; FRAGILE -&gt; OK -&gt; SOLID avec next_due_at) est entierement transparent pour l'eleve. Il ne voit pas les intervalles, les dates, les algorithmes. Il voit : "Ce soir : 3 activites, ~15 min."</p>
+<p><strong>Implication design</strong> : jamais montrer next_due_at a l'eleve. Le dashboard soiree presente un plan, pas un calendrier de revision.</p>
+<h3 id="principe-3-espacement-obligatoire-pour-solid">Principe 3 : Espacement obligatoire pour SOLID<a class="headerlink" href="#principe-3-espacement-obligatoire-pour-solid" title="Permanent link">&para;</a></h3>
+<p>La transition OK -&gt; SOLID exige 2 reussites espacees de 24h minimum (Z1-AC03/AC04). L'eleve ne peut pas "grinder" un item en SOLID en une seule session.</p>
+<p><strong>Implication design</strong> : message explicatif quand l'espacement bloque la progression : "Bonne reponse ! Reviens demain pour verrouiller ce point -- ton cerveau a besoin d'une nuit pour bien memoriser."</p>
+<h3 id="principe-4-double-codage-paivio">Principe 4 : Double codage (Paivio)<a class="headerlink" href="#principe-4-double-codage-paivio" title="Permanent link">&para;</a></h3>
+<p>Les blocs visuels du cahier (schemas, graphiques, tableaux) sont preserves et reutilises dans les questions (Z2-AC15, Z4-AC17). L'eleve voit le schema de son cahier dans le quiz.</p>
+<p><strong>Implication design</strong> : les questions visuelles affichent l'image au-dessus du texte, avec zoom plein ecran (Z2-AC18). Placeholder aux dimensions exactes pour eviter le reflow.</p>
+<h3 id="principe-5-growth-mindset-dans-tous-les-messages">Principe 5 : Growth mindset dans tous les messages<a class="headerlink" href="#principe-5-growth-mindset-dans-tous-les-messages" title="Permanent link">&para;</a></h3>
+<p>Aucun message ne dit "echec", "regression", "tu as perdu". Les regressions sont framed comme "refresh", "a revoir", "pas encore acquis" (Z1-AC05, Z1-AC06, Z1-AC26).</p>
+<p><strong>Implication design</strong> : fichier de strings centralise avec review systematique du framing. Chaque message negatif doit etre reformule en action future positive.</p>
+<h3 id="principe-6-pas-de-streak-pas-de-gamification-punitive">Principe 6 : Pas de streak, pas de gamification punitive<a class="headerlink" href="#principe-6-pas-de-streak-pas-de-gamification-punitive" title="Permanent link">&para;</a></h3>
+<p>L'app ne compte pas les jours consecutifs (Z6-AC15). Pas de mecanique de type "tu as perdu ta serie de 7 jours". La seule recompense est la progression de maitrise (UNKNOWN -&gt; SOLID).</p>
+<p><strong>Implication design</strong> : les micro-celebrations (Z1-AC14) portent sur les transitions de maitrise, pas sur la regularite. Le debrief valorise ce qui a progresse, pas combien de jours d'affilee.</p>
+<hr />
+<h2 id="9-principes-dequilibre-parenteleve">9. Principes d'equilibre parent/eleve<a class="headerlink" href="#9-principes-dequilibre-parenteleve" title="Permanent link">&para;</a></h2>
+<h3 id="ce-que-le-parent-doit-voir">Ce que le parent DOIT voir<a class="headerlink" href="#ce-que-le-parent-doit-voir" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Maitrise globale par chapitre (% items OK+SOLID)</li>
+<li>Frequence de revision (sessions/semaine, temps total)</li>
+<li>Alertes risque reel : inactivite 3+ jours, controle dans 3 jours avec items FRAGILE</li>
+<li>Qualite du signal : score_confidence, items en verification</li>
+</ul>
+<h3 id="ce-que-le-parent-ne-doit-pas-dominer">Ce que le parent NE DOIT PAS dominer<a class="headerlink" href="#ce-que-le-parent-ne-doit-pas-dominer" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Le detail question par question (l'eleve a droit a l'intimite de ses erreurs)</li>
+<li>Le temps exact de chaque session (le parent n'est pas un chrono)</li>
+<li>Les regressions individuelles (le parent voit les tendances, pas les micro-echecs)</li>
+<li>L'emploi du temps modifie (l'eleve gere, le parent est notifie si opt-in)</li>
+</ul>
+<h3 id="comment-leleve-percoit-la-presence-du-parent">Comment l'eleve percoit la presence du parent<a class="headerlink" href="#comment-leleve-percoit-la-presence-du-parent" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Invisible au quotidien</strong> : l'eleve ne voit JAMAIS "ton parent a ete prevenu" (Z6-AC17 note). La notification parent est unidirectionnelle.</li>
+<li><strong>Presente a 2 moments</strong> : (1) l'invitation initiale apres la premiere session, (2) les ValidationTasks si le parent est en mode actif (max 3/semaine).</li>
+<li><strong>Percue comme un allie, pas un flic</strong> : le script 3 minutes est un moment de discussion parent-enfant autour du cours, pas un interrogatoire.</li>
+</ul>
+<h3 id="design-principles-pour-lintergenerationnel">Design principles pour l'intergenerationnel<a class="headerlink" href="#design-principles-pour-lintergenerationnel" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Pas enfantin</strong> : pas de mascottes, pas d'etoiles, pas de confettis excessifs. Les micro-celebrations sont des messages textuels + animations subtiles.</li>
+<li><strong>Pas froid</strong> : le tutoiement (eleve), les messages personalises avec prenom, le ton encourageant.</li>
+<li><strong>Pas bureaucratique</strong> : le parent voit des barres de couleur et des % lisibles, pas des tableaux Excel.</li>
+<li><strong>Deux niveaux de lecture</strong> : le meme score "72% maitrise" est lisible par l'eleve (barre de couleur) et par le parent (% numerique + label "Compris, a consolider").</li>
+</ol>
+<hr />
+<h2 id="10-implications-pour-limplementation-react-native">10. Implications pour l'implementation React Native<a class="headerlink" href="#10-implications-pour-limplementation-react-native" title="Permanent link">&para;</a></h2>
+<h3 id="liste-des-ecrans-et-routes-expo-router">Liste des ecrans et routes Expo Router<a class="headerlink" href="#liste-des-ecrans-et-routes-expo-router" title="Permanent link">&para;</a></h3>
+<p>Voir <a href="../screen-inventory/"><code>docs/ux/screen-inventory.md</code></a> pour la liste complete.</p>
+<h3 id="logique-de-navigation">Logique de navigation<a class="headerlink" href="#logique-de-navigation" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>Root (_layout.tsx)
+├── (tabs)/
+│   ├── index.tsx          -- Dashboard eleve
+│   ├── capture.tsx        -- Capture photo
+│   └── settings.tsx       -- Parametres
+├── onboarding.tsx         -- Onboarding eleve
+├── processing.tsx         -- Pipeline OCR
+├── recovery.tsx           -- Recovery OCR       (a creer)
+├── chapter/[id].tsx       -- Detail chapitre
+├── session/[id].tsx       -- Session revision
+├── validation/[id].tsx    -- Validation HITL    (a creer)
+├── exam/create.tsx        -- Creation exam      (a creer)
+├── schedule.tsx           -- Emploi du temps    (a creer)
+├── invite-parent.tsx      -- Invitation parent  (a creer)
+├── blind-spots.tsx        -- Angles morts       (a creer)
+├── paper-report/[id].tsx  -- Report papier      (a creer)
+└── parent/                                      (a creer)
+    ├── dashboard.tsx      -- Dashboard parent
+    └── onboarding.tsx     -- Onboarding parent
+</code></pre></div>
+<h3 id="etat-partage-context-vs-local-vs-tanstack-query-prevu">Etat partage : Context vs local vs TanStack Query (prevu)<a class="headerlink" href="#etat-partage-context-vs-local-vs-tanstack-query-prevu" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Donnee</th>
+<th>Ou vit l'etat</th>
+<th>Justification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Token JWT / auth</td>
+<td>React Context (global)</td>
+<td>Necessaire partout</td>
+</tr>
+<tr>
+<td>User profile (prenom, zone)</td>
+<td>React Context (global)</td>
+<td>Utilise dans les messages personnalises</td>
+</tr>
+<tr>
+<td>Liste des chapitres</td>
+<td>TanStack Query (cache serveur)</td>
+<td>Rafraichi par pull-to-refresh, invalide apres upload</td>
+</tr>
+<tr>
+<td>Masteries</td>
+<td>TanStack Query (cache serveur)</td>
+<td>Invalide apres chaque session</td>
+</tr>
+<tr>
+<td>EveningPlan</td>
+<td>Etat local du dashboard</td>
+<td>Calcule a chaque ouverture, ephemere</td>
+</tr>
+<tr>
+<td>Session en cours</td>
+<td>Etat local de session/[id].tsx</td>
+<td>Specifique a un ecran</td>
+</tr>
+<tr>
+<td>Photos capturees</td>
+<td>Etat local de capture.tsx</td>
+<td>Pas de persistence entre navigations</td>
+</tr>
+<tr>
+<td>Reponses pending_sync</td>
+<td>AsyncStorage (persistance locale)</td>
+<td>Survit au kill de l'app</td>
+</tr>
+</tbody>
+</table>
+<h3 id="patterns-reutilisables">Patterns reutilisables<a class="headerlink" href="#patterns-reutilisables" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Composant</th>
+<th>Usage</th>
+<th>Props cles</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EmptyState</code></td>
+<td>Dashboard vide, 0 validations, 0 items</td>
+<td><code>icon</code>, <code>title</code>, <code>subtitle</code>, <code>ctaLabel</code>, <code>onCta</code></td>
+</tr>
+<tr>
+<td><code>ErrorState</code></td>
+<td>Erreur reseau sur tout ecran</td>
+<td><code>message</code>, <code>onRetry</code></td>
+</tr>
+<tr>
+<td><code>LoadingSkeleton</code></td>
+<td>Placeholder pendant chargement</td>
+<td><code>variant</code> (card, list, bar)</td>
+</tr>
+<tr>
+<td><code>MasteryBar</code></td>
+<td>Barre de maitrise (existant)</td>
+<td><code>breakdown</code>, <code>height</code>, <code>showLabel</code></td>
+</tr>
+<tr>
+<td><code>MasteryBadge</code></td>
+<td>Badge etat d'un item (existant)</td>
+<td><code>state</code></td>
+</tr>
+<tr>
+<td><code>FeedbackCard</code></td>
+<td>Feedback post-reponse</td>
+<td><code>isCorrect</code>, <code>expected</code>, <code>missing</code>, <code>hint</code></td>
+</tr>
+<tr>
+<td><code>MicroCelebration</code></td>
+<td>Animation transition positive</td>
+<td><code>fromState</code>, <code>toState</code>, <code>term</code></td>
+</tr>
+<tr>
+<td><code>ProgressSteps</code></td>
+<td>Checklist etapes (onboarding, plan soiree)</td>
+<td><code>steps[]</code>, <code>currentIndex</code></td>
+</tr>
+<tr>
+<td><code>ProcessingPhase</code></td>
+<td>Phase 1/2/3 du pipeline</td>
+<td><code>phase</code>, <code>progress</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="types-typescript-props-majeurs">Types TypeScript (props majeurs)<a class="headerlink" href="#types-typescript-props-majeurs" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// EveningPlan</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">EveningStep</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kr">type</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;capture&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;evening_first&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;daily&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;pre_class&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">subject_label</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">estimated_duration_min</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;pending&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;in_progress&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;completed&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;skipped&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">session_id?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kr">type</span><span class="w"> </span><span class="nx">EveningPlan</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">steps</span><span class="o">:</span><span class="w"> </span><span class="kt">EveningStep</span><span class="p">[];</span>
+<span class="w">  </span><span class="nx">total_duration_min</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">mode</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;full&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;express&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">completed_at?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="c1">// Feedback</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">FeedbackData</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">is_correct</span><span class="o">:</span><span class="w"> </span><span class="kt">boolean</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">expected_answer</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">missing_elements?</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[];</span>
+<span class="w">  </span><span class="nx">hint</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">transition</span><span class="o">?:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">from_state</span><span class="o">:</span><span class="w"> </span><span class="kt">MasteryState</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">to_state</span><span class="o">:</span><span class="w"> </span><span class="kt">MasteryState</span><span class="p">;</span>
+<span class="w">    </span><span class="nx">term</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="p">};</span>
+<span class="p">};</span>
+
+<span class="c1">// Validation</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">ValidationAction</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s1">&#39;confirm&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;correct&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;skip&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;ignore&#39;</span><span class="p">;</span>
+
+<span class="kr">type</span><span class="w"> </span><span class="nx">ValidationTask</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">item_id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">suggestion</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">source</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;fidelity_check&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;coherence_check&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;student_report&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;anomaly_detection&#39;</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">status</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;PENDING&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;RESOLVED_CONFIRMED&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;RESOLVED_CORRECTED&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;DEFERRED_BY_STUDENT&#39;</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="s1">&#39;IGNORED_BY_STUDENT&#39;</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="c1">// Parent dashboard</span>
+<span class="kr">type</span><span class="w"> </span><span class="nx">ParentChapterSummary</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">id</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">subject</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">mastery_pct</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span><span class="w">           </span><span class="c1">// % items OK+SOLID</span>
+<span class="w">  </span><span class="nx">validation_pending_count</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">mastery_label</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span><span class="w">         </span><span class="c1">// &quot;Bien acquis&quot;, &quot;En cours d&#39;apprentissage&quot;</span>
+<span class="p">};</span>
+
+<span class="kr">type</span><span class="w"> </span><span class="nx">ParentDigest</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">sessions_count</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">total_revision_min</span><span class="o">:</span><span class="w"> </span><span class="kt">number</span><span class="p">;</span>
+<span class="w">  </span><span class="nx">chapters</span><span class="o">:</span><span class="w"> </span><span class="kt">ParentChapterSummary</span><span class="p">[];</span>
+<span class="w">  </span><span class="nx">alerts</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">[];</span>
+<span class="w">  </span><span class="nx">next_action</span><span class="o">:</span><span class="w"> </span><span class="kt">string</span><span class="p">;</span>
+<span class="p">};</span>
+</code></pre></div>
+<hr />
+<h2 id="11-decisions-produit-ouvertes">11. Decisions produit ouvertes<a class="headerlink" href="#11-decisions-produit-ouvertes" title="Permanent link">&para;</a></h2>
+<p>Voir le document dedie : <a href="../open-decisions/"><code>docs/ux/open-decisions.md</code></a></p>
+<p>11 decisions identifiees, dont 3 bloquantes pour le Lot 0 P2 :
+1. App unique vs separee pour le parent
+2. Auto-evaluation vs scoring automatique MCQ
+3. Position du bouton "Ajouter des pages"</p>
+<hr />
+<h2 id="12-recommandations-ux-finales">12. Recommandations UX finales<a class="headerlink" href="#12-recommandations-ux-finales" title="Permanent link">&para;</a></h2>
+<h3 id="r1-prioriser-le-time-to-first-quiz-ttfq">R1 : Prioriser le "Time to First Quiz" (TTFQ)<a class="headerlink" href="#r1-prioriser-le-time-to-first-quiz-ttfq" title="Permanent link">&para;</a></h3>
+<p>Le chapitre demo (Z8-AC01) est le meilleur investissement UX du Lot 0. Un eleve qui fait son premier quiz en 3 minutes a 5x plus de chances de revenir le lendemain. Le TTFQ doit etre mesure et optimise comme metrique produit primaire.</p>
+<h3 id="r2-le-plan-de-soiree-est-le-produit">R2 : Le plan de soiree est le produit<a class="headerlink" href="#r2-le-plan-de-soiree-est-le-produit" title="Permanent link">&para;</a></h3>
+<p>Le dashboard soiree (Z7-AC02) n'est pas une feature -- c'est l'interface principale. L'eleve ne devrait jamais avoir a decider quoi faire. Le plan decide pour lui. L'estimation de duree et l'ecran de cloture sont les deux extremites du "contrat" avec l'eleve.</p>
+<h3 id="r3-investir-dans-le-feedback-enrichi-z4-ac09-avant-tout-le-reste">R3 : Investir dans le feedback enrichi (Z4-AC09) avant tout le reste<a class="headerlink" href="#r3-investir-dans-le-feedback-enrichi-z4-ac09-avant-tout-le-reste" title="Permanent link">&para;</a></h3>
+<p>Un feedback qui dit "Faux -- la bonne reponse est X" n'enseigne rien. Le feedback enrichi (reponse correcte + ce qui manquait + indice 1 phrase) est le micro-moment d'apprentissage le plus puissant de chaque session. Il doit etre templatise (pas LLM en temps reel) pour garantir la rapidite (&lt; 200 ms).</p>
+<h3 id="r4-tester-le-mode-express-z7-ac08-des-la-premiere-semaine">R4 : Tester le mode express (Z7-AC08) des la premiere semaine<a class="headerlink" href="#r4-tester-le-mode-express-z7-ac08-des-la-premiere-semaine" title="Permanent link">&para;</a></h3>
+<p>Le mode "Je n'ai pas beaucoup de temps" est un anti-churn majeur. 5 minutes de revision ciblee valent infiniment mieux que 0 minute. Si l'eleve ne voit pas ce bouton, il saute la revision entierement les soirs charges.</p>
+<h3 id="r5-la-notification-routine-terminee-est-le-killer-feature-parent">R5 : La notification "routine terminee" est le killer feature parent<a class="headerlink" href="#r5-la-notification-routine-terminee-est-le-killer-feature-parent" title="Permanent link">&para;</a></h3>
+<p>Le parent qui recoit "Theo a termine sa revision du soir : 3 matieres, 14 min" chaque soir n'a pas besoin d'ouvrir l'app. C'est le signal de confiance maximal avec le cout minimal. Implementer Z7-AC13 le plus tot possible.</p>
+<h3 id="r6-ne-jamais-montrer-un-ecran-vide">R6 : Ne jamais montrer un ecran vide<a class="headerlink" href="#r6-ne-jamais-montrer-un-ecran-vide" title="Permanent link">&para;</a></h3>
+<p>Chaque ecran a un empty state explicite avec un CTA. Le dashboard vide a le chapitre demo. La session sans items a le message "Bravo, tu es a jour". Le dashboard parent sans activite a "Vous serez notifie des la premiere session". Aucun ecran ne doit laisser l'utilisateur face a du vide sans action possible.</p>
+<h3 id="r7-mesurer-le-taux-dechec-du-premier-ocr">R7 : Mesurer le taux d'echec du premier OCR<a class="headerlink" href="#r7-mesurer-le-taux-dechec-du-premier-ocr" title="Permanent link">&para;</a></h3>
+<p>L'echec du premier OCR (Z8-AC03) est le point de churn #1 du funnel. Logger chaque <code>j0_first_upload_recovery</code> et monitorer le taux. Si &gt; 20% des premiers uploads echouent, c'est un probleme systeme, pas un probleme utilisateur.</p>
+<h3 id="r8-implementer-la-persistance-locale-des-reponses-z6-ac31-tot">R8 : Implementer la persistance locale des reponses (Z6-AC31) tot<a class="headerlink" href="#r8-implementer-la-persistance-locale-des-reponses-z6-ac31-tot" title="Permanent link">&para;</a></h3>
+<p>Un collegien utilise l'app dans le bus, en zone blanche, avec du wifi instable. Une deconnexion de 10 secondes ne doit jamais perdre une reponse. La persistance optimiste cote client est un prerequis pour toute session fiable en mobilite.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Retour en haut de la page
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/popul/ReviseMieux" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

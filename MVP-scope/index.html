@@ -1,0 +1,3664 @@
+
+<!doctype html>
+<html lang="fr" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://popul.github.io/ReviseMieux/MVP-scope/">
+      
+      
+        <link rel="prev" href="../PRD/">
+      
+      
+        <link rel="next" href="../lot0-tracker/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Scope MVP - Revise Mieux — Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#classification-mvp-revise-mieux" class="md-skip">
+          Aller au contenu
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="En-tête">
+    <a href=".." title="Revise Mieux — Documentation" class="md-header__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Revise Mieux — Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Scope MVP
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode sombre"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mode sombre" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode clair"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mode clair" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Rechercher" placeholder="Rechercher" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Recherche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Effacer" aria-label="Effacer" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initialisation de la recherche
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Onglets" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Accueil
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Demarrage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../PRD/" class="md-tabs__link">
+          
+  
+  
+  Produit
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../ac/Z1/" class="md-tabs__link">
+          
+  
+  
+  Criteres d'acceptation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../architecture/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../ux/user-flow-complete/" class="md-tabs__link">
+          
+  
+  
+  UX
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../design/" class="md-tabs__link">
+          
+  
+  
+  Design System
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../llm-strategy/" class="md-tabs__link">
+          
+  
+  
+  Technique
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../user-journeys/first-connection/" class="md-tabs__link">
+          
+  
+  
+  Parcours
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/" class="md-tabs__link">
+          
+  
+  
+  Contribuer
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Revise Mieux — Documentation" class="md-nav__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Revise Mieux — Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accueil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demarrage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Produit
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Produit
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PRD/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PRD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope MVP
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope MVP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#legende" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Légende
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z1-transitions-mastery-28-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z1 — Transitions Mastery (28 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-pipeline-j0-error-paths-timeouts-18-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2 — Pipeline J0 — Error paths &amp; timeouts (18 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z3-validation-hitl-skip-ignore-quality-17-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z3 — Validation HITL — Skip / Ignore / Quality (17 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-lazy-generation-concurrence-cache-17-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4 — Lazy generation — Concurrence &amp; cache (17 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z5-chapterrevision-item-identity-mastery-inheritance-11-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z5 — ChapterRevision — Item identity &amp; Mastery inheritance (11 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z6-schedule-notifications-engagement-parent-trust-46-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z6 — Schedule, Notifications, Engagement &amp; Parent trust (46 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z7-routine-de-soiree-orchestration-26-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z7 — Routine de soirée &amp; Orchestration (26 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z8-onboarding-first-use-experience-8-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z8 — Onboarding &amp; First Use Experience (8 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resume" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Résumé
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lot0-tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracker Lot 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Criteres d'acceptation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Criteres d'acceptation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z1 — Mastery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z2 — Pipeline J0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z3 — Validation HITL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z4 — Sessions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z5 — Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z6 — Schedule
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z7 — Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z8 — Onboarding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/ocr-idp-incremental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OCR/IDP incremental
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/merge-decision-table/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regles de merge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UX
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UX
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/user-flow-complete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/personas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Personas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/screen-inventory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ecrans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/state-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modele d'etats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/edge-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Edge cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/open-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions ouvertes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/design-principles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Principes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/color-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Couleurs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/typography/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Typographie
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/component-philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/do-dont/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Do / Don't
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/moodboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Moodboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/scalability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scalabilite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technique
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Technique
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strategie LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm-benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../process/feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parcours
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Parcours
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-journeys/first-connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Premiere connexion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contribuer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contribuer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide contribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploiement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#legende" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Légende
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z1-transitions-mastery-28-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z1 — Transitions Mastery (28 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z2-pipeline-j0-error-paths-timeouts-18-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2 — Pipeline J0 — Error paths &amp; timeouts (18 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z3-validation-hitl-skip-ignore-quality-17-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z3 — Validation HITL — Skip / Ignore / Quality (17 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z4-lazy-generation-concurrence-cache-17-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4 — Lazy generation — Concurrence &amp; cache (17 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z5-chapterrevision-item-identity-mastery-inheritance-11-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z5 — ChapterRevision — Item identity &amp; Mastery inheritance (11 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z6-schedule-notifications-engagement-parent-trust-46-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z6 — Schedule, Notifications, Engagement &amp; Parent trust (46 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z7-routine-de-soiree-orchestration-26-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z7 — Routine de soirée &amp; Orchestration (26 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z8-onboarding-first-use-experience-8-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z8 — Onboarding &amp; First Use Experience (8 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resume" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Résumé
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="classification-mvp-revise-mieux">Classification MVP — Revise Mieux<a class="headerlink" href="#classification-mvp-revise-mieux" title="Permanent link">&para;</a></h1>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Total ACs</strong></td>
+<td>171 (8 zones) · dont <strong>53 Lot 0</strong> (33 P1 + 20 P2)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="legende">Légende<a class="headerlink" href="#legende" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Classification</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MVP Core</strong></td>
+<td>Le produit ne fonctionne pas sans. Bloquant pour le lancement.</td>
+</tr>
+<tr>
+<td><strong>MVP Hardening</strong></td>
+<td>Non bloquant jour 1, mais churn mesurable dans les 2-3 premières semaines. Fortement recommandé au lancement.</td>
+</tr>
+<tr>
+<td><strong>Post-MVP</strong></td>
+<td>Raffinements et maturité opérationnelle. Peut attendre mois 2-3.</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>Lot 0</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P1</strong></td>
+<td>La boucle fonctionne. Version locale minimale père-fils.</td>
+</tr>
+<tr>
+<td><strong>P2</strong></td>
+<td>Expérience quotidienne complète sur les 4 packs pilotes.</td>
+</tr>
+<tr>
+<td><strong>—</strong></td>
+<td>Différé au MVP complet.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="z1-transitions-mastery-28-acs">Z1 — Transitions Mastery (28 ACs)<a class="headerlink" href="#z1-transitions-mastery-28-acs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>AC</th>
+<th>Titre</th>
+<th>Classification</th>
+<th>Lot 0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Z1-AC01</td>
+<td>UNKNOWN → FRAGILE progression</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z1-AC02</td>
+<td>FRAGILE → OK progression</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z1-AC03</td>
+<td>OK → SOLID (espacement 24h)</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z1-AC04</td>
+<td>Blocage OK → SOLID sans espacement</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z1-AC05</td>
+<td>SOLID → OK régression sur échec</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z1-AC06</td>
+<td>OK → FRAGILE régression sur échec</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z1-AC07</td>
+<td>FRAGILE reste FRAGILE sur échec</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z1-AC07b</td>
+<td>Récupération FRAGILE après régression (cs=0, réponse correcte)</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z1-AC07c</td>
+<td>Récupération OK après régression (cs&lt;2, réponse correcte)</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z1-AC08</td>
+<td>Resserrement proportionnel si exam posé</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z1-AC09</td>
+<td>Indépendance des mastery entre items</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z1-AC10</td>
+<td>Scoring par type de question (RUBRIC, NUMERIC, KEYWORDS)</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z1-AC11</td>
+<td>Échec sur item UNKNOWN (pas de sub-UNKNOWN)</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z1-AC12</td>
+<td>Maintien SOLID sur succès continu</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z1-AC13</td>
+<td>Plafond maîtrise OK pour items restreints aux templates simples</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z1-AC14</td>
+<td>Micro-célébrations transitions positives</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z1-AC15</td>
+<td>Débrief fin de session</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z1-AC16</td>
+<td>Caveat score mock exam items non validés</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z1-AC17</td>
+<td>Script 3 min : exclure items sous investigation</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z1-AC18</td>
+<td>Changement date exam → recalcul intervalles</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z1-AC19</td>
+<td>Descente de difficulté après échecs répétés</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z1-AC20</td>
+<td>Détection starvation items UNKNOWN &amp; rattrapage</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z1-AC21</td>
+<td>Bouton « Voir ma leçon » contextuel pendant une question</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z1-AC22</td>
+<td>Bouton « Je ne comprends pas la question » : reformulation</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z1-AC23</td>
+<td>Réponse partielle encouragée : scoring graduel</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z1-AC24</td>
+<td>Matrice de transition maîtrise avec hint, clarification et score partiel</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z1-AC25</td>
+<td>Jugement de confiance (JOL) pour entraîner la métacognition</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z1-AC26</td>
+<td>Framing growth mindset systématique dans tous les messages</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Note :</strong> Z1-AC19 reclassifié Post-MVP → MVP Core. La descente de difficulté après 3 échecs consécutifs est indispensable pour le public cible (11-15 ans) : sans elle, le cycle de frustration sur un item difficile provoque l'abandon dès la première semaine. Le renvoi vers la carte de leçon et la pause J+2 après 5 échecs transforment un moment d'échec en apprentissage.</p>
+</blockquote>
+<hr />
+<h2 id="z2-pipeline-j0-error-paths-timeouts-18-acs">Z2 — Pipeline J0 — Error paths &amp; timeouts (18 ACs)<a class="headerlink" href="#z2-pipeline-j0-error-paths-timeouts-18-acs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>AC</th>
+<th>Titre</th>
+<th>Classification</th>
+<th>Lot 0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Z2-AC01</td>
+<td>Carte leçon partielle si OCR en cours</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z2-AC02</td>
+<td>Timeout OCR sur page intermédiaire</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z2-AC03</td>
+<td>Photo floue détectée (confidence &lt; 0.3)</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z2-AC04</td>
+<td>Aucun item généré sur une page</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z2-AC05</td>
+<td>Échec génération items (erreur LLM)</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z2-AC06</td>
+<td>Idempotence pipeline au restart</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z2-AC07</td>
+<td>Diagnostic impossible si 0 items valides</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z2-AC08</td>
+<td>Bloc SCHEMA/MAP conservé comme Document image</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z2-AC09</td>
+<td>File validation plafonnée à 8</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z2-AC10</td>
+<td>Streaming carte leçon (première page dispo)</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z2-AC11</td>
+<td>Retry élève pour pages en échec de génération</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z2-AC12</td>
+<td>Rétention crops alignée RGPD (J+30)</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z2-AC13</td>
+<td>Versioning modèle LLM pour reproductibilité</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z2-AC14</td>
+<td>Pipeline incrémental pour ajout de pages</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z2-AC15</td>
+<td>Détection et préservation des zones visuelles (dual coding)</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z2-AC16</td>
+<td>Extraction structure tableaux dessinés (lignes/colonnes)</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z2-AC17</td>
+<td>Qualité minimale des crops visuels (résolution, cadrage, stockage)</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z2-AC18</td>
+<td>Rendu des visuels pendant les sessions de révision</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Note :</strong> Z2-AC13 reclassifié Post-MVP → MVP Core. Pour un produit éducatif destiné à des mineurs, la traçabilité des modèles LLM utilisés est une exigence de qualité et de conformité dès le lancement. Sans versioning, un changement de modèle silencieux peut dégrader la qualité des items sans diagnostic possible.</p>
+</blockquote>
+<hr />
+<h2 id="z3-validation-hitl-skip-ignore-quality-17-acs">Z3 — Validation HITL — Skip / Ignore / Quality (17 ACs)<a class="headerlink" href="#z3-validation-hitl-skip-ignore-quality-17-acs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>AC</th>
+<th>Titre</th>
+<th>Classification</th>
+<th>Lot 0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Z3-AC01</td>
+<td>Gabarits bloqués sur item validation_required non résolu</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z3-AC02</td>
+<td>Action Confirmer sur ValidationTask</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z3-AC03</td>
+<td>Action Corriger sur ValidationTask</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z3-AC04</td>
+<td>Action « Je ne sais pas » sur ValidationTask</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z3-AC05</td>
+<td>Action Ignorer sur ValidationTask</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z3-AC06</td>
+<td>Chapitre utilisable avec 0 validations faites</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z3-AC07</td>
+<td>Régénération cache ciblée après résolution</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z3-AC08</td>
+<td>Parent actif : max 3 ValidationTasks/semaine</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z3-AC09</td>
+<td>Pas de ValidationTask si confidence &gt; 0.85</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z3-AC10</td>
+<td>Vérification croisée LLM (fidelity check)</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z3-AC11</td>
+<td>Cohérence intra-chapitre (doublons et contradictions)</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z3-AC12</td>
+<td>Signalement d'erreur par l'élève</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z3-AC13</td>
+<td>Détection anomalie par taux d'échec</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z3-AC14</td>
+<td>Rétractation de validation erronée</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z3-AC15</td>
+<td>Anti-clicking aveugle (détection réponse &lt; 2s)</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z3-AC16</td>
+<td>Récupération items Ignorés par l'élève</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z3-AC17</td>
+<td>Garde-fou template/type pour items restreints</td>
+<td>Post-MVP</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="z4-lazy-generation-concurrence-cache-17-acs">Z4 — Lazy generation — Concurrence &amp; cache (17 ACs)<a class="headerlink" href="#z4-lazy-generation-concurrence-cache-17-acs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>AC</th>
+<th>Titre</th>
+<th>Classification</th>
+<th>Lot 0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Z4-AC01</td>
+<td>Pas de doublons sur composition simultanée</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z4-AC02</td>
+<td>Pool de questions non partagé entre sessions actives</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z4-AC03</td>
+<td>Invalidation cache (HITL, pack, exam)</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z4-AC04</td>
+<td>Session interrompue reprise depuis dernier état</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z4-AC05</td>
+<td>Contraintes pack respectées dans composition lazy</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z4-AC06</td>
+<td>Pool vide : dégradation gracieuse</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z4-AC07</td>
+<td>Mock exam non bloqué par session daily active</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z4-AC08</td>
+<td>Variété gabarits en session (anti-monotonie)</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z4-AC09</td>
+<td>Feedback enrichi après réponse incorrecte</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z4-AC10</td>
+<td>Bouton Passer sans pénalité maîtrise</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z4-AC11</td>
+<td>Session viable sur petit chapitre (&lt; 5 items)</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z4-AC12</td>
+<td>Contenu fallback si LLM indisponible</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z4-AC13</td>
+<td>État « tout à jour » : session consolidation optionnelle</td>
+<td>Post-MVP</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z4-AC14</td>
+<td>Sélection du gabarit adaptée à l'état de maîtrise</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z4-AC15</td>
+<td>Interleaving inter-chapitres dans les sessions daily</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z4-AC16</td>
+<td>Calibration dynamique de la difficulté (cible 70-85% réussite)</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z4-AC17</td>
+<td>Génération de gabarits visuels par le LLM</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="z5-chapterrevision-item-identity-mastery-inheritance-11-acs">Z5 — ChapterRevision — Item identity &amp; Mastery inheritance (11 ACs)<a class="headerlink" href="#z5-chapterrevision-item-identity-mastery-inheritance-11-acs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>AC</th>
+<th>Titre</th>
+<th>Classification</th>
+<th>Lot 0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Z5-AC01</td>
+<td>Clé d'identité canonique de l'item</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z5-AC02</td>
+<td>Héritage mastery sur re-upload (même item)</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z5-AC03</td>
+<td>Conflit OCR : terme ambigu entre révisions</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z5-AC04</td>
+<td>Révision courante unique par chapitre</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z5-AC05</td>
+<td>Sessions actives non affectées par nouvelle révision</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z5-AC06</td>
+<td>Items archivés non proposés en session</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z5-AC07</td>
+<td>Normalisation insensible ponctuation (I.D.H. = IDH)</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z5-AC08</td>
+<td>Alerte items haute maîtrise absents de la nouvelle révision</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z5-AC09</td>
+<td>Ajout incrémental de pages sans nouvelle révision</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z5-AC10</td>
+<td>Pas de re-OCR des pages existantes lors d'un ajout</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z5-AC11</td>
+<td>Bouton « Ajouter des pages » et parcours UI d'ajout incrémental</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="z6-schedule-notifications-engagement-parent-trust-46-acs">Z6 — Schedule, Notifications, Engagement &amp; Parent trust (46 ACs)<a class="headerlink" href="#z6-schedule-notifications-engagement-parent-trust-46-acs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>AC</th>
+<th>Titre</th>
+<th>Classification</th>
+<th>Lot 0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Z6-AC01</td>
+<td>Saisie emploi du temps contextuelle au premier upload d'une matière</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC02</td>
+<td>Notifications schedule-based (capture ou review)</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC03</td>
+<td>Max 2 notifications par soirée</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC04</td>
+<td>Session evening_first déclenchée après upload</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z6-AC05</td>
+<td>evening_first : 100% UNKNOWN, difficulté 1 uniquement</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z6-AC06</td>
+<td>Session pre_class la veille de chaque cours</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC07</td>
+<td>Fusion pre_class dans daily si même soirée</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC08</td>
+<td>pre_class : scope multi-chapitres par matière</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC09</td>
+<td>Mock exam multi-chapitres couvre tous les chapitres liés</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC10</td>
+<td>Exam multi-chapitre : création et liaison</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z6-AC11</td>
+<td>Mode dégradé sans emploi du temps (global et par matière)</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z6-AC12</td>
+<td>Pas de pre_class si aucun chapitre actif dans la matière</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC13</td>
+<td>Pas de pénalité maîtrise pour items en retard</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z6-AC14</td>
+<td>Rappel unique le lendemain pour session manquée</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC15</td>
+<td>Pas de mécanique de streak</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC16</td>
+<td>Exceptions d'emploi du temps (annulation, déplacement)</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC17</td>
+<td>Notification parent : changement emploi du temps (temps réel)</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC18</td>
+<td>Notification parent : session manquée (lendemain matin)</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC19</td>
+<td>Notification parent : inactivité prolongée (3 jours)</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC20</td>
+<td>Opt-out parent par catégorie de notification</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC21</td>
+<td>Ré-engagement progressif après 7+ jours d'inactivité</td>
+<td>Post-MVP</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC22</td>
+<td>Session « retour en douceur » après absence prolongée</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC23</td>
+<td>Cycle post-exam : archivage progressif des intervalles</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC24</td>
+<td>Diagnostic initial : rampe de difficulté progressive</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC25</td>
+<td>Digest parent : supplément pré-contrôle à J-3</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC26</td>
+<td>Notification parent : résumé hebdo sessions manquées (anti-fatigue)</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC27</td>
+<td>Digest parent hebdo : contenu 5 sections standardisées</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC28</td>
+<td>Digest parent : signalement OCR échoué</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC29</td>
+<td>Labels maîtrise traduits pour les parents</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC30</td>
+<td>Vue progression globale cross-chapitres</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC31</td>
+<td>Résilience réseau : persistance optimiste des réponses</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC32</td>
+<td>Multi-exam par chapitre + resserrement exam le plus proche</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC33</td>
+<td>Session evening_first incrémentale après ajout de pages</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC34</td>
+<td>Dashboard : explication dilution maîtrise après ajout pages</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC35</td>
+<td>Onboarding parent : création de compte et liaison à l'élève</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC36</td>
+<td>Comportement le jour de l'examen</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC37</td>
+<td>Multi-exam overlapping : reset + recompression entre exams</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC38</td>
+<td>Proposition contrôle blanc : J-3 auto + à la demande</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC39</td>
+<td>Parent multi-enfants : une notification par enfant</td>
+<td><strong>MVP Hardening</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC40</td>
+<td>Timezone locale : détection automatique et configuration</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC41</td>
+<td>Zone scolaire et calendrier de vacances intégré</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC42</td>
+<td>Mode vacances : jours et créneau de révision</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC43</td>
+<td>Créneaux d'indisponibilité récurrents (sport, activités)</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC44</td>
+<td>Liaison parent-élève via code 6 caractères</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC45</td>
+<td>Mode vacances : configuration du rythme de révision</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z6-AC46</td>
+<td>Interaction scheduler avec les créneaux d'indisponibilité</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="z7-routine-de-soiree-orchestration-26-acs">Z7 — Routine de soirée &amp; Orchestration (26 ACs)<a class="headerlink" href="#z7-routine-de-soiree-orchestration-26-acs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>AC</th>
+<th>Titre</th>
+<th>Classification</th>
+<th>Lot 0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Z7-AC01</td>
+<td>Calcul automatique du plan de soirée (EveningPlan)</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC02</td>
+<td>Dashboard soirée contextuel (écran d'accueil du soir)</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC03</td>
+<td>Séquencement multi-matières dans le plan</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC04</td>
+<td>Estimation de durée visible avant le début</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC05</td>
+<td>État « fini pour ce soir » et écran de clôture</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC06</td>
+<td>Guidage capture in-app (matières du jour non capturées)</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC07</td>
+<td>Règles de séquencement des types de session</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC08</td>
+<td>Mode express pour soirée courte</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC09</td>
+<td>Complétion partielle et reprise le lendemain</td>
+<td><strong>MVP Hardening</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC10</td>
+<td>Rien à réviser ce soir / week-end</td>
+<td><strong>MVP Hardening</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC11</td>
+<td>Guidage de capture lié au cours de demain</td>
+<td><strong>MVP Hardening</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC12</td>
+<td>Arc émotionnel de la soirée (accueil, transitions, clôture)</td>
+<td><strong>MVP Hardening</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC13</td>
+<td>Notification parent « routine terminée » (signal positif)</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC14</td>
+<td>Onboarding de la première soirée</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC15</td>
+<td>Notions : regroupement des items par concept_tag</td>
+<td><strong>MVP Core</strong></td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z7-AC16</td>
+<td>Vue chapitre par notion (accordéon + maîtrise)</td>
+<td><strong>MVP Core</strong></td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z7-AC17</td>
+<td>Périmètre exam : sélection par notion (auto-scope + ajustement)</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC18</td>
+<td>Auto-suggestion chapitres et notions à la création d'exam</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC19</td>
+<td>Vue « Angles morts » : contenu sans contrôle à venir</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC20</td>
+<td>Prédiction interro surprise : score de probabilité par matière</td>
+<td><strong>MVP Hardening</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC21</td>
+<td>Alerte croisée « notion fragile × jamais testée en contrôle »</td>
+<td><strong>MVP Hardening</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC22</td>
+<td>Bouton « S'avancer » : réviser les items des jours suivants</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC23</td>
+<td>Fiches de révision PDF pour heures d'étude (hors téléphone)</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC24</td>
+<td>Report des résultats papier (checklist post-étude)</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC25</td>
+<td>Nudge bienveillant si session tardive (après 21h)</td>
+<td>MVP Hardening</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z7-AC26</td>
+<td>Report des résultats papier : impact maîtrise et vérification croisée</td>
+<td><strong>MVP Core</strong></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="z8-onboarding-first-use-experience-8-acs">Z8 — Onboarding &amp; First Use Experience (8 ACs)<a class="headerlink" href="#z8-onboarding-first-use-experience-8-acs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>AC</th>
+<th>Titre</th>
+<th>Classification</th>
+<th>Lot 0</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Z8-AC01</td>
+<td>Chapitre démo pré-chargé (cold start)</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z8-AC02</td>
+<td>Empty state guidé avant premier upload</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z8-AC03</td>
+<td>UX de recovery si le premier OCR échoue</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+<tr>
+<td>Z8-AC04</td>
+<td>Écran de progression pendant le traitement J0</td>
+<td>MVP Core</td>
+<td>P1</td>
+</tr>
+<tr>
+<td>Z8-AC05</td>
+<td>Onboarding parent : premiers écrans + digest anticipé</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z8-AC06</td>
+<td>Digest parent anticipé (J+2 après liaison)</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z8-AC07</td>
+<td>Invitation parent : timing optimal dans l'onboarding</td>
+<td>MVP Core</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z8-AC08</td>
+<td>Séquence d'onboarding déterministe (orchestration Day 0)</td>
+<td>MVP Core</td>
+<td>P2</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="resume">Résumé<a class="headerlink" href="#resume" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Classification</th>
+<th style="text-align: center;">Z1</th>
+<th style="text-align: center;">Z2</th>
+<th style="text-align: center;">Z3</th>
+<th style="text-align: center;">Z4</th>
+<th style="text-align: center;">Z5</th>
+<th style="text-align: center;">Z6</th>
+<th style="text-align: center;">Z7</th>
+<th style="text-align: center;">Z8</th>
+<th style="text-align: center;"><strong>Total</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MVP Core</strong></td>
+<td style="text-align: center;">20</td>
+<td style="text-align: center;">13</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">26</td>
+<td style="text-align: center;">17</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;"><strong>106</strong></td>
+</tr>
+<tr>
+<td><strong>MVP Hardening</strong></td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">6</td>
+<td style="text-align: center;">9</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">15</td>
+<td style="text-align: center;">9</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;"><strong>55</strong></td>
+</tr>
+<tr>
+<td><strong>Post-MVP</strong></td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;"><strong>10</strong></td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td style="text-align: center;">28</td>
+<td style="text-align: center;">18</td>
+<td style="text-align: center;">17</td>
+<td style="text-align: center;">17</td>
+<td style="text-align: center;">11</td>
+<td style="text-align: center;">46</td>
+<td style="text-align: center;">26</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;"><strong>171</strong></td>
+</tr>
+<tr>
+<td><strong>Lot 0 P1</strong></td>
+<td style="text-align: center;">12</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">4</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;"><strong>33</strong></td>
+</tr>
+<tr>
+<td><strong>Lot 0 P2</strong></td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">7</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">0</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">1</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;"><strong>20</strong></td>
+</tr>
+<tr>
+<td><strong>Lot 0 Total</strong></td>
+<td style="text-align: center;">15</td>
+<td style="text-align: center;">10</td>
+<td style="text-align: center;">8</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">3</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;">2</td>
+<td style="text-align: center;">5</td>
+<td style="text-align: center;"><strong>53</strong></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Retour en haut de la page
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/popul/ReviseMieux" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

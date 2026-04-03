@@ -1,0 +1,3945 @@
+
+<!doctype html>
+<html lang="fr" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://popul.github.io/ReviseMieux/ux/edge-cases/">
+      
+      
+        <link rel="prev" href="../state-model/">
+      
+      
+        <link rel="next" href="../open-decisions/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Edge cases - Revise Mieux — Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#edge-cases-revise-mieux" class="md-skip">
+          Aller au contenu
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="En-tête">
+    <a href="../.." title="Revise Mieux — Documentation" class="md-header__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Revise Mieux — Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Edge cases
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode sombre"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mode sombre" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode clair"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mode clair" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Rechercher" placeholder="Rechercher" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Recherche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Effacer" aria-label="Effacer" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initialisation de la recherche
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Onglets" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Accueil
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Demarrage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../PRD/" class="md-tabs__link">
+          
+  
+  
+  Produit
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../ac/Z1/" class="md-tabs__link">
+          
+  
+  
+  Criteres d'acceptation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../user-flow-complete/" class="md-tabs__link">
+          
+  
+  
+  UX
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/" class="md-tabs__link">
+          
+  
+  
+  Design System
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../llm-strategy/" class="md-tabs__link">
+          
+  
+  
+  Technique
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-journeys/first-connection/" class="md-tabs__link">
+          
+  
+  
+  Parcours
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/" class="md-tabs__link">
+          
+  
+  
+  Contribuer
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Revise Mieux — Documentation" class="md-nav__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Revise Mieux — Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accueil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demarrage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Produit
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Produit
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../PRD/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PRD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MVP-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope MVP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lot0-tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracker Lot 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Criteres d'acceptation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Criteres d'acceptation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z1 — Mastery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z2 — Pipeline J0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z3 — Validation HITL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z4 — Sessions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z5 — Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z6 — Schedule
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z7 — Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z8 — Onboarding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/ocr-idp-incremental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OCR/IDP incremental
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/merge-decision-table/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regles de merge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UX
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UX
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-flow-complete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../personas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Personas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../screen-inventory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ecrans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../state-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modele d'etats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Edge cases
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Edge cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-capture-photo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Capture photo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Capture photo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec-01-photo-floue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-01 : Photo floue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-02-photo-de-travers-mal-cadree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-02 : Photo de travers / mal cadree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-03-plusieurs-pages-en-une-seule-photo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-03 : Plusieurs pages en une seule photo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-04-pas-de-connexion-pendant-la-capture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-04 : Pas de connexion pendant la capture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-05-pipeline-j0-timeout-ou-echec-complet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-05 : Pipeline J0 timeout ou echec complet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-06-photo-contenant-du-contenu-de-plusieurs-chapitres" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-06 : Photo contenant du contenu de plusieurs chapitres
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-session-de-revision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Session de revision
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Session de revision">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec-07-leleve-ferme-lapp-en-pleine-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-07 : L'eleve ferme l'app en pleine session
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-08-pas-assez-ditems-pour-composer-une-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-08 : Pas assez d'items pour composer une session
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-09-tous-les-items-sont-solid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-09 : Tous les items sont SOLID
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-10-reponse-ambigue-scoring-au-seuil-de-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-10 : Reponse ambigue (scoring au seuil de 0.7)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-11-quiz-trop-difficile-3-echecs-consecutifs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-11 : Quiz trop difficile (3 echecs consecutifs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-12-quiz-trop-facile-92-de-reussite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-12 : Quiz trop facile (&gt; 92% de reussite)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-13-reponses-trop-rapides-anti-clicking-aveugle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-13 : Reponses trop rapides (anti-clicking aveugle)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-validation-hitl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Validation HITL
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Validation HITL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec-14-le-parent-na-jamais-valide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-14 : Le parent n'a jamais valide
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-15-item-rejete-correction-par-le-parent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-15 : Item rejete (correction) par le parent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-16-parent-ne-comprend-pas-un-item" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-16 : Parent ne comprend pas un item
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-17-ado-qui-clique-ignorer-sur-tout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-17 : Ado qui clique "Ignorer" sur tout
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-adoption-et-engagement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Adoption et engagement
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Adoption et engagement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec-18-eleve-abandonne-en-plein-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-18 : Eleve abandonne en plein flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-19-parent-ne-comprend-pas-la-proposition-de-valeur" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-19 : Parent ne comprend pas la proposition de valeur
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-20-leleve-se-sent-juge-par-le-scoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-20 : L'eleve se sent juge par le scoring
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-21-aucun-contenu-exploitable-detecte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-21 : Aucun contenu exploitable detecte
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-22-retour-apres-5-jours-dabsence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-22 : Retour apres 5+ jours d'absence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-23-retour-apres-7-jours-relance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-23 : Retour apres 7+ jours (relance)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-connectivite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Connectivite
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Connectivite">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec-24-perte-de-connexion-pendant-une-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-24 : Perte de connexion pendant une session
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-25-perte-de-connexion-pendant-un-upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-25 : Perte de connexion pendant un upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-26-mode-avion-prolonge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-26 : Mode avion prolonge
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-cas-limites-techniques" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Cas limites techniques
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Cas limites techniques">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec-27-chapitre-avec-plus-de-30-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-27 : Chapitre avec plus de 30 items
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-28-double-page-identique-uploadee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-28 : Double page identique uploadee
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-29-llm-indisponible-prolonge-5-min" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-29 : LLM indisponible prolonge (&gt; 5 min)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-30-session-tardive-apres-21h" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-30 : Session tardive (apres 21h)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../open-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions ouvertes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/design-principles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Principes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/color-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Couleurs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/typography/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Typographie
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/component-philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/do-dont/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Do / Don't
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/moodboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Moodboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/scalability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scalabilite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technique
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Technique
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llm-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strategie LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llm-benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process/feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parcours
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Parcours
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-journeys/first-connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Premiere connexion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contribuer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contribuer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide contribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploiement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-capture-photo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Capture photo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Capture photo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec-01-photo-floue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-01 : Photo floue
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-02-photo-de-travers-mal-cadree" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-02 : Photo de travers / mal cadree
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-03-plusieurs-pages-en-une-seule-photo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-03 : Plusieurs pages en une seule photo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-04-pas-de-connexion-pendant-la-capture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-04 : Pas de connexion pendant la capture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-05-pipeline-j0-timeout-ou-echec-complet" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-05 : Pipeline J0 timeout ou echec complet
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-06-photo-contenant-du-contenu-de-plusieurs-chapitres" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-06 : Photo contenant du contenu de plusieurs chapitres
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-session-de-revision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Session de revision
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Session de revision">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec-07-leleve-ferme-lapp-en-pleine-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-07 : L'eleve ferme l'app en pleine session
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-08-pas-assez-ditems-pour-composer-une-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-08 : Pas assez d'items pour composer une session
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-09-tous-les-items-sont-solid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-09 : Tous les items sont SOLID
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-10-reponse-ambigue-scoring-au-seuil-de-07" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-10 : Reponse ambigue (scoring au seuil de 0.7)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-11-quiz-trop-difficile-3-echecs-consecutifs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-11 : Quiz trop difficile (3 echecs consecutifs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-12-quiz-trop-facile-92-de-reussite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-12 : Quiz trop facile (&gt; 92% de reussite)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-13-reponses-trop-rapides-anti-clicking-aveugle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-13 : Reponses trop rapides (anti-clicking aveugle)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-validation-hitl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Validation HITL
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Validation HITL">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec-14-le-parent-na-jamais-valide" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-14 : Le parent n'a jamais valide
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-15-item-rejete-correction-par-le-parent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-15 : Item rejete (correction) par le parent
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-16-parent-ne-comprend-pas-un-item" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-16 : Parent ne comprend pas un item
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-17-ado-qui-clique-ignorer-sur-tout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-17 : Ado qui clique "Ignorer" sur tout
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-adoption-et-engagement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Adoption et engagement
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Adoption et engagement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec-18-eleve-abandonne-en-plein-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-18 : Eleve abandonne en plein flow
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-19-parent-ne-comprend-pas-la-proposition-de-valeur" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-19 : Parent ne comprend pas la proposition de valeur
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-20-leleve-se-sent-juge-par-le-scoring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-20 : L'eleve se sent juge par le scoring
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-21-aucun-contenu-exploitable-detecte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-21 : Aucun contenu exploitable detecte
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-22-retour-apres-5-jours-dabsence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-22 : Retour apres 5+ jours d'absence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-23-retour-apres-7-jours-relance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-23 : Retour apres 7+ jours (relance)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-connectivite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Connectivite
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Connectivite">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec-24-perte-de-connexion-pendant-une-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-24 : Perte de connexion pendant une session
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-25-perte-de-connexion-pendant-un-upload" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-25 : Perte de connexion pendant un upload
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-26-mode-avion-prolonge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-26 : Mode avion prolonge
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-cas-limites-techniques" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Cas limites techniques
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Cas limites techniques">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ec-27-chapitre-avec-plus-de-30-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-27 : Chapitre avec plus de 30 items
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-28-double-page-identique-uploadee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-28 : Double page identique uploadee
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-29-llm-indisponible-prolonge-5-min" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-29 : LLM indisponible prolonge (&gt; 5 min)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ec-30-session-tardive-apres-21h" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EC-30 : Session tardive (apres 21h)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="edge-cases-revise-mieux">Edge cases -- Revise Mieux<a class="headerlink" href="#edge-cases-revise-mieux" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Catalogue exhaustif des edge cases classes par domaine. Chaque entree couvre : risque UX, traitement ideal, copy/guidance, et chemin de recuperation.</p>
+</blockquote>
+<hr />
+<h2 id="1-capture-photo">1. Capture photo<a class="headerlink" href="#1-capture-photo" title="Permanent link">&para;</a></h2>
+<h3 id="ec-01-photo-floue">EC-01 : Photo floue<a class="headerlink" href="#ec-01-photo-floue" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve ne se rend pas compte que la photo est mauvaise. Le pipeline echoue plus tard, frustration differee.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Detection cote client avant upload : si le blur score depasse un seuil, message d'avertissement AVANT envoi.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"Cette photo semble un peu floue. Reprends-la avec un meilleur eclairage pour de meilleurs resultats."</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>L'eleve peut reprendre la photo ou continuer malgre tout. Le pipeline traite quand meme avec confidence reduite (Z2-AC03).</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z2-AC03</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-02-photo-de-travers-mal-cadree">EC-02 : Photo de travers / mal cadree<a class="headerlink" href="#ec-02-photo-de-travers-mal-cadree" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>Texte tronque, OCR partiel. L'eleve ne voit pas le probleme.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Proposition de recadrage automatique (crop suggestion) avant validation de la page.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"La page semble coupee sur le bord droit. Veux-tu recadrer ou reprendre ?"</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Option recadrage OU reprendre la photo OU ignorer et continuer.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>-- (non couvert par AC existant, recommandation nouvelle)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-03-plusieurs-pages-en-une-seule-photo">EC-03 : Plusieurs pages en une seule photo<a class="headerlink" href="#ec-03-plusieurs-pages-en-une-seule-photo" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>Double page = texte trop petit, OCR degrade. L'eleve pense avoir fait 2 pages en 1.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Detection (ratio hauteur/largeur atypique) + avertissement.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"On dirait que tu as photographie 2 pages en meme temps. Pour de meilleurs resultats, photographie une page a la fois."</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Reprendre en 2 photos separees OU continuer (traitement best-effort).</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>-- (recommandation nouvelle)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-04-pas-de-connexion-pendant-la-capture">EC-04 : Pas de connexion pendant la capture<a class="headerlink" href="#ec-04-pas-de-connexion-pendant-la-capture" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve prend ses photos dans le bus sans wifi. L'upload echoue.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Stockage local des photos. Upload automatique au retour de la connexion.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"Photos enregistrees ! Elles seront analysees des que tu auras du reseau."</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Indicateur "X photos en attente d'envoi" sur le dashboard. Upload en background.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z6-AC31 (resilience reseau)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-05-pipeline-j0-timeout-ou-echec-complet">EC-05 : Pipeline J0 timeout ou echec complet<a class="headerlink" href="#ec-05-pipeline-j0-timeout-ou-echec-complet" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>Premier upload = moment de verite. Un echec ici = "ca marche pas" = desinstallation.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Ecran de recovery empathique (Z8-AC03) avec conseils visuels + fallback chapitre demo.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"Les photos sont un peu difficiles a lire. Pas de panique, ca arrive souvent au debut !"</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>3 chemins : reprendre les photos / essayer quand meme (si items partiels) / chapitre demo.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z8-AC03, Z2-AC07</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-06-photo-contenant-du-contenu-de-plusieurs-chapitres">EC-06 : Photo contenant du contenu de plusieurs chapitres<a class="headerlink" href="#ec-06-photo-contenant-du-contenu-de-plusieurs-chapitres" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve a deux cours sur la meme double page. Le pipeline attribue tout a un seul chapitre.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Detection LLM (changement de sujet dans le texte) + question de clarification.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"On a detecte du contenu sur 2 sujets differents. A quel chapitre ces notes appartiennent-elles ?"</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Choix du chapitre OU creation automatique de 2 chapitres distincts.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>-- (non couvert, recommandation future)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-session-de-revision">2. Session de revision<a class="headerlink" href="#2-session-de-revision" title="Permanent link">&para;</a></h2>
+<h3 id="ec-07-leleve-ferme-lapp-en-pleine-session">EC-07 : L'eleve ferme l'app en pleine session<a class="headerlink" href="#ec-07-leleve-ferme-lapp-en-pleine-session" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>Perte de progression. L'eleve ne sait pas si ses reponses ont ete enregistrees.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Persistance du current_question_index en base. Reprise automatique a la reouverture.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>(a la reouverture) "Tu avais une session en cours. On reprend ou tu en etais ?"</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Reprise a la question N+1. Les masteries des questions 1-N sont deja mises a jour. TTL 72h.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z4-AC04</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-08-pas-assez-ditems-pour-composer-une-session">EC-08 : Pas assez d'items pour composer une session<a class="headerlink" href="#ec-08-pas-assez-ditems-pour-composer-une-session" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve appuie sur "Lancer une session" et... rien. Frustration.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Session viable sur petit chapitre (min 4 questions meme avec 3 items). Reformulations.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"Petite session rapide -- [N] questions sur ce chapitre"</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Session courte 3-5 min avec reformulations (meme item, gabarits/distractors differents).</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z4-AC11</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-09-tous-les-items-sont-solid">EC-09 : Tous les items sont SOLID<a class="headerlink" href="#ec-09-tous-les-items-sont-solid" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve ouvre l'app, rien a faire. "Cette app ne sert plus a rien."</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Message positif + session de consolidation optionnelle sans risque de regression.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"Bravo -- tu es a jour sur tous tes chapitres ! Prochaine revision prevue [date]. Session de consolidation ?"</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Bouton optionnel "Session de consolidation" (5 questions, aucune regression possible).</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z4-AC13</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-10-reponse-ambigue-scoring-au-seuil-de-07">EC-10 : Reponse ambigue (scoring au seuil de 0.7)<a class="headerlink" href="#ec-10-reponse-ambigue-scoring-au-seuil-de-07" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve pense avoir bien repondu, le systeme dit "echec". Sentiment d'injustice.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Scoring graduel (Z1-AC23) avec feedback nuance. Score partiel visible.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"Reponse partiellement correcte. Il te manquait [element]. Score : 0.6 -- pas loin !"</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Demi-succes ne penalise pas la maitrise autant qu'un echec total.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z1-AC23, Z1-AC24</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-11-quiz-trop-difficile-3-echecs-consecutifs">EC-11 : Quiz trop difficile (3 echecs consecutifs)<a class="headerlink" href="#ec-11-quiz-trop-difficile-3-echecs-consecutifs" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>Cascade d'echecs = "je suis nul" = fermeture de l'app. Critique pour Ines (anxieuse).</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Descente automatique de difficulte apres 3 echecs. Retour aux gabarits simples.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"On revoit les bases ensemble -- c'est normal de ne pas tout retenir du premier coup !"</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Difficulte reduite pour les 2 questions suivantes. Renvoi vers la carte de lecon. Pause J+2 apres 5 echecs.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z1-AC19</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-12-quiz-trop-facile-92-de-reussite">EC-12 : Quiz trop facile (&gt; 92% de reussite)<a class="headerlink" href="#ec-12-quiz-trop-facile-92-de-reussite" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve s'ennuie. "C'est pour les bebes." Critique pour Lucas (desengage).</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Montee en difficulte invisible (Z4-AC16). Gabarits plus exigeants sans message.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>(aucun message -- la montee est silencieuse pour ne pas creer de pression)</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Le systeme ajuste automatiquement, l'eleve sent que les questions deviennent "plus interessantes".</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z4-AC16</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-13-reponses-trop-rapides-anti-clicking-aveugle">EC-13 : Reponses trop rapides (anti-clicking aveugle)<a class="headerlink" href="#ec-13-reponses-trop-rapides-anti-clicking-aveugle" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve (Lucas) clique au hasard pour finir vite. Progression fictive.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Reponses rapides correctes ne comptent pas pour la progression. Reponses incorrectes penalisent normalement.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>(apres 3 reponses rapides correctes) "Prends ton temps pour bien lire les questions -- tes reponses rapides ne comptent pas pour ta progression."</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>L'eleve peut continuer mais les items seront re-proposes. Pas de blocage UX.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z3-AC15</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-validation-hitl">3. Validation HITL<a class="headerlink" href="#3-validation-hitl" title="Permanent link">&para;</a></h2>
+<h3 id="ec-14-le-parent-na-jamais-valide">EC-14 : Le parent n'a jamais valide<a class="headerlink" href="#ec-14-le-parent-na-jamais-valide" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>Items bloques en gabarits simples indefiniment. Maitrise plafonnee.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Bandeau non-bloquant sur le chapitre. Max 3 tasks/semaine pour le parent. Le chapitre reste utilisable.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"6 zones a verifier -- vos exercices seront plus precis apres verification."</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>L'eleve peut tout ignorer et continuer. Admin en fallback. Le diagnostic fonctionne malgre tout.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z3-AC06, Z3-AC08</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-15-item-rejete-correction-par-le-parent">EC-15 : Item rejete (correction) par le parent<a class="headerlink" href="#ec-15-item-rejete-correction-par-le-parent" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'item corrige invalide le cache des questions. L'eleve voit un changement inexplique.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Cache invalidation ciblee (uniquement les questions de l'item corrige). Regeneration lazy.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>(pas de message visible cote eleve -- la correction est transparente)</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Les prochaines questions sur cet item utiliseront le contenu corrige. Transition fluide.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z3-AC03, Z3-AC07</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-16-parent-ne-comprend-pas-un-item">EC-16 : Parent ne comprend pas un item<a class="headerlink" href="#ec-16-parent-ne-comprend-pas-un-item" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>Le parent confirme un item faux par defaut. Pire cas : l'eleve etudie du contenu incorrect.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Option "Je ne sais pas" qui delegue a l'admin. Retractation possible si signalement ulterieur.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>Bouton "Je ne sais pas" + "L'item sera verifie par notre equipe."</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Admin review. Si l'item a ete confirme par erreur, le signalement eleve (Z3-AC12) ou l'anomalie (Z3-AC13) le detectent. Retractation Z3-AC14.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z3-AC04, Z3-AC14</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-17-ado-qui-clique-ignorer-sur-tout">EC-17 : Ado qui clique "Ignorer" sur tout<a class="headerlink" href="#ec-17-ado-qui-clique-ignorer-sur-tout" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>Tous les items incertains disparaissent du circuit pedagogique. Lacunes invisibles.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Section "Points non verifies" visible dans la carte lecon. Nudge discret. Bouton "Reactiver".</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"4 points n'ont pas ete verifies -- ils ne seront pas dans tes exercices." + "Tout laisser ignore" si choix delibere.</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>L'eleve peut reactiver a tout moment. L'admin traite en backoffice.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z3-AC05, Z3-AC16</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-adoption-et-engagement">4. Adoption et engagement<a class="headerlink" href="#4-adoption-et-engagement" title="Permanent link">&para;</a></h2>
+<h3 id="ec-18-eleve-abandonne-en-plein-flow">EC-18 : Eleve abandonne en plein flow<a class="headerlink" href="#ec-18-eleve-abandonne-en-plein-flow" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve quitte pendant le pipeline, pendant une session, pendant la validation. Etat incoherent.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Chaque etape est interruptible et reprenante. Aucun etat incoherent possible.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>(a la reouverture) Message contextuel adapte : "Ton cours est en cours d'analyse" / "Tu avais une session en cours"</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Pipeline continue en background. Session reprend au dernier point (Z4-AC04). Validation reste en file.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z4-AC04, Z8-AC04</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-19-parent-ne-comprend-pas-la-proposition-de-valeur">EC-19 : Parent ne comprend pas la proposition de valeur<a class="headerlink" href="#ec-19-parent-ne-comprend-pas-la-proposition-de-valeur" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>Le parent voit des metriques incomprehensibles. Desinstalle ou ignore.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Onboarding parent en 3 ecrans (30s). Labels traduits. Digest anticipe a J+2.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>Ecran 1 : "Voici ce que fait [Prenom]" (schema visuel simple). Labels : "Pas encore vu", "En cours d'apprentissage", "Compris, a consolider", "Bien acquis".</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Digest anticipe J+2 avec preuves tangibles. Script 3 min pour engagement minimal.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z8-AC05, Z8-AC06, Z6-AC29</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-20-leleve-se-sent-juge-par-le-scoring">EC-20 : L'eleve se sent juge par le scoring<a class="headerlink" href="#ec-20-leleve-se-sent-juge-par-le-scoring" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve (Ines) interprete les regressions comme un jugement. Anxiete et decrochage.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Growth mindset systematique dans tous les messages. Jamais "echec", toujours "refresh" ou "a revoir".</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>Regression SOLID-&gt;OK : "Ce point a besoin d'un petit refresh -- on le revoit bientot !" (jamais "tu as perdu ta maitrise")</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Le framing positif est applique partout : feedback, debrief, dashboard. Pas de score negatif visible.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z1-AC05, Z1-AC06, Z1-AC26</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-21-aucun-contenu-exploitable-detecte">EC-21 : Aucun contenu exploitable detecte<a class="headerlink" href="#ec-21-aucun-contenu-exploitable-detecte" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve uploade un dessin, une page blanche, ou du texte dans une langue etrangere. 0 items.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Message empathique + conseils + fallback chapitre demo.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"Aucun contenu n'a pu etre extrait -- verifie la qualite des photos et re-uploade."</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Bouton "Re-uploader", chapitre demo disponible, chapitre cree mais en etat PENDING_UPLOAD.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z2-AC07</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-22-retour-apres-5-jours-dabsence">EC-22 : Retour apres 5+ jours d'absence<a class="headerlink" href="#ec-22-retour-apres-5-jours-dabsence" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>15 items en retard. Session de 20 min bourrée d'echecs. Decrochage definitif.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Mode "retour en douceur" : session courte (5 min), gabarits faciles, etalement sur 3-5 jours.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"Content de te revoir ! On reprend doucement avec quelques rappels."</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>4-6 items les plus anciens seulement. Difficulte 1-2. Desactivation auto apres 2 sessions consecutives.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z6-AC22</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-23-retour-apres-7-jours-relance">EC-23 : Retour apres 7+ jours (relance)<a class="headerlink" href="#ec-23-retour-apres-7-jours-relance" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve a completement decroche. La notification de relance est le dernier point de contact.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>1 seule notification avec deep link vers session courte et facile. Aucune relance supplementaire.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"Tes revisions t'attendent -- [N] points a consolider en [matiere]. On reprend doucement ?"</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Deep link vers session 3-5 min, gabarits faciles. Si ignore, pas de relance jusqu'au prochain evenement contextuel (exam, upload, trimestre).</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z6-AC21</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-connectivite">5. Connectivite<a class="headerlink" href="#5-connectivite" title="Permanent link">&para;</a></h2>
+<h3 id="ec-24-perte-de-connexion-pendant-une-session">EC-24 : Perte de connexion pendant une session<a class="headerlink" href="#ec-24-perte-de-connexion-pendant-une-session" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve repond a une question, la reponse ne part pas. Perte de progression.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Persistance locale optimiste. Feedback calcule cote client. Sync au retour reseau.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>Indicateur discret "synchronisation en cours..." + "Certaines reponses n'ont pas pu etre enregistrees. Elles seront synchronisees a la prochaine connexion."</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Reponses stockees en pending_sync local. FIFO au retour. Mastery mis a jour uniquement a la synchro serveur.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z6-AC31</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-25-perte-de-connexion-pendant-un-upload">EC-25 : Perte de connexion pendant un upload<a class="headerlink" href="#ec-25-perte-de-connexion-pendant-un-upload" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve a pris 8 photos et l'upload echoue. Il pense que ses photos sont perdues.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Photos stockees localement. Retry automatique avec indicateur.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"Photos enregistrees ! Elles seront envoyees des que tu auras du reseau."</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Retry automatique (3 tentatives espacees). Indicateur "X photos en attente". L'eleve peut forcer le retry.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z6-AC31</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-26-mode-avion-prolonge">EC-26 : Mode avion prolonge<a class="headerlink" href="#ec-26-mode-avion-prolonge" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve est dans le train ou en zone blanche. Rien ne fonctionne.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Mode offline partiel : consultation de la carte de lecon (en cache), flashcards statiques.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"Pas de connexion -- tu peux relire ta lecon en attendant."</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Au retour de la connexion, sync automatique de tout ce qui est pending.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z4-AC12 (fallback), Z6-AC31 (resilience)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-cas-limites-techniques">6. Cas limites techniques<a class="headerlink" href="#6-cas-limites-techniques" title="Permanent link">&para;</a></h2>
+<h3 id="ec-27-chapitre-avec-plus-de-30-items">EC-27 : Chapitre avec plus de 30 items<a class="headerlink" href="#ec-27-chapitre-avec-plus-de-30-items" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>Sessions trop longues. Notions trop nombreuses. Interface surchargee.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Le pipeline regroupe en 3-7 notions. La session quotidienne reste 10-20 min (selection 70/20/10).</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>Aucun message special -- l'abstraction par notion masque la complexite.</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>L'algorithme de composition gere naturellement les grands chapitres.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z7-AC15 (notions 3-7)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-28-double-page-identique-uploadee">EC-28 : Double page identique uploadee<a class="headerlink" href="#ec-28-double-page-identique-uploadee" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>Items en doublon. Confusion dans la carte de lecon.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Detection de similarite visuelle (&gt; 80%) lors de l'ajout incremental. Avertissement.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"Cette page ressemble a la page 2 deja dans ton chapitre. Ajouter quand meme ?"</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>L'eleve confirme ou annule. Si ajoutee, Z3-AC11 (coherence intra-chapitre) detecte les doublons et archive automatiquement l'item de plus faible confidence.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z5-AC11, Z3-AC11</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-29-llm-indisponible-prolonge-5-min">EC-29 : LLM indisponible prolonge (&gt; 5 min)<a class="headerlink" href="#ec-29-llm-indisponible-prolonge-5-min" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>Aucune session possible. L'eleve ne peut pas reviser.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Mode "Relecture active" avec flashcards statiques generees a partir des items existants (pas de LLM necessaire).</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>"Les exercices ne sont pas disponibles pour le moment -- en attendant, revise ta lecon avec ces flashcards !"</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>Auto-check toutes les 30s. Retour au mode normal des que le LLM repond.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z4-AC12</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ec-30-session-tardive-apres-21h">EC-30 : Session tardive (apres 21h)<a class="headerlink" href="#ec-30-session-tardive-apres-21h" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Risque UX</strong></td>
+<td>L'eleve revise trop tard, mauvais sommeil, contre-productif.</td>
+</tr>
+<tr>
+<td><strong>Traitement ideal</strong></td>
+<td>Nudge bienveillant + mode express pre-selectionne + reduction progressive.</td>
+</tr>
+<tr>
+<td><strong>Copy</strong></td>
+<td>21h : "Il est un peu tard -- une session express pour l'essentiel, et au dodo !" / 22h : "Il est tard ! Ton cerveau retient mieux quand tu dors bien. On reprend demain ?"</td>
+</tr>
+<tr>
+<td><strong>Recovery</strong></td>
+<td>L'eleve peut forcer la session complete si il veut. Aucun blocage.</td>
+</tr>
+<tr>
+<td><strong>AC</strong></td>
+<td>Z7-AC25</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Retour en haut de la page
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/popul/ReviseMieux" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

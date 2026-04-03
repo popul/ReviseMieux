@@ -1,0 +1,4114 @@
+
+<!doctype html>
+<html lang="fr" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://popul.github.io/ReviseMieux/llm-strategy/">
+      
+      
+        <link rel="prev" href="../design/scalability/">
+      
+      
+        <link rel="next" href="../llm-benchmark/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Strategie LLM - Revise Mieux — Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#strategie-llm-revise-mieux" class="md-skip">
+          Aller au contenu
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="En-tête">
+    <a href=".." title="Revise Mieux — Documentation" class="md-header__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Revise Mieux — Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Strategie LLM
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode sombre"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mode sombre" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode clair"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mode clair" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Rechercher" placeholder="Rechercher" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Recherche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Effacer" aria-label="Effacer" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initialisation de la recherche
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Onglets" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Accueil
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Demarrage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../PRD/" class="md-tabs__link">
+          
+  
+  
+  Produit
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../ac/Z1/" class="md-tabs__link">
+          
+  
+  
+  Criteres d'acceptation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../architecture/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../ux/user-flow-complete/" class="md-tabs__link">
+          
+  
+  
+  UX
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../design/" class="md-tabs__link">
+          
+  
+  
+  Design System
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="./" class="md-tabs__link">
+          
+  
+  
+  Technique
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../user-journeys/first-connection/" class="md-tabs__link">
+          
+  
+  
+  Parcours
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/" class="md-tabs__link">
+          
+  
+  
+  Contribuer
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Revise Mieux — Documentation" class="md-nav__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Revise Mieux — Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accueil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demarrage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Produit
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Produit
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PRD/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PRD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MVP-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope MVP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lot0-tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracker Lot 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Criteres d'acceptation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Criteres d'acceptation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z1 — Mastery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z2 — Pipeline J0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z3 — Validation HITL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z4 — Sessions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z5 — Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z6 — Schedule
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z7 — Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z8 — Onboarding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/ocr-idp-incremental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OCR/IDP incremental
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/merge-decision-table/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regles de merge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UX
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UX
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/user-flow-complete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/personas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Personas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/screen-inventory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ecrans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/state-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modele d'etats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/edge-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Edge cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/open-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions ouvertes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/design-principles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Principes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/color-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Couleurs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/typography/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Typographie
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/component-philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/do-dont/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Do / Don't
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/moodboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Moodboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/scalability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scalabilite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technique
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Technique
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strategie LLM
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strategie LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-cas-dusage-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Cas d'usage LLM
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-choix-des-modeles-justification-detaillee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Choix des modèles — Justification détaillée
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Choix des modèles — Justification détaillée">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-sonnet-46-structuration-coherence-multimodal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Sonnet 4.6 — Structuration, cohérence, multimodal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-haiku-45-fidelity-check-generation-de-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Haiku 4.5 — Fidelity check, génération de questions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-templates-feedback-enrichi-pas-de-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Templates — Feedback enrichi (pas de LLM)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-estimation-des-couts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Estimation des coûts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Estimation des coûts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-cout-par-appel-sans-optimisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Coût par appel (sans optimisation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-cout-mensuel-estime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Coût mensuel estimé
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-optimisations-de-cout-appliquees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Optimisations de coût appliquées
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 Optimisations de coût appliquées">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#batch-api-50" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Batch API (-50%)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompt-caching-90-en-lecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt caching (-90% en lecture)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combinaison-batch-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Combinaison batch + cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-architecture-du-client-anthropic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Architecture du client Anthropic
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Architecture du client Anthropic">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-structure-des-fichiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Structure des fichiers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-routing-de-modele" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Routing de modèle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-gestion-des-erreurs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Gestion des erreurs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-versioning-des-prompts-z2-ac13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Versioning des prompts (Z2-AC13)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Versioning des prompts (Z2-AC13)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-principe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Principe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-tracabilite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Traçabilité
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-strategie-de-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Stratégie de test
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Stratégie de test">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-niveau-1-tests-de-contrat-ci-chaque-pr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Niveau 1 — Tests de contrat (CI, chaque PR)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-niveau-2-tests-de-regression-prompt-nightly-gated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Niveau 2 — Tests de régression prompt (nightly, gated)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-niveau-3-monitoring-en-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Niveau 3 — Monitoring en production
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.3 Niveau 3 — Monitoring en production">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#631-metriques-collectees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.1 Métriques collectées
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#632-alertes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.2 Alertes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#633-dashboard-admin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.3 Dashboard admin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#634-job-hebdomadaire-de-comparaison-z2-ac13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.4 Job hebdomadaire de comparaison (Z2-AC13)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-implementation-du-logging-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Implémentation du logging LLM
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Implémentation du logging LLM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-structure-du-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Structure du log
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-port-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Port Go
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-stockage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Stockage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-strategie-ocridp-pipeline-dextraction-des-cahiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Strategie OCR/IDP — Pipeline d'extraction des cahiers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Strategie OCR/IDP — Pipeline d&#39;extraction des cahiers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-contenu-des-cahiers-de-collegiens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Contenu des cahiers de collégiens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-approches-evaluees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Approches évaluées
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-decision-vlm-direct-pas-de-layout-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Décision : VLM direct, pas de layout detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-pourquoi-gemini-flash-et-pas-claude-pour-locr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Pourquoi Gemini Flash et pas Claude pour l'OCR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#85-quand-reconsiderer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.5 Quand reconsidérer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#86-comparatif-solutions-idp-evaluees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.6 Comparatif solutions IDP évaluées
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#87-estimations-de-cout-consolidees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.7 Estimations de coût consolidées
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#88-optimisations-cout-complementaires" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.8 Optimisations coût complémentaires
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#89-benchmark-a-realiser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.9 Benchmark à réaliser
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-resume-des-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Résumé des décisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm-benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../process/feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parcours
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Parcours
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-journeys/first-connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Premiere connexion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contribuer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contribuer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide contribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploiement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-cas-dusage-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Cas d'usage LLM
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-choix-des-modeles-justification-detaillee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Choix des modèles — Justification détaillée
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Choix des modèles — Justification détaillée">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-sonnet-46-structuration-coherence-multimodal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Sonnet 4.6 — Structuration, cohérence, multimodal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-haiku-45-fidelity-check-generation-de-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Haiku 4.5 — Fidelity check, génération de questions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-templates-feedback-enrichi-pas-de-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Templates — Feedback enrichi (pas de LLM)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-estimation-des-couts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Estimation des coûts
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Estimation des coûts">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-cout-par-appel-sans-optimisation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Coût par appel (sans optimisation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-cout-mensuel-estime" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Coût mensuel estimé
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-optimisations-de-cout-appliquees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Optimisations de coût appliquées
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 Optimisations de coût appliquées">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#batch-api-50" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Batch API (-50%)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prompt-caching-90-en-lecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prompt caching (-90% en lecture)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#combinaison-batch-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Combinaison batch + cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-architecture-du-client-anthropic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Architecture du client Anthropic
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Architecture du client Anthropic">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-structure-des-fichiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Structure des fichiers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-routing-de-modele" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Routing de modèle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-gestion-des-erreurs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Gestion des erreurs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-versioning-des-prompts-z2-ac13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Versioning des prompts (Z2-AC13)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Versioning des prompts (Z2-AC13)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-principe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Principe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-tracabilite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Traçabilité
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-strategie-de-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Stratégie de test
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Stratégie de test">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-niveau-1-tests-de-contrat-ci-chaque-pr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Niveau 1 — Tests de contrat (CI, chaque PR)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-niveau-2-tests-de-regression-prompt-nightly-gated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Niveau 2 — Tests de régression prompt (nightly, gated)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-niveau-3-monitoring-en-production" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 Niveau 3 — Monitoring en production
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6.3 Niveau 3 — Monitoring en production">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#631-metriques-collectees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.1 Métriques collectées
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#632-alertes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.2 Alertes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#633-dashboard-admin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.3 Dashboard admin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#634-job-hebdomadaire-de-comparaison-z2-ac13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3.4 Job hebdomadaire de comparaison (Z2-AC13)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-implementation-du-logging-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Implémentation du logging LLM
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Implémentation du logging LLM">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-structure-du-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 Structure du log
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-port-go" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 Port Go
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-stockage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 Stockage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-strategie-ocridp-pipeline-dextraction-des-cahiers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Strategie OCR/IDP — Pipeline d'extraction des cahiers
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Strategie OCR/IDP — Pipeline d&#39;extraction des cahiers">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-contenu-des-cahiers-de-collegiens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 Contenu des cahiers de collégiens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-approches-evaluees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 Approches évaluées
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-decision-vlm-direct-pas-de-layout-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 Décision : VLM direct, pas de layout detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-pourquoi-gemini-flash-et-pas-claude-pour-locr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 Pourquoi Gemini Flash et pas Claude pour l'OCR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#85-quand-reconsiderer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.5 Quand reconsidérer
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#86-comparatif-solutions-idp-evaluees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.6 Comparatif solutions IDP évaluées
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#87-estimations-de-cout-consolidees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.7 Estimations de coût consolidées
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#88-optimisations-cout-complementaires" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.8 Optimisations coût complémentaires
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#89-benchmark-a-realiser" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.9 Benchmark à réaliser
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-resume-des-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Résumé des décisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="strategie-llm-revise-mieux">Stratégie LLM — Révise Mieux<a class="headerlink" href="#strategie-llm-revise-mieux" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Document technique de référence pour les choix de modèles, l'optimisation des coûts, la stratégie de test et le monitoring des appels LLM.
+Dernière mise à jour : 2026-03-12.</p>
+</blockquote>
+<hr />
+<blockquote>
+<p><strong>Mise à jour mars 2026 — Choix de modèles révisés après benchmark</strong></p>
+<p>Les recommandations de modèles dans ce document (Sonnet pour structuration, Haiku pour fidelity/questions) sont <strong>obsolètes</strong>. Le benchmark réel sur 21 modèles a montré :</p>
+<ul>
+<li><strong>Sonnet hallucine</strong> (8%, seul modèle concerné) et coûte 30-50x plus cher que les alternatives.</li>
+<li><strong>mistral-small</strong> et <strong>Qwen3.5-397B</strong> offrent une meilleure qualité (0.87-0.88) à $0.00006-0.00011/item.</li>
+<li><strong>L'exécution locale est viable</strong> pour le Lot 0 (Qwen3-VL-32B + Gemma 3 27B via Ollama, ~2 min/chapitre, $0).</li>
+</ul>
+<p>Voir <a href="../backend/testdata/benchmark/README.md"><code>backend/testdata/benchmark/README.md</code></a> pour les résultats complets et les combos recommandés.</p>
+<p>L'architecture (ports, prompts versionnés, logging, monitoring, tests) décrite ci-dessous reste valide — seuls les choix de modèles changent.</p>
+</blockquote>
+<hr />
+<h2 id="1-cas-dusage-llm">1. Cas d'usage LLM<a class="headerlink" href="#1-cas-dusage-llm" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Cas d'usage</th>
+<th>AC</th>
+<th>Interface Go</th>
+<th>Modèle (initial)</th>
+<th>Modèle (post-benchmark)</th>
+<th>Latence cible</th>
+<th>Temps réel ?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>Structuration OCR → Items + Notions</td>
+<td>Z2-AC01, Z7-AC15</td>
+<td><code>chapter.LLMService.StructureBlocks()</code></td>
+<td>~~Sonnet 4.6~~</td>
+<td><strong>Qwen3.5-397B</strong> ou <strong>mistral-small</strong></td>
+<td>≤ 60s/page</td>
+<td>Non (pipeline J0)</td>
+</tr>
+<tr>
+<td>B</td>
+<td>Fidelity check (fidélité sémantique)</td>
+<td>Z3-AC10</td>
+<td>À créer</td>
+<td><strong>Haiku 4.5</strong></td>
+<td>À benchmarker</td>
+<td>≤ 5s/item</td>
+<td>Non (pipeline J0)</td>
+</tr>
+<tr>
+<td>C</td>
+<td>Détection de cohérence (doublons, contradictions)</td>
+<td>Z3-AC11</td>
+<td>À créer</td>
+<td>~~Sonnet 4.6~~</td>
+<td>À benchmarker</td>
+<td>≤ 10s/chapitre</td>
+<td>Non (pipeline J0)</td>
+</tr>
+<tr>
+<td>D</td>
+<td>Génération de questions (lazy generation)</td>
+<td>Z4-AC01</td>
+<td>À créer</td>
+<td><strong>Haiku 4.5</strong></td>
+<td>À benchmarker</td>
+<td>≤ 500ms</td>
+<td>Oui (session)</td>
+</tr>
+<tr>
+<td>E</td>
+<td>Feedback enrichi</td>
+<td>Z4-AC09</td>
+<td><code>feedback.go</code></td>
+<td><strong>Templates</strong> (pas de LLM)</td>
+<td>Inchangé</td>
+<td>≤ 200ms</td>
+<td>Oui</td>
+</tr>
+<tr>
+<td>F</td>
+<td>Multimodal visuel (schémas, graphiques)</td>
+<td>Z4-AC17</td>
+<td>Post-MVP</td>
+<td>~~Sonnet 4.6~~</td>
+<td>À benchmarker</td>
+<td>≤ 2s</td>
+<td>Non</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-choix-des-modeles-justification-detaillee">2. Choix des modèles — Justification détaillée<a class="headerlink" href="#2-choix-des-modeles-justification-detaillee" title="Permanent link">&para;</a></h2>
+<h3 id="21-sonnet-46-structuration-coherence-multimodal">2.1 Sonnet 4.6 — Structuration, cohérence, multimodal<a class="headerlink" href="#21-sonnet-46-structuration-coherence-multimodal" title="Permanent link">&para;</a></h3>
+<p><strong>Tarifs</strong> : $3.00 / 1M tokens input, $15.00 / 1M tokens output.</p>
+<p><strong>Pourquoi Sonnet pour la structuration (cas A) :</strong>
+- L'extraction demande de la <strong>synthèse multi-source</strong> : plusieurs blocs OCR doivent être combinés en items cohérents.
+- La <strong>classification nuancée</strong> entre types (KNOWLEDGE vs PROCEDURE vs DOCUMENT vs WRITING) nécessite une compréhension sémantique fine.
+- La <strong>fidélité au texte source</strong> est critique — les hallucinations produisent des items faux étudiés par des collégiens.
+- Le <strong>JSON structuré</strong> produit doit respecter un schéma strict (<code>StructuredItem</code> avec <code>Type</code>, <code>Term</code>, <code>Keywords</code>, <code>Steps</code>, <code>NotionName</code>, <code>Confidence</code>).
+- Sonnet 4.6 est quasi au niveau d'Opus pour la compréhension de documents structurés, à 40% du prix.</p>
+<p><strong>Pourquoi pas Haiku :</strong> Haiku est "pragmatique" — il produit du JSON valide mais avec plus d'approximations sur les classifications et un risque accru d'hallucinations subtiles (terme absent du texte source mais plausible).</p>
+<p><strong>Pourquoi pas Opus :</strong> Le surcoût (+67%) ne se justifie pas pour de l'extraction structurée. Sonnet ferme le gap sur les benchmarks de compréhension de documents.</p>
+<p><strong>Pourquoi Sonnet pour la cohérence (cas C) :</strong>
+- Détecter des <strong>contradictions sémantiques</strong> entre items ("densité = m/V" vs erreur "densité = V/m") nécessite un raisonnement multi-step.
+- Faible volume (1 appel/chapitre) → le surcoût vs Haiku est négligeable.</p>
+<h3 id="22-haiku-45-fidelity-check-generation-de-questions">2.2 Haiku 4.5 — Fidelity check, génération de questions<a class="headerlink" href="#22-haiku-45-fidelity-check-generation-de-questions" title="Permanent link">&para;</a></h3>
+<p><strong>Tarifs</strong> : $1.00 / 1M tokens input, $5.00 / 1M tokens output.</p>
+<p><strong>Pourquoi Haiku pour le fidelity check (cas B) :</strong>
+- Tâche <strong>bien cadrée</strong> : comparer un item à son texte OCR source → score 0-1 + justification courte.
+- Essentiellement de la <strong>classification binaire</strong> avec explication.
+- <strong>Volume élevé</strong> : 1 appel par item généré = 5-20 appels/page. Le coût est multiplié par le volume.
+- Haiku excelle sur les tâches de classification à prompt bien structuré.</p>
+<p><strong>Pourquoi Haiku pour la génération de questions (cas D) :</strong>
+- <strong>Latence critique</strong> (≤ 500ms) — Haiku est 3-5x plus rapide que Sonnet.
+- Tâche bien structurée : item + template → question rendue avec réponse attendue.
+- Les questions sont <strong>cachées 24h</strong> → les erreurs rares sont corrigées au cycle suivant.
+- Types de questions standardisés (CLOZE, MCQ, DEF_SHORT) → peu d'ambiguïté.</p>
+<h3 id="23-templates-feedback-enrichi-pas-de-llm">2.3 Templates — Feedback enrichi (pas de LLM)<a class="headerlink" href="#23-templates-feedback-enrichi-pas-de-llm" title="Permanent link">&para;</a></h3>
+<p><strong>Pourquoi ne pas utiliser de LLM pour le feedback (cas E) :</strong>
+- Latence &lt; 200ms requise — incompatible avec un appel LLM réseau.
+- Le feedback doit être <strong>factuel, jamais culpabilisant</strong> (Z4-AC09). Un LLM ajoute de la variance indésirable.
+- Cohérence parfaite : même feedback pour la même erreur = prévisibilité pédagogique.
+- Coût nul.</p>
+<p><strong>Évolution possible :</strong> Si les feedbacks template s'avèrent trop génériques après le MVP, migrer vers Haiku avec un prompt très contraint + guardrails de tonalité. Décision basée sur les métriques d'engagement post-lancement.</p>
+<hr />
+<h2 id="3-estimation-des-couts">3. Estimation des coûts<a class="headerlink" href="#3-estimation-des-couts" title="Permanent link">&para;</a></h2>
+<h3 id="31-cout-par-appel-sans-optimisation">3.1 Coût par appel (sans optimisation)<a class="headerlink" href="#31-cout-par-appel-sans-optimisation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Cas d'usage</th>
+<th>Tokens input</th>
+<th>Tokens output</th>
+<th>Modèle</th>
+<th>Coût/appel</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Structuration</td>
+<td>~1 500</td>
+<td>~800</td>
+<td>Sonnet</td>
+<td>~$0.017</td>
+</tr>
+<tr>
+<td>Fidelity check</td>
+<td>~500</td>
+<td>~100</td>
+<td>Haiku</td>
+<td>~$0.001</td>
+</tr>
+<tr>
+<td>Cohérence</td>
+<td>~3 000</td>
+<td>~500</td>
+<td>Sonnet</td>
+<td>~$0.017</td>
+</tr>
+<tr>
+<td>Questions</td>
+<td>~300</td>
+<td>~200</td>
+<td>Haiku</td>
+<td>~$0.001</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-cout-mensuel-estime">3.2 Coût mensuel estimé<a class="headerlink" href="#32-cout-mensuel-estime" title="Permanent link">&para;</a></h3>
+<p><strong>Hypothèses</strong> : 50 élèves actifs, 2 uploads/semaine/élève (10 pages chacun), 4 sessions/semaine/élève (15 questions/session).</p>
+<table>
+<thead>
+<tr>
+<th>Cas d'usage</th>
+<th>Volume mensuel</th>
+<th>Coût brut</th>
+<th>Avec optimisations</th>
+<th>Coût optimisé</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Structuration</td>
+<td>4 000 pages</td>
+<td>$68</td>
+<td>Batch (-50%) + cache (-90% system)</td>
+<td><strong>~$20</strong></td>
+</tr>
+<tr>
+<td>Fidelity check</td>
+<td>40 000 items</td>
+<td>$40</td>
+<td>Batch (-50%) + cache (-90% system)</td>
+<td><strong>~$6</strong></td>
+</tr>
+<tr>
+<td>Cohérence</td>
+<td>400 chapitres</td>
+<td>$7</td>
+<td>Cache (-90% system)</td>
+<td><strong>~$4</strong></td>
+</tr>
+<tr>
+<td>Questions</td>
+<td>12 000 questions</td>
+<td>$12</td>
+<td>Cache (-90% system)</td>
+<td><strong>~$4</strong></td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td><strong>$127</strong></td>
+<td></td>
+<td><strong>~$34/mois</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Scaling</strong> : pour 500 élèves → ~$340/mois. Pour 5 000 élèves → ~$3 400/mois.</p>
+<h3 id="33-optimisations-de-cout-appliquees">3.3 Optimisations de coût appliquées<a class="headerlink" href="#33-optimisations-de-cout-appliquees" title="Permanent link">&para;</a></h3>
+<h4 id="batch-api-50">Batch API (-50%)<a class="headerlink" href="#batch-api-50" title="Permanent link">&para;</a></h4>
+<p>Les cas <strong>non temps-réel</strong> (structuration, fidelity check) utilisent le <a href="https://platform.claude.com/docs/en/about-claude/pricing">Batch API</a> d'Anthropic :
+- Soumission de lots de requêtes (max 100 000 requêtes ou 256 Mo).
+- Résultats disponibles sous quelques minutes à quelques heures.
+- <strong>-50% sur tous les tokens</strong> (input et output).
+- Compatible avec le pipeline J0 qui n'est pas temps réel.</p>
+<h4 id="prompt-caching-90-en-lecture">Prompt caching (-90% en lecture)<a class="headerlink" href="#prompt-caching-90-en-lecture" title="Permanent link">&para;</a></h4>
+<p>Le <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching">prompt caching</a> est utilisé pour tous les appels :
+- Le <strong>system prompt</strong> (instructions d'extraction, schéma JSON, consignes pédagogiques) est identique pour tous les appels d'un même type.
+- Première écriture : 1.25x du prix de base (cache 5 min) ou 2x (cache 1h).
+- Lectures suivantes : <strong>0.1x du prix de base</strong> → économie de 90%.
+- Break-even dès 2 appels avec le même préfixe.</p>
+<p><strong>Implémentation</strong> : ajouter <code>cache_control: {"type": "ephemeral"}</code> sur le bloc system du message API.</p>
+<h4 id="combinaison-batch-cache">Combinaison batch + cache<a class="headerlink" href="#combinaison-batch-cache" title="Permanent link">&para;</a></h4>
+<p>Les deux optimisations se cumulent. Pour la structuration en batch avec cache :
+- Input : $3.00 × 0.5 (batch) × 0.1 (cache read) = <strong>$0.15 / 1M tokens</strong>
+- Output : $15.00 × 0.5 (batch) = <strong>$7.50 / 1M tokens</strong></p>
+<hr />
+<h2 id="4-architecture-du-client-anthropic">4. Architecture du client Anthropic<a class="headerlink" href="#4-architecture-du-client-anthropic" title="Permanent link">&para;</a></h2>
+<h3 id="41-structure-des-fichiers">4.1 Structure des fichiers<a class="headerlink" href="#41-structure-des-fichiers" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>backend/internal/infra/anthropic/
+├── client.go           # Client HTTP Anthropic (auth, retry, timeout)
+├── structurer.go       # Implémente chapter.LLMService (Sonnet)
+├── fidelity.go         # Fidelity check (Haiku)
+├── question_gen.go     # Génération de questions (Haiku)
+├── prompts.go          # Réexporte les prompts depuis internal/infra/llm
+└── client_test.go      # Tests de contrat avec golden files
+</code></pre></div>
+<h3 id="42-configuration">4.2 Configuration<a class="headerlink" href="#42-configuration" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="kd">type</span><span class="w"> </span><span class="nx">Config</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">APIKey</span><span class="w">              </span><span class="kt">string</span><span class="w">  </span><span class="c1">// ANTHROPIC_API_KEY</span>
+<span class="w">    </span><span class="nx">StructurationModel</span><span class="w">  </span><span class="kt">string</span><span class="w">  </span><span class="c1">// &quot;claude-sonnet-4-6-20250217&quot;</span>
+<span class="w">    </span><span class="nx">FidelityModel</span><span class="w">       </span><span class="kt">string</span><span class="w">  </span><span class="c1">// &quot;claude-haiku-4-5-20251001&quot;</span>
+<span class="w">    </span><span class="nx">QuestionGenModel</span><span class="w">    </span><span class="kt">string</span><span class="w">  </span><span class="c1">// &quot;claude-haiku-4-5-20251001&quot;</span>
+<span class="w">    </span><span class="nx">CoherenceModel</span><span class="w">      </span><span class="kt">string</span><span class="w">  </span><span class="c1">// &quot;claude-sonnet-4-6-20250217&quot;</span>
+<span class="w">    </span><span class="nx">MaxRetries</span><span class="w">          </span><span class="kt">int</span><span class="w">     </span><span class="c1">// 2 (avec backoff exponentiel)</span>
+<span class="w">    </span><span class="nx">StructurationTimeout</span><span class="w"> </span><span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="w"> </span><span class="c1">// 60s</span>
+<span class="w">    </span><span class="nx">FidelityTimeout</span><span class="w">      </span><span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="w"> </span><span class="c1">// 10s</span>
+<span class="w">    </span><span class="nx">QuestionGenTimeout</span><span class="w">   </span><span class="nx">time</span><span class="p">.</span><span class="nx">Duration</span><span class="w"> </span><span class="c1">// 5s</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="43-routing-de-modele">4.3 Routing de modèle<a class="headerlink" href="#43-routing-de-modele" title="Permanent link">&para;</a></h3>
+<p>Le client route automatiquement vers le bon modèle selon le type d'appel. Chaque appel est tagué avec :
+- <code>llm_model_version</code> : identifiant exact du modèle (<code>claude-sonnet-4-6-20250217</code>)
+- <code>prompt_template_version</code> : hash SHA-256 du prompt template utilisé</p>
+<p>Conformément à <strong>Z2-AC13</strong>, ces métadonnées sont persistées sur chaque <code>Item</code> et <code>Question</code> générés.</p>
+<h3 id="44-gestion-des-erreurs">4.4 Gestion des erreurs<a class="headerlink" href="#44-gestion-des-erreurs" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Erreur</th>
+<th>Comportement</th>
+<th>Référence AC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Timeout structuration</td>
+<td>Page marquée <code>items_generation_failed</code>, blocs OCR conservés</td>
+<td>Z2-AC05</td>
+</tr>
+<tr>
+<td>Timeout fidelity check</td>
+<td>Item conservé avec <code>fidelity_score = null</code></td>
+<td>Z3-AC10</td>
+</tr>
+<tr>
+<td>Quota dépassé</td>
+<td>Retry x2 avec backoff, puis échec pipeline page</td>
+<td>Z2-AC05</td>
+</tr>
+<tr>
+<td>Réponse malformée (JSON invalide)</td>
+<td>Retry x1, puis échec pipeline page</td>
+<td>Z2-AC05</td>
+</tr>
+<tr>
+<td>LLM indisponible (session)</td>
+<td>Fallback mode "Relecture active" (flashcards statiques)</td>
+<td>Z4-AC12</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-versioning-des-prompts-z2-ac13">5. Versioning des prompts (Z2-AC13)<a class="headerlink" href="#5-versioning-des-prompts-z2-ac13" title="Permanent link">&para;</a></h2>
+<h3 id="51-principe">5.1 Principe<a class="headerlink" href="#51-principe" title="Permanent link">&para;</a></h3>
+<p>Chaque prompt template est versionné dans le code via une constante :</p>
+<div class="highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="p">(</span>
+<span class="w">    </span><span class="nx">StructurationPromptV1</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;v1.0.0&quot;</span>
+<span class="w">    </span><span class="nx">FidelityPromptV1</span><span class="w">      </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;v1.0.0&quot;</span>
+<span class="w">    </span><span class="nx">QuestionGenPromptV1</span><span class="w">   </span><span class="p">=</span><span class="w"> </span><span class="s">&quot;v1.0.0&quot;</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Le hash SHA-256 du contenu du prompt est calculé au démarrage et utilisé comme <code>prompt_template_version</code> dans les résultats.</p>
+<h3 id="52-tracabilite">5.2 Traçabilité<a class="headerlink" href="#52-tracabilite" title="Permanent link">&para;</a></h3>
+<p>Chaque résultat LLM persiste :
+- Le modèle exact utilisé (champ <code>llm_model_version</code> sur <code>Item</code> et <code>Question</code>)
+- La version du prompt (champ <code>prompt_template_version</code>)
+- Le timestamp de l'appel</p>
+<p>Cela permet de diagnostiquer les régressions : "depuis quand les fidelity_score baissent-ils ?" → corrélation avec un changement de modèle ou de prompt.</p>
+<hr />
+<h2 id="6-strategie-de-test">6. Stratégie de test<a class="headerlink" href="#6-strategie-de-test" title="Permanent link">&para;</a></h2>
+<h3 id="61-niveau-1-tests-de-contrat-ci-chaque-pr">6.1 Niveau 1 — Tests de contrat (CI, chaque PR)<a class="headerlink" href="#61-niveau-1-tests-de-contrat-ci-chaque-pr" title="Permanent link">&para;</a></h3>
+<p><strong>Build tag</strong> : <code>//go:build integration</code>
+<strong>Pas d'appel API réel</strong> — utilisation de golden files.</p>
+<p><strong>Objectif</strong> : valider que le parsing des réponses LLM et la logique de mapping vers le domaine fonctionnent correctement.</p>
+<p><strong>Ce qui est testé :</strong>
+- Le JSON de réponse est parseable
+- Tous les champs obligatoires sont présents (<code>Type</code>, <code>Term</code>, <code>Keywords</code>)
+- <code>Confidence</code> est dans [0, 1]
+- <code>ItemType</code> est une valeur valide de l'enum
+- Au moins 1 item retourné pour un input non-vide
+- Les keywords sont non-vides pour les items KNOWLEDGE
+- Les steps sont non-vides pour les items PROCEDURE</p>
+<p><strong>Golden files</strong> stockés dans <code>backend/testdata/llm/</code> :
+<div class="highlight"><pre><span></span><code>testdata/llm/
+├── structuration_physique_input.json    # OCR blocks d&#39;entrée
+├── structuration_physique_golden.json   # Réponse LLM de référence
+├── structuration_svt_input.json
+├── structuration_svt_golden.json
+├── fidelity_check_golden.json
+└── question_gen_golden.json
+</code></pre></div></p>
+<p><strong>Exemple de test :</strong>
+<div class="highlight"><pre><span></span><code><span class="kd">func</span><span class="w"> </span><span class="nx">TestStructureBlocks_Contract</span><span class="p">(</span><span class="nx">t</span><span class="w"> </span><span class="o">*</span><span class="nx">testing</span><span class="p">.</span><span class="nx">T</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">golden</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">loadGoldenFile</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;structuration_physique_golden.json&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="nx">result</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="nx">parseStructurationResponse</span><span class="p">(</span><span class="nx">golden</span><span class="p">)</span>
+
+<span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="nx">_</span><span class="p">,</span><span class="w"> </span><span class="nx">item</span><span class="w"> </span><span class="o">:=</span><span class="w"> </span><span class="k">range</span><span class="w"> </span><span class="nx">result</span><span class="p">.</span><span class="nx">Items</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nx">require</span><span class="p">.</span><span class="nx">NotEmpty</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">item</span><span class="p">.</span><span class="nx">Type</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;type required&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">require</span><span class="p">.</span><span class="nx">NotEmpty</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">item</span><span class="p">.</span><span class="nx">Term</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;term required&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">require</span><span class="p">.</span><span class="nx">True</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">item</span><span class="p">.</span><span class="nx">Confidence</span><span class="w"> </span><span class="o">&gt;=</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">item</span><span class="p">.</span><span class="nx">Confidence</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="nx">require</span><span class="p">.</span><span class="nx">Contains</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">validItemTypes</span><span class="p">,</span><span class="w"> </span><span class="nx">item</span><span class="p">.</span><span class="nx">Type</span><span class="p">)</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<h3 id="62-niveau-2-tests-de-regression-prompt-nightly-gated">6.2 Niveau 2 — Tests de régression prompt (nightly, gated)<a class="headerlink" href="#62-niveau-2-tests-de-regression-prompt-nightly-gated" title="Permanent link">&para;</a></h3>
+<p><strong>Build tag</strong> : <code>//go:build llm</code>
+<strong>Appels API réels</strong> — nécessite <code>ANTHROPIC_API_KEY</code>.</p>
+<p><strong>Objectif</strong> : détecter les régressions de qualité quand le modèle ou le prompt change.</p>
+<p><strong>Ce qui est testé :</strong>
+- <strong>Assertions structurelles</strong> : nombre d'items dans une fourchette (±30%), types d'items attendus présents, keywords non vides.
+- <strong>Assertions sémantiques</strong> : le terme principal est présent dans le texte OCR source (anti-hallucination).
+- <strong>Cohérence inter-runs</strong> : le même input produit des résultats structurellement similaires (±20% sur le nombre d'items).</p>
+<p><strong>Dataset de référence</strong> : 10-15 golden inputs couvrant les cas types :
+- Physique-Chimie (formules, procédures de calcul)
+- SVT (vocabulaire, schémas)
+- Histoire-Géographie (dates, concepts)
+- Mathématiques (théorèmes, procédures)</p>
+<p><strong>Seuils de blocage</strong> :
+- Nombre d'items &lt; 50% de la référence → FAIL
+- Aucun item KNOWLEDGE détecté → FAIL
+- <code>avg(confidence)</code> &lt; 0.5 → FAIL
+- Terme hallucine (absent du texte source) → WARNING</p>
+<p><strong>Exécution</strong> : CI nightly ou pré-release, jamais sur chaque PR (coût + latence).</p>
+<h3 id="63-niveau-3-monitoring-en-production">6.3 Niveau 3 — Monitoring en production<a class="headerlink" href="#63-niveau-3-monitoring-en-production" title="Permanent link">&para;</a></h3>
+<p><strong>Objectif</strong> : détecter les dégradations silencieuses en temps réel.</p>
+<h4 id="631-metriques-collectees">6.3.1 Métriques collectées<a class="headerlink" href="#631-metriques-collectees" title="Permanent link">&para;</a></h4>
+<p>Chaque appel LLM émet les métriques suivantes :</p>
+<table>
+<thead>
+<tr>
+<th>Métrique</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>llm.call.duration_ms</code></td>
+<td>Histogram</td>
+<td>Latence de l'appel</td>
+</tr>
+<tr>
+<td><code>llm.call.tokens_input</code></td>
+<td>Counter</td>
+<td>Tokens input consommés</td>
+</tr>
+<tr>
+<td><code>llm.call.tokens_output</code></td>
+<td>Counter</td>
+<td>Tokens output consommés</td>
+</tr>
+<tr>
+<td><code>llm.call.cost_usd</code></td>
+<td>Counter</td>
+<td>Coût estimé de l'appel</td>
+</tr>
+<tr>
+<td><code>llm.call.status</code></td>
+<td>Counter</td>
+<td>Succès / erreur / timeout (par type d'appel)</td>
+</tr>
+<tr>
+<td><code>llm.structuration.items_count</code></td>
+<td>Histogram</td>
+<td>Nombre d'items générés par page</td>
+</tr>
+<tr>
+<td><code>llm.structuration.avg_confidence</code></td>
+<td>Gauge</td>
+<td>Confiance moyenne des items générés</td>
+</tr>
+<tr>
+<td><code>llm.fidelity.score</code></td>
+<td>Histogram</td>
+<td>Distribution des fidelity scores</td>
+</tr>
+<tr>
+<td><code>llm.fidelity.low_rate</code></td>
+<td>Gauge</td>
+<td>% d'items avec fidelity_score &lt; 0.5</td>
+</tr>
+<tr>
+<td><code>llm.question.cache_hit_rate</code></td>
+<td>Gauge</td>
+<td>% de questions servies depuis le cache</td>
+</tr>
+<tr>
+<td><code>llm.model_version</code></td>
+<td>Label</td>
+<td>Version du modèle sur chaque métrique</td>
+</tr>
+<tr>
+<td><code>llm.prompt_version</code></td>
+<td>Label</td>
+<td>Version du prompt sur chaque métrique</td>
+</tr>
+</tbody>
+</table>
+<h4 id="632-alertes">6.3.2 Alertes<a class="headerlink" href="#632-alertes" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Alerte</th>
+<th>Condition</th>
+<th>Sévérité</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dégradation fidelity</td>
+<td><code>avg(fidelity_score) &lt; 0.6</code> sur 24h glissantes</td>
+<td><strong>CRITICAL</strong></td>
+<td>Notification admin. Vérifier <code>llm_model_version</code> et <code>prompt_template_version</code>. Comparer avec les derniers résultats stables.</td>
+</tr>
+<tr>
+<td>Hausse hallucinations</td>
+<td><code>rate(fidelity_score &lt; 0.5) &gt; 15%</code> sur 24h</td>
+<td><strong>CRITICAL</strong></td>
+<td>Pause automatique de la génération d'items. Admin doit valider manuellement.</td>
+</tr>
+<tr>
+<td>Latence structuration</td>
+<td><code>p95(duration_ms) &gt; 30 000</code> sur 1h</td>
+<td><strong>WARNING</strong></td>
+<td>Vérifier quotas Anthropic API. Potentiel rate limiting.</td>
+</tr>
+<tr>
+<td>Latence questions</td>
+<td><code>p95(duration_ms) &gt; 2 000</code> sur 1h</td>
+<td><strong>WARNING</strong></td>
+<td>Vérifier quotas. Impact direct sur l'UX élève.</td>
+</tr>
+<tr>
+<td>Coût journalier excessif</td>
+<td><code>sum(cost_usd) &gt; budget_daily * 1.5</code></td>
+<td><strong>WARNING</strong></td>
+<td>Potentiel loop infini ou abus. Vérifier les logs d'appels.</td>
+</tr>
+<tr>
+<td>Changement de modèle</td>
+<td><code>llm_model_version</code> différent du dernier connu</td>
+<td><strong>INFO</strong></td>
+<td>Log l'événement. Déclencher les tests de régression nightly.</td>
+</tr>
+<tr>
+<td>Timeout rate</td>
+<td><code>rate(status=timeout) &gt; 10%</code> sur 1h</td>
+<td><strong>WARNING</strong></td>
+<td>Vérifier la santé de l'API Anthropic. Considérer le fallback Z4-AC12.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="633-dashboard-admin">6.3.3 Dashboard admin<a class="headerlink" href="#633-dashboard-admin" title="Permanent link">&para;</a></h4>
+<p>Le dashboard admin expose les vues suivantes :</p>
+<ol>
+<li><strong>Vue temps réel</strong> : appels/min, latence p50/p95, taux d'erreur, coût cumulé du jour.</li>
+<li><strong>Vue qualité</strong> : courbe de <code>avg(fidelity_score)</code> par jour, segmentée par <code>llm_model_version</code>. Permet de détecter visuellement un changement de comportement après une mise à jour Anthropic.</li>
+<li><strong>Vue coûts</strong> : coût par type d'appel (structuration, fidelity, questions), tendance hebdomadaire, projection mensuelle.</li>
+<li><strong>Vue drift</strong> : comparaison automatique des métriques de qualité entre la version de prompt actuelle et la précédente.</li>
+</ol>
+<h4 id="634-job-hebdomadaire-de-comparaison-z2-ac13">6.3.4 Job hebdomadaire de comparaison (Z2-AC13)<a class="headerlink" href="#634-job-hebdomadaire-de-comparaison-z2-ac13" title="Permanent link">&para;</a></h4>
+<p>Un job CRON hebdomadaire :
+1. Sélectionne les 50 derniers items générés avec la version de prompt courante.
+2. Calcule : <code>avg(fidelity_score)</code>, <code>avg(confidence)</code>, distribution des types d'items.
+3. Compare avec les mêmes métriques de la semaine précédente.
+4. Si dégradation &gt; 15% sur un indicateur → alerte admin <code>LLM_QUALITY_REGRESSION</code>.
+5. Log complet persisté pour audit.</p>
+<hr />
+<h2 id="7-implementation-du-logging-llm">7. Implémentation du logging LLM<a class="headerlink" href="#7-implementation-du-logging-llm" title="Permanent link">&para;</a></h2>
+<h3 id="71-structure-du-log">7.1 Structure du log<a class="headerlink" href="#71-structure-du-log" title="Permanent link">&para;</a></h3>
+<p>Chaque appel LLM produit un log structuré (JSON) :</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-03-12T14:30:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;call_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;structuration&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;claude-sonnet-4-6-20250217&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;prompt_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;v1.0.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;prompt_hash&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;sha256:abc123...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tokens_input&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1523</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;tokens_output&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">847</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;duration_ms&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3200</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cost_usd&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.017</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;success&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;items_count&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;avg_confidence&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.82</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;cache_hit&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;batch&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;user_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;019ce...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;chapter_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;019ce...&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="72-port-go">7.2 Port Go<a class="headerlink" href="#72-port-go" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1">// Dans domain/event/ ou un package dédié</span>
+<span class="kd">type</span><span class="w"> </span><span class="nx">LLMCallLogger</span><span class="w"> </span><span class="kd">interface</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">LogCall</span><span class="p">(</span><span class="nx">ctx</span><span class="w"> </span><span class="nx">context</span><span class="p">.</span><span class="nx">Context</span><span class="p">,</span><span class="w"> </span><span class="nx">entry</span><span class="w"> </span><span class="nx">LLMCallEntry</span><span class="p">)</span><span class="w"> </span><span class="kt">error</span>
+<span class="p">}</span>
+
+<span class="kd">type</span><span class="w"> </span><span class="nx">LLMCallEntry</span><span class="w"> </span><span class="kd">struct</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">Timestamp</span><span class="w">     </span><span class="nx">time</span><span class="p">.</span><span class="nx">Time</span>
+<span class="w">    </span><span class="nx">CallType</span><span class="w">      </span><span class="kt">string</span><span class="w">  </span><span class="c1">// &quot;structuration&quot;, &quot;fidelity&quot;, &quot;question_gen&quot;, &quot;coherence&quot;</span>
+<span class="w">    </span><span class="nx">Model</span><span class="w">         </span><span class="kt">string</span>
+<span class="w">    </span><span class="nx">PromptVersion</span><span class="w"> </span><span class="kt">string</span>
+<span class="w">    </span><span class="nx">PromptHash</span><span class="w">    </span><span class="kt">string</span>
+<span class="w">    </span><span class="nx">TokensInput</span><span class="w">   </span><span class="kt">int</span>
+<span class="w">    </span><span class="nx">TokensOutput</span><span class="w">  </span><span class="kt">int</span>
+<span class="w">    </span><span class="nx">DurationMs</span><span class="w">    </span><span class="kt">int64</span>
+<span class="w">    </span><span class="nx">CostUSD</span><span class="w">       </span><span class="kt">float64</span>
+<span class="w">    </span><span class="nx">Status</span><span class="w">        </span><span class="kt">string</span><span class="w">  </span><span class="c1">// &quot;success&quot;, &quot;error&quot;, &quot;timeout&quot;</span>
+<span class="w">    </span><span class="nx">ItemsCount</span><span class="w">    </span><span class="kt">int</span><span class="w">     </span><span class="c1">// pour structuration</span>
+<span class="w">    </span><span class="nx">AvgConfidence</span><span class="w"> </span><span class="kt">float64</span><span class="w"> </span><span class="c1">// pour structuration</span>
+<span class="w">    </span><span class="nx">CacheHit</span><span class="w">      </span><span class="kt">bool</span>
+<span class="w">    </span><span class="nx">Batch</span><span class="w">         </span><span class="kt">bool</span>
+<span class="w">    </span><span class="nx">UserID</span><span class="w">        </span><span class="kt">string</span>
+<span class="w">    </span><span class="nx">ChapterID</span><span class="w">     </span><span class="kt">string</span>
+<span class="w">    </span><span class="nx">Error</span><span class="w">         </span><span class="kt">string</span><span class="w">  </span><span class="c1">// si status != &quot;success&quot;</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="73-stockage">7.3 Stockage<a class="headerlink" href="#73-stockage" title="Permanent link">&para;</a></h3>
+<p><strong>Option recommandée pour le MVP</strong> : table PostgreSQL <code>llm_call_logs</code> avec les colonnes ci-dessus. Index sur <code>(call_type, timestamp)</code> et <code>(model, timestamp)</code> pour les requêtes de monitoring.</p>
+<p><strong>Post-MVP</strong> : migration vers un système de métriques dédié (Prometheus + Grafana) quand le volume justifie la séparation.</p>
+<hr />
+<h2 id="8-strategie-ocridp-pipeline-dextraction-des-cahiers">8. Strategie OCR/IDP — Pipeline d'extraction des cahiers<a class="headerlink" href="#8-strategie-ocridp-pipeline-dextraction-des-cahiers" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p>Ajouté le 2 avril 2026 suite à l'évaluation des approches ABBYY, Tesseract, PaddleOCR et VLM.</p>
+</blockquote>
+<h3 id="81-contenu-des-cahiers-de-collegiens">8.1 Contenu des cahiers de collégiens<a class="headerlink" href="#81-contenu-des-cahiers-de-collegiens" title="Permanent link">&para;</a></h3>
+<p>Les pages contiennent un mix hétérogène de :
+- Texte imprimé (polycopiés collés)
+- Écriture manuscrite (notes de l'élève, corrections)
+- Tableaux (résultats d'expériences, données)
+- Schémas et dessins (SVT, physique, techno)
+- Formules mathématiques
+- Photos collées</p>
+<p>Le pipeline doit extraire et structurer <strong>tout ça en contexte</strong> pour générer des items de révision pertinents.</p>
+<h3 id="82-approches-evaluees">8.2 Approches évaluées<a class="headerlink" href="#82-approches-evaluees" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Approche</th>
+<th>Description</th>
+<th>Coût/page</th>
+<th>Qualité manuscrit</th>
+<th>Compréhension images</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ABBYY Vantage</strong></td>
+<td>Pipeline IDP entreprise (K8s, multi-modèles spécialisés)</td>
+<td>$0.01-0.05</td>
+<td>Bon (ICR dédié)</td>
+<td>Non (détection seule)</td>
+</tr>
+<tr>
+<td><strong>Tesseract 5.5</strong></td>
+<td>OCR open-source LSTM</td>
+<td>~$0</td>
+<td>Quasi nul</td>
+<td>Non</td>
+</tr>
+<tr>
+<td><strong>PaddleOCR-VL 1.5</strong></td>
+<td>VLM OCR open-source 0.9B</td>
+<td>~$0</td>
+<td>Limité</td>
+<td>Non (catégorise mais ne décrit pas)</td>
+</tr>
+<tr>
+<td><strong>Layout + routing</strong></td>
+<td>PP-DocLayoutV2 → PaddleOCR (texte) + VLM (manuscrit/images)</td>
+<td>~$0.0008</td>
+<td>Bon (via VLM)</td>
+<td>Oui (via VLM)</td>
+</tr>
+<tr>
+<td><strong>VLM direct (page entière)</strong></td>
+<td>Gemini Flash sur l'image complète</td>
+<td>~$0.0013</td>
+<td>Très bon (zero-shot)</td>
+<td>Oui</td>
+</tr>
+</tbody>
+</table>
+<h3 id="83-decision-vlm-direct-pas-de-layout-detection">8.3 Décision : VLM direct, pas de layout detection<a class="headerlink" href="#83-decision-vlm-direct-pas-de-layout-detection" title="Permanent link">&para;</a></h3>
+<p><strong>Choix retenu : envoyer la page entière à Gemini 2.5 Flash en un seul appel.</strong></p>
+<p><strong>Raisons :</strong></p>
+<ol>
+<li>
+<p><strong>Contexte sémantique préservé.</strong> Un VLM qui voit la page entière comprend le lien entre un schéma et le texte à côté. Le cropping par zones perd ce contexte — or c'est exactement ce qui fait la qualité pédagogique des items générés. Un schéma de circuit électrique avec des annotations manuscrites à côté d'un tableau de mesures doit être compris comme un ensemble.</p>
+</li>
+<li>
+<p><strong>Gain économique négligeable.</strong> L'écart entre le VLM direct ($0.0013/page) et le pipeline hybride ($0.0008/page) est ~$0.0005/page, soit ~$5/mois pour 10K pages. La complexité ajoutée (3 étapes au lieu d'1, routing, maintenance de 2 modèles) ne justifie pas cette économie.</p>
+</li>
+<li>
+<p><strong>Robustesse sur les cahiers réels.</strong> Les cahiers d'ados sont chaotiques — collages, dessins dans les marges, flèches, ratures, stickers. Un layout detector va régulièrement se tromper sur ces documents, causant des erreurs en cascade. Un VLM généraliste encaisse mieux le chaos.</p>
+</li>
+<li>
+<p><strong>Manuscrit = point fort des VLMs.</strong> Les benchmarks HTR (mars 2025) montrent que Claude et Gemini surpassent les OCR spécialisés (Transkribus, TrOCR) en zero-shot sur le manuscrit moderne. PaddleOCR-VL est bon sur le texte imprimé mais limité sur le manuscrit français.</p>
+</li>
+<li>
+<p><strong>PaddleOCR-VL ne décrit pas les images.</strong> Il catégorise les zones visuelles ("figure") mais ne les décrit pas sémantiquement. Pour un schéma de cellule en SVT, il retourne un placeholder, pas "schéma de la cellule animale avec noyau et mitochondries". Le VLM fait les deux.</p>
+</li>
+<li>
+<p><strong>Simplicité pipeline.</strong> Un seul appel API au lieu de 3 étapes (layout → OCR → VLM). Moins de code, moins de points de failure, moins d'infra à maintenir.</p>
+</li>
+</ol>
+<h3 id="84-pourquoi-gemini-flash-et-pas-claude-pour-locr">8.4 Pourquoi Gemini Flash et pas Claude pour l'OCR<a class="headerlink" href="#84-pourquoi-gemini-flash-et-pas-claude-pour-locr" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Critère</th>
+<th>Gemini 2.5 Flash</th>
+<th>Claude Haiku 4.5</th>
+<th>Claude Sonnet 4.6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Coût input/Mtok</td>
+<td>$0.30</td>
+<td>$1.00</td>
+<td>$3.00</td>
+</tr>
+<tr>
+<td>Tokens par image</td>
+<td>~258</td>
+<td>~1,334</td>
+<td>~1,334</td>
+</tr>
+<tr>
+<td><strong>Coût/page vision</strong></td>
+<td><strong>$0.0013</strong></td>
+<td>$0.0038</td>
+<td>$0.0115</td>
+</tr>
+<tr>
+<td>10K pages/mois</td>
+<td><strong>$13</strong></td>
+<td>$38</td>
+<td>$115</td>
+</tr>
+</tbody>
+</table>
+<p>Gemini tokenise les images ~5x plus efficacement que Claude. Pour l'OCR (extraction de texte/structure), Gemini Flash est 3x moins cher que Haiku et 9x moins cher que Sonnet, pour une qualité comparable sur cette tâche.</p>
+<p><strong>Principe : utiliser chaque modèle là où il excelle.</strong>
+- <strong>Gemini Flash</strong> → extraction OCR + scoring réponses (vision, bas coût)
+- <strong>Claude Sonnet</strong> → génération pédagogique (qualité rédaction française)</p>
+<h3 id="85-quand-reconsiderer">8.5 Quand reconsidérer<a class="headerlink" href="#85-quand-reconsiderer" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Condition</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>&gt; 100K pages/mois</td>
+<td>Évaluer PaddleOCR-VL en pré-traitement pour le texte imprimé</td>
+</tr>
+<tr>
+<td>Self-hosting requis</td>
+<td>Qwen2.5-VL-7B + PaddleOCR-VL en local</td>
+</tr>
+<tr>
+<td>Qualité insuffisante Gemini</td>
+<td>Benchmark Haiku 4.5 ou Gemini 2.5 Pro sur les cas en échec</td>
+</tr>
+<tr>
+<td>Baisse de prix LLM</td>
+<td>Réévaluer — si l'API coûte 10x moins, le layout detection perd tout intérêt</td>
+</tr>
+</tbody>
+</table>
+<h3 id="86-comparatif-solutions-idp-evaluees">8.6 Comparatif solutions IDP évaluées<a class="headerlink" href="#86-comparatif-solutions-idp-evaluees" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Solution</th>
+<th>Forces</th>
+<th>Faiblesses pour Révise Mieux</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ABBYY Vantage</strong></td>
+<td>Précision industrielle, 200+ langues, ICR manuscrit dédié</td>
+<td>Over-engineered pour un MVP, propriétaire, ~350 MB/core, pas de description sémantique des images</td>
+</tr>
+<tr>
+<td><strong>Tesseract 5.5</strong></td>
+<td>Léger (~100 MB/page), gratuit, mature</td>
+<td>Quasi inutilisable sur le manuscrit, pas d'analyse de layout, pas de compréhension structurelle</td>
+</tr>
+<tr>
+<td><strong>PaddleOCR-VL</strong></td>
+<td>0.9B params, gratuit, SOTA sur benchmarks OCR texte</td>
+<td>Ne décrit pas les images, manuscrit français limité, pas de compréhension sémantique</td>
+</tr>
+<tr>
+<td><strong>Gemini 2.5 Flash</strong></td>
+<td>Vision + compréhension en 1 pass, manuscrit zero-shot, $0.0013/page</td>
+<td>Dépendance API externe, latence ~3-5s/page</td>
+</tr>
+</tbody>
+</table>
+<h3 id="87-estimations-de-cout-consolidees">8.7 Estimations de coût consolidées<a class="headerlink" href="#87-estimations-de-cout-consolidees" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Volume</th>
+<th>Gemini Flash (VLM direct)</th>
+<th>Pipeline hybride</th>
+<th>Tout Claude Sonnet</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1K pages/mois</td>
+<td>$1.3</td>
+<td>$0.8</td>
+<td>$11.5</td>
+</tr>
+<tr>
+<td>10K pages/mois</td>
+<td>$13</td>
+<td>$8</td>
+<td>$115</td>
+</tr>
+<tr>
+<td>100K pages/mois</td>
+<td>$130</td>
+<td>$80</td>
+<td>$1,150</td>
+</tr>
+</tbody>
+</table>
+<h3 id="88-optimisations-cout-complementaires">8.8 Optimisations coût complémentaires<a class="headerlink" href="#88-optimisations-cout-complementaires" title="Permanent link">&para;</a></h3>
+<p>Les vrais leviers de réduction de coût ne sont pas dans le layout detection mais dans :</p>
+<ol>
+<li><strong>Batch API</strong> (-50%) : le pipeline J0 est asynchrone, parfait pour le batch</li>
+<li><strong>Prompt caching</strong> (-90% sur les cache reads) : le system prompt d'extraction est identique entre appels</li>
+<li><strong>Séparation extraction/génération</strong> : l'extraction (Gemini Flash, image) produit du Markdown ; la génération pédagogique (Claude Sonnet, texte seul) consomme ce Markdown sans revoir l'image</li>
+</ol>
+<h3 id="89-benchmark-a-realiser">8.9 Benchmark à réaliser<a class="headerlink" href="#89-benchmark-a-realiser" title="Permanent link">&para;</a></h3>
+<p>Avant de finaliser le pipeline J0, benchmarker sur 20+ photos de vrais cahiers :</p>
+<table>
+<thead>
+<tr>
+<th>Modèle</th>
+<th>Type</th>
+<th>Critères</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gemini 2.5 Flash</td>
+<td>API vision</td>
+<td>Précision texte imprimé, manuscrit, description schémas</td>
+</tr>
+<tr>
+<td>Claude Haiku 4.5</td>
+<td>API vision</td>
+<td>Idem (comparaison qualité)</td>
+</tr>
+<tr>
+<td>PaddleOCR-VL 1.5</td>
+<td>Self-hosted</td>
+<td>Texte imprimé uniquement (baseline gratuite)</td>
+</tr>
+</tbody>
+</table>
+<p>Le framework de benchmark existe dans <code>backend/cmd/benchmark/</code>. Il faut ajouter un type <code>ocr</code> avec des cas de test sur un corpus de cahiers réels.</p>
+<hr />
+<h2 id="9-resume-des-decisions">9. Résumé des décisions<a class="headerlink" href="#9-resume-des-decisions" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>Mis à jour mars 2026</strong> après benchmark réel sur 21 modèles. Voir <a href="../backend/testdata/benchmark/README.md"><code>backend/testdata/benchmark/README.md</code></a>.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>Décision</th>
+<th>Choix initial</th>
+<th>Choix post-benchmark</th>
+<th>Raison du changement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Modèle structuration</td>
+<td>~~Sonnet 4.6~~</td>
+<td><strong>Qwen3.5-397B</strong> ou <strong>mistral-small</strong></td>
+<td>Sonnet hallucine (8%), 30-50x plus cher. Qwen3.5-397B quality 0.88, mistral-small quality 0.87 à $0.00006/item</td>
+</tr>
+<tr>
+<td>Modèle OCR / extraction</td>
+<td>~~Sonnet 4.6~~</td>
+<td><strong>Gemini 2.5 Flash</strong> (VLM direct, page entière)</td>
+<td>5x plus efficace en tokens image, $0.0013/page, manuscrit zero-shot. Pas de layout detection — cf. section 8.</td>
+</tr>
+<tr>
+<td>Modèle fidelity check</td>
+<td>Haiku 4.5</td>
+<td>À benchmarker</td>
+<td>Pas encore testé sur ce cas d'usage</td>
+</tr>
+<tr>
+<td>Modèle questions</td>
+<td>Haiku 4.5</td>
+<td>À benchmarker</td>
+<td>Pas encore testé sur ce cas d'usage</td>
+</tr>
+<tr>
+<td>Modèle cohérence</td>
+<td>~~Sonnet 4.6~~</td>
+<td>À benchmarker</td>
+<td>Pas encore testé sur ce cas d'usage</td>
+</tr>
+<tr>
+<td>Feedback</td>
+<td>Templates (pas de LLM)</td>
+<td>Inchangé</td>
+<td>Latence ≤ 200ms, cohérence, coût nul</td>
+</tr>
+<tr>
+<td>Exécution locale</td>
+<td>Hors scope</td>
+<td><strong>Qwen3-VL-32B + Gemma 3 27B via Ollama</strong></td>
+<td>Viable sur MacBook Pro M5 Max 128 Go (~2 min/chapitre, $0)</td>
+</tr>
+<tr>
+<td>Prompts</td>
+<td>Constantes Go</td>
+<td><strong>Fichiers .txt + <code>//go:embed</code></strong></td>
+<td>Source unique partagée entre prod et benchmark</td>
+</tr>
+<tr>
+<td>Pipeline non temps-réel</td>
+<td>Batch API</td>
+<td>Batch API</td>
+<td>Inchangé</td>
+</tr>
+<tr>
+<td>Prompts répétitifs</td>
+<td>Prompt caching</td>
+<td>Prompt caching</td>
+<td>Inchangé</td>
+</tr>
+<tr>
+<td>Tests CI</td>
+<td>Golden files + contrat</td>
+<td>Golden files + contrat</td>
+<td>Inchangé</td>
+</tr>
+<tr>
+<td>Tests qualité</td>
+<td>Régression nightly</td>
+<td>Régression nightly</td>
+<td>Inchangé</td>
+</tr>
+<tr>
+<td>Monitoring</td>
+<td>Logs structurés + alertes</td>
+<td>Logs structurés + alertes</td>
+<td>Inchangé</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Retour en haut de la page
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/popul/ReviseMieux" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

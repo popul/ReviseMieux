@@ -1,0 +1,2935 @@
+
+<!doctype html>
+<html lang="fr" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://popul.github.io/ReviseMieux/ux/state-model/">
+      
+      
+        <link rel="prev" href="../screen-inventory/">
+      
+      
+        <link rel="next" href="../edge-cases/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Modele d'etats - Revise Mieux — Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#modele-detats-par-ecran-revise-mieux" class="md-skip">
+          Aller au contenu
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="En-tête">
+    <a href="../.." title="Revise Mieux — Documentation" class="md-header__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Revise Mieux — Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Modele d'etats
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode sombre"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mode sombre" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode clair"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mode clair" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Rechercher" placeholder="Rechercher" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Recherche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Effacer" aria-label="Effacer" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initialisation de la recherche
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Onglets" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Accueil
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Demarrage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../PRD/" class="md-tabs__link">
+          
+  
+  
+  Produit
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../ac/Z1/" class="md-tabs__link">
+          
+  
+  
+  Criteres d'acceptation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../architecture/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../user-flow-complete/" class="md-tabs__link">
+          
+  
+  
+  UX
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/" class="md-tabs__link">
+          
+  
+  
+  Design System
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../llm-strategy/" class="md-tabs__link">
+          
+  
+  
+  Technique
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-journeys/first-connection/" class="md-tabs__link">
+          
+  
+  
+  Parcours
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/" class="md-tabs__link">
+          
+  
+  
+  Contribuer
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Revise Mieux — Documentation" class="md-nav__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Revise Mieux — Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accueil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demarrage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Produit
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Produit
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../PRD/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PRD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MVP-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope MVP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lot0-tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracker Lot 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Criteres d'acceptation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Criteres d'acceptation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z1 — Mastery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z2 — Pipeline J0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z3 — Validation HITL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z4 — Sessions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z5 — Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z6 — Schedule
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z7 — Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z8 — Onboarding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/ocr-idp-incremental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OCR/IDP incremental
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/merge-decision-table/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regles de merge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UX
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UX
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-flow-complete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../personas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Personas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../screen-inventory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ecrans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modele d'etats
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modele d'etats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-dashboard-eleve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Dashboard eleve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-capture-photo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Capture photo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-processing-pipeline-ocr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Processing (pipeline OCR)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-detail-chapitre-carte-de-lecon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Detail chapitre / Carte de lecon
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-session-de-revision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Session de revision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-validation-hitl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Validation HITL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-dashboard-parent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Dashboard parent
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-onboarding-eleve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Onboarding eleve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#matrice-recapitulative-etats-critiques-par-ecran" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Matrice recapitulative : etats critiques par ecran
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../edge-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Edge cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../open-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions ouvertes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/design-principles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Principes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/color-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Couleurs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/typography/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Typographie
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/component-philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/do-dont/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Do / Don't
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/moodboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Moodboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/scalability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scalabilite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technique
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Technique
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llm-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strategie LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llm-benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process/feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parcours
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Parcours
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-journeys/first-connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Premiere connexion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contribuer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contribuer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide contribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploiement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-dashboard-eleve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Dashboard eleve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-capture-photo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Capture photo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-processing-pipeline-ocr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Processing (pipeline OCR)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-detail-chapitre-carte-de-lecon" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Detail chapitre / Carte de lecon
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-session-de-revision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Session de revision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-validation-hitl" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Validation HITL
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-dashboard-parent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Dashboard parent
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-onboarding-eleve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Onboarding eleve
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#matrice-recapitulative-etats-critiques-par-ecran" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Matrice recapitulative : etats critiques par ecran
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="modele-detats-par-ecran-revise-mieux">Modele d'etats par ecran -- Revise Mieux<a class="headerlink" href="#modele-detats-par-ecran-revise-mieux" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Pour chaque ecran critique, les 11 etats d'affichage sont decrits explicitement.</p>
+<p>Les etats couverts : Default, Loading, Processing, Success, Empty, Partial, Stale, OCR Uncertainty, Error, Blocked, Retry.</p>
+</blockquote>
+<hr />
+<h2 id="1-dashboard-eleve">1. Dashboard eleve<a class="headerlink" href="#1-dashboard-eleve" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Etat</th>
+<th>Ce que l'utilisateur voit</th>
+<th>Comportement technique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default (soiree)</strong></td>
+<td>Plan de soiree avec etapes, estimation duree, bouton "C'est parti"</td>
+<td>EveningPlan calcule, sessions composees</td>
+</tr>
+<tr>
+<td><strong>Default (hors soiree)</strong></td>
+<td>Progression globale, liste des chapitres avec barres de maitrise</td>
+<td><code>GET /chapters</code> + masteries</td>
+</tr>
+<tr>
+<td><strong>Loading</strong></td>
+<td>Skeleton : rectangles animes pour header, plan, chapitres</td>
+<td><code>isLoading = true</code> sur le fetch initial</td>
+</tr>
+<tr>
+<td><strong>Processing</strong></td>
+<td>Bandeau "Traitement de tes photos en cours..." avec lien vers processing.tsx</td>
+<td>Pipeline J0 actif pour un chapitre</td>
+</tr>
+<tr>
+<td><strong>Success</strong></td>
+<td>Plan de soiree avec coche verte sur une etape terminee, message de transition</td>
+<td>Apres completion d'une session, refresh du plan</td>
+</tr>
+<tr>
+<td><strong>Empty</strong></td>
+<td>Checklist 3 etapes + chapitre demo. "Aucun chapitre" avec CTA "Charger le chapitre demo"</td>
+<td>0 chapitres en base, Z8-AC01/AC02</td>
+</tr>
+<tr>
+<td><strong>Partial</strong></td>
+<td>Chapitres charges mais plan de soiree incomplet (schedule partiel)</td>
+<td>Certaines matieres sans ScheduleSlots, bandeau "Ajoute ton emploi du temps"</td>
+</tr>
+<tr>
+<td><strong>Stale</strong></td>
+<td>Donnees affichees normalement, indicateur discret de synchro</td>
+<td>Pull-to-refresh disponible, background refresh en cours</td>
+</tr>
+<tr>
+<td><strong>OCR Uncertainty</strong></td>
+<td>Badge sur le chapitre : "2 zones a verifier"</td>
+<td>Items avec <code>validation_required = true</code></td>
+</tr>
+<tr>
+<td><strong>Error</strong></td>
+<td>Message "Impossible de charger tes chapitres" + bouton "Reessayer"</td>
+<td>Erreur reseau sur <code>GET /chapters</code></td>
+</tr>
+<tr>
+<td><strong>Blocked</strong></td>
+<td>N/A -- le dashboard n'est jamais bloque</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Retry</strong></td>
+<td>Bouton "Reessayer" apres un echec reseau</td>
+<td>Relance le fetch</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-capture-photo">2. Capture photo<a class="headerlink" href="#2-capture-photo" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Etat</th>
+<th>Ce que l'utilisateur voit</th>
+<th>Comportement technique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default</strong></td>
+<td>Zone camera avec guidage "Cadre ton cahier", compteur pages, vignettes</td>
+<td>Camera active, aucune photo prise</td>
+</tr>
+<tr>
+<td><strong>Loading</strong></td>
+<td>Spinner bref pendant l'initialisation camera</td>
+<td>Chargement expo-camera</td>
+</tr>
+<tr>
+<td><strong>Processing</strong></td>
+<td>N/A -- le processing est sur un ecran dedie</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Success</strong></td>
+<td>Flash visuel + vignette ajoutee a la bande de pages</td>
+<td>Photo capturee, ajoutee a la liste locale</td>
+</tr>
+<tr>
+<td><strong>Empty</strong></td>
+<td>Zone camera vide, bouton "Terminer" inactif (opacite reduite)</td>
+<td>0 pages capturees</td>
+</tr>
+<tr>
+<td><strong>Partial</strong></td>
+<td>Vignettes des pages capturees + bouton "+" pour en ajouter</td>
+<td>Entre 1 et 29 pages</td>
+</tr>
+<tr>
+<td><strong>Stale</strong></td>
+<td>N/A -- tout est local</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>OCR Uncertainty</strong></td>
+<td>N/A -- pre-processing (l'analyse vient apres)</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Error</strong></td>
+<td>"Camera indisponible" + option "Importer depuis la galerie"</td>
+<td>Permission camera refusee ou hardware</td>
+</tr>
+<tr>
+<td><strong>Blocked</strong></td>
+<td>"30 pages maximum atteintes" -- bouton capture desactive</td>
+<td>pages.length &gt;= 30</td>
+</tr>
+<tr>
+<td><strong>Retry</strong></td>
+<td>"Permission camera requise" + bouton vers les reglages</td>
+<td>Apres refus de permission</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-processing-pipeline-ocr">3. Processing (pipeline OCR)<a class="headerlink" href="#3-processing-pipeline-ocr" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Etat</th>
+<th>Ce que l'utilisateur voit</th>
+<th>Comportement technique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default</strong></td>
+<td>N/A -- cet ecran n'a pas d'etat au repos</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Loading</strong></td>
+<td>Phase 1 : "Lecture de tes pages..." avec animation de scan</td>
+<td>Progression 0-30%</td>
+</tr>
+<tr>
+<td><strong>Processing</strong></td>
+<td>Phase 2 : "Creation des questions..." puis Phase 3 : "Presque fini..."</td>
+<td>Progression 30-70% puis 70-100%</td>
+</tr>
+<tr>
+<td><strong>Success</strong></td>
+<td>Redirection automatique vers le chapitre cree</td>
+<td>Pipeline termine avec &gt;= 1 item valide</td>
+</tr>
+<tr>
+<td><strong>Empty</strong></td>
+<td>N/A -- redirige vers Recovery si 0 items</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Partial</strong></td>
+<td>"3/10 pages analysees" avec items deja disponibles</td>
+<td>Traitement en cours, pages traitees progressivement (Z2-AC01)</td>
+</tr>
+<tr>
+<td><strong>Stale</strong></td>
+<td>"Tu peux fermer l'app, on te previent quand c'est pret" (apres 30s)</td>
+<td>Notification push programmee a la fin du pipeline</td>
+</tr>
+<tr>
+<td><strong>OCR Uncertainty</strong></td>
+<td>N/A -- l'incertitude est geree apres, sur le chapitre</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Error</strong></td>
+<td>Redirection vers l'ecran Recovery (Z8-AC03)</td>
+<td>Pipeline echoue ou timeout &gt; 60s</td>
+</tr>
+<tr>
+<td><strong>Blocked</strong></td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Retry</strong></td>
+<td>Bouton "Reessayer" sur l'ecran Recovery</td>
+<td>Relance le pipeline J0</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-detail-chapitre-carte-de-lecon">4. Detail chapitre / Carte de lecon<a class="headerlink" href="#4-detail-chapitre-carte-de-lecon" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Etat</th>
+<th>Ce que l'utilisateur voit</th>
+<th>Comportement technique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default</strong></td>
+<td>Barre maitrise globale + notions en accordeon + bouton "Lancer une session"</td>
+<td>Lesson card + masteries charges</td>
+</tr>
+<tr>
+<td><strong>Loading</strong></td>
+<td>Skeleton : barre de maitrise grise, accordeons placeholder</td>
+<td><code>GET /chapters/{id}/lesson-card</code> + <code>GET /masteries</code></td>
+</tr>
+<tr>
+<td><strong>Processing</strong></td>
+<td>Bandeau "Analyse des pages 4-6 en cours..." avec progression</td>
+<td>Pipeline incremental actif (Z2-AC14)</td>
+</tr>
+<tr>
+<td><strong>Success</strong></td>
+<td>Animation transition maitrise apres une session completee</td>
+<td>Refresh des masteries apres session</td>
+</tr>
+<tr>
+<td><strong>Empty</strong></td>
+<td>"Aucun contenu extrait. Verifie la qualite des photos et re-uploade."</td>
+<td>0 items valides (Z2-AC07)</td>
+</tr>
+<tr>
+<td><strong>Partial</strong></td>
+<td>Items des pages traitees affiches + placeholders pages en cours</td>
+<td>Pipeline partiel (Z2-AC01), indicateur "3/10 pages analysees"</td>
+</tr>
+<tr>
+<td><strong>Stale</strong></td>
+<td>Donnees affichees, fond refresh en cours</td>
+<td>Cache masteries potentiellement obsolete</td>
+</tr>
+<tr>
+<td><strong>OCR Uncertainty</strong></td>
+<td>Badges "Zone illisible · page 4" + bandeau "N zones a verifier"</td>
+<td>Pages en FAILED, items avec validation_required</td>
+</tr>
+<tr>
+<td><strong>Error</strong></td>
+<td>"Impossible de charger le chapitre" + bouton "Reessayer"</td>
+<td>Erreur reseau</td>
+</tr>
+<tr>
+<td><strong>Blocked</strong></td>
+<td>Bouton diagnostic desactive + message "Aucun contenu n'a pu etre extrait"</td>
+<td>0 items valides (Z2-AC07)</td>
+</tr>
+<tr>
+<td><strong>Retry</strong></td>
+<td>Badge "Exercices non generes · page X" avec bouton "Reessayer"</td>
+<td>Z2-AC11, max 3 retries manuels</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-session-de-revision">5. Session de revision<a class="headerlink" href="#5-session-de-revision" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Etat</th>
+<th>Ce que l'utilisateur voit</th>
+<th>Comportement technique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default</strong></td>
+<td>Question affichee + barre progression X/Y + zone de reponse</td>
+<td>Session IN_PROGRESS, question courante</td>
+</tr>
+<tr>
+<td><strong>Loading</strong></td>
+<td>Skeleton question + spinner pendant la composition</td>
+<td><code>POST /sessions/daily</code> + <code>GET /sessions/{id}/questions</code></td>
+</tr>
+<tr>
+<td><strong>Processing</strong></td>
+<td>N/A -- le LLM a deja genere les questions (lazy cache)</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Success</strong></td>
+<td>Feedback vert "Bonne reponse !" + micro-celebration si transition positive</td>
+<td>Score &gt;= 0.7, transition maitrise positive</td>
+</tr>
+<tr>
+<td><strong>Empty</strong></td>
+<td>"Tous tes items sont a jour ! Prochaine revision : [date]" + option consolidation</td>
+<td>Aucun item eligible (Z4-AC13)</td>
+</tr>
+<tr>
+<td><strong>Partial</strong></td>
+<td>"Petite session rapide -- N questions sur ce chapitre"</td>
+<td>&lt; 5 items dans le chapitre (Z4-AC11)</td>
+</tr>
+<tr>
+<td><strong>Stale</strong></td>
+<td>N/A -- les questions sont fraiches a la composition</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>OCR Uncertainty</strong></td>
+<td>Question avec badge "Contenu en cours de verification"</td>
+<td>Item avec validation_required, gabarit simple uniquement</td>
+</tr>
+<tr>
+<td><strong>Error</strong></td>
+<td>"Preparation de tes exercices en cours... reessaie dans quelques secondes"</td>
+<td>LLM timeout (Z4-AC06)</td>
+</tr>
+<tr>
+<td><strong>Blocked</strong></td>
+<td>N/A -- la session ne bloque jamais (gabarits simples si validation en cours)</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Retry</strong></td>
+<td>Apres 10s LLM timeout : mode "Relecture active" avec flashcards statiques</td>
+<td>Fallback Z4-AC12</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-validation-hitl">6. Validation HITL<a class="headerlink" href="#6-validation-hitl" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Etat</th>
+<th>Ce que l'utilisateur voit</th>
+<th>Comportement technique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default</strong></td>
+<td>Item avec suggestion + 4 boutons d'action (Confirmer/Corriger/JNSP/Ignorer)</td>
+<td>ValidationTask PENDING</td>
+</tr>
+<tr>
+<td><strong>Loading</strong></td>
+<td>Spinner pendant le chargement des validations</td>
+<td><code>GET /validations</code></td>
+</tr>
+<tr>
+<td><strong>Processing</strong></td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Success</strong></td>
+<td>Confirmation visuelle "Mis a jour !" + navigation vers la validation suivante</td>
+<td>Task resolue (CONFIRMED/CORRECTED)</td>
+</tr>
+<tr>
+<td><strong>Empty</strong></td>
+<td>"Aucune verification en attente. Tout est bon !"</td>
+<td>0 ValidationTasks PENDING (Z3-AC09)</td>
+</tr>
+<tr>
+<td><strong>Partial</strong></td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Stale</strong></td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>OCR Uncertainty</strong></td>
+<td>Crop de la page source affiche a cote de la suggestion pour comparaison</td>
+<td>Item a faible confidence</td>
+</tr>
+<tr>
+<td><strong>Error</strong></td>
+<td>"Impossible de sauvegarder ta reponse" + bouton "Reessayer"</td>
+<td>Erreur reseau sur POST</td>
+</tr>
+<tr>
+<td><strong>Blocked</strong></td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Retry</strong></td>
+<td>Bouton "Reessayer" apres echec de sauvegarde</td>
+<td>Relance le POST</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-dashboard-parent">7. Dashboard parent<a class="headerlink" href="#7-dashboard-parent" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Etat</th>
+<th>Ce que l'utilisateur voit</th>
+<th>Comportement technique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default</strong></td>
+<td>Maitrise globale de l'enfant + chapitres + activite semaine</td>
+<td>Donnees fraiches</td>
+</tr>
+<tr>
+<td><strong>Loading</strong></td>
+<td>Skeleton dashboard</td>
+<td>Chargement initial</td>
+</tr>
+<tr>
+<td><strong>Processing</strong></td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Success</strong></td>
+<td>N/A (pas d'action mutative depuis le dashboard parent)</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Empty (enfant n'a pas commence)</strong></td>
+<td>"[Prenom] n'a pas encore commence -- vous serez notifie des sa premiere session"</td>
+<td>0 sessions, 0 chapitres</td>
+</tr>
+<tr>
+<td><strong>Partial</strong></td>
+<td>Chapitres avec items en verification mentionnes</td>
+<td>Items validation_required</td>
+</tr>
+<tr>
+<td><strong>Stale</strong></td>
+<td>Donnees du dernier digest, indicateur "Mis a jour il y a 2j"</td>
+<td>Parent ne consulte pas frequemment</td>
+</tr>
+<tr>
+<td><strong>OCR Uncertainty</strong></td>
+<td>"2 points en verification -- exercices simplifies en attendant"</td>
+<td>Items validation_required dans le chapitre</td>
+</tr>
+<tr>
+<td><strong>Error</strong></td>
+<td>"Connexion perdue -- donnees du dernier chargement affichees"</td>
+<td>Erreur reseau</td>
+</tr>
+<tr>
+<td><strong>Blocked</strong></td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Retry</strong></td>
+<td>Pull-to-refresh</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-onboarding-eleve">8. Onboarding eleve<a class="headerlink" href="#8-onboarding-eleve" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Etat</th>
+<th>Ce que l'utilisateur voit</th>
+<th>Comportement technique</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Default</strong></td>
+<td>Checklist 3 etapes + CTAs</td>
+<td>Premier acces</td>
+</tr>
+<tr>
+<td><strong>Loading</strong></td>
+<td>Spinner sur le bouton "Charger le chapitre demo"</td>
+<td>POST /onboarding/seed-demo</td>
+</tr>
+<tr>
+<td><strong>Processing</strong></td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Success</strong></td>
+<td>Redirection vers le dashboard avec le chapitre demo</td>
+<td>Seed reussi</td>
+</tr>
+<tr>
+<td><strong>Empty</strong></td>
+<td>N/A (c'est l'etat initial par definition)</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Partial</strong></td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Stale</strong></td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>OCR Uncertainty</strong></td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Error</strong></td>
+<td>"Impossible de charger le chapitre demo" + fallback vers le dashboard vide</td>
+<td>Erreur seed</td>
+</tr>
+<tr>
+<td><strong>Blocked</strong></td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td><strong>Retry</strong></td>
+<td>Bouton "Reessayer" ou navigation directe vers capture</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="matrice-recapitulative-etats-critiques-par-ecran">Matrice recapitulative : etats critiques par ecran<a class="headerlink" href="#matrice-recapitulative-etats-critiques-par-ecran" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Ecran</th>
+<th>Etats les plus risques (UX)</th>
+<th>AC de reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dashboard</td>
+<td>Empty (premier usage), Error (perte de confiance)</td>
+<td>Z8-AC01, Z8-AC02</td>
+</tr>
+<tr>
+<td>Capture</td>
+<td>Error (permission camera), Blocked (30 pages)</td>
+<td>Z2-AC03</td>
+</tr>
+<tr>
+<td>Processing</td>
+<td>Error (pipeline echoue, premier upload critique)</td>
+<td>Z8-AC03, Z8-AC04</td>
+</tr>
+<tr>
+<td>Detail chapitre</td>
+<td>Partial (pages en cours), OCR Uncertainty (zones illisibles)</td>
+<td>Z2-AC01, Z2-AC07</td>
+</tr>
+<tr>
+<td>Session</td>
+<td>Empty (rien a reviser), Error (LLM timeout), Retry (fallback flashcards)</td>
+<td>Z4-AC06, Z4-AC12, Z4-AC13</td>
+</tr>
+<tr>
+<td>Validation HITL</td>
+<td>Default (comprehension des actions)</td>
+<td>Z3-AC02 a Z3-AC05</td>
+</tr>
+<tr>
+<td>Dashboard parent</td>
+<td>Empty (enfant pas commence), Stale (pas consulte depuis longtemps)</td>
+<td>Z8-AC05, Z6-AC27</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Retour en haut de la page
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/popul/ReviseMieux" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

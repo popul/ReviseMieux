@@ -1,0 +1,1205 @@
+openapi: 3.0.3
+info:
+  title: Revise Mieux API
+  description: |
+    API backend pour Revise Mieux — assistant de revision pour collegiens.
+
+    Ce contrat couvre les 53 criteres d'acceptation du Lot 0 (33 P1 + 20 P2).
+
+    ## Authentification
+    Toutes les routes `/api/v1/*` requierent un JWT Bearer token.
+    En mode debug, un token de dev est disponible via `GET /dev/token`.
+
+    ## Modele de donnees
+    - **Chapter** : chapitre scolaire (agregat racine du contexte Capture)
+    - **Item** : unite de connaissance revisable (KNOWLEDGE, PROCEDURE, DOCUMENT, WRITING)
+    - **Notion** : concept regroupant des items
+    - **Mastery** : etat de maitrise par (user, item) — UNKNOWN → FRAGILE → OK → SOLID
+    - **Session** : session de revision (daily, evening_first, mock_exam, diagnostic, pre_class)
+    - **Question** : question generee dans une session
+    - **ValidationTask** : tache de validation HITL
+  version: 0.1.0
+  contact:
+    name: Revise Mieux
+    email: dev@revisemieux.local
+
+servers:
+  - url: http://localhost:8080
+    description: Developpement local
+
+tags:
+  - name: health
+    description: Healthcheck
+  - name: dev
+    description: Endpoints de developpement (debug uniquement)
+  - name: chapters
+    description: Gestion des chapitres et lesson card (Z2, Z5)
+  - name: masteries
+    description: Etats de maitrise et transitions (Z1)
+  - name: sessions
+    description: Composition, execution et debrief de sessions (Z4, Z6)
+  - name: validations
+    description: Validation HITL des items generes (Z3)
+  - name: onboarding
+    description: Premiere utilisation et chapitre demo (Z8)
+  - name: pipeline
+    description: Upload et traitement OCR/LLM (Z2)
+
+security:
+  - BearerAuth: []
+
+paths:
+  /health:
+    get:
+      tags: [health]
+      summary: Healthcheck
+      security: []
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service operationnel
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /dev/token:
+    get:
+      tags: [dev]
+      summary: Obtenir un JWT de developpement
+      description: |
+        Cree un utilisateur de test et retourne un JWT valide 24h.
+        Disponible uniquement en mode `GIN_MODE=debug`.
+      security: []
+      operationId: devToken
+      responses:
+        '200':
+          description: Token genere
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevTokenResponse'
+
+  # ──────────────────────────────────────────────
+  # CHAPTERS (Z2, Z5)
+  # ──────────────────────────────────────────────
+
+  /api/v1/chapters:
+    get:
+      tags: [chapters]
+      summary: Lister les chapitres de l'utilisateur
+      description: |
+        Retourne tous les chapitres non-archives avec le nombre d'items
+        et la repartition mastery (Z5-AC04, Z5-AC06).
+      operationId: listChapters
+      responses:
+        '200':
+          description: Liste des chapitres
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChapterResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+    post:
+      tags: [chapters]
+      summary: Creer un chapitre
+      operationId: createChapter
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChapterRequest'
+      responses:
+        '201':
+          description: Chapitre cree
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChapterResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/v1/chapters/{chapter_id}/lesson-card:
+    get:
+      tags: [chapters]
+      summary: Lesson card d'un chapitre
+      description: |
+        Retourne le chapitre, ses items (revision courante uniquement)
+        et ses notions. Z5-AC04 : seuls les items de la current_revision
+        sont affiches. Z5-AC06 : items archives exclus.
+        Z2-AC01 : si pipeline en cours, items partiels affiches.
+      operationId: getLessonCard
+      parameters:
+        - $ref: '#/components/parameters/ChapterId'
+      responses:
+        '200':
+          description: Lesson card complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LessonCardResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/chapters/{chapter_id}/upload:
+    post:
+      tags: [pipeline]
+      summary: Upload de pages pour traitement OCR/LLM
+      description: |
+        Z2-AC01 a Z2-AC10 : upload des photos, demarrage du pipeline J0.
+        Z8-AC04 : le traitement est asynchrone, le client poll le progress.
+      operationId: uploadPages
+      parameters:
+        - $ref: '#/components/parameters/ChapterId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                subject:
+                  type: string
+                  description: Matiere du chapitre
+                class_level:
+                  type: string
+                  description: Niveau de classe
+                pages:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Photos des pages (max 30)
+              required: [subject, pages]
+      responses:
+        '201':
+          description: Pipeline demarre
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/v1/revisions/{revision_id}/progress:
+    get:
+      tags: [pipeline]
+      summary: Progression du pipeline J0
+      description: |
+        Z2-AC10 : streaming de la progression page par page.
+        Z8-AC04 : phases de traitement (lecture, creation, finalisation).
+      operationId: getPipelineProgress
+      parameters:
+        - name: revision_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Etat de la progression
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PipelineProgressResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ──────────────────────────────────────────────
+  # MASTERIES (Z1)
+  # ──────────────────────────────────────────────
+
+  /api/v1/masteries:
+    get:
+      tags: [masteries]
+      summary: Masteries de l'utilisateur
+      description: |
+        Retourne les masteries filtrees par etat.
+        Z1-AC09 : chaque mastery est independante.
+      operationId: getMasteries
+      parameters:
+        - name: state
+          in: query
+          schema:
+            $ref: '#/components/schemas/MasteryState'
+          description: Filtrer par etat (optionnel)
+      responses:
+        '200':
+          description: Liste des masteries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MasteryResponse'
+
+  /api/v1/masteries/{item_id}:
+    get:
+      tags: [masteries]
+      summary: Mastery d'un item specifique
+      operationId: getMasteryByItem
+      parameters:
+        - name: item_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Mastery de l'item
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MasteryResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/masteries/attempt:
+    post:
+      tags: [masteries]
+      summary: Enregistrer une tentative et declencher la transition
+      description: |
+        Applique la machine a etats mastery :
+        - Z1-AC01 : UNKNOWN + succes → FRAGILE
+        - Z1-AC02 : FRAGILE + succes → OK
+        - Z1-AC03 : OK + succes (spacing 24h) → SOLID
+        - Z1-AC04 : OK + succes sans spacing → reste OK
+        - Z1-AC05 : SOLID + echec → OK
+        - Z1-AC06 : OK + echec → FRAGILE
+        - Z1-AC07 : FRAGILE + echec → reste FRAGILE
+        - Z1-AC11 : UNKNOWN + echec → reste UNKNOWN
+        - Z1-AC12 : SOLID + succes → reste SOLID
+        - Z1-AC13 : validation_required=true → plafond OK
+      operationId: recordAttempt
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordAttemptRequest'
+      responses:
+        '200':
+          description: Transition effectuee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecordAttemptResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ──────────────────────────────────────────────
+  # SESSIONS (Z4, Z6)
+  # ──────────────────────────────────────────────
+
+  /api/v1/sessions/daily:
+    post:
+      tags: [sessions]
+      summary: Composer une session de revision quotidienne
+      description: |
+        Z4-AC05 : respecte les pack constraints (max_writing, must_include_doc).
+        Z4-AC06 : retourne 422 si aucun item disponible.
+        Z6-AC04 : declenche aussi evening_first apres pipeline.
+        Z6-AC05 : evening_first = 100% UNKNOWN, diff 1, 6-10 questions.
+        Z6-AC13 : items en retard non penalises, inclus dans le pool.
+      operationId: composeDailySession
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComposeDailyRequest'
+      responses:
+        '201':
+          description: Session composee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '422':
+          description: |
+            Aucun item disponible pour la revision.
+            Z4-AC06 : pas de session vide creee.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "no items available for review"
+
+  /api/v1/sessions/{session_id}:
+    get:
+      tags: [sessions]
+      summary: Recuperer une session par ID
+      operationId: getSession
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Session trouvee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /api/v1/sessions/{session_id}/resume:
+    post:
+      tags: [sessions]
+      summary: Reprendre une session interrompue
+      description: |
+        Z4-AC04 : reprend depuis le dernier index connu.
+        La session doit etre en statut IN_PROGRESS.
+      operationId: resumeSession
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Session reprise
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Session non resumable (statut incompatible)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/sessions/{session_id}/questions:
+    get:
+      tags: [sessions]
+      summary: Questions d'une session
+      description: |
+        Retourne toutes les questions generees pour la session.
+        Chaque question inclut le type (MCQ, SHORT_ANSWER, CLOZE, etc.)
+        et les choix pour les MCQ.
+      operationId: getSessionQuestions
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Liste des questions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/QuestionResponse'
+
+  /api/v1/sessions/{session_id}/answer:
+    post:
+      tags: [sessions]
+      summary: Soumettre une reponse
+      description: |
+        Enregistre la tentative et retourne un feedback enrichi.
+        Z4-AC09 : 3 elements de feedback (reponse correcte, ce qui manque, indice).
+        Declenche la transition mastery via event AttemptRecorded.
+        Z1-AC01 a Z1-AC13 : transitions appliquees automatiquement.
+      operationId: submitAnswer
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitAnswerRequest'
+      responses:
+        '200':
+          description: Reponse enregistree avec feedback
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmitAnswerResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /api/v1/sessions/{session_id}/debrief:
+    get:
+      tags: [sessions]
+      summary: Debrief de fin de session
+      description: |
+        Retourne le score, le total, le pourcentage et les transitions
+        mastery survenues pendant la session.
+      operationId: getSessionDebrief
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Debrief de la session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebriefResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ──────────────────────────────────────────────
+  # VALIDATIONS (Z3)
+  # ──────────────────────────────────────────────
+
+  /api/v1/validations:
+    get:
+      tags: [validations]
+      summary: Lister les taches de validation en attente
+      description: |
+        Z3-AC06 : le chapitre reste utilisable avec des validations pending.
+        Z2-AC09 : max 8 taches par chapitre.
+        Z3-AC09 : pas de tache si confidence > 0.85.
+      operationId: listPendingValidations
+      responses:
+        '200':
+          description: Taches en attente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ValidationTaskResponse'
+
+  /api/v1/validations/{validation_id}/resolve:
+    post:
+      tags: [validations]
+      summary: Resoudre une tache de validation
+      description: |
+        Actions possibles :
+        - Z3-AC02 : `confirm` → validation_required=false, confidence>=0.85
+        - Z3-AC03 : `correct` → item mis a jour, confidence=1.0
+        - Z3-AC04 : `unknown` → status=DEFERRED_BY_STUDENT, tache admin creee
+        - Z3-AC05 : `ignore` → status=IGNORED_BY_STUDENT, item exclu des sessions
+      operationId: resolveValidation
+      parameters:
+        - name: validation_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResolveValidationRequest'
+      responses:
+        '200':
+          description: Tache resolue
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationTaskResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ──────────────────────────────────────────────
+  # ONBOARDING (Z8)
+  # ──────────────────────────────────────────────
+
+  /api/v1/onboarding/status:
+    get:
+      tags: [onboarding]
+      summary: Statut d'onboarding de l'utilisateur
+      description: |
+        Z8-AC02 : retourne la checklist 3 etapes.
+        Z8-AC08 : sequence deterministe (account → demo → session → upload → etc.)
+      operationId: getOnboardingStatus
+      responses:
+        '200':
+          description: Statut courant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OnboardingStatusResponse'
+
+  /api/v1/onboarding/seed-demo:
+    post:
+      tags: [onboarding]
+      summary: Creer le chapitre demo
+      description: |
+        Z8-AC01 : cree un chapitre demo "Densite et masse volumique" avec
+        8 items pre-generes, 3 notions, et les masteries UNKNOWN.
+        Idempotent : retourne le chapitre existant si deja cree.
+      operationId: seedDemoChapter
+      responses:
+        '201':
+          description: Chapitre demo cree
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeedDemoResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        JWT signe HS256 avec les claims :
+        - sub : user_id (UUID)
+        - role : student | parent
+        - iss : revisemieux
+        - exp : expiration
+
+  parameters:
+    ChapterId:
+      name: chapter_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Identifiant du chapitre (UUIDv7)
+
+    SessionId:
+      name: session_id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Identifiant de la session (UUIDv7)
+
+  responses:
+    Unauthorized:
+      description: Token JWT absent ou invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "unauthorized"
+
+    BadRequest:
+      description: Requete invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "invalid request"
+            details: "Key: 'chapter_id' Error:Field validation failed"
+
+    NotFound:
+      description: Ressource non trouvee
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "chapter not found"
+
+  schemas:
+    # ── Common ──
+
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+          example: "resource not found"
+        details:
+          type: string
+          example: "chapter with id abc not found"
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "ok"
+        version:
+          type: string
+          example: "0.1.0"
+
+    DevTokenResponse:
+      type: object
+      required: [token, user_id]
+      properties:
+        token:
+          type: string
+          description: JWT Bearer token (24h)
+        user_id:
+          type: string
+          format: uuid
+
+    # ── Chapters (Z2, Z5) ──
+
+    ChapterResponse:
+      type: object
+      required: [id, user_id, subject, class_level, name, archived, is_demo, item_count]
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        subject:
+          type: string
+          example: "Physique-Chimie"
+        class_level:
+          type: string
+          example: "5e"
+        name:
+          type: string
+          example: "Densite et masse volumique"
+        current_revision_id:
+          type: string
+          format: uuid
+          nullable: true
+        archived:
+          type: boolean
+        is_demo:
+          type: boolean
+        item_count:
+          type: integer
+          description: Nombre d'items non-archives dans la revision courante
+        mastery_breakdown:
+          $ref: '#/components/schemas/MasteryBreakdown'
+
+    MasteryBreakdown:
+      type: object
+      required: [unknown, fragile, ok, solid]
+      properties:
+        unknown:
+          type: integer
+        fragile:
+          type: integer
+        ok:
+          type: integer
+        solid:
+          type: integer
+      description: Repartition des items par etat mastery
+
+    CreateChapterRequest:
+      type: object
+      required: [subject, class_level, name]
+      properties:
+        subject:
+          type: string
+        class_level:
+          type: string
+        name:
+          type: string
+
+    ItemResponse:
+      type: object
+      required: [id, chapter_id, item_type, confidence, validation_required, archived]
+      properties:
+        id:
+          type: string
+          format: uuid
+        chapter_id:
+          type: string
+          format: uuid
+        notion_id:
+          type: string
+          format: uuid
+          nullable: true
+        item_type:
+          $ref: '#/components/schemas/ItemType'
+        term:
+          type: string
+          nullable: true
+          description: Definition ou enonce de l'item
+        confidence:
+          type: number
+          format: float
+          minimum: 0
+          maximum: 1
+          description: |
+            Score de confiance OCR/LLM.
+            Z3-AC09 : pas de ValidationTask si >= 0.85.
+        validation_required:
+          type: boolean
+          description: |
+            Z1-AC13 : si true, l'item est plafonne a OK.
+            Z3-AC01 : templates restreints.
+        archived:
+          type: boolean
+          description: Z5-AC06 — items archives exclus des sessions
+        keywords:
+          type: array
+          items:
+            type: string
+
+    ItemType:
+      type: string
+      enum: [KNOWLEDGE, PROCEDURE, DOCUMENT, WRITING]
+
+    NotionResponse:
+      type: object
+      required: [id, chapter_id, name, sort_order]
+      properties:
+        id:
+          type: string
+          format: uuid
+        chapter_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Masse volumique (rho)"
+        sort_order:
+          type: integer
+
+    LessonCardResponse:
+      type: object
+      required: [chapter, items, notions]
+      properties:
+        chapter:
+          $ref: '#/components/schemas/ChapterResponse'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemResponse'
+          description: Items de la revision courante uniquement (Z5-AC04)
+        notions:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotionResponse'
+          description: Notions du chapitre, triees par sort_order (Z7-AC15, Z7-AC16)
+
+    # ── Pipeline (Z2) ──
+
+    PipelineProgressResponse:
+      type: object
+      required: [revision_id, status, total_pages, processed_pages, phase]
+      properties:
+        revision_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [PROCESSING, READY, PARTIAL, FAILED]
+          description: |
+            Z2-AC01 : PROCESSING tant que des pages sont en cours.
+            Z2-AC04 : PARTIAL si certaines pages sans items.
+        total_pages:
+          type: integer
+        processed_pages:
+          type: integer
+        failed_pages:
+          type: integer
+          description: Z2-AC02 — pages en timeout ou echec OCR
+        total_items:
+          type: integer
+        phase:
+          type: string
+          description: Z8-AC04 — phase courante du pipeline
+        phase_message:
+          type: string
+          description: Z8-AC04 — message affiche (ex "Lecture des pages...")
+
+    UploadResponse:
+      type: object
+      required: [revision_id, total_pages]
+      properties:
+        revision_id:
+          type: string
+          format: uuid
+        total_pages:
+          type: integer
+          description: Nombre de pages uploadees
+
+    # ── Mastery (Z1) ──
+
+    MasteryState:
+      type: string
+      enum: [UNKNOWN, FRAGILE, OK, SOLID]
+      description: |
+        Machine a etats :
+        UNKNOWN → FRAGILE (Z1-AC01) → OK (Z1-AC02) → SOLID (Z1-AC03)
+        Regressions : SOLID → OK (Z1-AC05), OK → FRAGILE (Z1-AC06)
+
+    MasteryResponse:
+      type: object
+      required: [id, user_id, item_id, state, consecutive_successes, consecutive_failures, capped_at_ok]
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        item_id:
+          type: string
+          format: uuid
+        state:
+          $ref: '#/components/schemas/MasteryState'
+        consecutive_successes:
+          type: integer
+          description: Z1-AC02, Z1-AC03 — nombre de succes consecutifs
+        consecutive_failures:
+          type: integer
+          description: Z1-AC19 — nombre d'echecs consecutifs (descente difficulte a 3+)
+        capped_at_ok:
+          type: boolean
+          description: Z1-AC13 — true si validation_required, plafonne a OK
+        next_due_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: |
+            Prochaine date de revision.
+            Z1-AC08 : compresse si examen pose (T/3 pour OK, T/2 pour SOLID).
+            Z6-AC13 : pas de penalite si non revise a temps.
+        last_review_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_success_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Z1-AC03, Z1-AC04 — pour verifier l'espacement 24h
+
+    RecordAttemptRequest:
+      type: object
+      required: [item_id, score]
+      properties:
+        item_id:
+          type: string
+          format: uuid
+        score:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 1
+          description: |
+            Score de la tentative.
+            >= 0.7 = succes (Z1-AC01 a Z1-AC03)
+            < 0.7 = echec (Z1-AC05 a Z1-AC07, Z1-AC11)
+
+    RecordAttemptResponse:
+      type: object
+      required: [mastery, new_state]
+      properties:
+        mastery:
+          $ref: '#/components/schemas/MasteryResponse'
+        new_state:
+          $ref: '#/components/schemas/MasteryState'
+          description: Etat apres transition (permet au client de detecter le changement)
+
+    # ── Sessions (Z4, Z6) ──
+
+    SessionType:
+      type: string
+      enum: [daily, evening_first, mock_exam, diagnostic, pre_class]
+      description: |
+        Z6-AC04 : evening_first declenche apres pipeline.
+        Z6-AC11 : pre_class uniquement si schedule configure.
+        Z4-AC07 : mock_exam independant des sessions actives.
+
+    SessionStatus:
+      type: string
+      enum: [COMPOSING, IN_PROGRESS, COMPLETED, EXPIRED, ABANDONED]
+
+    SessionResponse:
+      type: object
+      required: [id, user_id, session_type, status, trigger_type, current_question_index]
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        session_type:
+          $ref: '#/components/schemas/SessionType'
+        status:
+          $ref: '#/components/schemas/SessionStatus'
+        trigger_type:
+          type: string
+          enum: [manual, scheduled, notification]
+        started_at:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          nullable: true
+        current_question_index:
+          type: integer
+          description: Z4-AC04 — index de reprise apres interruption
+        chapter_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    QuestionType:
+      type: string
+      enum: [MCQ, SHORT_ANSWER, NUMERIC, CLOZE, RUBRIC]
+      description: |
+        Z1-AC10 : scoring adapte par type.
+        Z3-AC01 : items validation_required limites a MCQ et SHORT_ANSWER.
+
+    QuestionResponse:
+      type: object
+      required: [id, template_id, item_id, question_type, rendered_prompt]
+      properties:
+        id:
+          type: string
+          format: uuid
+        template_id:
+          type: string
+          description: ID du template utilise
+        item_id:
+          type: string
+          format: uuid
+        question_type:
+          $ref: '#/components/schemas/QuestionType'
+        rendered_prompt:
+          type: string
+          description: Enonce de la question (rendu depuis le template + item)
+        choices:
+          type: array
+          items:
+            type: string
+          description: Choix possibles (MCQ uniquement)
+        visual_url:
+          type: string
+          nullable: true
+          description: URL de l'image associee (Z2-AC08)
+
+    ComposeDailyRequest:
+      type: object
+      required: [chapter_id]
+      properties:
+        chapter_id:
+          type: string
+          format: uuid
+
+    SubmitAnswerRequest:
+      type: object
+      required: [question_id, answer, score]
+      properties:
+        question_id:
+          type: string
+          format: uuid
+        answer:
+          type: string
+          description: Reponse de l'eleve (texte ou choix)
+        score:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 1
+          description: |
+            Score attribue (auto-score MCQ ou auto-evaluation).
+            >= 0.7 considere comme succes pour les transitions mastery.
+
+    SubmitAnswerResponse:
+      type: object
+      required: [attempt_id, score]
+      properties:
+        attempt_id:
+          type: string
+          format: uuid
+        score:
+          type: number
+          format: double
+        feedback:
+          $ref: '#/components/schemas/Feedback'
+
+    Feedback:
+      type: object
+      description: |
+        Z4-AC09 : feedback enrichi apres reponse incorrecte.
+        3 elements : reponse correcte, ce qui manquait, indice.
+      properties:
+        correct_answer:
+          type: string
+        what_was_missing:
+          type: string
+        hint:
+          type: string
+
+    DebriefResponse:
+      type: object
+      required: [score, total, percentage, transitions]
+      properties:
+        score:
+          type: number
+          format: double
+          description: Somme des scores des tentatives
+        total:
+          type: integer
+          description: Nombre total de questions repondues
+        percentage:
+          type: number
+          format: double
+          description: Pourcentage de reussite
+        transitions:
+          type: array
+          items:
+            $ref: '#/components/schemas/MasteryTransition'
+
+    MasteryTransition:
+      type: object
+      required: [item_id, item_term, from, to]
+      properties:
+        item_id:
+          type: string
+          format: uuid
+        item_term:
+          type: string
+          description: Terme de l'item pour affichage
+        from:
+          $ref: '#/components/schemas/MasteryState'
+        to:
+          $ref: '#/components/schemas/MasteryState'
+
+    # ── Validations (Z3) ──
+
+    ValidationTaskStatus:
+      type: string
+      enum: [PENDING, CONFIRMED, CORRECTED, UNKNOWN_ANSWER, IGNORED, DEFERRED_BY_STUDENT, IGNORED_BY_STUDENT]
+
+    ValidationSource:
+      type: string
+      enum: [uncertainty_detection, student_report, anomaly_detection, coherence_check, fidelity_check, student_deferred]
+
+    ValidationTaskResponse:
+      type: object
+      required: [id, item_id, status, source, priority]
+      properties:
+        id:
+          type: string
+          format: uuid
+        item_id:
+          type: string
+          format: uuid
+        chapter_id:
+          type: string
+          format: uuid
+        status:
+          $ref: '#/components/schemas/ValidationTaskStatus'
+        source:
+          $ref: '#/components/schemas/ValidationSource'
+        priority:
+          type: integer
+          minimum: 0
+          maximum: 10
+          description: Z2-AC09 — priorite pour le tri (10 = max)
+        suggestion:
+          type: string
+          nullable: true
+          description: Suggestion LLM pour la correction
+        crop_url:
+          type: string
+          nullable: true
+          description: Z2-AC08 — URL du crop de la zone source
+        item_term:
+          type: string
+          nullable: true
+          description: Terme de l'item concerne
+        created_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    ResolveValidationRequest:
+      type: object
+      required: [action]
+      properties:
+        action:
+          type: string
+          enum: [confirm, correct, unknown, ignore]
+          description: |
+            - confirm (Z3-AC02) : item valide
+            - correct (Z3-AC03) : correction fournie
+            - unknown (Z3-AC04) : l'eleve ne sait pas
+            - ignore (Z3-AC05) : item ignore (exclu des sessions)
+        correction:
+          type: string
+          description: Texte de correction (requis si action=correct)
+        note:
+          type: string
+          description: Note optionnelle
+
+    # ── Onboarding (Z8) ──
+
+    OnboardingStatusResponse:
+      type: object
+      required: [account_created, has_demo_chapter, step1_label, step2_label, step3_label]
+      properties:
+        account_created:
+          type: boolean
+        demo_session_done:
+          type: boolean
+        first_chapter_ready:
+          type: boolean
+        has_demo_chapter:
+          type: boolean
+        demo_chapter_id:
+          type: string
+          format: uuid
+          nullable: true
+        step1_label:
+          type: string
+          example: "Compte cree"
+        step2_label:
+          type: string
+          example: "Photographie ton premier cours"
+        step3_label:
+          type: string
+          example: "Ta premiere session de revision"
+
+    SeedDemoResponse:
+      type: object
+      required: [chapter_id, item_count, message]
+      properties:
+        chapter_id:
+          type: string
+          format: uuid
+        item_count:
+          type: integer
+          example: 8
+        message:
+          type: string
+          example: "Essaie une session de revision avec ce chapitre d'exemple — 3 min"
+
+    # ── Exam (Z6-AC10) ──
+
+    ExamResponse:
+      type: object
+      required: [id, user_id, name, exam_date, chapter_ids]
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: "Controle chapitre 3"
+        exam_date:
+          type: string
+          format: date
+          description: Z1-AC08 — date utilisee pour le resserrement des intervalles
+        chapter_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: Z6-AC10 — chapitres lies a l'examen

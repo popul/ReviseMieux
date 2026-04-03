@@ -1,0 +1,2898 @@
+
+<!doctype html>
+<html lang="fr" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://popul.github.io/ReviseMieux/architecture/merge-decision-table/">
+      
+      
+        <link rel="prev" href="../ocr-idp-incremental/">
+      
+      
+        <link rel="next" href="../../ux/user-flow-complete/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Regles de merge - Revise Mieux — Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tableau-de-decision-merge-incremental" class="md-skip">
+          Aller au contenu
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="En-tête">
+    <a href="../.." title="Revise Mieux — Documentation" class="md-header__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Revise Mieux — Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Regles de merge
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode sombre"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mode sombre" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode clair"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mode clair" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Rechercher" placeholder="Rechercher" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Recherche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Effacer" aria-label="Effacer" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initialisation de la recherche
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Onglets" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Accueil
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Demarrage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../PRD/" class="md-tabs__link">
+          
+  
+  
+  Produit
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../ac/Z1/" class="md-tabs__link">
+          
+  
+  
+  Criteres d'acceptation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../ux/user-flow-complete/" class="md-tabs__link">
+          
+  
+  
+  UX
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../design/" class="md-tabs__link">
+          
+  
+  
+  Design System
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../llm-strategy/" class="md-tabs__link">
+          
+  
+  
+  Technique
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../user-journeys/first-connection/" class="md-tabs__link">
+          
+  
+  
+  Parcours
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../contributing/" class="md-tabs__link">
+          
+  
+  
+  Contribuer
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Revise Mieux — Documentation" class="md-nav__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Revise Mieux — Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accueil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demarrage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Produit
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Produit
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../PRD/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PRD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../MVP-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope MVP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../lot0-tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracker Lot 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Criteres d'acceptation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Criteres d'acceptation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z1 — Mastery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z2 — Pipeline J0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z3 — Validation HITL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z4 — Sessions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z5 — Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z6 — Schedule
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z7 — Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ac/Z8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z8 — Onboarding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ocr-idp-incremental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OCR/IDP incremental
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regles de merge
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regles de merge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#metriques-utilisees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Métriques utilisées
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tableau-de-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tableau de décision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagramme-de-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagramme de décision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#details-par-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Détails par action
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Détails par action">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#r1-archive_dup-doublon-exact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R1 : ARCHIVE_DUP (doublon exact)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r2-replace-meilleure-extraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R2 : REPLACE (meilleure extraction)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r3-enrich-enrichissement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R3 : ENRICH (enrichissement)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r3-ajuste-enrich-version-corrigee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R3 ajusté : ENRICH (version corrigée)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r4-flag_conflict-contradiction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R4 : FLAG_CONFLICT (contradiction)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r5-flag_conflict-doublon-avec-formulation-differente" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R5 : FLAG_CONFLICT (doublon avec formulation différente)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r6-create_alt-alternative-en-attente" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R6 : CREATE_ALT (alternative en attente)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r7-append-nouveau-concept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R7 : APPEND (nouveau concept)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ordre-devaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ordre d'évaluation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#seuils-recapitulatifs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seuils récapitulatifs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cas-limites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cas limites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cas limites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cas-1-item-procedure-avec-meme-terme-mais-etapes-differentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cas 1 : Item PROCEDURE avec même terme mais étapes différentes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cas-2-item-document-schema-re-extrait" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cas 2 : Item DOCUMENT (schéma) re-extrait
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cas-3-fiche-de-correction-qui-enrichit-des-items-existants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cas 3 : Fiche de correction qui enrichit des items existants
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UX
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UX
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/user-flow-complete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/personas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Personas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/screen-inventory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ecrans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/state-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modele d'etats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/edge-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Edge cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ux/open-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions ouvertes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/design-principles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Principes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/color-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Couleurs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/typography/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Typographie
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/component-philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/do-dont/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Do / Don't
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/moodboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Moodboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../design/scalability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scalabilite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technique
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Technique
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llm-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strategie LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../llm-benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../process/feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parcours
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Parcours
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-journeys/first-connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Premiere connexion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contribuer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contribuer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide contribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploiement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#metriques-utilisees" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Métriques utilisées
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tableau-de-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tableau de décision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diagramme-de-decision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagramme de décision
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#details-par-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Détails par action
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Détails par action">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#r1-archive_dup-doublon-exact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R1 : ARCHIVE_DUP (doublon exact)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r2-replace-meilleure-extraction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R2 : REPLACE (meilleure extraction)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r3-enrich-enrichissement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R3 : ENRICH (enrichissement)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r3-ajuste-enrich-version-corrigee" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R3 ajusté : ENRICH (version corrigée)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r4-flag_conflict-contradiction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R4 : FLAG_CONFLICT (contradiction)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r5-flag_conflict-doublon-avec-formulation-differente" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R5 : FLAG_CONFLICT (doublon avec formulation différente)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r6-create_alt-alternative-en-attente" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R6 : CREATE_ALT (alternative en attente)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#r7-append-nouveau-concept" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        R7 : APPEND (nouveau concept)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ordre-devaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ordre d'évaluation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#seuils-recapitulatifs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seuils récapitulatifs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cas-limites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cas limites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cas limites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cas-1-item-procedure-avec-meme-terme-mais-etapes-differentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cas 1 : Item PROCEDURE avec même terme mais étapes différentes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cas-2-item-document-schema-re-extrait" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cas 2 : Item DOCUMENT (schéma) re-extrait
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cas-3-fiche-de-correction-qui-enrichit-des-items-existants" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cas 3 : Fiche de correction qui enrichit des items existants
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="tableau-de-decision-merge-incremental">Tableau de décision -- Merge incrémental<a class="headerlink" href="#tableau-de-decision-merge-incremental" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p>Référence pour le <code>MergeEngine</code> (domaine pur, <code>backend/internal/domain/chapter/merge.go</code>).
+Chaque règle est exécutée dans l'ordre de priorité. La première règle qui matche est appliquée.</p>
+</blockquote>
+<hr />
+<h2 id="metriques-utilisees">Métriques utilisées<a class="headerlink" href="#metriques-utilisees" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Métrique</th>
+<th>Définition</th>
+<th>Calcul</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>CanonicalKey match</strong></td>
+<td>Les deux items ont le même <code>CanonicalKey(term, item_type, pack_id)</code></td>
+<td><code>identity.go</code> : lowercase + NFD accent removal + trim</td>
+</tr>
+<tr>
+<td><strong>Jaccard(keywords)</strong></td>
+<td>Coefficient de Jaccard entre les ensembles de keywords</td>
+<td><code>|A ∩ B| / |A ∪ B|</code></td>
+</tr>
+<tr>
+<td><strong>Confidence delta</strong></td>
+<td>Différence de confiance entre le nouvel item et l'existant</td>
+<td><code>new.confidence - existing.confidence</code></td>
+</tr>
+<tr>
+<td><strong>Text similarity</strong></td>
+<td>Similarité textuelle entre les <code>ocr_text</code> des blocs sources</td>
+<td>Jaccard sur les mots normalisés (après stopwords removal)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="tableau-de-decision">Tableau de décision<a class="headerlink" href="#tableau-de-decision" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Condition</th>
+<th>Action</th>
+<th>Automatique ?</th>
+<th>Domain Event</th>
+<th>Impact Mastery</th>
+<th>Référence AC</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>R1</strong></td>
+<td>CanonicalKey match <strong>ET</strong> Jaccard(keywords) &gt; 0.85</td>
+<td><strong>ARCHIVE_DUP</strong> : archiver l'item de plus faible confiance</td>
+<td>Oui</td>
+<td><code>ItemArchived</code></td>
+<td>Transfert Mastery vers survivant (le plus avancé)</td>
+<td>Z3-AC11</td>
+</tr>
+<tr>
+<td><strong>R2</strong></td>
+<td>CanonicalKey match <strong>ET</strong> Jaccard(keywords) 0.50-0.85 <strong>ET</strong> <code>new.confidence &gt; existing.confidence + 0.15</code></td>
+<td><strong>REPLACE</strong> : remplacer l'ancien par le nouveau (meilleure extraction)</td>
+<td>Oui</td>
+<td><code>ItemReplaced</code></td>
+<td>Transfert Mastery vers nouveau</td>
+<td>Z2-AC14</td>
+</tr>
+<tr>
+<td><strong>R3</strong></td>
+<td>CanonicalKey match <strong>ET</strong> Jaccard(keywords) 0.50-0.85 <strong>ET</strong> confidence delta &lt; 0.15</td>
+<td><strong>ENRICH</strong> : fusionner les keywords du nouveau dans l'existant, ajouter <code>source_refs</code></td>
+<td>Oui</td>
+<td><code>ItemsEnriched</code></td>
+<td>Inchangé</td>
+<td>Z2-AC14</td>
+</tr>
+<tr>
+<td><strong>R4</strong></td>
+<td>CanonicalKey match <strong>ET</strong> Jaccard(keywords) &lt; 0.50</td>
+<td><strong>FLAG_CONFLICT</strong> : possible contradiction sémantique (même terme, contenu très différent)</td>
+<td>Non (HITL)</td>
+<td><code>ConflictDetected</code></td>
+<td>Gelé (pas de transition)</td>
+<td>Z3-AC11</td>
+</tr>
+<tr>
+<td><strong>R5</strong></td>
+<td>CanonicalKey miss <strong>ET</strong> Jaccard(keywords) &gt; 0.70 <strong>ET</strong> termes proches (edit distance &lt; 3)</td>
+<td><strong>FLAG_CONFLICT</strong> : probable doublon avec formulation différente</td>
+<td>Non (HITL si confiance &lt; 0.7)</td>
+<td><code>ConflictDetected</code></td>
+<td>Gelé</td>
+<td>Z3-AC11</td>
+</tr>
+<tr>
+<td><strong>R6</strong></td>
+<td>CanonicalKey miss <strong>ET</strong> Jaccard(keywords) 0.50-0.70</td>
+<td><strong>CREATE_ALT</strong> : créer comme item alternatif en attente de review</td>
+<td>Non (HITL)</td>
+<td>Aucun</td>
+<td>Aucun (pas de Mastery créé tant que non validé)</td>
+<td>Z3-AC11</td>
+</tr>
+<tr>
+<td><strong>R7</strong></td>
+<td>CanonicalKey miss <strong>ET</strong> Jaccard(keywords) &lt; 0.50</td>
+<td><strong>APPEND</strong> : nouvel item, nouvelle connaissance</td>
+<td>Oui</td>
+<td><code>ItemsGenerated</code></td>
+<td>Nouveau Mastery UNKNOWN</td>
+<td>Z2-AC14</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="diagramme-de-decision">Diagramme de décision<a class="headerlink" href="#diagramme-de-decision" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>Nouvel item extrait
+        │
+        ▼
+CanonicalKey match avec un item existant ?
+        │
+   ┌────┴────┐
+   │ OUI     │ NON
+   ▼         ▼
+Jaccard    Jaccard(keywords) avec tous les existants
+keywords?       │
+   │       ┌───┼───┐───────┐
+   │       │   │   │       │
+   │     &gt;0.70 │ 0.50-0.70 │ &lt;0.50
+   │       │   │   │       │
+   │       ▼   │   ▼       ▼
+   │     R5:   │  R6:     R7:
+   │    FLAG   │ CREATE   APPEND
+   │  CONFLICT │  ALT      │
+   │       │   │   │    ItemsGenerated
+   │       │   │   │    Mastery UNKNOWN
+   │       │   │   │
+   ├───────┤   │   │
+   │       │   │   │
+   │ &gt;0.85 │ 0.50-0.85   &lt;0.50
+   │       │       │        │
+   ▼       ▼       ▼        ▼
+  R1:     ∆conf   R4:
+ ARCHIVE  &gt; 0.15? FLAG
+  DUP     │       CONFLICT
+   │   ┌──┴──┐
+   │   OUI  NON
+   │    │    │
+   ▼    ▼    ▼
+  R1   R2:  R3:
+      REPLACE ENRICH
+</code></pre></div>
+<hr />
+<h2 id="details-par-action">Détails par action<a class="headerlink" href="#details-par-action" title="Permanent link">&para;</a></h2>
+<h3 id="r1-archive_dup-doublon-exact">R1 : ARCHIVE_DUP (doublon exact)<a class="headerlink" href="#r1-archive_dup-doublon-exact" title="Permanent link">&para;</a></h3>
+<p><strong>Quand</strong> : même terme normalisé, même type, et keywords quasi-identiques.</p>
+<p><strong>Algorithme</strong> :
+1. Comparer <code>CanonicalKey(new) == CanonicalKey(existing)</code>.
+2. Calculer <code>Jaccard(new.keywords, existing.keywords)</code>.
+3. Si Jaccard &gt; 0.85, c'est un doublon.
+4. Archiver celui avec la confiance la plus basse (<code>item.Archive(now)</code>).
+5. Si confiances égales (delta &lt; 0.05), archiver le plus récent (conserver l'original).</p>
+<p><strong>Exemple</strong> :
+- Existant : <code>term="Chloroplaste"</code>, keywords=["organite", "cellule végétale", "chlorophylle"], confidence=0.90
+- Nouveau : <code>term="chloroplaste"</code>, keywords=["organite", "cellule", "chlorophylle", "photosynthèse"], confidence=0.85
+- CanonicalKey match : oui (<code>chloroplaste|KNOWLEDGE|SVT-PHOTO</code>)
+- Jaccard = |{organite, chlorophylle}| / |{organite, cellule végétale, cellule, chlorophylle, photosynthèse}| = 2/5 = 0.40
+- Jaccard &lt; 0.85 donc <strong>pas R1</strong>, on passe à R3 (ENRICH).</p>
+<p><strong>Contre-exemple</strong> (vrai doublon) :
+- Existant : keywords=["organite", "cellule végétale", "chlorophylle", "photosynthèse"]
+- Nouveau : keywords=["organite", "cellule végétale", "chlorophylle"]
+- Jaccard = 3/4 = 0.75 -- toujours pas &gt; 0.85.
+- Pour atteindre R1, il faut vraiment que les keywords soient quasi-identiques : Jaccard &gt; 0.85 signifie que le nouveau n'apporte essentiellement rien de neuf.</p>
+<h3 id="r2-replace-meilleure-extraction">R2 : REPLACE (meilleure extraction)<a class="headerlink" href="#r2-replace-meilleure-extraction" title="Permanent link">&para;</a></h3>
+<p><strong>Quand</strong> : même terme, keywords partiellement similaires, mais la nouvelle extraction est significativement meilleure.</p>
+<p><strong>Algorithme</strong> :
+1. CanonicalKey match.
+2. Jaccard(keywords) entre 0.50 et 0.85.
+3. <code>new.confidence - existing.confidence &gt; 0.15</code>.
+4. L'ancien item est archivé, le nouveau prend sa place.
+5. Le Mastery est transféré.</p>
+<p><strong>Cas typique</strong> : l'élève re-photographie une page floue (confiance 0.55) avec une meilleure photo (confiance 0.88). Delta = 0.33 &gt; 0.15 donc REPLACE.</p>
+<p><strong>Seuil de 0.15</strong> : calibré pour éviter les remplacements sur du bruit. Un delta de 0.05-0.10 peut être dû à la variance OCR sur la même page.</p>
+<h3 id="r3-enrich-enrichissement">R3 : ENRICH (enrichissement)<a class="headerlink" href="#r3-enrich-enrichissement" title="Permanent link">&para;</a></h3>
+<p><strong>Quand</strong> : même terme, keywords partiellement similaires, confiances proches.</p>
+<p><strong>Algorithme</strong> :
+1. CanonicalKey match.
+2. Jaccard(keywords) entre 0.50 et 0.85.
+3. Delta confiance &lt;= 0.15.
+4. Les keywords du nouveau qui ne sont pas dans l'existant sont ajoutés.
+5. Les <code>source_refs</code> du nouveau sont ajoutés à l'existant.
+6. La confiance est mise à jour : <code>max(existing.confidence, new.confidence)</code>.</p>
+<p><strong>Exemple</strong> :
+- Existant : <code>term="Stomate"</code>, keywords=["orifice", "feuille", "échanges gazeux"]
+- Nouveau (depuis correction d'exercice) : <code>term="Stomate"</code>, keywords=["orifice", "feuille", "CO₂", "O₂", "face inférieure"]
+- Jaccard = |{orifice, feuille}| / |{orifice, feuille, échanges gazeux, CO₂, O₂, face inférieure}| = 2/6 = 0.33
+- Jaccard &lt; 0.50, donc c'est en fait R4 (FLAG_CONFLICT), pas R3.
+- Mais les CanonicalKeys matchent et le contenu n'est pas contradictoire (il enrichit).
+- <strong>Correction</strong> : quand le CanonicalKey matche, si les keywords sont complémentaires (pas contradictoires) et que le delta de confiance est faible, on fait ENRICH même avec un Jaccard &lt; 0.50. La règle R4 ne s'applique que quand il y a une <strong>contradiction sémantique détectée</strong> (via le CoherenceChecker LLM), pas juste un faible Jaccard.</p>
+<h3 id="r3-ajuste-enrich-version-corrigee">R3 ajusté : ENRICH (version corrigée)<a class="headerlink" href="#r3-ajuste-enrich-version-corrigee" title="Permanent link">&para;</a></h3>
+<p><strong>Condition réelle</strong> :
+1. CanonicalKey match.
+2. Pas de contradiction détectée par le CoherenceChecker.
+3. Delta confiance &lt;= 0.15.
+4. -&gt; ENRICH (fusionner keywords + source_refs).</p>
+<p><strong>Condition R4 réelle</strong> :
+1. CanonicalKey match.
+2. Contradiction détectée par le CoherenceChecker (contenu sémantiquement incompatible).
+3. -&gt; FLAG_CONFLICT.</p>
+<p>Le Jaccard sert de <strong>pré-filtre</strong> pour décider s'il faut appeler le CoherenceChecker LLM (coûteux). Si Jaccard &gt; 0.85, pas besoin de checker (doublon évident). Si Jaccard &lt; 0.50 avec CanonicalKey match, le CoherenceChecker est appelé pour distinguer enrichissement de contradiction.</p>
+<h3 id="r4-flag_conflict-contradiction">R4 : FLAG_CONFLICT (contradiction)<a class="headerlink" href="#r4-flag_conflict-contradiction" title="Permanent link">&para;</a></h3>
+<p><strong>Quand</strong> : même terme, mais le CoherenceChecker LLM détecte une contradiction sémantique.</p>
+<p><strong>Exemple</strong> :
+- Existant : <code>term="Densité"</code>, definition: "masse divisée par le volume" (correct)
+- Nouveau : <code>term="Densité"</code>, definition: "volume divisé par la masse" (incorrect)
+- CanonicalKey match.
+- CoherenceChecker retourne : contradiction, severity=0.9.
+- Les deux items sont flaggés <code>coherence_flag='contradiction'</code>, <code>validation_required=true</code>.
+- ValidationTask créée (Z3-AC11).</p>
+<h3 id="r5-flag_conflict-doublon-avec-formulation-differente">R5 : FLAG_CONFLICT (doublon avec formulation différente)<a class="headerlink" href="#r5-flag_conflict-doublon-avec-formulation-differente" title="Permanent link">&para;</a></h3>
+<p><strong>Quand</strong> : termes différents mais keywords très proches.</p>
+<p><strong>Exemple</strong> :
+- Existant : <code>term="Masse volumique"</code>, keywords=["masse", "volume", "rho", "kg/m³"]
+- Nouveau : <code>term="Densité"</code>, keywords=["masse", "volume", "rho", "eau"]
+- CanonicalKey miss (termes différents).
+- Jaccard = |{masse, volume, rho}| / |{masse, volume, rho, kg/m³, eau}| = 3/5 = 0.60
+- Wait, 0.60 &lt; 0.70 donc c'est R6, pas R5.
+- Pour R5, il faudrait Jaccard &gt; 0.70 : par exemple deux formulations d'un même concept avec les mêmes keywords.</p>
+<h3 id="r6-create_alt-alternative-en-attente">R6 : CREATE_ALT (alternative en attente)<a class="headerlink" href="#r6-create_alt-alternative-en-attente" title="Permanent link">&para;</a></h3>
+<p><strong>Quand</strong> : pas de match exact, mais similarité modérée. Possible enrichissement ou possible concept distinct.</p>
+<p><strong>Algorithme</strong> :
+1. Créer le nouvel item avec <code>merge_status='alternative'</code>.
+2. Ne pas créer de Mastery (item non validé).
+3. Si confiance &gt;= 0.70, pas de HITL (l'alternative est simplement conservée).
+4. Si confiance &lt; 0.70, créer une ValidationTask pour que l'élève/parent décide.</p>
+<h3 id="r7-append-nouveau-concept">R7 : APPEND (nouveau concept)<a class="headerlink" href="#r7-append-nouveau-concept" title="Permanent link">&para;</a></h3>
+<p><strong>Quand</strong> : aucune similarité significative avec les items existants.</p>
+<p><strong>Algorithme</strong> :
+1. Créer l'item avec <code>merge_status='original'</code>.
+2. Rattacher à une Notion existante (par nom) ou créer une nouvelle Notion.
+3. Émettre <code>ItemsGenerated</code>.
+4. Créer un Mastery UNKNOWN pour l'utilisateur.</p>
+<hr />
+<h2 id="ordre-devaluation">Ordre d'évaluation<a class="headerlink" href="#ordre-devaluation" title="Permanent link">&para;</a></h2>
+<p>Les règles sont évaluées dans l'ordre R1-R7 pour chaque item entrant. La première règle qui matche est appliquée.</p>
+<p>Pour chaque item entrant, le MergeEngine :
+1. Calcule le CanonicalKey du nouvel item.
+2. Cherche un item existant avec le même CanonicalKey.
+3. Si trouvé : calcule Jaccard, applique R1/R2/R3/R4.
+4. Si non trouvé : calcule Jaccard avec tous les existants, applique R5/R6/R7.</p>
+<p><strong>Complexité</strong> : O(n*m) où n = items entrants, m = items existants. Pour un chapitre typique (5-20 items), c'est négligeable.</p>
+<hr />
+<h2 id="seuils-recapitulatifs">Seuils récapitulatifs<a class="headerlink" href="#seuils-recapitulatifs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Seuil</th>
+<th>Valeur</th>
+<th>Justification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Jaccard doublon</td>
+<td>&gt; 0.85</td>
+<td>Très peu de keywords différents = même contenu</td>
+</tr>
+<tr>
+<td>Jaccard enrichissement</td>
+<td>0.50-0.85</td>
+<td>Keywords complémentaires = enrichissement probable</td>
+</tr>
+<tr>
+<td>Jaccard matching cross-term</td>
+<td>&gt; 0.70</td>
+<td>Même concept, formulation différente</td>
+</tr>
+<tr>
+<td>Jaccard modéré cross-term</td>
+<td>0.50-0.70</td>
+<td>Zone grise, nécessite review</td>
+</tr>
+<tr>
+<td>Jaccard pas de match</td>
+<td>&lt; 0.50</td>
+<td>Concepts distincts</td>
+</tr>
+<tr>
+<td>Confidence delta replace</td>
+<td>&gt; 0.15</td>
+<td>Écart significatif, pas du bruit OCR</td>
+</tr>
+<tr>
+<td>Confidence HITL obligatoire</td>
+<td>&lt; 0.50</td>
+<td>Extraction trop incertaine</td>
+</tr>
+<tr>
+<td>Confidence pas de HITL</td>
+<td>&gt;= 0.85</td>
+<td>Extraction fiable (Z3-AC09)</td>
+</tr>
+<tr>
+<td>OCR confidence floue</td>
+<td>&lt; 0.30</td>
+<td>Page floue (Z2-AC03)</td>
+</tr>
+<tr>
+<td>Text similarity re-photo</td>
+<td>&gt; 0.80</td>
+<td>Même page re-photographiée</td>
+</tr>
+<tr>
+<td>Edit distance termes proches</td>
+<td>&lt; 3</td>
+<td>Typo ou variante orthographique</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="cas-limites">Cas limites<a class="headerlink" href="#cas-limites" title="Permanent link">&para;</a></h2>
+<h3 id="cas-1-item-procedure-avec-meme-terme-mais-etapes-differentes">Cas 1 : Item PROCEDURE avec même terme mais étapes différentes<a class="headerlink" href="#cas-1-item-procedure-avec-meme-terme-mais-etapes-differentes" title="Permanent link">&para;</a></h3>
+<p>Un item PROCEDURE "Calcul de la densité" peut avoir des étapes différentes selon la source (méthode du prof vs. méthode du manuel). Dans ce cas :
+- Le CanonicalKey matche.
+- Les keywords matchent (Jaccard &gt; 0.50).
+- Mais les <code>steps</code> divergent.</p>
+<p><strong>Décision</strong> : le CoherenceChecker compare les steps. Si les steps sont compatibles (un est un sous-ensemble de l'autre), c'est un ENRICH. Si les steps sont contradictoires, c'est un FLAG_CONFLICT.</p>
+<h3 id="cas-2-item-document-schema-re-extrait">Cas 2 : Item DOCUMENT (schéma) re-extrait<a class="headerlink" href="#cas-2-item-document-schema-re-extrait" title="Permanent link">&para;</a></h3>
+<p>Un schéma re-photographié produit un nouvel item DOCUMENT avec un visual_block_id différent mais le même <code>term</code>. Dans ce cas :
+- CanonicalKey matche.
+- On compare les <code>ocr_confidence</code> des blocs sources.
+- Si le nouveau crop est de meilleure qualité (confidence &gt; old + 0.15), REPLACE.
+- Sinon, on garde l'existant (le premier crop suffit).</p>
+<h3 id="cas-3-fiche-de-correction-qui-enrichit-des-items-existants">Cas 3 : Fiche de correction qui enrichit des items existants<a class="headerlink" href="#cas-3-fiche-de-correction-qui-enrichit-des-items-existants" title="Permanent link">&para;</a></h3>
+<p>Une correction d'exercice (Session 3 dans l'exemple photosynthèse) reprend des définitions déjà extraites. Dans ce cas :
+- Les CanonicalKeys matchent pour les items repris.
+- La correction confirme les définitions existantes (pas de contradiction).
+- Action = ENRICH : on ajoute la page de correction comme <code>source_ref</code> supplémentaire.
+- La confiance peut augmenter (cross-validation par une source supplémentaire).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Retour en haut de la page
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/popul/ReviseMieux" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
