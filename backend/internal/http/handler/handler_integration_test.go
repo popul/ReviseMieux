@@ -428,8 +428,8 @@ func (ta *testApp) seedMastery(userID, itemID uuid.UUID) {
 	now := time.Now().UTC().Truncate(time.Microsecond)
 	id := uuid.Must(uuid.NewV7())
 	_, err := ta.pool.Exec(context.Background(),
-		`INSERT INTO masteries (id, user_id, item_id, state, consecutive_successes, consecutive_failures, capped_at_ok, created_at, updated_at)
-		 VALUES ($1,$2,$3,'UNKNOWN',0,0,false,$4,$5)`,
+		`INSERT INTO masteries (id, user_id, item_id, state, consecutive_successes, consecutive_failures, created_at, updated_at)
+		 VALUES ($1,$2,$3,'UNKNOWN',0,0,$4,$5)`,
 		id, userID, itemID, now, now)
 	if err != nil {
 		ta.t.Fatalf("seedMastery: %v", err)
