@@ -103,17 +103,20 @@ jobs:
       - name: Run E2E tests with Maestro
         uses: reactivecircus/android-emulator-runner@v2
         with:
-          api-level: 34
+          api-level: 31
           arch: x86_64
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          target: google_apis
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -memory 2048
+          disable-animations: true
           script: |
-            # Install the APK
+            echo "Emulator booted, installing APK..."
             adb install mobile/android/app/build/outputs/apk/debug/app-debug.apk
 
-            # Run Maestro flows
+            echo "Running Maestro flows..."
             maestro test mobile/e2e/flows/ --format junit --output /tmp/maestro-results.xml || true
 
-            # Record video of onboarding flow
+            echo "Recording onboarding video..."
             mkdir -p mobile/e2e/videos
             maestro record mobile/e2e/flows/01-onboarding.yaml --output mobile/e2e/videos/01-onboarding.mp4 || true
 
