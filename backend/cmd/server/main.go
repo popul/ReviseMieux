@@ -69,6 +69,11 @@ func main() {
 	idGen := event.UUIDv7Generator{}
 	publisher := eventbus.NewLogPublisher()
 
+	// --- LLM Call Logger ---
+	llmLogger := postgres.NewLLMCallLogger(pool)
+	_ = llmLogger // TODO: pass to LLM clients for instrumentation
+	log.Println("LLM call logger initialized")
+
 	// --- Repositories ---
 	chapterRepo := postgres.NewChapterRepository(pool)
 	masteryRepo := postgres.NewMasteryRepository(pool)
