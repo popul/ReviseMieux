@@ -422,6 +422,221 @@ func TestValidation_Resolve_AlreadyResolved(t *testing.T) {
 	}
 }
 
+// seedMastery creates a mastery in UNKNOWN state for a user+item.
+func (ta *testApp) seedMastery(userID, itemID uuid.UUID) {
+	ta.t.Helper()
+	now := time.Now().UTC().Truncate(time.Microsecond)
+	id := uuid.Must(uuid.NewV7())
+	_, err := ta.pool.Exec(context.Background(),
+		`INSERT INTO masteries (id, user_id, item_id, state, consecutive_successes, consecutive_failures, capped_at_ok, created_at, updated_at)
+		 VALUES ($1,$2,$3,'UNKNOWN',0,0,false,$4,$5)`,
+		id, userID, itemID, now, now)
+	if err != nil {
+		ta.t.Fatalf("seedMastery: %v", err)
+	}
+}
+
+// ============================================================
+// Cross-layer tests: HTTP → Service → Repository → DB
+// ============================================================
+
+// TestMastery_RecordAttempt_CrossLayer tests the full stack:
+// POST /api/v1/masteries/attempt → handler → MasteryService → MasteryRepo → DB
+// Verifies the mastery transitions from UNKNOWN to FRAGILE.
+func TestMastery_RecordAttempt_CrossLayer(t *testing.T) {
+	ta := setupTestApp(t)
+	userID, token := ta.seedUser("student")
+	ch := ta.seedChapter(userID)
+	rev := ta.seedRevision(ch.ID)
+	item := ta.seedItem(ch.ID, rev.ID, "Densité")
+	ta.seedMastery(userID, item.ID)
+
+	// Record a successful attempt (score=1.0)
+	body := map[string]interface{}{
+		"item_id": item.ID.String(),
+		"score":   1.0,
+	}
+	w := doRequest(ta.router, "POST", "/api/v1/masteries/attempt", token, body)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %s", w.Code, w.Body.String())
+	}
+
+	var resp map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &resp)
+
+	// Verify transition UNKNOWN → FRAGILE
+	if resp["new_state"] != "FRAGILE" {
+		t.Errorf("new_state = %v, want FRAGILE", resp["new_state"])
+	}
+
+	masteryResp := resp["mastery"].(map[string]interface{})
+	if masteryResp["consecutive_successes"].(float64) != 1 {
+		t.Errorf("consecutive_successes = %v, want 1", masteryResp["consecutive_successes"])
+	}
+
+	// Verify in DB via GET endpoint
+	w2 := doRequest(ta.router, "GET", "/api/v1/masteries/"+item.ID.String(), token, nil)
+	assertStatus(t, w2, http.StatusOK)
+
+	var dbMastery map[string]interface{}
+	json.Unmarshal(w2.Body.Bytes(), &dbMastery)
+	if dbMastery["state"] != "FRAGILE" {
+		t.Errorf("DB state = %v, want FRAGILE", dbMastery["state"])
+	}
+}
+
+// TestMastery_DoubleAttempt_CrossLayer tests UNKNOWN → FRAGILE → OK.
+func TestMastery_DoubleAttempt_CrossLayer(t *testing.T) {
+	ta := setupTestApp(t)
+	userID, token := ta.seedUser("student")
+	ch := ta.seedChapter(userID)
+	rev := ta.seedRevision(ch.ID)
+	item := ta.seedItem(ch.ID, rev.ID, "Masse volumique")
+	ta.seedMastery(userID, item.ID)
+
+	body := map[string]interface{}{
+		"item_id": item.ID.String(),
+		"score":   1.0,
+	}
+
+	// First attempt: UNKNOWN → FRAGILE
+	w := doRequest(ta.router, "POST", "/api/v1/masteries/attempt", token, body)
+	assertStatus(t, w, http.StatusOK)
+
+	var resp1 map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &resp1)
+	if resp1["new_state"] != "FRAGILE" {
+		t.Fatalf("after 1st attempt: state = %v, want FRAGILE", resp1["new_state"])
+	}
+
+	// Second attempt: FRAGILE → OK
+	w = doRequest(ta.router, "POST", "/api/v1/masteries/attempt", token, body)
+	assertStatus(t, w, http.StatusOK)
+
+	var resp2 map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &resp2)
+	if resp2["new_state"] != "OK" {
+		t.Fatalf("after 2nd attempt: state = %v, want OK", resp2["new_state"])
+	}
+}
+
+// TestMastery_Regression_CrossLayer tests OK → FRAGILE on failure.
+func TestMastery_Regression_CrossLayer(t *testing.T) {
+	ta := setupTestApp(t)
+	userID, token := ta.seedUser("student")
+	ch := ta.seedChapter(userID)
+	rev := ta.seedRevision(ch.ID)
+	item := ta.seedItem(ch.ID, rev.ID, "Volume")
+	ta.seedMastery(userID, item.ID)
+
+	success := map[string]interface{}{"item_id": item.ID.String(), "score": 1.0}
+	failure := map[string]interface{}{"item_id": item.ID.String(), "score": 0.0}
+
+	// UNKNOWN → FRAGILE → OK
+	doRequest(ta.router, "POST", "/api/v1/masteries/attempt", token, success)
+	doRequest(ta.router, "POST", "/api/v1/masteries/attempt", token, success)
+
+	// Verify OK
+	w := doRequest(ta.router, "GET", "/api/v1/masteries/"+item.ID.String(), token, nil)
+	var m map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &m)
+	if m["state"] != "OK" {
+		t.Fatalf("expected OK, got %v", m["state"])
+	}
+
+	// Fail → OK → FRAGILE
+	w = doRequest(ta.router, "POST", "/api/v1/masteries/attempt", token, failure)
+	assertStatus(t, w, http.StatusOK)
+
+	var resp map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &resp)
+	if resp["new_state"] != "FRAGILE" {
+		t.Errorf("after failure: state = %v, want FRAGILE", resp["new_state"])
+	}
+}
+
+// TestSession_FullFlow_CrossLayer tests the complete session flow:
+// seed demo → compose daily → get questions → answer all → debrief
+func TestSession_FullFlow_CrossLayer(t *testing.T) {
+	ta := setupTestApp(t)
+	ta.seedTemplates()
+	_, token := ta.seedUser("student")
+
+	// Seed demo chapter (creates chapter + items + masteries)
+	w := doRequest(ta.router, "POST", "/api/v1/onboarding/seed-demo", token, nil)
+	assertStatus(t, w, http.StatusCreated)
+
+	var seedResp map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &seedResp)
+	chapterID := seedResp["chapter_id"].(string)
+
+	// Compose daily session
+	w = doRequest(ta.router, "POST", "/api/v1/sessions/daily", token, map[string]string{"chapter_id": chapterID})
+	if w.Code != http.StatusCreated {
+		t.Fatalf("compose daily: status = %d, body = %s", w.Code, w.Body.String())
+	}
+
+	var sessionResp map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &sessionResp)
+	sessionID := sessionResp["id"].(string)
+
+	// Get questions
+	w = doRequest(ta.router, "GET", "/api/v1/sessions/"+sessionID+"/questions", token, nil)
+	assertStatus(t, w, http.StatusOK)
+
+	var questions []map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &questions)
+	if len(questions) == 0 {
+		t.Fatal("expected at least 1 question")
+	}
+
+	// Answer each question
+	for _, q := range questions {
+		answerBody := map[string]interface{}{
+			"question_id": q["id"],
+			"answer":      "test answer",
+			"score":       1.0,
+		}
+		w = doRequest(ta.router, "POST", "/api/v1/sessions/"+sessionID+"/answer", token, answerBody)
+		if w.Code != http.StatusOK {
+			t.Fatalf("answer question %s: status = %d, body = %s", q["id"], w.Code, w.Body.String())
+		}
+	}
+
+	// Get debrief
+	w = doRequest(ta.router, "GET", "/api/v1/sessions/"+sessionID+"/debrief", token, nil)
+	assertStatus(t, w, http.StatusOK)
+
+	var debrief map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &debrief)
+
+	// Verify debrief has score and transitions
+	if debrief["total"] == nil {
+		t.Error("debrief missing 'total' field")
+	}
+	if debrief["score"] == nil {
+		t.Error("debrief missing 'score' field")
+	}
+	if debrief["transitions"] == nil {
+		t.Error("debrief missing 'transitions' field")
+	}
+
+	total := debrief["total"].(float64)
+	if total != float64(len(questions)) {
+		t.Errorf("debrief total = %v, want %d", total, len(questions))
+	}
+
+	// Verify masteries were updated (at least some should be FRAGILE now)
+	w = doRequest(ta.router, "GET", "/api/v1/masteries?state=FRAGILE", token, nil)
+	assertStatus(t, w, http.StatusOK)
+
+	var masteries []map[string]interface{}
+	json.Unmarshal(w.Body.Bytes(), &masteries)
+	if len(masteries) == 0 {
+		t.Error("expected at least 1 mastery in FRAGILE state after session")
+	}
+}
+
 func TestValidation_Resolve_InvalidAction(t *testing.T) {
 	ta := setupTestApp(t)
 	userID, token := ta.seedUser("parent")
