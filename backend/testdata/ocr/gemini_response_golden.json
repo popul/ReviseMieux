@@ -1,0 +1,29 @@
+{
+  "blocks": [
+    {
+      "text": "Chapitre 3 : Le theoreme de Pythagore",
+      "block_type": "TEXT",
+      "confidence": 0.97
+    },
+    {
+      "text": "Dans un triangle rectangle, le carre de l'hypotenuse est egal a la somme des carres des deux autres cotes.",
+      "block_type": "TEXT",
+      "confidence": 0.92
+    },
+    {
+      "text": "a^2 + b^2 = c^2",
+      "block_type": "TEXT",
+      "confidence": 0.95
+    },
+    {
+      "text": "Triangle rectangle avec cotes a, b, c",
+      "block_type": "DIAGRAM",
+      "confidence": 0.85
+    },
+    {
+      "text": "a=3 b=4 c=5 | a=5 b=12 c=13 | a=8 b=15 c=17",
+      "block_type": "TABLE",
+      "confidence": 0.88
+    }
+  ]
+}
