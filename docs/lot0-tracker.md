@@ -24,7 +24,7 @@
 |---|---|---|---|---|
 | 0.1 | PRD, ACs, MVP-scope | `[x]` | — | `docs/PRD.md`, `docs/ac/Z*.md`, `docs/MVP-scope.md` |
 | 0.2 | Schéma SQL initial (migration 001) | `[x]` | — | `backend/migrations/001_initial_schema.sql` |
-| 0.3 | Ajout `visual_blocks` et refs visuelles | `[x]` | Z2-AC15/16/17/18, Z4-AC17 (schéma prêt, implémentation MVP Hardening) | migration 001 mise à jour |
+| 0.3 | Ajout `visual_blocks` et refs visuelles | `[~]` | Z2-AC15/16/17/18, Z4-AC17 (schéma prêt, implémentation différée MVP Hardening) | migration 001 mise à jour |
 
 ---
 
