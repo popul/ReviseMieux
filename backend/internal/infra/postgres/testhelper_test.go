@@ -67,7 +67,7 @@ var runtimeCaller = runtime.Caller
 // Only root tables need to be listed — CASCADE handles FK-dependent tables.
 func (tdb *testDB) truncateAll() {
 	ctx := context.Background()
-	_, _ = tdb.pool.Exec(ctx, `TRUNCATE users, exams, templates CASCADE`)
+	_, _ = tdb.pool.Exec(ctx, `TRUNCATE users, exams, templates, llm_call_logs CASCADE`)
 }
 
 // seedUser inserts a test user and returns its ID.
