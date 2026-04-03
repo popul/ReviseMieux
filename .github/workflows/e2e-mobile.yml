@@ -1,0 +1,134 @@
+name: E2E Mobile (Maestro)
+
+on:
+  pull_request:
+    branches: [reboot]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/e2e-mobile.yml'
+  schedule:
+    - cron: '0 6 * * 1'  # Lundi 6h UTC
+
+# Cancel in-progress runs for the same PR
+concurrency:
+  group: e2e-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e-android:
+    name: E2E Android (Maestro)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: revisemieux_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://test:test@localhost:5432/revisemieux_test?sslmode=disable
+      JWT_SECRET: e2e-test-secret
+      GIN_MODE: release
+      PORT: '8080'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # --- Backend ---
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Build and start backend
+        working-directory: backend
+        run: |
+          go build -o /tmp/revisemieux-server ./cmd/server
+          /tmp/revisemieux-server &
+          # Wait for health
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:8080/health > /dev/null 2>&1; then
+              echo "Backend ready"
+              break
+            fi
+            sleep 1
+          done
+
+      # --- Mobile build ---
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install mobile dependencies
+        working-directory: mobile
+        run: npm install --legacy-peer-deps
+
+      - name: Expo prebuild Android
+        working-directory: mobile
+        run: npx expo prebuild --platform android --no-install
+
+      - name: Build Android debug APK
+        working-directory: mobile/android
+        run: ./gradlew assembleDebug
+
+      # --- Maestro ---
+      - name: Install Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> $GITHUB_PATH
+
+      # --- Android Emulator ---
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Run E2E tests with Maestro
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          script: |
+            # Install the APK
+            adb install mobile/android/app/build/outputs/apk/debug/app-debug.apk
+
+            # Seed dev token for auth
+            curl -sf http://localhost:8080/dev/token | jq -r '.token'
+
+            # Run Maestro flows
+            maestro test mobile/e2e/flows/ --format junit --output /tmp/maestro-results.xml || true
+
+            # Record videos for the main flow
+            mkdir -p mobile/e2e/videos
+            maestro record mobile/e2e/flows/01-onboarding.yaml --output mobile/e2e/videos/01-onboarding.mp4 || true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-results
+          path: /tmp/maestro-results.xml
+          retention-days: 7
+
+      - name: Upload E2E videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-videos
+          path: mobile/e2e/videos/*.mp4
+          retention-days: 7
