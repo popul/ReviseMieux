@@ -144,10 +144,15 @@ Le rapport contient :
 5. Findings basse severite (annexe)
 6. Prochaines actions recommandees
 
-#### 5B — Mettre a jour le registre d'issues
+#### 5B — Mettre a jour le registre d'issues et creer les issues GitHub
 
-Si le fichier `reports/issue-register.md` existe, ajoute les nouveaux findings.
-Sinon, cree-le a partir du template `reports/templates/issue-register-template.md`.
+1. **Mettre a jour `reports/issue-register.md`** : ajouter chaque nouveau finding avec son statut (OPEN/CLOSED/DEFERRED).
+
+2. **Pour chaque finding HAUTE ou MOYENNE non deja couvert par une issue existante** : creer une issue GitHub avec `gh issue create`. Verifier les issues ouvertes ET fermees pour eviter les doublons.
+
+3. **Pour chaque finding BASSE** : evaluer si une issue est justifiee. Si c'est informatif ou deja couvert, marquer CLOSED ou DEFERRED dans le registre.
+
+4. **TOUJOURS verifier** que chaque finding a un statut dans le registre. Aucun finding ne doit rester sans traitement (issue creee, ou explicitement marque CLOSED/DEFERRED avec justification).
 
 #### 5C — ARRET : demander l'arbitrage
 

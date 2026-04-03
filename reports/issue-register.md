@@ -1,104 +1,54 @@
-# Registre des issues — Audit 2026-04-03
+# Registre des issues — Feedback Loop
 
-## Résumé
+> Findings cumulés à travers les cycles de la boucle d'amélioration continue.
+> Dernière mise à jour : 2026-04-04 (cycle #6)
 
-| Sévérité | Nombre |
+---
+
+## Statuts
+
+| Statut | Description |
+|--------|-------------|
+| OPEN | Finding identifié, en attente d'action |
+| CLOSED | Résolu (corrigé, issue créée et fermée, ou rejeté) |
+| DEFERRED | Reporté (mineur, informatif) |
+
+---
+
+## Issues
+
+| ID | Date | Type | Sévérité | Résumé | Statut | Issue GH |
+|----|------|------|----------|--------|--------|----------|
+| FL-2026-04-04-050 | 04-04 | COUVERTURE | BASSE | domain/validation maintenant testé (24 tests) | CLOSED | #50 |
+| FL-2026-04-04-041 | 04-04 | OPPORTUNITE | BASSE | API client mobile aligné avec backend | CLOSED | Informatif |
+| FL-2026-04-04-040 | 04-04 | OPPORTUNITE | BASSE | 9 endpoints admin à créer (spec livrée) | DEFERRED | Inclus dans spec #26 |
+| FL-2026-04-04-032 | 04-04 | OPPORTUNITE | BASSE | PoC Maestro non démarré | OPEN | #47 |
+| FL-2026-04-04-031 | 04-04 | OPPORTUNITE | BASSE | CI pas de tests intégration | CLOSED | Workflow créé |
+| FL-2026-04-04-030 | 04-04 | COUVERTURE | MOYENNE | Tests intég pas exécutés en CI | CLOSED | Workflow integration.yml |
+| FL-2026-04-03-022 | 04-03 | OPPORTUNITE | BASSE | getting-started manque S3 vars | CLOSED | Faux positif (vars présentes) |
+| FL-2026-04-03-021 | 04-03 | COUVERTURE | BASSE | Docs archi manque infra/llm et infra/mistral | DEFERRED | Mineur, packages utilitaires |
+| FL-2026-04-03-020 | 04-03 | OPPORTUNITE | MOYENNE | 7 liens benchmark cassés | CLOSED | Fix direct |
+| FL-2026-04-03-012 | 04-03 | OPPORTUNITE | BASSE | Coverage en baisse (dilution) | CLOSED | Remontée à 44.7% |
+| FL-2026-04-03-011 | 04-03 | COUVERTURE | BASSE | Tests OCR Gemini | CLOSED | #28 |
+| FL-2026-04-03-010 | 04-03 | COUVERTURE | MOYENNE | Tests S3 | CLOSED | #27 |
+| FL-2026-04-03-008 | 04-03 | COUVERTURE | BASSE | Coverage faible globale | CLOSED | #29-32 traités |
+| FL-2026-04-03-007 | 04-03 | OPPORTUNITE | BASSE | Tests mobile cassés | CLOSED | Fix CI |
+| FL-2026-04-03-006 | 04-03 | INCOHERENCE | BASSE | PipelineService non câblé | CLOSED | #17 |
+| FL-2026-04-03-005 | 04-03 | COUVERTURE | BASSE | 3 ACs sans test (Z8-AC04, Z2-AC15, Z4-AC17) | DEFERRED | UI/Hardening, acceptable |
+| FL-2026-04-03-004 | 04-03 | INCOHERENCE | MOYENNE | Tracker Phase 7 sous-estimé | CLOSED | #18 |
+| FL-2026-04-03-003 | 04-03 | COUVERTURE | MOYENNE | Test Z7-AC15 manquant | CLOSED | #20 |
+| FL-2026-04-03-002 | 04-03 | COUVERTURE | MOYENNE | Test Z8-AC03 manquant | CLOSED | #20 |
+| FL-2026-04-03-001 | 04-03 | OPPORTUNITE | MOYENNE | Prompts déjà externalisés | CLOSED | #15 (déjà fait) |
+
+---
+
+## Statistiques
+
+| Métrique | Valeur |
 |----------|--------|
-| Majeur | 5 |
-| Mineur | 4 |
-| **Total** | **9** |
-
----
-
-## Issues majeures
-
-### ISS-001 — Prompts non externalisés
-
-| Champ | Valeur |
-|-------|--------|
-| Sévérité | MAJEUR |
-| Fichiers | `backend/internal/infra/anthropic/prompts.go` |
-| Spec | `docs/llm-strategy.md` §9 : prompts en fichiers `.txt` + `//go:embed` |
-| Réalité | Prompts en constantes Go dans `prompts.go` |
-| Recommandation | Externaliser dans `backend/internal/infra/llm/prompts/*.txt` avec `//go:embed` |
-
-### ISS-002 — Pas de provider mistral-small pour l'IDP
-
-| Champ | Valeur |
-|-------|--------|
-| Sévérité | MAJEUR |
-| Fichiers | `backend/internal/config/config.go`, `backend/cmd/server/main.go` |
-| Spec | `backend/testdata/benchmark/README.md` : mistral-small = best value IDP (quality 0.87, $0.00006/item) |
-| Réalité | Seuls Gemini et Anthropic sont configurés. Pas de client Mistral direct. |
-| Recommandation | Ajouter un provider mistral-small via `openaicompat` (API compatible OpenAI) |
-
-### ISS-003 — PipelineService non câblé dans main.go
-
-| Champ | Valeur |
-|-------|--------|
-| Sévérité | MAJEUR |
-| Fichiers | `backend/cmd/server/main.go:100-102` |
-| Réalité | Commenté : "requires Storage + OCR adapters (not yet implemented)" |
-| Impact | Les endpoints `/chapters/:id/upload` et `/revisions/:id/progress` retournent nil |
-| Recommandation | Implémenter les adaptateurs S3 et OCR puis câbler le PipelineService |
-
-### ISS-004 — Tracker mobile sous-estimé (Phase 7)
-
-| Champ | Valeur |
-|-------|--------|
-| Sévérité | MAJEUR |
-| Fichiers | `docs/lot0-tracker.md` Phase 7 |
-| Réalité | Phase 7 marquée `[ ]` mais 7 écrans Expo Router + 122 tests mobiles existent |
-| Recommandation | Mettre à jour le tracker : marquer les tâches 7.1, 7.3-7.7 comme `[x]` ou `[~]` |
-
-### ISS-005 — Frontend web non documenté
-
-| Champ | Valeur |
-|-------|--------|
-| Sévérité | MAJEUR |
-| Fichiers | `frontend/` |
-| Réalité | Un frontend TypeScript/Vite existe mais n'est mentionné ni dans CLAUDE.md ni dans le tracker |
-| Recommandation | Arbitrage : documenter comme backoffice admin, ou archiver si obsolète |
-
----
-
-## Issues mineures
-
-### ISS-006 — Z8-AC03 sans test backend dédié
-
-| Champ | Valeur |
-|-------|--------|
-| Sévérité | MINEUR |
-| AC | Z8-AC03 (Recovery si premier OCR échoue) |
-| Tracker | `[x]` |
-| Recommandation | Ajouter `TestZ8AC03_RecoveryOnFirstOCRFailure` |
-
-### ISS-007 — Z7-AC15 sans test explicite
-
-| Champ | Valeur |
-|-------|--------|
-| Sévérité | MINEUR |
-| AC | Z7-AC15 (Structuration LLM → Items + Notions) |
-| Tracker | `[x]` |
-| Réalité | Testé indirectement via `TestPipelineService_*` |
-| Recommandation | Ajouter `TestZ7AC15_StructurationLLM` explicite |
-
-### ISS-008 — 2 ACs MVP Hardening marquées [x]
-
-| Champ | Valeur |
-|-------|--------|
-| Sévérité | MINEUR |
-| ACs | Z2-AC15 (visual_blocks), Z4-AC17 (multimodal visuel) |
-| Tracker | `[x]` mais classées MVP Hardening/Post-MVP dans MVP-scope.md |
-| Réalité | Schéma SQL prêt mais implémentation différée |
-| Recommandation | Changer en `[~]` avec note "schéma prêt, implémentation différée" |
-
-### ISS-009 — Z8-AC04 sans test backend
-
-| Champ | Valeur |
-|-------|--------|
-| Sévérité | MINEUR |
-| AC | Z8-AC04 (Écran progression pipeline J0) |
-| Tracker | `[x]` |
-| Réalité | Couvert côté mobile (`app/processing.tsx`) mais pas de test backend |
-| Recommandation | Acceptable — l'AC est UI-oriented |
+| Total findings | 20 |
+| OPEN | 1 |
+| CLOSED | 16 |
+| DEFERRED | 3 |
+| Cycles exécutés | 6 |
+| Dernier cycle | #6 (2026-04-04) |
