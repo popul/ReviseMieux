@@ -1,0 +1,643 @@
+{
+  "metadata": {
+    "chapter_id": "019e8a3c-7b2d-7000-8001-000000000001",
+    "user_id": "019e8a3c-7b2d-7000-8001-000000000099",
+    "subject": "SVT",
+    "class_level": "5ème",
+    "title": "La photosynthèse",
+    "pack_id": "SVT-PHOTO",
+    "pivot_version": 3,
+    "current_revision_id": "019e8a3c-7b2d-7000-8001-000000000010",
+    "created_at": "2026-03-24T18:30:00Z",
+    "updated_at": "2026-03-28T19:15:00Z"
+  },
+  "capture_sessions": [
+    {
+      "revision_id": "019e8a3c-7b2d-7000-8001-000000000010",
+      "revision_number": 1,
+      "status": "READY",
+      "captured_at": "2026-03-24T18:30:00Z",
+      "pages": [
+        {
+          "page_id": "019e8a3c-7b2d-7000-8001-000000000101",
+          "page_order": 1,
+          "photo_url": "s3://revisemieux/chapters/019e8a3c-7b2d-7000-8001-000000000001/revisions/019e8a3c-7b2d-7000-8001-000000000010/pages/1.webp",
+          "ocr_status": "DONE",
+          "ocr_confidence": 0.88,
+          "text_fingerprint": "sha256:a1b2c3d4e5f6",
+          "blocks": [
+            {
+              "block_id": "019e8a3c-7b2d-7000-8001-000000000201",
+              "block_type": "TEXT",
+              "ocr_text": "Chapitre 5 : La photosynthèse\n\nI. Définition\nLa photosynthèse est le processus par lequel les plantes vertes utilisent la lumière du soleil pour transformer le dioxyde de carbone (CO₂) et l'eau (H₂O) en matière organique (glucose) et en dioxygène (O₂).\n\nCe processus se déroule dans les chloroplastes, des organites présents dans les cellules végétales. Les chloroplastes contiennent la chlorophylle, un pigment vert qui capte la lumière.",
+              "confidence": 0.92,
+              "bbox": { "x": 0.05, "y": 0.03, "w": 0.90, "h": 0.45 },
+              "crop_url": "s3://revisemieux/crops/019e8a3c-7b2d-7000-8001-000000000201.webp",
+              "visual_metadata": null
+            },
+            {
+              "block_id": "019e8a3c-7b2d-7000-8001-000000000202",
+              "block_type": "TEXT",
+              "ocr_text": "II. Les acteurs de la photosynthèse\n\n- Chloroplastes : organites où se déroule la photosynthèse\n- Chlorophylle : pigment vert qui capte la lumière\n- Stomates : petits orifices sur les feuilles qui permettent les échanges gazeux (entrée CO₂, sortie O₂)\n- Sève brute : transporte l'eau et les sels minéraux depuis les racines",
+              "confidence": 0.89,
+              "bbox": { "x": 0.05, "y": 0.50, "w": 0.90, "h": 0.45 },
+              "crop_url": "s3://revisemieux/crops/019e8a3c-7b2d-7000-8001-000000000202.webp",
+              "visual_metadata": null
+            }
+          ]
+        },
+        {
+          "page_id": "019e8a3c-7b2d-7000-8001-000000000102",
+          "page_order": 2,
+          "photo_url": "s3://revisemieux/chapters/019e8a3c-7b2d-7000-8001-000000000001/revisions/019e8a3c-7b2d-7000-8001-000000000010/pages/2.webp",
+          "ocr_status": "DONE",
+          "ocr_confidence": 0.75,
+          "text_fingerprint": "sha256:b2c3d4e5f6a1",
+          "blocks": [
+            {
+              "block_id": "019e8a3c-7b2d-7000-8001-000000000203",
+              "block_type": "SCHEMA",
+              "ocr_text": null,
+              "confidence": 0.82,
+              "bbox": { "x": 0.10, "y": 0.05, "w": 0.80, "h": 0.55 },
+              "crop_url": "s3://revisemieux/crops/019e8a3c-7b2d-7000-8001-000000000203.webp",
+              "visual_metadata": {
+                "visual_type": "diagram",
+                "labels": [
+                  { "text": "Lumière", "position": { "x": 0.50, "y": 0.02 } },
+                  { "text": "CO₂", "position": { "x": 0.15, "y": 0.40 } },
+                  { "text": "H₂O", "position": { "x": 0.15, "y": 0.70 } },
+                  { "text": "O₂", "position": { "x": 0.85, "y": 0.40 } },
+                  { "text": "Glucose (C₆H₁₂O₆)", "position": { "x": 0.85, "y": 0.70 } },
+                  { "text": "Chloroplaste", "position": { "x": 0.50, "y": 0.50 } }
+                ],
+                "caption": "Schéma bilan de la photosynthèse",
+                "alt_text": "Schéma montrant une feuille avec un chloroplaste au centre. Flèches d'entrée : lumière (en haut), CO₂ (à gauche), H₂O (en bas à gauche). Flèches de sortie : O₂ (à droite), glucose C₆H₁₂O₆ (en bas à droite).",
+                "table_structure": null,
+                "axis_labels": null
+              }
+            },
+            {
+              "block_id": "019e8a3c-7b2d-7000-8001-000000000204",
+              "block_type": "TEXT",
+              "ocr_text": "III. L'équation bilan\n\n6 CO₂ + 6 H₂O + lumière → C₆H₁₂O₆ + 6 O₂\n\nLa photosynthèse nécessite de la lumière (énergie lumineuse). Elle ne peut pas se dérouler dans l'obscurité.",
+              "confidence": 0.85,
+              "bbox": { "x": 0.05, "y": 0.62, "w": 0.90, "h": 0.35 },
+              "crop_url": "s3://revisemieux/crops/019e8a3c-7b2d-7000-8001-000000000204.webp",
+              "visual_metadata": null
+            }
+          ]
+        },
+        {
+          "page_id": "019e8a3c-7b2d-7000-8001-000000000103",
+          "page_order": 3,
+          "photo_url": "s3://revisemieux/chapters/019e8a3c-7b2d-7000-8001-000000000001/revisions/019e8a3c-7b2d-7000-8001-000000000010/pages/3.webp",
+          "ocr_status": "DONE",
+          "ocr_confidence": 0.91,
+          "text_fingerprint": "sha256:c3d4e5f6a1b2",
+          "blocks": [
+            {
+              "block_id": "019e8a3c-7b2d-7000-8001-000000000205",
+              "block_type": "TEXT",
+              "ocr_text": "IV. Définitions à retenir\n\n- Photosynthèse : processus de fabrication de matière organique par les végétaux à partir de CO₂, H₂O et lumière\n- Chloroplaste : organite cellulaire contenant la chlorophylle, lieu de la photosynthèse\n- Chlorophylle : pigment vert responsable de la captation de la lumière\n- Stomate : orifice des feuilles permettant les échanges gazeux\n- Autotrophe : organisme capable de fabriquer sa propre matière organique (les plantes sont autotrophes)\n- Hétérotrophe : organisme qui doit consommer d'autres êtres vivants (les animaux sont hétérotrophes)",
+              "confidence": 0.93,
+              "bbox": { "x": 0.05, "y": 0.05, "w": 0.90, "h": 0.90 },
+              "crop_url": "s3://revisemieux/crops/019e8a3c-7b2d-7000-8001-000000000205.webp",
+              "visual_metadata": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "revision_id": "019e8a3c-7b2d-7000-8001-000000000010",
+      "revision_number": 1,
+      "status": "READY",
+      "captured_at": "2026-03-26T18:45:00Z",
+      "pages": [
+        {
+          "page_id": "019e8a3c-7b2d-7000-8001-000000000104",
+          "page_order": 4,
+          "photo_url": "s3://revisemieux/chapters/019e8a3c-7b2d-7000-8001-000000000001/revisions/019e8a3c-7b2d-7000-8001-000000000010/pages/4.webp",
+          "ocr_status": "DONE",
+          "ocr_confidence": 0.87,
+          "text_fingerprint": "sha256:d4e5f6a1b2c3",
+          "blocks": [
+            {
+              "block_id": "019e8a3c-7b2d-7000-8001-000000000206",
+              "block_type": "TEXT",
+              "ocr_text": "V. Expérience : mise en évidence de la photosynthèse\n\nProtocole :\n1. Prendre deux plantes aquatiques (élodées) dans deux béchers\n2. Placer le bécher A à la lumière et le bécher B dans l'obscurité\n3. Ajouter du bleu de bromothymol (indicateur de CO₂) dans chaque bécher\n4. Attendre 2 heures\n5. Observer la couleur du bleu de bromothymol\n\nRésultats attendus :\n- Bécher A (lumière) : le bleu de bromothymol devient bleu (le CO₂ a été consommé)\n- Bécher B (obscurité) : le bleu de bromothymol reste jaune/vert (pas de photosynthèse)",
+              "confidence": 0.86,
+              "bbox": { "x": 0.05, "y": 0.05, "w": 0.90, "h": 0.55 },
+              "crop_url": "s3://revisemieux/crops/019e8a3c-7b2d-7000-8001-000000000206.webp",
+              "visual_metadata": null
+            },
+            {
+              "block_id": "019e8a3c-7b2d-7000-8001-000000000207",
+              "block_type": "TABLE",
+              "ocr_text": "Bécher A (lumière) | Bécher B (obscurité)\nCouleur initiale : jaune/vert | Couleur initiale : jaune/vert\nCouleur finale : bleu | Couleur finale : jaune/vert\nConclusion : CO₂ consommé | Conclusion : pas de photosynthèse",
+              "confidence": 0.78,
+              "bbox": { "x": 0.10, "y": 0.60, "w": 0.80, "h": 0.35 },
+              "crop_url": "s3://revisemieux/crops/019e8a3c-7b2d-7000-8001-000000000207.webp",
+              "visual_metadata": {
+                "visual_type": "table",
+                "labels": [],
+                "caption": "Tableau de résultats de l'expérience du bleu de bromothymol",
+                "alt_text": null,
+                "table_structure": {
+                  "rows": 4,
+                  "cols": 2,
+                  "headers": ["Bécher A (lumière)", "Bécher B (obscurité)"],
+                  "cells": [
+                    ["Couleur initiale : jaune/vert", "Couleur initiale : jaune/vert"],
+                    ["Couleur finale : bleu", "Couleur finale : jaune/vert"],
+                    ["CO₂ consommé", "Pas de photosynthèse"]
+                  ]
+                },
+                "axis_labels": null
+              }
+            }
+          ]
+        },
+        {
+          "page_id": "019e8a3c-7b2d-7000-8001-000000000105",
+          "page_order": 5,
+          "photo_url": "s3://revisemieux/chapters/019e8a3c-7b2d-7000-8001-000000000001/revisions/019e8a3c-7b2d-7000-8001-000000000010/pages/5.webp",
+          "ocr_status": "DONE",
+          "ocr_confidence": 0.84,
+          "text_fingerprint": "sha256:e5f6a1b2c3d4",
+          "blocks": [
+            {
+              "block_id": "019e8a3c-7b2d-7000-8001-000000000208",
+              "block_type": "TEXT",
+              "ocr_text": "VI. Facteurs influençant la photosynthèse\n\n1. La lumière : plus l'intensité lumineuse est forte, plus la photosynthèse est active (jusqu'à un seuil de saturation)\n2. La température : la photosynthèse est optimale entre 25°C et 35°C. Au-delà de 40°C, les enzymes sont dénaturées.\n3. La concentration en CO₂ : plus il y a de CO₂, plus la photosynthèse est active (facteur limitant)\n4. L'eau : indispensable comme réactif de la photosynthèse\n\nConclusion : la photosynthèse est un processus vital pour les écosystèmes. Elle produit l'O₂ que nous respirons et constitue la base des chaînes alimentaires.",
+              "confidence": 0.90,
+              "bbox": { "x": 0.05, "y": 0.05, "w": 0.90, "h": 0.90 },
+              "crop_url": "s3://revisemieux/crops/019e8a3c-7b2d-7000-8001-000000000208.webp",
+              "visual_metadata": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "revision_id": "019e8a3c-7b2d-7000-8001-000000000010",
+      "revision_number": 1,
+      "status": "READY",
+      "captured_at": "2026-03-28T19:15:00Z",
+      "pages": [
+        {
+          "page_id": "019e8a3c-7b2d-7000-8001-000000000106",
+          "page_order": 6,
+          "photo_url": "s3://revisemieux/chapters/019e8a3c-7b2d-7000-8001-000000000001/revisions/019e8a3c-7b2d-7000-8001-000000000010/pages/6.webp",
+          "ocr_status": "DONE",
+          "ocr_confidence": 0.86,
+          "text_fingerprint": "sha256:f6a1b2c3d4e5",
+          "blocks": [
+            {
+              "block_id": "019e8a3c-7b2d-7000-8001-000000000209",
+              "block_type": "TEXT",
+              "ocr_text": "Correction exercice 3 — La photosynthèse\n\n1. L'équation bilan de la photosynthèse est :\n   6 CO₂ + 6 H₂O → C₆H₁₂O₆ + 6 O₂ (en présence de lumière)\n\n2. Les chloroplastes sont les organites où se déroule la photosynthèse. Ils contiennent la chlorophylle.\n\n3. La plante à la lumière produit de l'O₂ car elle fait la photosynthèse. La plante dans l'obscurité ne produit pas d'O₂ car la photosynthèse nécessite de la lumière.\n\n4. Les stomates sont des orifices situés sur la face inférieure des feuilles. Ils permettent l'entrée du CO₂ et la sortie de l'O₂.\n\n5. Un organisme autotrophe fabrique sa propre matière organique à partir de matière minérale. Un organisme hétérotrophe doit consommer d'autres êtres vivants.",
+              "confidence": 0.88,
+              "bbox": { "x": 0.05, "y": 0.05, "w": 0.90, "h": 0.90 },
+              "crop_url": "s3://revisemieux/crops/019e8a3c-7b2d-7000-8001-000000000209.webp",
+              "visual_metadata": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "notions": [
+    {
+      "notion_id": "019e8a3c-7b2d-7000-8001-000000000301",
+      "name": "Définition et principe de la photosynthèse",
+      "concept_tags": ["photosynthese", "definition", "autotrophe", "heterotrophe"],
+      "sort_order": 1,
+      "items": [
+        {
+          "item_id": "019e8a3c-7b2d-7000-8001-000000000401",
+          "item_type": "KNOWLEDGE",
+          "term": "Photosynthèse",
+          "keywords": ["processus", "plantes vertes", "lumière", "CO₂", "H₂O", "glucose", "O₂", "matière organique"],
+          "steps": [],
+          "tags": [],
+          "confidence": 0.92,
+          "fidelity_score": 0.95,
+          "fidelity_flag": null,
+          "validation_required": false,
+          "archived": false,
+          "canonical_key": "photosynthese|KNOWLEDGE|SVT-PHOTO",
+          "merge_status": "enriched",
+          "replaced_by_id": null,
+          "source_refs": [
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000101",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000201"]
+            },
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000103",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000205"]
+            },
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000106",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000209"]
+            }
+          ],
+          "llm_model_version": "mistral-small-2503",
+          "prompt_template_version": "v1.0.0",
+          "created_at": "2026-03-24T18:35:00Z",
+          "updated_at": "2026-03-28T19:20:00Z"
+        },
+        {
+          "item_id": "019e8a3c-7b2d-7000-8001-000000000402",
+          "item_type": "KNOWLEDGE",
+          "term": "Autotrophe",
+          "keywords": ["organisme", "matière organique", "matière minérale", "plantes"],
+          "steps": [],
+          "tags": [],
+          "confidence": 0.91,
+          "fidelity_score": 0.93,
+          "fidelity_flag": null,
+          "validation_required": false,
+          "archived": false,
+          "canonical_key": "autotrophe|KNOWLEDGE|SVT-PHOTO",
+          "merge_status": "enriched",
+          "replaced_by_id": null,
+          "source_refs": [
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000103",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000205"]
+            },
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000106",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000209"]
+            }
+          ],
+          "llm_model_version": "mistral-small-2503",
+          "prompt_template_version": "v1.0.0",
+          "created_at": "2026-03-24T18:35:00Z",
+          "updated_at": "2026-03-28T19:20:00Z"
+        },
+        {
+          "item_id": "019e8a3c-7b2d-7000-8001-000000000403",
+          "item_type": "KNOWLEDGE",
+          "term": "Hétérotrophe",
+          "keywords": ["organisme", "consommer", "êtres vivants", "animaux"],
+          "steps": [],
+          "tags": [],
+          "confidence": 0.91,
+          "fidelity_score": 0.92,
+          "fidelity_flag": null,
+          "validation_required": false,
+          "archived": false,
+          "canonical_key": "heterotrophe|KNOWLEDGE|SVT-PHOTO",
+          "merge_status": "original",
+          "replaced_by_id": null,
+          "source_refs": [
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000103",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000205"]
+            }
+          ],
+          "llm_model_version": "mistral-small-2503",
+          "prompt_template_version": "v1.0.0",
+          "created_at": "2026-03-24T18:35:00Z",
+          "updated_at": "2026-03-24T18:35:00Z"
+        }
+      ]
+    },
+    {
+      "notion_id": "019e8a3c-7b2d-7000-8001-000000000302",
+      "name": "Chloroplastes et chlorophylle",
+      "concept_tags": ["chloroplaste", "chlorophylle", "stomate", "organite"],
+      "sort_order": 2,
+      "items": [
+        {
+          "item_id": "019e8a3c-7b2d-7000-8001-000000000404",
+          "item_type": "KNOWLEDGE",
+          "term": "Chloroplaste",
+          "keywords": ["organite", "cellule végétale", "chlorophylle", "photosynthèse"],
+          "steps": [],
+          "tags": [],
+          "confidence": 0.90,
+          "fidelity_score": 0.94,
+          "fidelity_flag": null,
+          "validation_required": false,
+          "archived": false,
+          "canonical_key": "chloroplaste|KNOWLEDGE|SVT-PHOTO",
+          "merge_status": "enriched",
+          "replaced_by_id": null,
+          "source_refs": [
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000101",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000201", "019e8a3c-7b2d-7000-8001-000000000202"]
+            },
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000106",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000209"]
+            }
+          ],
+          "llm_model_version": "mistral-small-2503",
+          "prompt_template_version": "v1.0.0",
+          "created_at": "2026-03-24T18:35:00Z",
+          "updated_at": "2026-03-28T19:20:00Z"
+        },
+        {
+          "item_id": "019e8a3c-7b2d-7000-8001-000000000405",
+          "item_type": "KNOWLEDGE",
+          "term": "Chlorophylle",
+          "keywords": ["pigment", "vert", "lumière", "captation"],
+          "steps": [],
+          "tags": [],
+          "confidence": 0.89,
+          "fidelity_score": 0.91,
+          "fidelity_flag": null,
+          "validation_required": false,
+          "archived": false,
+          "canonical_key": "chlorophylle|KNOWLEDGE|SVT-PHOTO",
+          "merge_status": "original",
+          "replaced_by_id": null,
+          "source_refs": [
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000101",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000201", "019e8a3c-7b2d-7000-8001-000000000202"]
+            }
+          ],
+          "llm_model_version": "mistral-small-2503",
+          "prompt_template_version": "v1.0.0",
+          "created_at": "2026-03-24T18:35:00Z",
+          "updated_at": "2026-03-24T18:35:00Z"
+        },
+        {
+          "item_id": "019e8a3c-7b2d-7000-8001-000000000406",
+          "item_type": "KNOWLEDGE",
+          "term": "Stomate",
+          "keywords": ["orifice", "feuille", "échanges gazeux", "CO₂", "O₂", "face inférieure"],
+          "steps": [],
+          "tags": [],
+          "confidence": 0.89,
+          "fidelity_score": 0.90,
+          "fidelity_flag": null,
+          "validation_required": false,
+          "archived": false,
+          "canonical_key": "stomate|KNOWLEDGE|SVT-PHOTO",
+          "merge_status": "enriched",
+          "replaced_by_id": null,
+          "source_refs": [
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000101",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000202"]
+            },
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000106",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000209"]
+            }
+          ],
+          "llm_model_version": "mistral-small-2503",
+          "prompt_template_version": "v1.0.0",
+          "created_at": "2026-03-24T18:35:00Z",
+          "updated_at": "2026-03-28T19:20:00Z"
+        },
+        {
+          "item_id": "019e8a3c-7b2d-7000-8001-000000000407",
+          "item_type": "DOCUMENT",
+          "term": "Schéma bilan de la photosynthèse",
+          "keywords": ["schéma", "bilan", "feuille", "chloroplaste", "CO₂", "H₂O", "O₂", "glucose"],
+          "steps": [],
+          "tags": ["schema"],
+          "confidence": 0.82,
+          "fidelity_score": 0.88,
+          "fidelity_flag": null,
+          "validation_required": false,
+          "archived": false,
+          "canonical_key": "schema bilan de la photosynthese|DOCUMENT|SVT-PHOTO",
+          "merge_status": "original",
+          "replaced_by_id": null,
+          "source_refs": [
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000102",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000203"]
+            }
+          ],
+          "llm_model_version": "mistral-small-2503",
+          "prompt_template_version": "v1.0.0",
+          "created_at": "2026-03-24T18:35:00Z",
+          "updated_at": "2026-03-24T18:35:00Z"
+        }
+      ]
+    },
+    {
+      "notion_id": "019e8a3c-7b2d-7000-8001-000000000303",
+      "name": "Équation bilan de la photosynthèse",
+      "concept_tags": ["equation", "bilan", "CO2", "H2O", "glucose", "O2"],
+      "sort_order": 3,
+      "items": [
+        {
+          "item_id": "019e8a3c-7b2d-7000-8001-000000000408",
+          "item_type": "KNOWLEDGE",
+          "term": "Équation bilan de la photosynthèse",
+          "keywords": ["6 CO₂", "6 H₂O", "C₆H₁₂O₆", "6 O₂", "lumière"],
+          "steps": [],
+          "tags": [],
+          "confidence": 0.88,
+          "fidelity_score": 0.96,
+          "fidelity_flag": null,
+          "validation_required": false,
+          "archived": false,
+          "canonical_key": "equation bilan de la photosynthese|KNOWLEDGE|SVT-PHOTO",
+          "merge_status": "enriched",
+          "replaced_by_id": null,
+          "source_refs": [
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000102",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000204"]
+            },
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000106",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000209"]
+            }
+          ],
+          "llm_model_version": "mistral-small-2503",
+          "prompt_template_version": "v1.0.0",
+          "created_at": "2026-03-24T18:35:00Z",
+          "updated_at": "2026-03-28T19:20:00Z"
+        }
+      ]
+    },
+    {
+      "notion_id": "019e8a3c-7b2d-7000-8001-000000000304",
+      "name": "Expérience du bleu de bromothymol",
+      "concept_tags": ["experience", "bromothymol", "elodee", "lumiere", "obscurite"],
+      "sort_order": 4,
+      "items": [
+        {
+          "item_id": "019e8a3c-7b2d-7000-8001-000000000409",
+          "item_type": "PROCEDURE",
+          "term": "Expérience du bleu de bromothymol",
+          "keywords": ["élodée", "bécher", "lumière", "obscurité", "bleu de bromothymol", "CO₂"],
+          "steps": [
+            { "step_order": 1, "content": "Prendre deux plantes aquatiques (élodées) dans deux béchers" },
+            { "step_order": 2, "content": "Placer le bécher A à la lumière et le bécher B dans l'obscurité" },
+            { "step_order": 3, "content": "Ajouter du bleu de bromothymol dans chaque bécher" },
+            { "step_order": 4, "content": "Attendre 2 heures" },
+            { "step_order": 5, "content": "Observer la couleur du bleu de bromothymol" }
+          ],
+          "tags": [],
+          "confidence": 0.86,
+          "fidelity_score": 0.89,
+          "fidelity_flag": null,
+          "validation_required": false,
+          "archived": false,
+          "canonical_key": "experience du bleu de bromothymol|PROCEDURE|SVT-PHOTO",
+          "merge_status": "original",
+          "replaced_by_id": null,
+          "source_refs": [
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000104",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000206"]
+            }
+          ],
+          "llm_model_version": "mistral-small-2503",
+          "prompt_template_version": "v1.0.0",
+          "created_at": "2026-03-26T18:50:00Z",
+          "updated_at": "2026-03-26T18:50:00Z"
+        },
+        {
+          "item_id": "019e8a3c-7b2d-7000-8001-000000000410",
+          "item_type": "DOCUMENT",
+          "term": "Tableau de résultats — bleu de bromothymol",
+          "keywords": ["tableau", "résultats", "bécher A", "bécher B", "couleur", "bleu", "jaune"],
+          "steps": [],
+          "tags": ["table"],
+          "confidence": 0.78,
+          "fidelity_score": 0.85,
+          "fidelity_flag": null,
+          "validation_required": false,
+          "archived": false,
+          "canonical_key": "tableau de resultats — bleu de bromothymol|DOCUMENT|SVT-PHOTO",
+          "merge_status": "original",
+          "replaced_by_id": null,
+          "source_refs": [
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000104",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000207"]
+            }
+          ],
+          "llm_model_version": "mistral-small-2503",
+          "prompt_template_version": "v1.0.0",
+          "created_at": "2026-03-26T18:50:00Z",
+          "updated_at": "2026-03-26T18:50:00Z"
+        }
+      ]
+    },
+    {
+      "notion_id": "019e8a3c-7b2d-7000-8001-000000000305",
+      "name": "Facteurs influençant la photosynthèse",
+      "concept_tags": ["facteurs", "lumiere", "temperature", "CO2", "eau", "saturation"],
+      "sort_order": 5,
+      "items": [
+        {
+          "item_id": "019e8a3c-7b2d-7000-8001-000000000411",
+          "item_type": "KNOWLEDGE",
+          "term": "Facteurs influençant la photosynthèse",
+          "keywords": ["lumière", "température", "CO₂", "eau", "seuil de saturation", "25-35°C", "enzymes"],
+          "steps": [],
+          "tags": [],
+          "confidence": 0.90,
+          "fidelity_score": 0.93,
+          "fidelity_flag": null,
+          "validation_required": false,
+          "archived": false,
+          "canonical_key": "facteurs influencant la photosynthese|KNOWLEDGE|SVT-PHOTO",
+          "merge_status": "original",
+          "replaced_by_id": null,
+          "source_refs": [
+            {
+              "page_id": "019e8a3c-7b2d-7000-8001-000000000105",
+              "block_ids": ["019e8a3c-7b2d-7000-8001-000000000208"]
+            }
+          ],
+          "llm_model_version": "mistral-small-2503",
+          "prompt_template_version": "v1.0.0",
+          "created_at": "2026-03-26T18:50:00Z",
+          "updated_at": "2026-03-26T18:50:00Z"
+        }
+      ]
+    }
+  ],
+  "merge_log": [
+    {
+      "id": "019e8a3c-7b2d-7000-8001-000000000501",
+      "action": "append",
+      "source_item_id": "019e8a3c-7b2d-7000-8001-000000000409",
+      "target_item_id": null,
+      "reason": "New concept: 'Expérience du bleu de bromothymol' not found in existing items. CanonicalKey miss + Jaccard < 0.5.",
+      "confidence": 0.86,
+      "created_at": "2026-03-26T18:50:00Z"
+    },
+    {
+      "id": "019e8a3c-7b2d-7000-8001-000000000502",
+      "action": "append",
+      "source_item_id": "019e8a3c-7b2d-7000-8001-000000000410",
+      "target_item_id": null,
+      "reason": "New concept: 'Tableau de résultats — bleu de bromothymol' (DOCUMENT type, table visual block).",
+      "confidence": 0.78,
+      "created_at": "2026-03-26T18:50:00Z"
+    },
+    {
+      "id": "019e8a3c-7b2d-7000-8001-000000000503",
+      "action": "append",
+      "source_item_id": "019e8a3c-7b2d-7000-8001-000000000411",
+      "target_item_id": null,
+      "reason": "New concept: 'Facteurs influençant la photosynthèse'. No matching canonical key.",
+      "confidence": 0.90,
+      "created_at": "2026-03-26T18:50:00Z"
+    },
+    {
+      "id": "019e8a3c-7b2d-7000-8001-000000000504",
+      "action": "enrich",
+      "source_item_id": null,
+      "target_item_id": "019e8a3c-7b2d-7000-8001-000000000401",
+      "reason": "Session 3 correction exercise confirmed definition of photosynthèse. Added source_ref from page 6. No new keywords, but cross-validation increases confidence.",
+      "confidence": 0.92,
+      "created_at": "2026-03-28T19:20:00Z"
+    },
+    {
+      "id": "019e8a3c-7b2d-7000-8001-000000000505",
+      "action": "enrich",
+      "source_item_id": null,
+      "target_item_id": "019e8a3c-7b2d-7000-8001-000000000404",
+      "reason": "Correction exercise (page 6) confirms chloroplaste definition. Added source_ref. Confidence maintained.",
+      "confidence": 0.90,
+      "created_at": "2026-03-28T19:20:00Z"
+    },
+    {
+      "id": "019e8a3c-7b2d-7000-8001-000000000506",
+      "action": "enrich",
+      "source_item_id": null,
+      "target_item_id": "019e8a3c-7b2d-7000-8001-000000000406",
+      "reason": "Correction exercise enriches stomate definition with 'face inférieure des feuilles'. New keyword added.",
+      "confidence": 0.89,
+      "created_at": "2026-03-28T19:20:00Z"
+    },
+    {
+      "id": "019e8a3c-7b2d-7000-8001-000000000507",
+      "action": "enrich",
+      "source_item_id": null,
+      "target_item_id": "019e8a3c-7b2d-7000-8001-000000000402",
+      "reason": "Correction exercise provides clearer definition of autotrophe: 'fabrique sa propre matière organique à partir de matière minérale'. Keywords enriched.",
+      "confidence": 0.91,
+      "created_at": "2026-03-28T19:20:00Z"
+    },
+    {
+      "id": "019e8a3c-7b2d-7000-8001-000000000508",
+      "action": "enrich",
+      "source_item_id": null,
+      "target_item_id": "019e8a3c-7b2d-7000-8001-000000000408",
+      "reason": "Correction exercise confirms equation bilan. Cross-validated with page 2 extraction. Fidelity score increased.",
+      "confidence": 0.88,
+      "created_at": "2026-03-28T19:20:00Z"
+    }
+  ]
+}
