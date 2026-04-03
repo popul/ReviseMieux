@@ -715,6 +715,367 @@ func TestZ3AC10_FidelityHallucinated(t *testing.T) {
 	}
 }
 
+// Z7-AC15 — Structuration LLM produces Items grouped by Notion (concept_tag)
+//
+// GIVEN: Le chapitre « Densité et masse volumique » contient des blocs OCR.
+//
+//	Le LLM attribue des concept_tags (NotionName) à chaque item.
+//
+// WHEN:  Le pipeline structure les blocs OCR via le LLM.
+// THEN:  Les items sont créés avec des NotionIDs correspondant aux Notions,
+//
+//	et les Notions sont créées avec les bons noms.
+func TestZ7AC15_StructurationLLM_ItemsEtNotions(t *testing.T) {
+	now := time.Date(2026, 1, 15, 10, 0, 0, 0, time.UTC)
+	clock := fixedClock{t: now}
+	idGen := &fixedIDGen{}
+
+	chRepo := newMockChapterRepo()
+	storage := newMockStorage()
+	ocr := newMockOCR()
+	masteryRepo := &mockMasteryRepo{}
+	publisher := &mockPublisher{}
+
+	// LLM returns multiple items grouped by distinct Notions (concept_tags)
+	llm := &mockLLM{
+		result: &chapter.StructurationResult{
+			Items: []chapter.StructuredItem{
+				{Type: chapter.ItemKnowledge, Term: "masse", Keywords: []string{"masse", "kg"}, NotionName: "Masse", Confidence: 0.9},
+				{Type: chapter.ItemKnowledge, Term: "balance", Keywords: []string{"balance", "mesure"}, NotionName: "Masse", Confidence: 0.85},
+				{Type: chapter.ItemKnowledge, Term: "volume", Keywords: []string{"volume", "litre"}, NotionName: "Volume", Confidence: 0.88},
+				{Type: chapter.ItemProcedure, Term: "rho", Keywords: []string{"rho", "formule"}, NotionName: "Masse volumique (rho)", Confidence: 0.92, Steps: []string{"Identifier m", "Identifier V", "Calculer rho=m/V"}},
+				{Type: chapter.ItemKnowledge, Term: "deplacement", Keywords: []string{"eau", "deplacement"}, NotionName: "Déplacement d'eau", Confidence: 0.87},
+			},
+			Notions: []string{"Masse", "Volume", "Masse volumique (rho)", "Déplacement d'eau"},
+		},
+	}
+
+	ch := chapter.NewChapter(idGen, uuid.Must(uuid.NewV7()), "Physique-Chimie", "5e", "Densité et masse volumique", now)
+	chRepo.Save(context.Background(), ch)
+
+	svc := NewPipelineService(chRepo, masteryRepo, storage, ocr, llm, publisher, clock, idGen)
+
+	photos := []PageUpload{
+		{FileName: "page1.jpg", ContentType: "image/jpeg", Body: strings.NewReader("fake-image-data")},
+	}
+	result, err := svc.UploadAndProcess(context.Background(), ch.ID, photos)
+	if err != nil {
+		t.Fatalf("UploadAndProcess: %v", err)
+	}
+
+	// 5 items created
+	if result.TotalItems != 5 {
+		t.Errorf("TotalItems = %d, want 5", result.TotalItems)
+	}
+
+	// Verify 4 distinct Notions were created
+	notions, err := chRepo.FindNotionsByChapter(context.Background(), ch.ID)
+	if err != nil {
+		t.Fatalf("FindNotionsByChapter: %v", err)
+	}
+	if len(notions) != 4 {
+		t.Fatalf("expected 4 notions, got %d", len(notions))
+	}
+
+	notionNames := make(map[string]uuid.UUID)
+	for _, n := range notions {
+		notionNames[n.Name] = n.ID
+	}
+
+	expectedNotions := []string{"Masse", "Volume", "Masse volumique (rho)", "Déplacement d'eau"}
+	for _, name := range expectedNotions {
+		if _, ok := notionNames[name]; !ok {
+			t.Errorf("missing notion %q", name)
+		}
+	}
+
+	// Verify items are linked to correct Notions via NotionID
+	items, err := chRepo.FindItemsByChapter(context.Background(), ch.ID, true)
+	if err != nil {
+		t.Fatalf("FindItemsByChapter: %v", err)
+	}
+
+	// Count items per notion
+	itemsPerNotion := make(map[string]int)
+	for _, item := range items {
+		if item.NotionID != nil {
+			for _, n := range notions {
+				if n.ID == *item.NotionID {
+					itemsPerNotion[n.Name]++
+					break
+				}
+			}
+		}
+	}
+	// "Masse" should have 2 items (masse + balance)
+	if itemsPerNotion["Masse"] != 2 {
+		t.Errorf("items for 'Masse' = %d, want 2", itemsPerNotion["Masse"])
+	}
+	// "Volume" should have 1 item
+	if itemsPerNotion["Volume"] != 1 {
+		t.Errorf("items for 'Volume' = %d, want 1", itemsPerNotion["Volume"])
+	}
+
+	// Verify PROCEDURE item has steps
+	for _, item := range items {
+		if item.ItemType == chapter.ItemProcedure {
+			if len(item.Steps) == 0 {
+				t.Error("PROCEDURE item should have steps")
+			}
+		}
+	}
+
+	// Verify mastery records created for all items
+	if len(masteryRepo.saved) != 5 {
+		t.Errorf("expected 5 mastery records, got %d", len(masteryRepo.saved))
+	}
+}
+
+// Z8-AC03 — Recovery screen when first OCR fails
+//
+// GIVEN: L'élève vient de photographier son premier cours.
+//
+//	Le pipeline J0 échoue : 0 items valides générés.
+//
+// WHEN:  Le pipeline retourne un résultat vide.
+// THEN:  Le résultat contient un RecoveryInfo avec :
+//
+//	(1) Message empathique
+//	(3) CanRetry = true (reprendre les photos)
+//	(5) HasDemoChapter = true si premier upload et demo disponible
+func TestZ8AC03_RecoverySiPremierOCREchoue(t *testing.T) {
+
+	t.Run("0 items sur premier upload avec demo → recovery complète", func(t *testing.T) {
+		now := time.Date(2026, 1, 15, 10, 0, 0, 0, time.UTC)
+		clock := fixedClock{t: now}
+		idGen := &fixedIDGen{}
+		userID := uuid.Must(uuid.NewV7())
+
+		chRepo := newMockChapterRepo()
+		storage := newMockStorage()
+		ocr := newMockOCR()
+		masteryRepo := &mockMasteryRepo{}
+		publisher := &mockPublisher{}
+
+		// LLM returns 0 items (OCR illisible)
+		llm := &mockLLM{
+			result: &chapter.StructurationResult{Items: nil, Notions: nil},
+		}
+
+		// Create a demo chapter (fallback available)
+		demoChapter := chapter.NewChapter(idGen, userID, "Physique-Chimie", "5e", "Densité et masse volumique (démo)", now)
+		demoChapter.IsDemo = true
+		chRepo.Save(context.Background(), demoChapter)
+
+		// Create the real chapter (first upload)
+		realChapter := chapter.NewChapter(idGen, userID, "Physique-Chimie", "5e", "Mouvement et vitesse", now)
+		chRepo.Save(context.Background(), realChapter)
+
+		svc := NewPipelineService(chRepo, masteryRepo, storage, ocr, llm, publisher, clock, idGen)
+
+		photos := []PageUpload{
+			{FileName: "page1.jpg", ContentType: "image/jpeg", Body: strings.NewReader("data")},
+		}
+		result, err := svc.UploadAndProcess(context.Background(), realChapter.ID, photos)
+		if err != nil {
+			t.Fatalf("UploadAndProcess should not fail globally: %v", err)
+		}
+
+		// THEN: Recovery info is populated
+		if result.Recovery == nil {
+			t.Fatal("expected Recovery info for 0 items")
+		}
+		if !result.Recovery.IsFirstUpload {
+			t.Error("IsFirstUpload should be true")
+		}
+		if !result.Recovery.CanRetry {
+			t.Error("CanRetry should be true (reprendre les photos)")
+		}
+		if result.Recovery.CanContinue {
+			t.Error("CanContinue should be false (0 items)")
+		}
+		if !result.Recovery.HasDemoChapter {
+			t.Error("HasDemoChapter should be true (fallback démo)")
+		}
+		if result.Recovery.Message == "" {
+			t.Error("Message should not be empty (empathetic message)")
+		}
+	})
+
+	t.Run("LLM failure sur premier upload → recovery avec message", func(t *testing.T) {
+		now := time.Date(2026, 1, 15, 10, 0, 0, 0, time.UTC)
+		clock := fixedClock{t: now}
+		idGen := &fixedIDGen{}
+		userID := uuid.Must(uuid.NewV7())
+
+		chRepo := newMockChapterRepo()
+		storage := newMockStorage()
+		ocr := newMockOCR()
+		masteryRepo := &mockMasteryRepo{}
+		publisher := &mockPublisher{}
+
+		// LLM fails (simulates timeout)
+		llm := &mockLLM{err: fmt.Errorf("LLM timeout")}
+
+		// Only one real chapter (first upload), no demo
+		ch := chapter.NewChapter(idGen, userID, "Maths", "4e", "Pythagore", now)
+		chRepo.Save(context.Background(), ch)
+
+		svc := NewPipelineService(chRepo, masteryRepo, storage, ocr, llm, publisher, clock, idGen)
+
+		photos := []PageUpload{
+			{FileName: "page1.jpg", ContentType: "image/jpeg", Body: strings.NewReader("data")},
+		}
+		result, err := svc.UploadAndProcess(context.Background(), ch.ID, photos)
+		if err != nil {
+			t.Fatalf("UploadAndProcess should not fail globally: %v", err)
+		}
+
+		// THEN: Recovery info with no demo fallback
+		if result.Recovery == nil {
+			t.Fatal("expected Recovery info for LLM failure")
+		}
+		if !result.Recovery.IsFirstUpload {
+			t.Error("IsFirstUpload should be true")
+		}
+		if result.Recovery.HasDemoChapter {
+			t.Error("HasDemoChapter should be false (no demo chapter)")
+		}
+		if result.Recovery.CanRetry != true {
+			t.Error("CanRetry should be true")
+		}
+	})
+
+	t.Run("partial items sur premier upload → recovery avec CanContinue", func(t *testing.T) {
+		now := time.Date(2026, 1, 15, 10, 0, 0, 0, time.UTC)
+		clock := fixedClock{t: now}
+		idGen := &fixedIDGen{}
+		userID := uuid.Must(uuid.NewV7())
+
+		chRepo := newMockChapterRepo()
+		storage := newMockStorage()
+		ocr := newMockOCR()
+		masteryRepo := &mockMasteryRepo{}
+		publisher := &mockPublisher{}
+
+		// LLM: first page succeeds, second fails (partial)
+		llm := &callCountLLM{
+			results: []*chapter.StructurationResult{
+				{
+					Items:   []chapter.StructuredItem{{Type: chapter.ItemKnowledge, Term: "masse", Keywords: []string{"masse"}, NotionName: "Masse", Confidence: 0.9}},
+					Notions: []string{"Masse"},
+				},
+				nil,
+			},
+			errs: []error{nil, fmt.Errorf("LLM error")},
+		}
+
+		ch := chapter.NewChapter(idGen, userID, "Physique", "5e", "Chapitre", now)
+		chRepo.Save(context.Background(), ch)
+
+		svc := NewPipelineService(chRepo, masteryRepo, storage, ocr, llm, publisher, clock, idGen)
+
+		photos := []PageUpload{
+			{FileName: "page1.jpg", ContentType: "image/jpeg", Body: strings.NewReader("data")},
+			{FileName: "page2.jpg", ContentType: "image/jpeg", Body: strings.NewReader("data")},
+		}
+		result, err := svc.UploadAndProcess(context.Background(), ch.ID, photos)
+		if err != nil {
+			t.Fatalf("UploadAndProcess: %v", err)
+		}
+
+		// THEN: Recovery with CanContinue because some items were generated
+		if result.Recovery == nil {
+			t.Fatal("expected Recovery info for partial failure on first upload")
+		}
+		if !result.Recovery.CanContinue {
+			t.Error("CanContinue should be true (some items generated)")
+		}
+		if !result.Recovery.CanRetry {
+			t.Error("CanRetry should be true")
+		}
+	})
+
+	t.Run("0 items sur upload non-premier → recovery sans IsFirstUpload", func(t *testing.T) {
+		now := time.Date(2026, 1, 15, 10, 0, 0, 0, time.UTC)
+		clock := fixedClock{t: now}
+		idGen := &fixedIDGen{}
+		userID := uuid.Must(uuid.NewV7())
+
+		chRepo := newMockChapterRepo()
+		storage := newMockStorage()
+		ocr := newMockOCR()
+		masteryRepo := &mockMasteryRepo{}
+		publisher := &mockPublisher{}
+
+		// LLM returns 0 items
+		llm := &mockLLM{
+			result: &chapter.StructurationResult{Items: nil, Notions: nil},
+		}
+
+		// Two real chapters → this is NOT the first upload
+		ch1 := chapter.NewChapter(idGen, userID, "Maths", "5e", "Pythagore", now)
+		chRepo.Save(context.Background(), ch1)
+		ch2 := chapter.NewChapter(idGen, userID, "Physique", "5e", "Forces", now)
+		chRepo.Save(context.Background(), ch2)
+
+		svc := NewPipelineService(chRepo, masteryRepo, storage, ocr, llm, publisher, clock, idGen)
+
+		photos := []PageUpload{
+			{FileName: "page1.jpg", ContentType: "image/jpeg", Body: strings.NewReader("data")},
+		}
+		result, err := svc.UploadAndProcess(context.Background(), ch2.ID, photos)
+		if err != nil {
+			t.Fatalf("UploadAndProcess: %v", err)
+		}
+
+		// THEN: Recovery present but IsFirstUpload = false
+		if result.Recovery == nil {
+			t.Fatal("expected Recovery info for 0 items")
+		}
+		if result.Recovery.IsFirstUpload {
+			t.Error("IsFirstUpload should be false (not first upload)")
+		}
+	})
+
+	t.Run("retry illimité : pipeline réutilisable après échec", func(t *testing.T) {
+		// Z8-AC03 : "Le nombre de retries n'est pas limité."
+		now := time.Date(2026, 1, 15, 10, 0, 0, 0, time.UTC)
+		clock := fixedClock{t: now}
+		idGen := &fixedIDGen{}
+		userID := uuid.Must(uuid.NewV7())
+
+		chRepo := newMockChapterRepo()
+		storage := newMockStorage()
+		ocr := newMockOCR()
+		masteryRepo := &mockMasteryRepo{}
+		publisher := &mockPublisher{}
+
+		llmRetry := &mockLLM{
+			result: &chapter.StructurationResult{Items: nil, Notions: nil},
+		}
+
+		ch := chapter.NewChapter(idGen, userID, "Physique", "5e", "Chapitre", now)
+		chRepo.Save(context.Background(), ch)
+
+		svc := NewPipelineService(chRepo, masteryRepo, storage, ocr, llmRetry, publisher, clock, idGen)
+
+		// Run pipeline 3 times (simulating retries) — should not block
+		for i := 0; i < 3; i++ {
+			photos := []PageUpload{
+				{FileName: "page1.jpg", ContentType: "image/jpeg", Body: strings.NewReader("data")},
+			}
+			result, err := svc.UploadAndProcess(context.Background(), ch.ID, photos)
+			if err != nil {
+				t.Fatalf("retry %d: UploadAndProcess error: %v", i, err)
+			}
+			if result.Recovery == nil {
+				t.Fatalf("retry %d: expected Recovery info", i)
+			}
+		}
+	})
+}
+
 // Z3-AC10 — Fidelity timeout: item kept with nil score, pipeline continues
 func TestZ3AC10_FidelityTimeout(t *testing.T) {
 	now := time.Date(2026, 1, 15, 10, 0, 0, 0, time.UTC)
