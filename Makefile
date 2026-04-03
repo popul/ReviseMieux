@@ -19,7 +19,7 @@
 
 .PHONY: help setup dev stop test test-unit test-integration lint fmt clean \
         backend-% mobile-% infra-up infra-down infra-reset db-migrate db-reset \
-        bench bench-all bench-report
+        bench bench-all bench-report design-system docs-serve docs-deploy
 
 .DEFAULT_GOAL := help
 
@@ -155,6 +155,18 @@ bench-all: ## Benchmark tous les modèles
 
 bench-report: ## Génère le rapport HTML depuis les derniers résultats
 	@$(MAKE) -C $(BACKEND_DIR) bench-report $(if $(RUN),RUN=$(RUN)) $(if $(REPORT_OUTPUT),REPORT_OUTPUT=$(REPORT_OUTPUT))
+
+# ------------------------------------------------------------
+# Documentation
+# ------------------------------------------------------------
+
+docs-serve: ## Prévisualisation du site docs en local (http://localhost:8000)
+	@pip install mkdocs-material -q 2>/dev/null
+	@mkdocs serve
+
+docs-deploy: ## Déploie le site docs sur GitHub Pages
+	@pip install mkdocs-material -q 2>/dev/null
+	@mkdocs gh-deploy --force
 
 # ------------------------------------------------------------
 # Clean

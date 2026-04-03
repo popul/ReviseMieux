@@ -1,0 +1,108 @@
+site_name: Revise Mieux — Documentation
+site_url: https://popul.github.io/ReviseMieux/
+repo_url: https://github.com/popul/ReviseMieux
+repo_name: popul/ReviseMieux
+docs_dir: docs
+
+theme:
+  name: material
+  language: fr
+  palette:
+    - scheme: default
+      primary: blue
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Mode sombre
+    - scheme: slate
+      primary: blue
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Mode clair
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+
+nav:
+  - Accueil: index.md
+  - Demarrage: getting-started.md
+  - Produit:
+    - PRD: PRD.md
+    - Scope MVP: MVP-scope.md
+    - Tracker Lot 0: lot0-tracker.md
+  - Criteres d'acceptation:
+    - Z1 — Mastery: ac/Z1.md
+    - Z2 — Pipeline J0: ac/Z2.md
+    - Z3 — Validation HITL: ac/Z3.md
+    - Z4 — Sessions: ac/Z4.md
+    - Z5 — Identity: ac/Z5.md
+    - Z6 — Schedule: ac/Z6.md
+    - Z7 — Orchestration: ac/Z7.md
+    - Z8 — Onboarding: ac/Z8.md
+  - Architecture:
+    - Vue d'ensemble: architecture/index.md
+    - OCR/IDP incremental: architecture/ocr-idp-incremental.md
+    - Regles de merge: architecture/merge-decision-table.md
+  - UX:
+    - User Flow: ux/user-flow-complete.md
+    - Personas: ux/personas.md
+    - Ecrans: ux/screen-inventory.md
+    - Modele d'etats: ux/state-model.md
+    - Edge cases: ux/edge-cases.md
+    - Decisions ouvertes: ux/open-decisions.md
+  - Design System:
+    - Vue d'ensemble: design/index.md
+    - Principes: design/design-principles.md
+    - Couleurs: design/color-system.md
+    - Typographie: design/typography.md
+    - Composants: design/component-philosophy.md
+    - Do / Don't: design/do-dont.md
+    - Moodboard: design/moodboard.md
+    - Scalabilite: design/scalability.md
+  - Technique:
+    - Strategie LLM: llm-strategy.md
+    - Benchmark LLM: llm-benchmark.md
+    - Feedback Loop: process/feedback-loop.md
+  - Parcours:
+    - Premiere connexion: user-journeys/first-connection.md
+  - Contribuer:
+    - Guide contribution: contributing.md
+    - Deploiement: deployment.md
+
+plugins:
+  - search
+
+validation:
+  links:
+    absolute_links: relative_to_docs
+    unrecognized_links: warn
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - tables
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/popul/ReviseMieux

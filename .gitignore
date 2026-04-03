@@ -26,6 +26,9 @@ mobile/web-build/
 .DS_Store
 Thumbs.db
 
+# MkDocs
+site/
+
 # Environment
 .env
 .env.local

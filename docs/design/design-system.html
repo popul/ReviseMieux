@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revise Mieux — Design System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #4A90D9;
+    --primary-light: #E6F0FA;
+    --primary-dark: #3A7BC8;
+    --primary-400: #6BA3E3;
+    --primary-50: #F0F6FC;
+    --secondary: #7C5CFC;
+    --secondary-light: #F0ECFE;
+    --secondary-400: #9478FD;
+    --secondary-600: #6344E5;
+    --mastery-unknown: #9E9E9E;
+    --mastery-unknown-light: #F5F5F5;
+    --mastery-fragile: #F5A623;
+    --mastery-fragile-light: #FEF4E0;
+    --mastery-ok: #4A90D9;
+    --mastery-ok-light: #E6F0FA;
+    --mastery-solid: #2ECC71;
+    --mastery-solid-light: #E3F8ED;
+    --error: #E74C3C;
+    --error-light: #FFEBEE;
+    --warning: #F5A623;
+    --warning-light: #FFF3E0;
+    --success: #2ECC71;
+    --success-light: #E8F9ED;
+    --info: #4A90D9;
+    --info-light: #E6F0FA;
+    --confidence-high: #2ECC71;
+    --confidence-medium: #F5A623;
+    --confidence-low: #E74C3C;
+    --validation-pending: #7C5CFC;
+    --bg: #FBF8F3;
+    --surface: #FFFFFF;
+    --text: #1A1A2E;
+    --text-secondary: #6B7280;
+    --border: #E5E7EB;
+    --gray-50: #FAFAFA;
+    --gray-100: #F5F5F5;
+    --gray-200: #EEEEEE;
+    --gray-300: #E0E0E0;
+    --gray-400: #BDBDBD;
+    --gray-500: #9E9E9E;
+    --gray-600: #757575;
+    --gray-700: #616161;
+    --gray-800: #424242;
+    --gray-900: #212121;
+    /* Dark mode tokens */
+    --dark-bg: #121212;
+    --dark-surface: #1E1E1E;
+    --dark-text: #E0E0E0;
+    --dark-border: #333333;
+    --dark-unknown: #757575;
+    --dark-unknown-bg: #2A2A2A;
+    --dark-fragile: #D4901F;
+    --dark-fragile-bg: #3A2E1A;
+    --dark-ok: #5B9FE0;
+    --dark-ok-bg: #1A3050;
+    --dark-solid: #27AE60;
+    --dark-solid-bg: #1A3A2A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(251, 248, 243, 0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+  }
+  nav .nav-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    height: 56px;
+  }
+  nav .nav-inner::-webkit-scrollbar { display: none; }
+  nav .nav-brand {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--primary);
+    white-space: nowrap;
+    margin-right: 16px;
+    letter-spacing: -0.3px;
+  }
+  nav a {
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  nav a:hover {
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+
+  /* HEADER */
+  .hero {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 64px 24px 48px;
+    text-align: center;
+  }
+  .hero h1 {
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: -1px;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .hero h1 span { color: var(--primary); }
+  .hero p {
+    font-size: 18px;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  .hero .tagline {
+    display: inline-flex;
+    gap: 8px;
+    margin-top: 24px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .hero .tagline span { color: var(--primary); }
+  .hero .tagline span:nth-child(2) { color: var(--secondary); }
+  .hero .tagline span:nth-child(3) { color: var(--mastery-solid); }
+
+  /* SECTIONS */
+  .container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+  section {
+    margin-bottom: 64px;
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border);
+  }
+  .section-header .section-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .section-header h2 {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  /* PRINCIPLE CARDS */
+  .principles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .principle-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid var(--border);
+    transition: box-shadow 0.2s, transform 0.2s;
+  }
+  .principle-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+  .principle-card .p-number {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9999px;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  .principle-card h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .principle-card .p-desc {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .principle-card .p-example,
+  .principle-card .p-counter {
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+  }
+  .principle-card .p-example {
+    background: var(--mastery-solid-light);
+    border-left: 3px solid var(--mastery-solid);
+  }
+  .principle-card .p-counter {
+    background: var(--error-light);
+    border-left: 3px solid var(--error);
+  }
+  .p-label {
+    font-weight: 700;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .p-example .p-label { color: var(--mastery-solid); }
+  .p-counter .p-label { color: var(--error); }
+
+  /* COLORS */
+  .color-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+  .color-swatch {
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.2s;
+    position: relative;
+  }
+  .color-swatch:hover { transform: scale(1.05); }
+  .color-swatch .swatch-box {
+    width: 80px;
+    height: 64px;
+    border-radius: 12px;
+    border: 1px solid rgba(0,0,0,0.08);
+    margin-bottom: 6px;
+    position: relative;
+    overflow: hidden;
+  }
+  .color-swatch .swatch-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .color-swatch .swatch-hex {
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-family: monospace;
+  }
+  .color-swatch .copied-toast {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.8);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+  }
+  .color-swatch.copied .copied-toast { opacity: 1; }
+
+  .color-subtitle {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    margin-top: 8px;
+  }
+
+  /* MASTERY BIG CARDS */
+  .mastery-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 600px) {
+    .mastery-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  .mastery-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+    border: 2px solid transparent;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .mastery-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  }
+  .mastery-card .m-dot {
+    width: 48px;
+    height: 48px;
+    border-radius: 9999px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    color: white;
+    font-weight: 700;
+  }
+  .mastery-card .m-state {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .mastery-card .m-label-student {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .mastery-card .m-label-parent {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .mastery-card .m-emotion {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-style: italic;
+    line-height: 1.4;
+  }
+
+  /* DARK/LIGHT MODES */
+  .mode-comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  @media (max-width: 600px) {
+    .mode-comparison { grid-template-columns: 1fr; }
+  }
+  .mode-panel {
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid var(--border);
+  }
+  .mode-panel.light-mode {
+    background: var(--bg);
+  }
+  .mode-panel.dark-mode {
+    background: var(--dark-bg);
+    color: var(--dark-text);
+    border-color: var(--dark-border);
+  }
+  .mode-panel h4 {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 16px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .mode-panel.dark-mode h4 { color: var(--dark-text); }
+  .mode-mastery-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .mode-mastery-chip {
+    flex: 1;
+    padding: 10px 4px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  /* TYPOGRAPHY */
+  .type-scale {
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .type-row {
+    display: flex;
+    align-items: baseline;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    gap: 16px;
+  }
+  .type-row:last-child { border-bottom: none; }
+  .type-meta {
+    min-width: 140px;
+    flex-shrink: 0;
+  }
+  .type-token {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary);
+    font-family: monospace;
+  }
+  .type-specs {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+  }
+  .type-sample {
+    flex: 1;
+    color: var(--text);
+  }
+
+  .pedagogy-examples {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 24px;
+  }
+  @media (max-width: 600px) {
+    .pedagogy-examples { grid-template-columns: 1fr; }
+  }
+  .pedagogy-card {
+    background: var(--surface);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid var(--border);
+  }
+  .pedagogy-card h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+  }
+  .pedagogy-definition .term {
+    font-weight: 600;
+    color: var(--primary);
+    font-size: 16px;
+  }
+  .pedagogy-definition .def {
+    font-size: 15px;
+    color: var(--text);
+    margin-top: 4px;
+  }
+  .pedagogy-formula {
+    background: var(--primary-light);
+    padding: 16px;
+    border-radius: 12px;
+    font-family: 'Menlo', 'Courier New', monospace;
+    font-size: 18px;
+    font-weight: 600;
+    text-align: center;
+    color: var(--text);
+  }
+  .pedagogy-keyword {
+    display: inline-flex;
+    padding: 4px 12px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 9999px;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 4px;
+  }
+  .pedagogy-ocr {
+    opacity: 0.6;
+    border: 2px dashed var(--mastery-fragile);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 15px;
+    position: relative;
+  }
+  .pedagogy-ocr::after {
+    content: '?';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 20px;
+    height: 20px;
+    background: var(--mastery-fragile);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  /* COMPONENTS */
+  .comp-section {
+    margin-bottom: 40px;
+  }
+  .comp-section h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    min-height: 44px;
+  }
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+  .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(74,144,217,0.3); }
+  .btn-secondary {
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+  .btn-secondary:hover { background: #d6e8f7; }
+  .btn-outline {
+    background: transparent;
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--primary);
+  }
+  .btn-ghost:hover { background: var(--primary-50); }
+
+  /* Chapter Card */
+  .demo-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    max-width: 420px;
+    transition: box-shadow 0.2s, transform 0.2s;
+    cursor: pointer;
+  }
+  .demo-card:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+  }
+  .demo-card .card-subject {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--primary);
+    margin-bottom: 4px;
+  }
+  .demo-card .card-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .demo-card .card-meta {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+  }
+
+  /* MasteryBar */
+  .mastery-bar-container { margin-bottom: 8px; }
+  .mastery-bar {
+    height: 12px;
+    border-radius: 9999px;
+    background: var(--gray-200);
+    overflow: hidden;
+    display: flex;
+    position: relative;
+  }
+  .mastery-bar .mb-segment {
+    height: 100%;
+    transition: width 1s ease-out;
+  }
+  .mastery-bar .mb-solid { background: var(--mastery-solid); border-radius: 9999px 0 0 9999px; }
+  .mastery-bar .mb-ok { background: var(--mastery-ok); }
+  .mastery-bar .mb-fragile { background: var(--mastery-fragile); }
+  .mastery-bar .mb-unknown { background: var(--mastery-unknown); border-radius: 0 9999px 9999px 0; }
+  .mastery-bar-legend {
+    display: flex;
+    gap: 12px;
+    margin-top: 6px;
+  }
+  .mastery-bar-legend span {
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-secondary);
+  }
+  .mastery-bar-legend .legend-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Animated MasteryBar */
+  .animated-mastery {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 24px;
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .animated-mastery .am-label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--text-secondary);
+  }
+  .animated-mastery .am-percent {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 4px;
+  }
+  .animated-mastery .mastery-bar { height: 16px; }
+
+  /* Quiz */
+  .quiz-demo {
+    max-width: 480px;
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .quiz-progress-bar {
+    height: 4px;
+    background: var(--gray-200);
+  }
+  .quiz-progress-bar-fill {
+    height: 100%;
+    width: 30%;
+    background: var(--primary);
+    border-radius: 0 9999px 9999px 0;
+    transition: width 0.5s;
+  }
+  .quiz-header {
+    padding: 16px 20px 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 600;
+  }
+  .quiz-question {
+    padding: 8px 20px 16px;
+    font-size: 17px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .quiz-options {
+    padding: 0 20px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .quiz-option {
+    padding: 14px 16px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .quiz-option:hover { border-color: var(--primary); background: var(--primary-50); }
+  .quiz-option.correct {
+    border-color: var(--mastery-solid);
+    background: var(--mastery-solid-light);
+  }
+  .quiz-option.incorrect {
+    border-color: var(--mastery-fragile);
+    background: var(--mastery-fragile-light);
+  }
+  .quiz-feedback {
+    padding: 12px 20px 20px;
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  /* Alerts */
+  .alert-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 500px;
+  }
+  .alert {
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    line-height: 1.4;
+  }
+  .alert-icon {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: white;
+    margin-top: 1px;
+  }
+  .alert-info { background: var(--info-light); color: var(--text); }
+  .alert-info .alert-icon { background: var(--info); }
+  .alert-warning { background: var(--warning-light); color: var(--text); }
+  .alert-warning .alert-icon { background: var(--warning); }
+  .alert-critical { background: var(--error-light); color: var(--text); }
+  .alert-critical .alert-icon { background: var(--error); }
+
+  /* Empty state */
+  .empty-state {
+    max-width: 380px;
+    text-align: center;
+    padding: 48px 24px;
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+  .empty-state .es-illustration {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 24px;
+    background: var(--gray-100);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .empty-state .es-illustration svg {
+    width: 56px;
+    height: 56px;
+    stroke: var(--gray-500);
+    stroke-width: 1.5;
+    fill: none;
+  }
+  .empty-state h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .empty-state p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+  }
+
+  /* DO/DONT */
+  .dodont-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 600px) {
+    .dodont-grid { grid-template-columns: 1fr; }
+  }
+  .dodont-card {
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--border);
+  }
+  .dodont-card.do-card {
+    background: var(--mastery-solid-light);
+    border-color: var(--mastery-solid);
+  }
+  .dodont-card.dont-card {
+    background: var(--error-light);
+    border-color: var(--error);
+  }
+  .dodont-card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .dodont-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .dodont-card li {
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .dodont-card li:last-child { border-bottom: none; }
+
+  /* MOODBOARD */
+  .moodboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+  .mood-card {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 24px;
+    border: 1px solid var(--border);
+  }
+  .mood-card .mood-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .mood-card .mood-desc {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+  .mood-card h5 {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  .mood-card h5.borrow { color: var(--mastery-solid); }
+  .mood-card h5.avoid { color: var(--error); }
+  .mood-card ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 16px;
+  }
+  .mood-card li {
+    font-size: 13px;
+    line-height: 1.5;
+    padding: 3px 0;
+    color: var(--text-secondary);
+  }
+
+  /* SCALABILITY TABLE */
+  .scale-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .scale-table th {
+    background: var(--gray-50);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+  }
+  .scale-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+    line-height: 1.4;
+  }
+  .scale-table tr:last-child td { border-bottom: none; }
+
+  .slider-visual {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .slider-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--gray-200);
+    transition: background 0.2s;
+  }
+  .slider-dot.active { background: var(--primary); }
+
+  /* Confidence colors */
+  .confidence-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .confidence-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .confidence-chip .cc-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+  }
+
+  .validation-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border: 2px dashed var(--validation-pending);
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--validation-pending);
+    background: var(--secondary-light);
+    opacity: 0.85;
+    margin-top: 12px;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-secondary);
+    font-size: 13px;
+  }
+  footer a { color: var(--primary); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <span class="nav-brand">RM Design System</span>
+    <a href="#principes">Principes</a>
+    <a href="#couleurs">Couleurs</a>
+    <a href="#typographie">Typographie</a>
+    <a href="#composants">Composants</a>
+    <a href="#dodont">Do / Don't</a>
+    <a href="#moodboard">Moodboard</a>
+    <a href="#scalabilite">Scalabilite</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Revise Mieux — <span>Design System</span></h1>
+  <p>Fondations d'un design system intergenerationnel pour collegiens (11-15 ans) et parents. Sobre, moderne, expressif par les donnees.</p>
+  <div class="tagline">
+    <span>Clair.</span>
+    <span>Capable.</span>
+    <span>Progressif.</span>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- PRINCIPES -->
+<section id="principes">
+  <div class="section-header">
+    <div class="section-icon" style="background: var(--secondary-light); color: var(--secondary);">P</div>
+    <h2>Principes de design</h2>
+  </div>
+  <div class="principles-grid">
+    <!-- 1 -->
+    <div class="principle-card">
+      <div class="p-number">1</div>
+      <h3>La progression, pas le jugement</h3>
+      <p class="p-desc">Chaque element visuel communique "ou tu en es" et "ou tu vas", jamais "ou tu devrais etre".</p>
+      <div class="p-example">
+        <span class="p-label">Exemple</span>
+        La MasteryBar affiche les 4 segments proportionnellement. Un eleve a 30% voit une barre qui "avance".
+      </div>
+      <div class="p-counter">
+        <span class="p-label">Contre-exemple</span>
+        Un gros "30%" rouge avec "Insuffisant". Un classement ou une comparaison avec une moyenne.
+      </div>
+    </div>
+    <!-- 2 -->
+    <div class="principle-card">
+      <div class="p-number">2</div>
+      <h3>Clair avant beau</h3>
+      <p class="p-desc">En cas de conflit entre esthetique et clarte, la clarte gagne. Un eleve de 12 ans distrait doit comprendre en 2 secondes.</p>
+      <div class="p-example">
+        <span class="p-label">Exemple</span>
+        UNE action principale par contexte : "Reviser Physique-Chimie -- 15 min" avec un bouton visible.
+      </div>
+      <div class="p-counter">
+        <span class="p-label">Contre-exemple</span>
+        6 cartes de taille egale, 3 badges, 2 notifs et un graphique : l'eleve ne sait pas par ou commencer.
+      </div>
+    </div>
+    <!-- 3 -->
+    <div class="principle-card">
+      <div class="p-number">3</div>
+      <h3>Sobre dehors, riche dedans</h3>
+      <p class="p-desc">L'interface est epuree en surface mais revele de la profondeur quand on explore.</p>
+      <div class="p-example">
+        <span class="p-label">Exemple</span>
+        La carte chapitre affiche nom + MasteryBar + %. Un tap revele le detail par notion.
+      </div>
+      <div class="p-counter">
+        <span class="p-label">Contre-exemple</span>
+        Toutes les stats sur la premiere page : items FRAGILE, UNKNOWN, score moyen, ecart-type...
+      </div>
+    </div>
+    <!-- 4 -->
+    <div class="principle-card">
+      <div class="p-number">4</div>
+      <h3>Respecter l'autonomie</h3>
+      <p class="p-desc">L'eleve est acteur de sa revision. Le parent est informe, pas aux commandes.</p>
+      <div class="p-example">
+        <span class="p-label">Exemple</span>
+        "3 points progressent vers SOLID -- tu peux continuer ou reprendre demain."
+      </div>
+      <div class="p-counter">
+        <span class="p-label">Contre-exemple</span>
+        Forcer une session au demarrage. Envoyer au parent un recap en temps reel de chaque reponse.
+      </div>
+    </div>
+    <!-- 5 -->
+    <div class="principle-card">
+      <div class="p-number">5</div>
+      <h3>Un langage visuel, deux audiences</h3>
+      <p class="p-desc">Memes couleurs Mastery, memes composants pour eleve et parent. Ce qui change : la densite et le ton.</p>
+      <div class="p-example">
+        <span class="p-label">Exemple</span>
+        L'eleve voit "12 points SOLID". Le parent voit "Maitrise : 60% (12/20 bien acquis)". Meme barre verte.
+      </div>
+      <div class="p-counter">
+        <span class="p-label">Contre-exemple</span>
+        Un theme "enfant" colore et un theme "parent" gris. Termes differents pour les memes concepts.
+      </div>
+    </div>
+    <!-- 6 -->
+    <div class="principle-card">
+      <div class="p-number">6</div>
+      <h3>Le minimum qui fonctionne</h3>
+      <p class="p-desc">Chaque element doit justifier sa presence. Le design system croit par besoin, pas par anticipation.</p>
+      <div class="p-example">
+        <span class="p-label">Exemple</span>
+        Lot 0 : MasteryBar, badges, boutons, cards. Ca suffit pour que l'eleve revise et que le parent comprenne.
+      </div>
+      <div class="p-counter">
+        <span class="p-label">Contre-exemple</span>
+        Systeme de themes complet "parce qu'on en aura besoin plus tard". 12 variantes de bouton.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COULEURS -->
+<section id="couleurs">
+  <div class="section-header">
+    <div class="section-icon" style="background: var(--mastery-ok-light); color: var(--mastery-ok);">C</div>
+    <h2>Systeme de couleurs</h2>
+  </div>
+
+  <!-- Primaire -->
+  <div class="color-subtitle">Primaire</div>
+  <div class="color-palette">
+    <div class="color-swatch" onclick="copySwatch(this, '#F0F6FC')">
+      <div class="swatch-box" style="background: #F0F6FC;"><span class="copied-toast">Copie !</span></div>
+      <div class="swatch-label">50</div><div class="swatch-hex">#F0F6FC</div>
+    </div>
+    <div class="color-swatch" onclick="copySwatch(this, '#E6F0FA')">
+      <div class="swatch-box" style="background: #E6F0FA;"><span class="copied-toast">Copie !</span></div>
+      <div class="swatch-label">100</div><div class="swatch-hex">#E6F0FA</div>
+    </div>
+    <div class="color-swatch" onclick="copySwatch(this, '#6BA3E3')">
+      <div class="swatch-box" style="background: #6BA3E3;"><span class="copied-toast">Copie !</span></div>
+      <div class="swatch-label">400</div><div class="swatch-hex">#6BA3E3</div>
+    </div>
+    <div class="color-swatch" onclick="copySwatch(this, '#4A90D9')">
+      <div class="swatch-box" style="background: #4A90D9;"><span class="copied-toast">Copie !</span></div>
+      <div class="swatch-label">500</div><div class="swatch-hex">#4A90D9</div>
+    </div>
+    <div class="color-swatch" onclick="copySwatch(this, '#3A7BC8')">
+      <div class="swatch-box" style="background: #3A7BC8;"><span class="copied-toast">Copie !</span></div>
+      <div class="swatch-label">600</div><div class="swatch-hex">#3A7BC8</div>
+    </div>
+  </div>
+
+  <!-- Secondaire -->
+  <div class="color-subtitle">Secondaire</div>
+  <div class="color-palette">
+    <div class="color-swatch" onclick="copySwatch(this, '#F0ECFE')">
+      <div class="swatch-box" style="background: #F0ECFE;"><span class="copied-toast">Copie !</span></div>
+      <div class="swatch-label">100</div><div class="swatch-hex">#F0ECFE</div>
+    </div>
+    <div class="color-swatch" onclick="copySwatch(this, '#9478FD')">
+      <div class="swatch-box" style="background: #9478FD;"><span class="copied-toast">Copie !</span></div>
+      <div class="swatch-label">400</div><div class="swatch-hex">#9478FD</div>
+    </div>
+    <div class="color-swatch" onclick="copySwatch(this, '#7C5CFC')">
+      <div class="swatch-box" style="background: #7C5CFC;"><span class="copied-toast">Copie !</span></div>
+      <div class="swatch-label">500</div><div class="swatch-hex">#7C5CFC</div>
+    </div>
+    <div class="color-swatch" onclick="copySwatch(this, '#6344E5')">
+      <div class="swatch-box" style="background: #6344E5;"><span class="copied-toast">Copie !</span></div>
+      <div class="swatch-label">600</div><div class="swatch-hex">#6344E5</div>
+    </div>
+  </div>
+
+  <!-- Semantiques -->
+  <div class="color-subtitle">Semantiques systeme</div>
+  <div class="color-palette">
+    <div class="color-swatch" onclick="copySwatch(this, '#2ECC71')">
+      <div class="swatch-box" style="background: #2ECC71;"><span class="copied-toast">Copie !</span></div>
+      <div class="swatch-label">Success</div><div class="swatch-hex">#2ECC71</div>
+    </div>
+    <div class="color-swatch" onclick="copySwatch(this, '#F5A623')">
+      <div class="swatch-box" style="background: #F5A623;"><span class="copied-toast">Copie !</span></div>
+      <div class="swatch-label">Warning</div><div class="swatch-hex">#F5A623</div>
+    </div>
+    <div class="color-swatch" onclick="copySwatch(this, '#E74C3C')">
+      <div class="swatch-box" style="background: #E74C3C;"><span class="copied-toast">Copie !</span></div>
+      <div class="swatch-label">Error</div><div class="swatch-hex">#E74C3C</div>
+    </div>
+    <div class="color-swatch" onclick="copySwatch(this, '#4A90D9')">
+      <div class="swatch-box" style="background: #4A90D9;"><span class="copied-toast">Copie !</span></div>
+      <div class="swatch-label">Info</div><div class="swatch-hex">#4A90D9</div>
+    </div>
+  </div>
+
+  <!-- MASTERY BIG CARDS -->
+  <div class="color-subtitle" style="font-size: 20px; margin-top: 32px; margin-bottom: 4px;">Couleurs Mastery — Coeur du produit</div>
+  <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 20px;">Les 4 couleurs semantiques qui forment le langage visuel universel de la progression.</p>
+
+  <div class="mastery-grid">
+    <div class="mastery-card" style="border-color: var(--mastery-unknown); background: var(--mastery-unknown-light);">
+      <div class="m-dot" style="background: var(--mastery-unknown);">?</div>
+      <div class="m-state" style="color: var(--mastery-unknown);">UNKNOWN</div>
+      <div class="m-label-student">NOUVEAU</div>
+      <div class="m-label-parent">Pas encore vu</div>
+      <div class="m-emotion">Neutre. C'est un point de depart, pas un manque.</div>
+    </div>
+    <div class="mastery-card" style="border-color: var(--mastery-fragile); background: var(--mastery-fragile-light);">
+      <div class="m-dot" style="background: var(--mastery-fragile);">~</div>
+      <div class="m-state" style="color: var(--mastery-fragile);">FRAGILE</div>
+      <div class="m-label-student">EN COURS</div>
+      <div class="m-label-parent">En cours</div>
+      <div class="m-emotion">Attention douce. "Ca avance", pas "attention danger".</div>
+    </div>
+    <div class="mastery-card" style="border-color: var(--mastery-ok); background: var(--mastery-ok-light);">
+      <div class="m-dot" style="background: var(--mastery-ok);">&#10003;</div>
+      <div class="m-state" style="color: var(--mastery-ok);">OK</div>
+      <div class="m-label-student">COMPRIS</div>
+      <div class="m-label-parent">Compris</div>
+      <div class="m-emotion">Encourageant. C'est sur la bonne voie.</div>
+    </div>
+    <div class="mastery-card" style="border-color: var(--mastery-solid); background: var(--mastery-solid-light);">
+      <div class="m-dot" style="background: var(--mastery-solid);">&#9733;</div>
+      <div class="m-state" style="color: var(--mastery-solid);">SOLID</div>
+      <div class="m-label-student">ACQUIS</div>
+      <div class="m-label-parent">Bien acquis</div>
+      <div class="m-emotion">Accomplissement. Satisfaction calme, pas euphorie.</div>
+    </div>
+  </div>
+
+  <!-- Confiance OCR -->
+  <div class="color-subtitle">Confiance OCR</div>
+  <div class="confidence-grid">
+    <div class="confidence-chip">
+      <div class="cc-dot" style="background: var(--confidence-high);"></div>
+      Haute (&gt; 0.9)
+      <span style="font-family: monospace; font-size: 11px; color: var(--text-secondary);">#2ECC71</span>
+    </div>
+    <div class="confidence-chip">
+      <div class="cc-dot" style="background: var(--confidence-medium);"></div>
+      Moyenne (0.7-0.9)
+      <span style="font-family: monospace; font-size: 11px; color: var(--text-secondary);">#F5A623</span>
+    </div>
+    <div class="confidence-chip">
+      <div class="cc-dot" style="background: var(--confidence-low);"></div>
+      Basse (&lt; 0.7)
+      <span style="font-family: monospace; font-size: 11px; color: var(--text-secondary);">#E74C3C</span>
+    </div>
+  </div>
+  <div class="validation-chip">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    En attente de validation HITL — bordure pointillee violette
+  </div>
+
+  <!-- Mode clair / sombre -->
+  <div class="color-subtitle" style="margin-top: 32px;">Mode clair vs mode sombre</div>
+  <div class="mode-comparison">
+    <div class="mode-panel light-mode">
+      <h4>Mode clair</h4>
+      <div class="mode-mastery-row">
+        <div class="mode-mastery-chip" style="background: var(--mastery-unknown-light); color: var(--mastery-unknown);">UNKNOWN<br><small>#9E9E9E</small></div>
+        <div class="mode-mastery-chip" style="background: var(--mastery-fragile-light); color: #b07a18;">FRAGILE<br><small>#F5A623</small></div>
+        <div class="mode-mastery-chip" style="background: var(--mastery-ok-light); color: var(--mastery-ok);">OK<br><small>#4A90D9</small></div>
+        <div class="mode-mastery-chip" style="background: var(--mastery-solid-light); color: #1fa855;">SOLID<br><small>#2ECC71</small></div>
+      </div>
+      <div style="background: var(--bg); padding: 12px; border-radius: 8px; font-size: 13px;">
+        Fond: <code>#FBF8F3</code> &middot; Surface: <code>#FFFFFF</code> &middot; Texte: <code>#1A1A2E</code>
+      </div>
+    </div>
+    <div class="mode-panel dark-mode">
+      <h4>Mode sombre</h4>
+      <div class="mode-mastery-row">
+        <div class="mode-mastery-chip" style="background: var(--dark-unknown-bg); color: var(--dark-unknown);">UNKNOWN<br><small>#757575</small></div>
+        <div class="mode-mastery-chip" style="background: var(--dark-fragile-bg); color: var(--dark-fragile);">FRAGILE<br><small>#D4901F</small></div>
+        <div class="mode-mastery-chip" style="background: var(--dark-ok-bg); color: var(--dark-ok);">OK<br><small>#5B9FE0</small></div>
+        <div class="mode-mastery-chip" style="background: var(--dark-solid-bg); color: var(--dark-solid);">SOLID<br><small>#27AE60</small></div>
+      </div>
+      <div style="background: var(--dark-surface); padding: 12px; border-radius: 8px; font-size: 13px;">
+        Fond: <code>#121212</code> &middot; Surface: <code>#1E1E1E</code> &middot; Texte: <code>#E0E0E0</code>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TYPOGRAPHIE -->
+<section id="typographie">
+  <div class="section-header">
+    <div class="section-icon" style="background: var(--mastery-fragile-light); color: var(--mastery-fragile);">T</div>
+    <h2>Typographie</h2>
+  </div>
+  <p style="margin-bottom: 24px; font-size: 15px; color: var(--text-secondary);">Font principale : <strong style="color: var(--text);">Inter</strong> — concue pour les ecrans, x-height elevee, support FR complet. C'est la font de Notion, Linear, Vercel.</p>
+
+  <div class="type-scale">
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">display</div><div class="type-specs">36px / 700 / lh 42 / ls -0.5</div></div>
+      <div class="type-sample" style="font-size: 36px; font-weight: 700; line-height: 42px; letter-spacing: -0.5px;">72%</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">h1</div><div class="type-specs">32px / 700 / lh 38 / ls -0.3</div></div>
+      <div class="type-sample" style="font-size: 32px; font-weight: 700; line-height: 38px; letter-spacing: -0.3px;">Bonjour Hugo</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">h2</div><div class="type-specs">22px / 700 / lh 28 / ls -0.2</div></div>
+      <div class="type-sample" style="font-size: 22px; font-weight: 700; line-height: 28px; letter-spacing: -0.2px;">Physique-Chimie</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">h3</div><div class="type-specs">18px / 600 / lh 24</div></div>
+      <div class="type-sample" style="font-size: 18px; font-weight: 600; line-height: 24px;">Masse, volume et densite</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">body</div><div class="type-specs">16px / 400 / lh 22</div></div>
+      <div class="type-sample" style="font-size: 16px; font-weight: 400; line-height: 22px;">La densite d'un materiau est le rapport entre sa masse et son volume.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">label</div><div class="type-specs">14px / 700 / lh 18 / ls +1 / UPPER</div></div>
+      <div class="type-sample" style="font-size: 14px; font-weight: 700; line-height: 18px; letter-spacing: 1px; text-transform: uppercase;">Physique-chimie</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">caption</div><div class="type-specs">14px / 400 / lh 18</div></div>
+      <div class="type-sample" style="font-size: 14px; font-weight: 400; line-height: 18px; color: var(--text-secondary);">12 items &middot; Derniere session il y a 2 jours</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-token">small</div><div class="type-specs">12px / 400 / lh 16</div></div>
+      <div class="type-sample" style="font-size: 12px; font-weight: 400; line-height: 16px; color: var(--text-secondary);">Mis a jour le 3 avril 2026</div>
+    </div>
+  </div>
+
+  <!-- Pedagogy examples -->
+  <div class="color-subtitle" style="margin-top: 32px;">Traitement du contenu pedagogique</div>
+  <div class="pedagogy-examples">
+    <div class="pedagogy-card">
+      <h4>Definitions</h4>
+      <div class="pedagogy-definition">
+        <div class="term">Densite</div>
+        <div class="def">Rapport entre la masse d'un corps et le volume qu'il occupe. S'exprime en kg/m3 ou g/cm3.</div>
+      </div>
+    </div>
+    <div class="pedagogy-card">
+      <h4>Formules</h4>
+      <div class="pedagogy-formula">&rho; = m / V</div>
+    </div>
+    <div class="pedagogy-card">
+      <h4>Termes-cles</h4>
+      <div>
+        <span class="pedagogy-keyword">densite</span>
+        <span class="pedagogy-keyword">masse volumique</span>
+        <span class="pedagogy-keyword">flottabilite</span>
+        <span class="pedagogy-keyword">kg/m3</span>
+      </div>
+    </div>
+    <div class="pedagogy-card">
+      <h4>OCR incertain (confiance &lt; 0.85)</h4>
+      <div class="pedagogy-ocr">La masse du liquide est de 2,5 kg pour un volume de 0,003 m3.</div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPOSANTS -->
+<section id="composants">
+  <div class="section-header">
+    <div class="section-icon" style="background: var(--mastery-solid-light); color: var(--mastery-solid);">K</div>
+    <h2>Composants</h2>
+  </div>
+
+  <!-- Boutons -->
+  <div class="comp-section">
+    <h3>Boutons</h3>
+    <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">Un seul bouton primary par ecran. Taille tactile minimum : 44px.</p>
+    <div class="btn-row">
+      <button class="btn btn-primary">Reviser</button>
+      <button class="btn btn-secondary">Voir le detail</button>
+      <button class="btn btn-outline">Annuler</button>
+      <button class="btn btn-ghost">Passer</button>
+    </div>
+  </div>
+
+  <!-- Card chapitre -->
+  <div class="comp-section">
+    <h3>Carte chapitre avec MasteryBar</h3>
+    <div class="demo-card">
+      <div class="card-subject">Physique-Chimie</div>
+      <div class="card-title">Masse, volume et densite</div>
+      <div class="mastery-bar-container">
+        <div class="mastery-bar">
+          <div class="mb-segment mb-solid" style="width: 30%;"></div>
+          <div class="mb-segment mb-ok" style="width: 25%;"></div>
+          <div class="mb-segment mb-fragile" style="width: 20%;"></div>
+          <div class="mb-segment mb-unknown" style="width: 25%;"></div>
+        </div>
+        <div class="mastery-bar-legend">
+          <span><span class="legend-dot" style="background: var(--mastery-solid);"></span>Acquis 30%</span>
+          <span><span class="legend-dot" style="background: var(--mastery-ok);"></span>Compris 25%</span>
+          <span><span class="legend-dot" style="background: var(--mastery-fragile);"></span>En cours 20%</span>
+          <span><span class="legend-dot" style="background: var(--mastery-unknown);"></span>Nouveau 25%</span>
+        </div>
+      </div>
+      <div class="card-meta">20 items &middot; Derniere session il y a 1 jour</div>
+    </div>
+  </div>
+
+  <!-- MasteryBar animee -->
+  <div class="comp-section">
+    <h3>MasteryBar animee</h3>
+    <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">Les segments s'animent au scroll pour illustrer la progression.</p>
+    <div class="animated-mastery" id="animated-mastery">
+      <div class="am-label">Maitrise globale</div>
+      <div class="am-percent" id="am-percent">0%</div>
+      <div class="mastery-bar">
+        <div class="mb-segment mb-solid" id="am-solid" style="width: 0%;"></div>
+        <div class="mb-segment mb-ok" id="am-ok" style="width: 0%;"></div>
+        <div class="mb-segment mb-fragile" id="am-fragile" style="width: 0%;"></div>
+        <div class="mb-segment mb-unknown" id="am-unknown" style="width: 100%;"></div>
+      </div>
+      <div class="mastery-bar-legend" style="justify-content: center;">
+        <span><span class="legend-dot" style="background: var(--mastery-solid);"></span>Acquis</span>
+        <span><span class="legend-dot" style="background: var(--mastery-ok);"></span>Compris</span>
+        <span><span class="legend-dot" style="background: var(--mastery-fragile);"></span>En cours</span>
+        <span><span class="legend-dot" style="background: var(--mastery-unknown);"></span>Nouveau</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quiz -->
+  <div class="comp-section">
+    <h3>Quiz — question et feedback</h3>
+    <div class="quiz-demo" id="quiz-demo">
+      <div class="quiz-progress-bar"><div class="quiz-progress-bar-fill"></div></div>
+      <div class="quiz-header">Question 3 / 10</div>
+      <div class="quiz-question">Quelle est la formule de la densite ?</div>
+      <div class="quiz-options">
+        <div class="quiz-option correct" onclick="selectQuiz(this, true)">
+          &rho; = m / V
+        </div>
+        <div class="quiz-option" onclick="selectQuiz(this, false)">
+          &rho; = V / m
+        </div>
+        <div class="quiz-option" onclick="selectQuiz(this, false)">
+          &rho; = m &times; V
+        </div>
+        <div class="quiz-option" onclick="selectQuiz(this, false)">
+          &rho; = m + V
+        </div>
+      </div>
+      <div class="quiz-feedback" id="quiz-feedback" style="display: none;"></div>
+    </div>
+  </div>
+
+  <!-- Alertes -->
+  <div class="comp-section">
+    <h3>Alertes</h3>
+    <div class="alert-stack">
+      <div class="alert alert-info">
+        <div class="alert-icon">i</div>
+        <div>Tes revisions t'attendent — 8 points a revoir en Physique-Chimie.</div>
+      </div>
+      <div class="alert alert-warning">
+        <div class="alert-icon">!</div>
+        <div>2 items ont une confiance OCR basse. Un parent peut les verifier dans l'espace validation.</div>
+      </div>
+      <div class="alert alert-critical">
+        <div class="alert-icon">&times;</div>
+        <div>L'envoi a echoue. Reessaie ou verifie ta connexion.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div class="comp-section">
+    <h3>Empty state</h3>
+    <div class="empty-state">
+      <div class="es-illustration">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      </div>
+      <h3>Aucun cours pour l'instant</h3>
+      <p>Commence par prendre en photo une page de cours pour creer ton premier chapitre.</p>
+      <button class="btn btn-primary">Capturer un cours</button>
+    </div>
+  </div>
+</section>
+
+<!-- DO / DON'T -->
+<section id="dodont">
+  <div class="section-header">
+    <div class="section-icon" style="background: var(--warning-light); color: var(--warning);">!</div>
+    <h2>Do / Don't</h2>
+  </div>
+
+  <!-- Row 1: enfantin -->
+  <div class="color-subtitle">Trop enfantin vs bien equilibre</div>
+  <div class="dodont-grid" style="margin-bottom: 24px;">
+    <div class="dodont-card dont-card">
+      <h4><span style="font-size: 18px;">&#10060;</span> Ne pas faire</h4>
+      <ul>
+        <li>Mascotte animee qui reagit aux reponses (hibou qui pleure/saute)</li>
+        <li>Palette bonbon : rose pastel, vert menthe, violet bubblegum, emojis partout</li>
+        <li>Confettis, etoiles dorees, animations "level up" avec fanfare</li>
+        <li>Langage surjoue : "WOOOW GENIAL ! Tu es un SUPER HERO !"</li>
+      </ul>
+    </div>
+    <div class="dodont-card do-card">
+      <h4><span style="font-size: 18px;">&#9989;</span> Faire</h4>
+      <ul>
+        <li>Dashboard avec MasteryBar, "Bonjour Hugo", un gros "72%", bouton "Reviser"</li>
+        <li>Palette equilibree : fond cream, touches de bleu et vert semantiques</li>
+        <li>Micro-celebration : la barre pulse une fois, un check apparait</li>
+        <li>Feedback sobre : "Bien joue" ou "Progres : 1 point de plus vers OK"</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Row 2: froid -->
+  <div class="color-subtitle">Trop froid vs bien equilibre</div>
+  <div class="dodont-grid" style="margin-bottom: 24px;">
+    <div class="dodont-card dont-card">
+      <h4><span style="font-size: 18px;">&#10060;</span> Ne pas faire</h4>
+      <ul>
+        <li>Interface grise monochrome, tableaux de donnees, zero couleur</li>
+        <li>Donnees brutes : "Items FRAGILE: 7, Score moyen: 0.43, Ecart-type: 0.21"</li>
+        <li>Feedback apres erreur : "Incorrect." sans explication</li>
+        <li>Ton distant : "L'utilisateur n'a pas complete la session planifiee."</li>
+      </ul>
+    </div>
+    <div class="dodont-card do-card">
+      <h4><span style="font-size: 18px;">&#9989;</span> Faire</h4>
+      <ul>
+        <li>Couleurs Mastery comme systeme semantique lisible et expressif</li>
+        <li>Digest parent : "65% de maitrise (+8%). 2 points fragiles : densite, unites."</li>
+        <li>Feedback quiz : bonne reponse en vert clair + explication courte</li>
+        <li>Notification : "Tes revisions t'attendent" (pas "Session non completee")</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Row 3: gamifie -->
+  <div class="color-subtitle">Trop gamifie vs bien equilibre</div>
+  <div class="dodont-grid" style="margin-bottom: 24px;">
+    <div class="dodont-card dont-card">
+      <h4><span style="font-size: 18px;">&#10060;</span> Ne pas faire</h4>
+      <ul>
+        <li>Systeme de points XP, boutique de themes, monnaie virtuelle</li>
+        <li>Streaks : "SERIE PERDUE" en rouge quand on rate un jour</li>
+        <li>Classement : "Tu es 3eme ! Depasse Clara !"</li>
+        <li>Defi quotidien force avec timer clignotant</li>
+      </ul>
+    </div>
+    <div class="dodont-card do-card">
+      <h4><span style="font-size: 18px;">&#9989;</span> Faire</h4>
+      <ul>
+        <li>Decompte d'items maitrises : "12 points bien acquis sur 20"</li>
+        <li>Message encourageant en fin de session : "3 points de plus vers SOLID"</li>
+        <li>Progression visible via MasteryBar, pas via un systeme de recompense</li>
+        <li>L'eleve choisit quand reviser, pas de mecanisme de culpabilisation</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Row 4: institutionnel -->
+  <div class="color-subtitle">Trop institutionnel vs bien equilibre</div>
+  <div class="dodont-grid">
+    <div class="dodont-card dont-card">
+      <h4><span style="font-size: 18px;">&#10060;</span> Ne pas faire</h4>
+      <ul>
+        <li>Interface type ENT/Pronote : menus textuels, tableaux, Times New Roman</li>
+        <li>Jargon educatif : "Competences transversales", "Evaluation formative"</li>
+        <li>Arborescence rigide : Matiere > Theme > Competence > Exercice</li>
+        <li>Notification administration : "Votre enfant doit completer l'evaluation."</li>
+      </ul>
+    </div>
+    <div class="dodont-card do-card">
+      <h4><span style="font-size: 18px;">&#9989;</span> Faire</h4>
+      <ul>
+        <li>Navigation simple : dashboard > chapitre > session. 3 niveaux max.</li>
+        <li>Langage quotidien : "points", "compris", "acquis", pas de jargon</li>
+        <li>L'eleve voit SES progres, pas un programme a remplir</li>
+        <li>Notification invitation : "8 points a revoir en Physique-Chimie"</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- MOODBOARD -->
+<section id="moodboard">
+  <div class="section-header">
+    <div class="section-icon" style="background: var(--secondary-light); color: var(--secondary);">M</div>
+    <h2>Moodboard — Apps de reference</h2>
+  </div>
+  <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 24px;">Zone cible : entre Spotify et Apple Health. Moderne, colore par les donnees, sobre dans la structure.</p>
+
+  <div class="moodboard-grid">
+    <div class="mood-card">
+      <div class="mood-name">Notion</div>
+      <div class="mood-desc">Productivite & notes — populaire chez les etudiants</div>
+      <h5 class="borrow">Ce qu'on emprunte</h5>
+      <ul>
+        <li>Proprete visuelle, hierarchie typo forte</li>
+        <li>Neutralite elegante, le contenu parle</li>
+        <li>Feeling "outil serieux mais agreable"</li>
+        <li>Icones outline fines, coherentes</li>
+      </ul>
+      <h5 class="avoid">Ce qu'on evite</h5>
+      <ul>
+        <li>Complexite structurelle (trop de concepts)</li>
+        <li>Froideur et absence de gamification</li>
+      </ul>
+    </div>
+    <div class="mood-card">
+      <div class="mood-name">Duolingo</div>
+      <div class="mood-desc">Apprentissage langues — reference gamification educative</div>
+      <h5 class="borrow">Ce qu'on emprunte</h5>
+      <ul>
+        <li>Clarte de la progression</li>
+        <li>Micro-sessions de 10-15 min</li>
+        <li>Feedback immediat</li>
+        <li>Barres de progression colorees</li>
+      </ul>
+      <h5 class="avoid">Ce qu'on evite</h5>
+      <ul>
+        <li>La mascotte (Duo le hibou toxique)</li>
+        <li>Les streaks et la culpabilisation</li>
+        <li>L'esthetique enfantine</li>
+        <li>La gamification comme fin en soi</li>
+      </ul>
+    </div>
+    <div class="mood-card">
+      <div class="mood-name">Spotify</div>
+      <div class="mood-desc">Streaming musical — utilise par la majorite des ados</div>
+      <h5 class="borrow">Ce qu'on emprunte</h5>
+      <ul>
+        <li>Dark mode comme identite</li>
+        <li>Typographie bold, contrastes forts</li>
+        <li>Interface epuree en immersion (quiz)</li>
+        <li>Sentiment de personnalisation</li>
+      </ul>
+      <h5 class="avoid">Ce qu'on evite</h5>
+      <ul>
+        <li>L'absence de structure dirigee</li>
+        <li>Le scroll infini / feed algorithmique</li>
+        <li>La densite de l'ecran d'accueil</li>
+      </ul>
+    </div>
+    <div class="mood-card">
+      <div class="mood-name">Apple Health</div>
+      <div class="mood-desc">Suivi sante & activite physique</div>
+      <h5 class="borrow">Ce qu'on emprunte</h5>
+      <ul>
+        <li>Visualisation des donnees accessible</li>
+        <li>Ton rassurant, sans jugement</li>
+        <li>Credibilite data pour le parent</li>
+        <li>Resume concis : highlights en haut</li>
+      </ul>
+      <h5 class="avoid">Ce qu'on evite</h5>
+      <ul>
+        <li>Esthetique trop "adulte-health"</li>
+        <li>Surabondance de metriques (50+ cat.)</li>
+      </ul>
+    </div>
+    <div class="mood-card">
+      <div class="mood-name">Linear</div>
+      <div class="mood-desc">Gestion de projet — design exceptionnel</div>
+      <h5 class="borrow">Ce qu'on emprunte</h5>
+      <ul>
+        <li>Animations subtiles et satisfaisantes</li>
+        <li>Palette contenue + accents forts</li>
+        <li>Systeme de statuts colores (= Mastery)</li>
+        <li>Performance percue</li>
+      </ul>
+      <h5 class="avoid">Ce qu'on evite</h5>
+      <ul>
+        <li>Complexite fonctionnelle</li>
+        <li>Densite d'information trop haute</li>
+        <li>Absence d'emotion</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SCALABILITE -->
+<section id="scalabilite">
+  <div class="section-header">
+    <div class="section-icon" style="background: var(--mastery-fragile-light); color: var(--mastery-fragile);">S</div>
+    <h2>Scalabilite</h2>
+  </div>
+  <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 24px;">Le design system est un ensemble de <strong style="color: var(--text);">curseurs</strong>, pas de versions. Passer du college au lycee = ajuster des parametres.</p>
+
+  <div class="color-subtitle">Les 5 curseurs par phase</div>
+  <table class="scale-table" style="margin-bottom: 32px;">
+    <thead>
+      <tr>
+        <th>Curseur</th>
+        <th>College (Lot 0)</th>
+        <th>Lycee (V2)</th>
+        <th>Post-bac (V3)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Densite</strong></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">2/10 — leger</span></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">4/10</span></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">7/10 — dense</span></td>
+      </tr>
+      <tr>
+        <td><strong>Celebration</strong></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">6/10 — expressif</span></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">4/10</span></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">2/10 — sobre</span></td>
+      </tr>
+      <tr>
+        <td><strong>Ton</strong></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">7/10 — encourageant</span></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">5/10</span></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">3/10 — neutre</span></td>
+      </tr>
+      <tr>
+        <td><strong>Rondeur</strong></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">7/10 — arrondi</span></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">6/10</span></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">4/10 — angulaire</span></td>
+      </tr>
+      <tr>
+        <td><strong>Couleur</strong></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">6/10 — colore</span></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">5/10</span></td>
+        <td><div class="slider-visual"><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot active"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span><span class="slider-dot"></span></div><span style="font-size:11px;color:var(--text-secondary);">3/10 — monochrome</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="color-subtitle">Invariants de marque (ne changent JAMAIS)</div>
+  <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px;">
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 14px;">
+      <strong>Les 4 couleurs Mastery</strong> et leur signification
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 14px;">
+      <strong>Le bleu primaire</strong> comme couleur de confiance
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 14px;">
+      <strong>Pas de gamification lourde</strong> : pas de streaks, XP, classements
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 14px;">
+      <strong>Ton non-culpabilisant</strong> dans toutes les interactions
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 14px;">
+      <strong>Separation eleve/parent</strong> dans les espaces
+    </div>
+    <div style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; font-size: 14px;">
+      <strong>MasteryBar</strong> comme composant central de progression
+    </div>
+  </div>
+
+  <div class="color-subtitle" style="margin-top: 32px;">Labels Mastery par audience</div>
+  <table class="scale-table">
+    <thead>
+      <tr><th>Etat</th><th>College</th><th>Lycee</th><th>Post-bac</th></tr>
+    </thead>
+    <tbody>
+      <tr><td style="color: var(--mastery-unknown); font-weight: 700;">UNKNOWN</td><td>NOUVEAU</td><td>NOUVEAU</td><td>UNKNOWN</td></tr>
+      <tr><td style="color: var(--mastery-fragile); font-weight: 700;">FRAGILE</td><td>EN COURS</td><td>EN COURS</td><td>FRAGILE</td></tr>
+      <tr><td style="color: var(--mastery-ok); font-weight: 700;">OK</td><td>COMPRIS</td><td>COMPRIS</td><td>OK</td></tr>
+      <tr><td style="color: var(--mastery-solid); font-weight: 700;">SOLID</td><td>ACQUIS</td><td>ACQUIS</td><td>SOLID</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</div>
+
+<footer>
+  Revise Mieux Design System &middot; Avril 2026 &middot; <a href="#">Clair. Capable. Progressif.</a>
+</footer>
+
+<script>
+// Copy swatch color to clipboard
+function copySwatch(el, hex) {
+  navigator.clipboard.writeText(hex).then(() => {
+    el.classList.add('copied');
+    setTimeout(() => el.classList.remove('copied'), 1200);
+  });
+}
+
+// Quiz interaction
+let quizAnswered = false;
+function selectQuiz(el, isCorrect) {
+  if (quizAnswered) return;
+  quizAnswered = true;
+  const options = el.parentElement.querySelectorAll('.quiz-option');
+  options.forEach(o => {
+    if (o.classList.contains('correct')) {
+      o.style.borderColor = 'var(--mastery-solid)';
+      o.style.background = 'var(--mastery-solid-light)';
+    }
+  });
+  if (!isCorrect) {
+    el.style.borderColor = 'var(--mastery-fragile)';
+    el.style.background = 'var(--mastery-fragile-light)';
+  }
+  const fb = document.getElementById('quiz-feedback');
+  fb.style.display = 'block';
+  fb.innerHTML = isCorrect
+    ? '<span style="color: var(--mastery-solid); font-weight: 600;">Bien joue !</span> La densite (&rho;) est bien le rapport masse sur volume.'
+    : '<span style="color: var(--mastery-fragile); font-weight: 600;">Pas tout a fait.</span> La formule est &rho; = m / V. La densite est le rapport de la masse sur le volume.';
+}
+
+// Animated MasteryBar on scroll
+const stages = [
+  { solid: 0, ok: 0, fragile: 0, unknown: 100, percent: 0 },
+  { solid: 0, ok: 0, fragile: 25, unknown: 75, percent: 0 },
+  { solid: 0, ok: 20, fragile: 25, unknown: 55, percent: 20 },
+  { solid: 15, ok: 25, fragile: 20, unknown: 40, percent: 40 },
+  { solid: 35, ok: 25, fragile: 15, unknown: 25, percent: 60 },
+  { solid: 50, ok: 22, fragile: 8, unknown: 20, percent: 72 },
+];
+let currentStage = 0;
+let animationTriggered = false;
+
+function animateMastery() {
+  if (currentStage >= stages.length) return;
+  const s = stages[currentStage];
+  document.getElementById('am-solid').style.width = s.solid + '%';
+  document.getElementById('am-ok').style.width = s.ok + '%';
+  document.getElementById('am-fragile').style.width = s.fragile + '%';
+  document.getElementById('am-unknown').style.width = s.unknown + '%';
+  document.getElementById('am-percent').textContent = s.percent + '%';
+  document.getElementById('am-percent').style.color =
+    s.percent >= 60 ? 'var(--mastery-solid)' :
+    s.percent >= 30 ? 'var(--mastery-ok)' :
+    s.percent > 0 ? 'var(--mastery-fragile)' : 'var(--text)';
+  currentStage++;
+  if (currentStage < stages.length) {
+    setTimeout(animateMastery, 800);
+  }
+}
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && !animationTriggered) {
+      animationTriggered = true;
+      setTimeout(animateMastery, 300);
+    }
+  });
+}, { threshold: 0.5 });
+observer.observe(document.getElementById('animated-mastery'));
+
+// Smooth scroll for nav
+document.querySelectorAll('nav a').forEach(a => {
+  a.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+
+</body>
+</html>
