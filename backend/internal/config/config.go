@@ -21,7 +21,7 @@ type Config struct {
 	S3SecretKey string
 	S3Region    string
 
-	// LLM provider selection: "gemini" (default), "anthropic"
+	// LLM provider selection: "gemini" (default), "anthropic", "mistral"
 	LLMProvider string
 
 	// Anthropic LLM
@@ -32,6 +32,10 @@ type Config struct {
 	// Google Gemini LLM
 	GoogleAIAPIKey   string
 	GeminiStructModel string // Model for structuration (default: gemini-2.5-flash)
+
+	// Mistral LLM
+	MistralAPIKey     string
+	MistralStructModel string // Model for structuration (default: mistral-small-latest)
 }
 
 // Load reads configuration from environment variables with sensible defaults.
@@ -57,6 +61,9 @@ func Load() (*Config, error) {
 
 		GoogleAIAPIKey:    envOrDefault("GOOGLE_AI_API_KEY", ""),
 		GeminiStructModel: envOrDefault("GEMINI_STRUCT_MODEL", "gemini-2.5-flash"),
+
+		MistralAPIKey:      envOrDefault("MISTRAL_API_KEY", ""),
+		MistralStructModel: envOrDefault("MISTRAL_STRUCT_MODEL", "mistral-small-latest"),
 	}
 
 	if cfg.JWTSecret == "" {

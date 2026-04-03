@@ -94,6 +94,17 @@ func main() {
 		} else {
 			log.Println("WARNING: GOOGLE_AI_API_KEY not set — LLM structuration disabled")
 		}
+	case "mistral":
+		if cfg.MistralAPIKey != "" {
+			llmStructurer = openaicompat.NewStructurer(
+				"https://api.mistral.ai/v1",
+				cfg.MistralAPIKey,
+				cfg.MistralStructModel,
+			)
+			log.Printf("LLM structurer initialized: provider=mistral model=%s", cfg.MistralStructModel)
+		} else {
+			log.Println("WARNING: MISTRAL_API_KEY not set — LLM structuration disabled")
+		}
 	default:
 		log.Printf("WARNING: unknown LLM_PROVIDER %q — LLM structuration disabled", cfg.LLMProvider)
 	}
@@ -115,6 +126,15 @@ func main() {
 		}
 	case "anthropic":
 		// TODO: implement anthropic scorer if needed
+	case "mistral":
+		if cfg.MistralAPIKey != "" {
+			scorer = openaicompat.NewAnswerScorer(
+				"https://api.mistral.ai/v1",
+				cfg.MistralAPIKey,
+				cfg.MistralStructModel,
+			)
+			log.Printf("Answer scorer initialized: provider=mistral model=%s", cfg.MistralStructModel)
+		}
 	}
 
 	// --- Application Services ---
