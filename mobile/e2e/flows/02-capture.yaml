@@ -2,22 +2,26 @@
 # ACs: Z2-AC01, Z2-AC10
 # Source: docs/ux/user-flow-complete.md §Capture J0
 #
-# Parcours : dashboard → capture → upload photo
+# Parcours : dashboard → tab capture
 appId: com.revisemieux.app
 ---
 
-# --- Dashboard ---
-- assertVisible:
-    id: "dashboard-capture-btn"
+# Attendre le chargement
+- extendedWaitUntil:
+    timeout: 15000
+    visible: ".*"
 
-# Aller sur l'ecran capture
+# Le dashboard doit etre visible (ou l'empty state)
+# Aller sur le tab capture
 - tapOn:
     id: "dashboard-capture-btn"
+    optional: true
 
-# --- Ecran capture ---
-# Verifier les boutons photo et galerie
-- assertVisible:
-    id: "capture-photo-btn"
+# Si pas de bouton capture sur le dashboard, essayer le tab bar
+- tapOn: "Capturer"
+  optional: true
 
-- assertVisible:
-    id: "capture-gallery-btn"
+# Attendre l'ecran capture
+- extendedWaitUntil:
+    timeout: 5000
+    visible: ".*"

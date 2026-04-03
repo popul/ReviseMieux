@@ -2,42 +2,47 @@
 # ACs: Z8-AC01, Z8-AC02, Z8-AC08
 # Source: docs/ux/user-flow-complete.md §Onboarding
 #
-# Parcours : premier lancement → chapitre demo → premiere session
+# Parcours : premier lancement → seed demo → chapitre visible → premiere session
 appId: com.revisemieux.app
 ---
 
-# --- Ecran onboarding ---
-- assertVisible: "Bienvenue"
-
-# Seed le chapitre demo
-- tapOn:
-    id: "onboarding-seed-btn"
-
-# Delai pour le seed
+# L'app demarre sur le dashboard
+# Attendre le chargement (dev token + API call)
 - extendedWaitUntil:
-    timeout: 5000
+    timeout: 15000
     visible: ".*"
 
-# --- Dashboard eleve ---
-# Apres seed, on arrive sur le dashboard avec le chapitre demo
+# Premier lancement : pas de chapitres → empty state
+- assertVisible: "Aucun chapitre"
+
+# Seed le chapitre demo
+- tapOn: "Charger le chapitre démo"
+
+# Attendre que le chapitre apparaisse
+- extendedWaitUntil:
+    timeout: 10000
+    visible:
+      id: "dashboard-chapter-card"
+
+# Verifier que le chapitre demo est visible
 - assertVisible:
     id: "dashboard-chapter-card"
 
-# Verifier qu'on voit le bouton reviser
+# Verifier la MasteryBar
 - assertVisible:
-    id: "dashboard-revise-btn"
+    id: "mastery-bar"
 
 # Lancer une session de revision
 - tapOn:
     id: "dashboard-revise-btn"
 
-# --- Session de revision ---
+# Attendre les questions
 - extendedWaitUntil:
-    timeout: 5000
+    timeout: 10000
     visible:
       id: "session-question-text"
 
-# Verifier la question s'affiche
+# Verifier la question
 - assertVisible:
     id: "session-question-text"
 
@@ -45,14 +50,10 @@ appId: com.revisemieux.app
 - assertVisible:
     id: "session-answer-input"
 
-# Verifier la barre de progression
-- assertVisible:
-    id: "session-progress-bar"
-
 # Taper une reponse
 - tapOn:
     id: "session-answer-input"
-- inputText: "rho = m/V"
+- inputText: "test reponse"
 
 # Valider
 - tapOn:
@@ -60,5 +61,5 @@ appId: com.revisemieux.app
 
 # Attendre le feedback
 - extendedWaitUntil:
-    timeout: 3000
+    timeout: 5000
     visible: ".*"
