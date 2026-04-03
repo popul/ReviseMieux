@@ -1,56 +1,145 @@
-# Révise Mieux
+![CI](https://github.com/popul/ReviseMieux/actions/workflows/ci.yml/badge.svg?branch=reboot)
 
-Assistant de révision personnalisé pour collégiens (11–15 ans), propulsé par l'IA.
+# Revise Mieux
 
-**Révise Mieux** transforme des photos de cahier (manuscrit, schémas, documents) en entraînements adaptatifs : carte de leçon structurée, exercices en rappel actif avec répétition espacée, contrôles blancs, et reporting parent basé sur des preuves de maîtrise.
+Revise Mieux est un SaaS educatif qui transforme des photos de cahier en assistant de revision personnalise pour collegiens (11-15 ans). A partir d'un upload de cours, le produit genere une carte de lecon structuree, des entrainements adaptatifs avec repetition espacee, et met les parents dans la boucle via un reporting base sur des preuves de maitrise. Le projet est en phase Lot 0 (pre-MVP) avec 53 criteres d'acceptation sur 4 chapitres pilotes.
 
-## Statut du projet
+**Documentation complete** : [https://popul.github.io/ReviseMieux/](https://popul.github.io/ReviseMieux/)
 
-Le dépôt contient actuellement les **spécifications complètes** du produit. L'implémentation n'a pas encore démarré.
+---
+
+## Stack technique
+
+| Composant | Technologie |
+|-----------|-------------|
+| Backend API | Go 1.23 + Gin |
+| Base de donnees | PostgreSQL 16 (pgx/v5, SQL brut) |
+| Mobile | React Native + Expo 54 + Expo Router |
+| LLM / OCR | Gemini Flash / mistral-small |
+| Cache | Redis (go-redis/v9) |
+| Storage | S3 / MinIO |
+
+---
+
+## Quick start
+
+**Prerequis** : Go 1.23+, Node.js 20+, Docker (pour PostgreSQL + Redis + MinIO)
+
+```bash
+git clone https://github.com/popul/ReviseMieux.git
+make setup
+make dev
+```
+
+---
+
+## Architecture
+
+Monorepo `backend/` (Go) + `mobile/` (Expo), architecture hexagonale avec 4 bounded contexts DDD.
+
+```mermaid
+graph TB
+    subgraph "Driving Adapters"
+        HTTP["HTTP Handlers<br/>(Gin)"]
+        CLI["CLI / Tests"]
+    end
+
+    subgraph "Application Services"
+        PS["PipelineService"]
+        MS["MasteryService"]
+        SS["SessionService"]
+        VS["ValidationService"]
+    end
+
+    subgraph "Domain (zero dependance externe)"
+        subgraph "Capture"
+            CH["Chapter"]
+            IT["Item / Notion / Block"]
+        end
+        subgraph "Mastery"
+            MA["Mastery"]
+            TR["Transitions<br/>UNKNOWN → FRAGILE → OK → SOLID"]
+        end
+        subgraph "Session"
+            SE["Session"]
+            QA["Questions / Attempts"]
+        end
+        subgraph "Validation"
+            VT["ValidationTask"]
+            HI["HITL Actions"]
+        end
+    end
+
+    subgraph "Driven Adapters"
+        PG["PostgreSQL<br/>(pgx/v5)"]
+        RD["Redis"]
+        S3["S3 / MinIO"]
+        LLM["Gemini Flash<br/>mistral-small"]
+    end
+
+    HTTP --> PS & MS & SS & VS
+    CLI --> PS & MS & SS & VS
+    PS --> CH & IT
+    MS --> MA & TR
+    SS --> SE & QA
+    VS --> VT & HI
+    CH -.->|"ports<br/>(interfaces)"| PG
+    MA -.->|"ports"| PG
+    SE -.->|"ports"| PG & RD
+    VT -.->|"ports"| PG
+    PS -.->|"ports"| S3 & LLM
+```
+
+Le domaine definit les **ports** (interfaces). Les adaptateurs les implementent. Les dependances pointent toujours vers l'interieur.
+
+---
+
+## Etat du projet
+
+| Metrique | Valeur |
+|----------|--------|
+| Tests backend | 326 |
+| Tests mobile | 106 |
+| Coverage backend | 44.7% |
+| ACs Lot 0 | 53 (33 P1 + 20 P2) |
+
+---
+
+## Design system
+
+Le design system interactif (HTML) est disponible dans le repo :
+
+- Fichier : [`docs/design/design-system.html`](docs/design/design-system.html)
+- En ligne : [https://popul.github.io/ReviseMieux/design/design-system.html](https://popul.github.io/ReviseMieux/design/design-system.html)
+
+---
+
+## Commandes utiles
+
+| Commande | Description |
+|----------|-------------|
+| `make test` | Lancer tous les tests (backend + mobile) |
+| `make dev` | Demarrer l'environnement de developpement |
+| `make docs-serve` | Servir la documentation localement |
+| `/feedback-loop` | Cycle autonome Claude Code : fix CI + feedback |
+| `/sprint` | Cycle autonome : selection issue -> implementation -> CI |
+| `/backlog` | Gestion du backlog GitHub Issues |
+
+---
 
 ## Documentation
 
 | Document | Description |
-|---|---|
-| [PRD](docs/PRD.md) | Product Requirements Document complet — personas, parcours, pipeline, architecture, modèle de données, algorithmes, SLA |
-| [MVP Scope](docs/MVP-scope.md) | Classification des 171 critères d'acceptation (MVP Core / Hardening / Post-MVP) et périmètre Lot 0 |
-| [Critères d'acceptation](docs/ac/README.md) | 171 ACs en format Given/When/Then, répartis en 8 zones |
+|----------|-------------|
+| [PRD](docs/PRD.md) | Product Requirements Document complet |
+| [MVP Scope](docs/MVP-scope.md) | 171 ACs classifies, perimetre Lot 0 |
+| [Lot 0 Tracker](docs/lot0-tracker.md) | Suivi d'implementation |
+| [Criteres d'acceptation](docs/ac/README.md) | 171 ACs en Given/When/Then (8 zones) |
+| [Decisions UX](docs/ux/open-decisions.md) | Decisions produit documentees |
+| [CLAUDE.md](CLAUDE.md) | Conventions et regles de developpement |
 
-### Zones de critères d'acceptation
-
-| Zone | Sujet | ACs |
-|---|---|---|
-| [Z1](docs/ac/Z1.md) | Transitions Mastery & répétition espacée | 28 |
-| [Z2](docs/ac/Z2.md) | Pipeline J0 — erreurs & timeouts | 18 |
-| [Z3](docs/ac/Z3.md) | Validation HITL (Human-in-the-loop) | 17 |
-| [Z4](docs/ac/Z4.md) | Lazy generation, concurrence & cache | 17 |
-| [Z5](docs/ac/Z5.md) | Versioning chapitre & identité item | 11 |
-| [Z6](docs/ac/Z6.md) | Emploi du temps, notifications & engagement parent | 46 |
-| [Z7](docs/ac/Z7.md) | Routine de soirée & orchestration | 26 |
-| [Z8](docs/ac/Z8.md) | Onboarding & première utilisation | 8 |
-
-## Chapitres pilotes (MVP)
-
-| Matière | Chapitre | Pack |
-|---|---|---|
-| Histoire-Géographie | Les inégalités dans le monde | HG-INEG |
-| Histoire-Géographie | La société féodale | HG-FEOD |
-| SVT | La photosynthèse | SVT-PHOTO |
-| Physique-Chimie | Masse, volume et densité | PC-MVD |
-
-## Stack cible
-
-| Composant | Technologie |
-|---|---|
-| API | Node.js ou Go |
-| OCR & Vision | Python (workers async) |
-| LLM | Anthropic Claude API |
-| Base de données | PostgreSQL |
-| Cache | Redis |
-| File de messages | BullMQ / SQS |
-| Stockage | S3 |
-| Frontend | React / React Native (mobile-first) |
+---
 
 ## Licence
 
-Projet privé — tous droits réservés.
+MIT
