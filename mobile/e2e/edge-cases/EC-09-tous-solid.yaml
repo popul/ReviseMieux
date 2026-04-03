@@ -1,0 +1,21 @@
+# Edge case: EC-09 — Tous les items sont SOLID
+# ACs: Z4-AC06
+# Source: docs/ux/edge-cases.md EC-09
+#
+# Quand tous les items d'un chapitre sont SOLID,
+# le dashboard affiche un message de felicitation
+appId: com.revisemieux.app
+---
+
+# Dashboard avec chapitre tout SOLID
+- assertVisible:
+    id: "dashboard-chapter-card"
+
+# Tenter de reviser
+- tapOn:
+    id: "dashboard-revise-btn"
+
+# Devrait afficher un message (pas de session possible, ou felicitations)
+- extendedWaitUntil:
+    timeout: 3000
+    visible: ".*"

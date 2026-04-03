@@ -1,0 +1,23 @@
+# Flow: 02-capture
+# ACs: Z2-AC01, Z2-AC10
+# Source: docs/ux/user-flow-complete.md §Capture J0
+#
+# Parcours : dashboard → capture → upload photo
+appId: com.revisemieux.app
+---
+
+# --- Dashboard ---
+- assertVisible:
+    id: "dashboard-capture-btn"
+
+# Aller sur l'ecran capture
+- tapOn:
+    id: "dashboard-capture-btn"
+
+# --- Ecran capture ---
+# Verifier les boutons photo et galerie
+- assertVisible:
+    id: "capture-photo-btn"
+
+- assertVisible:
+    id: "capture-gallery-btn"

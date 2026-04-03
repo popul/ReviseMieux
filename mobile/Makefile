@@ -126,6 +126,25 @@ test-watch: ## Tests en mode watch
 	@$(NPM) test -- --watch
 
 # ------------------------------------------------------------
+# E2E (Maestro)
+# ------------------------------------------------------------
+
+e2e: ## Lance les tests E2E Maestro
+	@echo "$(CYAN)E2E Maestro...$(RESET)"
+	@maestro test e2e/flows/
+	@echo "$(GREEN)E2E OK$(RESET)"
+
+e2e-record: ## Enregistre les videos E2E
+	@echo "$(CYAN)E2E Maestro (record)...$(RESET)"
+	@mkdir -p e2e/videos
+	@for f in e2e/flows/*.yaml; do \
+		name=$$(basename "$$f" .yaml); \
+		echo "  Recording $$name..."; \
+		maestro record "$$f" --output "e2e/videos/$$name.mp4" 2>&1 || true; \
+	done
+	@echo "$(GREEN)Videos dans e2e/videos/$(RESET)"
+
+# ------------------------------------------------------------
 # Qualité
 # ------------------------------------------------------------
 

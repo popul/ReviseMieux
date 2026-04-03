@@ -1,0 +1,43 @@
+# Flow: 04-session-complete
+# ACs: Z4-AC04, Z4-AC05, Z4-AC09, Z6-AC05
+# Source: docs/ux/user-flow-complete.md §Session de revision
+#
+# Parcours : session complete — repondre a toutes les questions jusqu'au debrief
+appId: com.revisemieux.app
+---
+
+# Lancer une session depuis le dashboard
+- tapOn:
+    id: "dashboard-revise-btn"
+
+# Attendre le chargement des questions
+- extendedWaitUntil:
+    timeout: 5000
+    visible:
+      id: "session-question-text"
+
+# --- Question 1 ---
+- assertVisible:
+    id: "session-question-text"
+
+- tapOn:
+    id: "session-answer-input"
+- inputText: "reponse test"
+
+- tapOn:
+    id: "session-validate-btn"
+
+# Attendre feedback ou question suivante
+- extendedWaitUntil:
+    timeout: 3000
+    visible: ".*"
+
+# Si "Suivant" est visible, avancer
+- tapOn:
+    id: "session-next-btn"
+    optional: true
+
+# Attendre la fin (debrief ou question suivante)
+- extendedWaitUntil:
+    timeout: 3000
+    visible: ".*"

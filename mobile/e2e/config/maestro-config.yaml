@@ -1,0 +1,10 @@
+# Maestro E2E config — Revise Mieux
+# https://maestro.mobile.dev/reference/configuration
+
+appId: com.revisemieux.app
+
+# Delais entre actions pour video lisible par un humain
+onFlowStart:
+  - extendedWaitUntil:
+      timeout: 2000
+      visible: ".*"

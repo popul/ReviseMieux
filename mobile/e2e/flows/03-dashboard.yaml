@@ -1,0 +1,23 @@
+# Flow: 03-dashboard
+# ACs: Z5-AC01, Z6-AC04, Z7-AC16
+# Source: docs/ux/user-flow-complete.md §Dashboard eleve
+#
+# Parcours : verifier le dashboard apres onboarding
+appId: com.revisemieux.app
+---
+
+# Le chapitre demo doit etre visible
+- assertVisible:
+    id: "dashboard-chapter-card"
+
+# La barre mastery doit etre visible
+- assertVisible:
+    id: "mastery-bar"
+
+# Le bouton capture doit exister
+- assertVisible:
+    id: "dashboard-capture-btn"
+
+# Le bouton reviser doit exister
+- assertVisible:
+    id: "dashboard-revise-btn"

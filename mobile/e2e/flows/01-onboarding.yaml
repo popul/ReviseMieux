@@ -1,0 +1,64 @@
+# Flow: 01-onboarding
+# ACs: Z8-AC01, Z8-AC02, Z8-AC08
+# Source: docs/ux/user-flow-complete.md §Onboarding
+#
+# Parcours : premier lancement → chapitre demo → premiere session
+appId: com.revisemieux.app
+---
+
+# --- Ecran onboarding ---
+- assertVisible: "Bienvenue"
+
+# Seed le chapitre demo
+- tapOn:
+    id: "onboarding-seed-btn"
+
+# Delai pour le seed
+- extendedWaitUntil:
+    timeout: 5000
+    visible: ".*"
+
+# --- Dashboard eleve ---
+# Apres seed, on arrive sur le dashboard avec le chapitre demo
+- assertVisible:
+    id: "dashboard-chapter-card"
+
+# Verifier qu'on voit le bouton reviser
+- assertVisible:
+    id: "dashboard-revise-btn"
+
+# Lancer une session de revision
+- tapOn:
+    id: "dashboard-revise-btn"
+
+# --- Session de revision ---
+- extendedWaitUntil:
+    timeout: 5000
+    visible:
+      id: "session-question-text"
+
+# Verifier la question s'affiche
+- assertVisible:
+    id: "session-question-text"
+
+# Verifier le champ de reponse
+- assertVisible:
+    id: "session-answer-input"
+
+# Verifier la barre de progression
+- assertVisible:
+    id: "session-progress-bar"
+
+# Taper une reponse
+- tapOn:
+    id: "session-answer-input"
+- inputText: "rho = m/V"
+
+# Valider
+- tapOn:
+    id: "session-validate-btn"
+
+# Attendre le feedback
+- extendedWaitUntil:
+    timeout: 3000
+    visible: ".*"

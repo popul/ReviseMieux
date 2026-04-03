@@ -1,0 +1,29 @@
+# Flow: 05-validation-hitl
+# ACs: Z3-AC01, Z3-AC02, Z3-AC06
+# Source: docs/ux/user-flow-complete.md §Validation HITL
+#
+# Parcours : ecran validation parent — lister et confirmer une task
+appId: com.revisemieux.app
+---
+
+# Naviguer vers l'ecran validation
+# (necessite un lien dans la navigation — a adapter selon l'implementation)
+
+# --- Liste des validations ---
+- assertVisible:
+    id: "validation-task-list"
+
+# --- Detail + resolution ---
+# Tap sur la premiere task
+- tapOn:
+    index: 0
+    id: "validation-task-list"
+
+# Confirmer
+- tapOn:
+    id: "validation-confirm-btn"
+
+# Attendre la resolution
+- extendedWaitUntil:
+    timeout: 3000
+    visible: ".*"
