@@ -267,3 +267,30 @@ export function uploadPages(chapterId: string | null, subject: string, formData:
 export function getRevisionProgress(revisionId: string) {
   return request<PipelineProgress>(`/revisions/${revisionId}/progress`);
 }
+
+// --- Validation (HITL) ---
+
+export type ValidationTask = {
+  id: string;
+  item_id: string;
+  chapter_id?: string;
+  crop_url?: string;
+  suggestion?: string;
+  priority: number;
+  status: string;
+  source: string;
+  item_term?: string;
+  created_at: string;
+  resolved_at?: string;
+};
+
+export function listValidations() {
+  return request<ValidationTask[]>('/validations');
+}
+
+export function resolveValidation(taskId: string, action: string, correction?: Record<string, string>) {
+  return request<ValidationTask>(`/validations/${taskId}/resolve`, {
+    method: 'POST',
+    body: { action, ...(correction ? { correction } : {}) },
+  });
+}
