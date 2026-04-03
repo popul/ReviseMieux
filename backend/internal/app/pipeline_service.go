@@ -121,11 +121,15 @@ func (s *PipelineService) UploadAndProcess(ctx context.Context, chapterID uuid.U
 		return nil, fmt.Errorf("pipeline: find chapter: %w", err)
 	}
 
-	// 2. Create revision
+	// 2. Create revision (increment number based on existing revisions)
+	revCount, err := s.chapterRepo.CountRevisionsByChapter(ctx, ch.ID)
+	if err != nil {
+		return nil, fmt.Errorf("pipeline: count revisions: %w", err)
+	}
 	rev := &chapter.Revision{
 		ID:             s.idGen.New(),
 		ChapterID:      ch.ID,
-		RevisionNumber: 1, // TODO: increment based on existing revisions
+		RevisionNumber: revCount + 1,
 		Status:         chapter.RevisionProcessing,
 		CreatedAt:      now,
 	}

@@ -193,7 +193,7 @@ func main() {
 	chapterHandler := handler.NewChapter(chapterSvc, chapterRepo, masteryRepo, idGen, clock)
 	masteryHandler := handler.NewMastery(masterySvc)
 	sessionHandler := handler.NewSession(sessionSvc)
-	validationHandler := handler.NewValidation(validationSvc)
+	validationHandler := handler.NewValidation(validationSvc, chapterRepo)
 	onboardingHandler := handler.NewOnboarding(onboardingSvc)
 
 	var pipelineHandler *handler.Pipeline

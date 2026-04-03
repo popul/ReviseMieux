@@ -25,6 +25,7 @@ type Repository interface {
 	// Revisions
 	FindRevisionByID(ctx context.Context, id uuid.UUID) (*Revision, error)
 	FindCurrentRevision(ctx context.Context, chapterID uuid.UUID) (*Revision, error)
+	CountRevisionsByChapter(ctx context.Context, chapterID uuid.UUID) (int, error)
 	SaveRevision(ctx context.Context, r *Revision) error
 
 	// Pages

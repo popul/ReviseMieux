@@ -111,6 +111,9 @@ func (m *mockChapterRepoForSession) FindPagesByRevision(_ context.Context, _ uui
 	return nil, nil
 }
 func (m *mockChapterRepoForSession) SavePage(_ context.Context, _ *chapter.Page) error { return nil }
+func (m *mockChapterRepoForSession) CountRevisionsByChapter(_ context.Context, _ uuid.UUID) (int, error) {
+	return 0, nil
+}
 
 type mockMasteryRepoForSession struct{}
 

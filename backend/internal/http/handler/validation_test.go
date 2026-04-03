@@ -64,7 +64,7 @@ func setupValidationRouter(t *testing.T, valRepo validation.Repository) *gin.Eng
 
 	chRepo := &mockChapterRepoWithItem{}
 	svc := app.NewValidationService(valRepo, chRepo, &stubPublisher{}, stubClock{now: time.Now()}, stubIDGen{})
-	h := handler.NewValidation(svc)
+	h := handler.NewValidation(svc, chRepo)
 
 	r := gin.New()
 	api := r.Group("/api/v1")
@@ -214,7 +214,7 @@ func TestValidation_Resolve_Unauthorized(t *testing.T) {
 	valRepo := &mockValidationRepo{}
 	chRepo := &mockChapterRepoWithItem{}
 	svc := app.NewValidationService(valRepo, chRepo, &stubPublisher{}, stubClock{now: time.Now()}, stubIDGen{})
-	h := handler.NewValidation(svc)
+	h := handler.NewValidation(svc, chRepo)
 
 	r := gin.New()
 	r.POST("/api/v1/validations/:validation_id/resolve", h.Resolve) // no auth

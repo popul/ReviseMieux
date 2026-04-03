@@ -38,3 +38,6 @@ func (m *mockChapterRepoWithItem) FindItemByID(_ context.Context, id uuid.UUID) 
 }
 
 func (m *mockChapterRepoWithItem) SaveItem(_ context.Context, _ *chapter.Item) error { return nil }
+func (m *mockChapterRepoWithItem) CountRevisionsByChapter(_ context.Context, _ uuid.UUID) (int, error) {
+	return 0, nil
+}

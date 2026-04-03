@@ -140,6 +140,16 @@ func (r *ChapterRepository) FindCurrentRevision(ctx context.Context, chapterID u
 	return rev, nil
 }
 
+func (r *ChapterRepository) CountRevisionsByChapter(ctx context.Context, chapterID uuid.UUID) (int, error) {
+	var count int
+	err := r.pool.QueryRow(ctx,
+		`SELECT COUNT(*) FROM chapter_revisions WHERE chapter_id = $1`, chapterID).Scan(&count)
+	if err != nil {
+		return 0, fmt.Errorf("chapter.Repository.CountRevisionsByChapter: %w", err)
+	}
+	return count, nil
+}
+
 func (r *ChapterRepository) SaveRevision(ctx context.Context, rev *chapter.Revision) error {
 	const q = `
 		INSERT INTO chapter_revisions (id, chapter_id, revision_number, status, created_at)

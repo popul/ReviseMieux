@@ -78,7 +78,7 @@ func setupTestApp(t *testing.T) *testApp {
 	chapterHandler := handler.NewChapter(chapterSvc, chapterRepo, masteryRepo, idGen, clock)
 	masteryHandler := handler.NewMastery(masterySvc)
 	sessionHandler := handler.NewSession(sessionSvc)
-	valHandler := handler.NewValidation(valSvc)
+	valHandler := handler.NewValidation(valSvc, chapterRepo)
 	onboardingHandler := handler.NewOnboarding(onboardingSvc)
 
 	// Router

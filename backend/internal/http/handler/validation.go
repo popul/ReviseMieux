@@ -1,12 +1,14 @@
 package handler
 
 import (
+	"context"
 	"errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/popul/revisemieux/internal/app"
+	"github.com/popul/revisemieux/internal/domain/chapter"
 	"github.com/popul/revisemieux/internal/domain/validation"
 	"github.com/popul/revisemieux/internal/http/dto"
 	"github.com/popul/revisemieux/internal/http/middleware"
@@ -14,12 +16,13 @@ import (
 
 // Validation handles validation task HTTP endpoints.
 type Validation struct {
-	svc *app.ValidationService
+	svc         *app.ValidationService
+	chapterRepo chapter.Repository
 }
 
 // NewValidation creates a new Validation handler.
-func NewValidation(svc *app.ValidationService) *Validation {
-	return &Validation{svc: svc}
+func NewValidation(svc *app.ValidationService, chapterRepo chapter.Repository) *Validation {
+	return &Validation{svc: svc, chapterRepo: chapterRepo}
 }
 
 // ListPending godoc
@@ -42,7 +45,7 @@ func (h *Validation) ListPending(c *gin.Context) {
 
 	result := make([]dto.ValidationTaskResponse, len(tasks))
 	for i, t := range tasks {
-		result[i] = toValidationTaskDTO(t)
+		result[i] = h.toValidationTaskDTO(c.Request.Context(), t)
 	}
 	c.JSON(http.StatusOK, result)
 }
@@ -107,16 +110,15 @@ func (h *Validation) Resolve(c *gin.Context) {
 	}
 
 	// Fetch updated task to return full representation
-	// TODO: add GetByID to ValidationService for cleaner access
 	updatedTask, fetchErr := h.svc.GetByID(c.Request.Context(), taskID)
 	if fetchErr != nil {
 		c.JSON(http.StatusOK, dto.MessageResponse{Message: "task resolved"})
 		return
 	}
-	c.JSON(http.StatusOK, toValidationTaskDTO(updatedTask))
+	c.JSON(http.StatusOK, h.toValidationTaskDTO(c.Request.Context(), updatedTask))
 }
 
-func toValidationTaskDTO(t *validation.ValidationTask) dto.ValidationTaskResponse {
+func (h *Validation) toValidationTaskDTO(ctx context.Context, t *validation.ValidationTask) dto.ValidationTaskResponse {
 	resp := dto.ValidationTaskResponse{
 		ID:         t.ID.String(),
 		ItemID:     t.ItemID.String(),
@@ -126,7 +128,14 @@ func toValidationTaskDTO(t *validation.ValidationTask) dto.ValidationTaskRespons
 		Status:     string(t.Status),
 		Source:     string(t.Source),
 		CreatedAt:  t.CreatedAt,
-		// TODO: populate ChapterID and ItemTerm — requires joining with chapter/item data
+	}
+	// Enrich with item data (ChapterID + Term)
+	if h.chapterRepo != nil {
+		if item, err := h.chapterRepo.FindItemByID(ctx, t.ItemID); err == nil {
+			chapterID := item.ChapterID.String()
+			resp.ChapterID = chapterID
+			resp.ItemTerm = item.Term
+		}
 	}
 	// Use UpdatedAt as ResolvedAt when task is resolved
 	if t.IsResolved() {

@@ -144,6 +144,10 @@ func (m *mockChapterRepo) SavePage(_ context.Context, p *chapter.Page) error {
 	return nil
 }
 
+func (m *mockChapterRepo) CountRevisionsByChapter(_ context.Context, _ uuid.UUID) (int, error) {
+	return 0, nil
+}
+
 type mockStorage struct {
 	uploaded map[string]string // key -> url
 }

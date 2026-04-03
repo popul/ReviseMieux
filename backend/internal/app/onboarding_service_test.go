@@ -102,6 +102,10 @@ func (m *mockChapterRepoOnboarding) SavePage(_ context.Context, _ *chapter.Page)
 	return nil
 }
 
+func (m *mockChapterRepoOnboarding) CountRevisionsByChapter(_ context.Context, _ uuid.UUID) (int, error) {
+	return 0, nil
+}
+
 type mockMasteryRepoOnboarding struct {
 	masteries []*mastery.Mastery
 }
