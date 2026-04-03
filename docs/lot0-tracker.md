@@ -150,15 +150,15 @@ En parallèle dès Phase 3. Expo Router, composants métier.
 
 | # | Tâche | Statut | Écrans / Composants |
 |---|---|---|---|
-| 7.1 | Navigation Expo Router (tabs, stack, modal) | `[ ]` | `app/_layout.tsx`, tabs |
-| 7.2 | Client API (fetch, auth, error handling) | `[ ]` | `services/api.ts` |
-| 7.3 | Écran upload photo (caméra + galerie) | `[ ]` | `app/upload.tsx` |
-| 7.4 | Écran progression pipeline J0 | `[ ]` | `app/processing.tsx` |
-| 7.5 | Carte leçon (notions, items, visuels) | `[ ]` | `app/chapter/[id].tsx` |
-| 7.6 | Écran session de révision (question → réponse → feedback) | `[ ]` | `app/session/[id].tsx` |
-| 7.7 | Dashboard élève (chapitres, mastery, exams) | `[ ]` | `app/(tabs)/index.tsx` |
+| 7.1 | Navigation Expo Router (tabs, stack, modal) | `[x]` | `app/_layout.tsx`, tabs |
+| 7.2 | Client API (fetch, auth, error handling) | `[~]` | `services/api.ts` |
+| 7.3 | Écran upload photo (caméra + galerie) | `[x]` | `app/(tabs)/capture.tsx` |
+| 7.4 | Écran progression pipeline J0 | `[x]` | `app/processing.tsx` |
+| 7.5 | Carte leçon (notions, items, visuels) | `[x]` | `app/chapter/[id].tsx` |
+| 7.6 | Écran session de révision (question → réponse → feedback) | `[x]` | `app/session/[id].tsx` |
+| 7.7 | Dashboard élève (chapitres, mastery, exams) | `[x]` | `app/(tabs)/index.tsx` |
 | 7.8 | Interface validation HITL (parent) | `[ ]` | `app/validation.tsx` |
-| 7.9 | Onboarding + chapitre démo | `[ ]` | `app/onboarding/` |
+| 7.9 | Onboarding + chapitre démo | `[x]` | `app/onboarding.tsx` |
 
 ---
 
