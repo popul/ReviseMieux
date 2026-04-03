@@ -1,0 +1,51 @@
+{
+  "items": [
+    {
+      "type": "KNOWLEDGE",
+      "term": "Fraction",
+      "keywords": ["numérateur", "dénominateur", "quotient"],
+      "steps": [],
+      "notion_name": "Définition des fractions",
+      "confidence": 0.95
+    },
+    {
+      "type": "PROCEDURE",
+      "term": "Simplification de fractions",
+      "keywords": ["PGCD", "diviser"],
+      "steps": ["Trouver le PGCD du numérateur et du dénominateur", "Diviser les deux par le PGCD", "Vérifier que la fraction est irréductible"],
+      "notion_name": "Opérations sur les fractions",
+      "confidence": 0.88
+    },
+    {
+      "type": "KNOWLEDGE",
+      "term": "Égalité de fractions",
+      "keywords": ["produit en croix", "a×d = b×c"],
+      "steps": [],
+      "notion_name": "Propriétés des fractions",
+      "confidence": 0.92
+    },
+    {
+      "type": "DOCUMENT",
+      "term": "Théorème de Pythagore",
+      "keywords": ["hypoténuse", "triangle rectangle", "carré"],
+      "steps": [],
+      "notion_name": "Géométrie",
+      "confidence": 0.78
+    },
+    {
+      "type": "WRITING",
+      "term": "Rédiger une démonstration",
+      "keywords": ["hypothèse", "conclusion", "donc"],
+      "steps": ["Énoncer les hypothèses", "Appliquer le théorème", "Conclure"],
+      "notion_name": "Méthode de démonstration",
+      "confidence": 0.85
+    }
+  ],
+  "notions": [
+    "Définition des fractions",
+    "Opérations sur les fractions",
+    "Propriétés des fractions",
+    "Géométrie",
+    "Méthode de démonstration"
+  ]
+}
