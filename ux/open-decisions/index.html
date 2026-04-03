@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#decisions-produit-ouvertes-revise-mieux" class="md-skip">
+        <a href="#decisions-produit-revise-mieux" class="md-skip">
           Aller au contenu
         </a>
       
@@ -1466,15 +1466,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#priorite-basse-post-mvp-mais-a-documenter" class="md-nav__link">
+  <a href="#priorite-basse-post-mvp-mais-documente" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Priorite basse (post-MVP mais a documenter)
+        Priorite basse (post-MVP mais documente)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Priorite basse (post-MVP mais a documenter)">
+    <nav class="md-nav" aria-label="Priorite basse (post-MVP mais documente)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1527,10 +1527,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#resume-par-priorite" class="md-nav__link">
+  <a href="#resume" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Resume par priorite
+        Resume
       
     </span>
   </a>
@@ -2327,15 +2327,15 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#priorite-basse-post-mvp-mais-a-documenter" class="md-nav__link">
+  <a href="#priorite-basse-post-mvp-mais-documente" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Priorite basse (post-MVP mais a documenter)
+        Priorite basse (post-MVP mais documente)
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Priorite basse (post-MVP mais a documenter)">
+    <nav class="md-nav" aria-label="Priorite basse (post-MVP mais documente)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2388,10 +2388,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#resume-par-priorite" class="md-nav__link">
+  <a href="#resume" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Resume par priorite
+        Resume
       
     </span>
   </a>
@@ -2418,168 +2418,175 @@
   
 
 
-<h1 id="decisions-produit-ouvertes-revise-mieux">Decisions produit ouvertes -- Revise Mieux<a class="headerlink" href="#decisions-produit-ouvertes-revise-mieux" title="Permanent link">&para;</a></h1>
+<h1 id="decisions-produit-revise-mieux">Decisions produit -- Revise Mieux<a class="headerlink" href="#decisions-produit-revise-mieux" title="Permanent link">&para;</a></h1>
 <blockquote>
-<p>Decisions qui necessitent un arbitrage humain avant l'implementation. Classees par impact et urgence.</p>
+<p>Decisions produit et UX pour le Lot 0. Chaque decision est documentee avec son statut, sa justification et sa date.</p>
 </blockquote>
 <hr />
 <h2 id="haute-priorite-bloquant-pour-le-lot-0-p2">Haute priorite (bloquant pour le Lot 0 P2)<a class="headerlink" href="#haute-priorite-bloquant-pour-le-lot-0-p2" title="Permanent link">&para;</a></h2>
 <h3 id="od-01-app-unique-ou-app-parent-separee">OD-01 : App unique ou app parent separee ?<a class="headerlink" href="#od-01-app-unique-ou-app-parent-separee" title="Permanent link">&para;</a></h3>
+<p><strong>Statut</strong> : Decide -- 2026-04-03</p>
 <p><strong>Question</strong> : Le parent utilise-t-il la meme app que l'eleve (avec un switch de profil) ou une app/PWA distincte ?</p>
-<p><strong>Options</strong> :
-- <strong>(A) Meme app, profil parent</strong> : un compte parent dans la meme app Expo. Toggle entre les vues. Moins de friction a l'installation (un seul store listing). Risque : l'eleve percoit l'app comme "celle de mes parents".
-- <strong>(B) App parent separee</strong> : PWA ou app legere. Separation nette des audiences. L'eleve ne voit jamais l'interface parent. Cout : deux codebases a maintenir.
-- <strong>(C) Meme app, acces parent via web</strong> : le parent accede a un dashboard web. Zero installation supplementaire. Le lien est dans le digest email. Cout : developper un dashboard web.</p>
-<p><strong>Recommandation</strong> : Option (A) pour le Lot 0 avec un switch de profil clair. L'eleve ne doit jamais voir le dashboard parent par accident. Migrer vers (C) en post-MVP si le parent utilise principalement le digest.</p>
+<p><strong>Decision</strong> : App unique, profil parent avec switch.</p>
+<p><strong>Justification</strong> : Simplifie le developpement, une seule codebase. Un seul store listing reduit la friction a l'installation. L'eleve ne voit jamais le dashboard parent grace au switch de profil. Migration possible vers dashboard web (option C) en post-MVP si le parent utilise principalement le digest.</p>
 <p><strong>Impact</strong> : Architecture des routes Expo Router, strategie d'authentification, structure de navigation.</p>
 <hr />
 <h3 id="od-02-auto-evaluation-vs-scoring-automatique-en-lot-0">OD-02 : Auto-evaluation vs scoring automatique en Lot 0<a class="headerlink" href="#od-02-auto-evaluation-vs-scoring-automatique-en-lot-0" title="Permanent link">&para;</a></h3>
+<p><strong>Statut</strong> : Decide -- 2026-04-03</p>
 <p><strong>Question</strong> : Le Lot 0 utilise l'auto-evaluation ("Je savais / Je ne savais pas") car le scoring LLM en temps reel n'est pas implemente. Quand basculer vers le scoring automatique ?</p>
-<p><strong>Options</strong> :
-- <strong>(A) Rester en auto-evaluation pour le Lot 0 entier</strong> : simple, pas de dependance LLM en temps reel. Risque : l'eleve triche (surtout Lucas).
-- <strong>(B) Scoring automatique MCQ des le Lot 0</strong> : les MCQ ont une reponse deterministe, pas besoin de LLM. L'auto-evaluation reste pour les SHORT/KEYWORDS/RUBRIC.
-- <strong>(C) Scoring LLM pour tout des le Lot 0</strong> : experience complete mais dependance forte au LLM pendant les sessions.</p>
-<p><strong>Recommandation</strong> : Option (B). Les MCQ representent ~40% des questions en difficulte 1. Le scoring automatique des MCQ est trivial (comparaison de choix). L'auto-evaluation reste pour les questions ouvertes jusqu'au scoring LLM.</p>
+<p><strong>Decision</strong> : Scoring automatique sur tout (pas seulement MCQ), via LLM backend (Gemini Flash).</p>
+<p><strong>Justification</strong> : Plus fiable que l'auto-evaluation. Le scoring LLM est disponible via Gemini Flash cote backend, ce qui elimine le risque de triche (surtout pour les eleves comme Lucas). Couvre 100% des types de questions (MCQ, SHORT, KEYWORDS, RUBRIC).</p>
 <p><strong>Impact</strong> : Composant de session (affichage feedback), API submit answer, logique de scoring.</p>
 <hr />
 <h3 id="od-03-position-du-bouton-ajouter-des-pages-dans-la-navigation">OD-03 : Position du bouton "Ajouter des pages" dans la navigation<a class="headerlink" href="#od-03-position-du-bouton-ajouter-des-pages-dans-la-navigation" title="Permanent link">&para;</a></h3>
+<p><strong>Statut</strong> : Decide -- 2026-04-03</p>
 <p><strong>Question</strong> : Le bouton "Ajouter des pages" (Z5-AC11) est-il sur la carte du chapitre, dans le tab capture, ou les deux ?</p>
-<p><strong>Options</strong> :
-- <strong>(A) Sur la carte du chapitre uniquement</strong> : l'eleve qui veut ajouter va naturellement sur le chapitre. Coherent avec le contexte.
-- <strong>(B) Dans le tab capture avec selection du chapitre</strong> : l'eleve qui ouvre l'app pour capturer commence par le tab capture. Il choisit ensuite "Nouveau chapitre" ou "Ajouter a [chapitre existant]".
-- <strong>(C) Les deux</strong> : duplication de l'entree mais couverture maximale des comportements.</p>
-<p><strong>Recommandation</strong> : Option (C). Le bouton sur la carte du chapitre couvre le cas "je revise et je vois qu'il manque des pages". Le tab capture couvre le cas "j'ai pris des notes aujourd'hui, je veux les ajouter". Les deux sont des scenarios reels.</p>
+<p><strong>Decision</strong> : Deux boutons "Ajouter des pages" (carte chapitre + tab capture).</p>
+<p><strong>Justification</strong> : Accessibilite maximale, les deux contextes sont naturels. Le bouton sur la carte du chapitre couvre le cas "je revise et je vois qu'il manque des pages". Le tab capture couvre le cas "j'ai pris des notes aujourd'hui, je veux les ajouter".</p>
 <p><strong>Impact</strong> : Navigation capture, flow de selection de chapitre dans le tab capture.</p>
 <hr />
 <h2 id="priorite-moyenne-impacte-lexperience-mais-pas-bloquant">Priorite moyenne (impacte l'experience mais pas bloquant)<a class="headerlink" href="#priorite-moyenne-impacte-lexperience-mais-pas-bloquant" title="Permanent link">&para;</a></h2>
 <h3 id="od-04-moment-daffichage-de-la-saisie-demploi-du-temps">OD-04 : Moment d'affichage de la saisie d'emploi du temps<a class="headerlink" href="#od-04-moment-daffichage-de-la-saisie-demploi-du-temps" title="Permanent link">&para;</a></h3>
+<p><strong>Statut</strong> : Reporte -- 2026-04-03</p>
 <p><strong>Question</strong> : Z6-AC01 specifie que la saisie d'emploi du temps apparait au premier upload d'une matiere. Est-ce le bon moment, ou est-ce trop tot (friction dans le flow de capture) ?</p>
-<p><strong>Options</strong> :
-- <strong>(A) Au premier upload (spec actuelle)</strong> : contextuel, l'eleve sait quand il a cette matiere. Friction : interrompt le flow capture -&gt; pipeline.
-- <strong>(B) Apres la premiere session completee</strong> : l'eleve a deja vecu la valeur. Moins de friction initiale.
-- <strong>(C) Dans les parametres uniquement</strong> : aucune interruption. Risque : personne ne le remplit jamais.</p>
-<p><strong>Recommandation</strong> : Option (A) avec un bouton "Plus tard" tres visible. Le moment est naturel ("tu viens de capturer ton cours de physique, quand as-tu physique ?"). Le mode degrade (Z6-AC11) protege contre le skip.</p>
+<p><strong>Decision</strong> : Reporter -- pas d'emploi du temps en Lot 0.</p>
+<p><strong>Justification</strong> : PRD S11 est post-MVP. La saisie d'emploi du temps ajoute de la friction dans le flow de capture sans apporter de valeur immediate en Lot 0 (1 pere + 1 fils, usage local). Le mode degrade (Z6-AC11) couvre le cas ou l'emploi du temps n'est pas rempli.</p>
 <p><strong>Impact</strong> : Flow de creation de chapitre, timing des ecrans intermediaires.</p>
 <hr />
 <h3 id="od-05-presentation-des-regressions-dans-le-debrief">OD-05 : Presentation des regressions dans le debrief<a class="headerlink" href="#od-05-presentation-des-regressions-dans-le-debrief" title="Permanent link">&para;</a></h3>
+<p><strong>Statut</strong> : Decide -- 2026-04-03</p>
 <p><strong>Question</strong> : Quand un item regresse (SOLID -&gt; OK, OK -&gt; FRAGILE), faut-il le montrer dans le debrief ou le masquer ?</p>
-<p><strong>Options</strong> :
-- <strong>(A) Montrer avec framing positif</strong> : "Ce point a besoin d'un refresh -- on le revoit bientot." Transparent mais potentiellement anxiogene (Ines).
-- <strong>(B) Masquer les regressions</strong> : le debrief ne montre que les progressions positives. L'eleve decouvre la regression dans le dashboard. Risque : sentiment de tromperie.
-- <strong>(C) Montrer uniquement si l'eleve est en mode "detail"</strong> : debrief minimal (score + progressions), bouton "Voir le detail" pour les regressions.</p>
-<p><strong>Recommandation</strong> : Option (C). Le debrief reste positif par defaut (progressions uniquement). L'eleve curieux peut voir le detail. Le framing growth mindset s'applique dans le detail.</p>
+<p><strong>Decision</strong> : Ton neutre pour les regressions ("A revoir", pas de rouge).</p>
+<p><strong>Justification</strong> : Growth mindset, ne pas decourager l'eleve. Le debrief reste positif par defaut (progressions uniquement). Le framing growth mindset s'applique quand le detail est consulte. Pas de signaux visuels anxiogenes (rouge, croix, alertes).</p>
 <p><strong>Impact</strong> : Composant debrief, structure de la reponse API debrief.</p>
 <hr />
 <h3 id="od-06-nombre-de-notifications-parent-par-defaut">OD-06 : Nombre de notifications parent par defaut<a class="headerlink" href="#od-06-nombre-de-notifications-parent-par-defaut" title="Permanent link">&para;</a></h3>
+<p><strong>Statut</strong> : Decide -- 2026-04-04</p>
 <p><strong>Question</strong> : Quelles notifications parent sont activees par defaut a la liaison ?</p>
-<p><strong>Options</strong> :
-- <strong>(A) Tout active</strong> : routine terminee, session manquee, inactivite, changement EDT. Risque : trop de bruit, le parent desactive tout.
-- <strong>(B) Minimal</strong> : uniquement routine terminee + digest hebdo. Le parent active le reste si il veut.
-- <strong>(C) Progressive</strong> : semaine 1 = routine terminee uniquement. Semaine 2 = ajout digest. Semaine 3 = ajout alertes inactivite.</p>
-<p><strong>Recommandation</strong> : Option (B). Le signal positif (routine terminee) et le digest hebdo couvrent 80% du besoin. Les alertes negatives (session manquee, inactivite) sont opt-in pour eviter l'alert fatigue.</p>
+<p><strong>Decision</strong> : 1 notification parent/semaine (digest).</p>
+<p><strong>Justification</strong> : Pas de spam en Lot 0, le parent consulte quand il veut. Le signal positif (routine terminee) et le digest hebdo couvrent 80% du besoin. Les alertes negatives (session manquee, inactivite) sont opt-in pour eviter l'alert fatigue.</p>
 <p><strong>Impact</strong> : ParentNotificationPref defaults, ecran de preferences parent.</p>
 <hr />
 <h3 id="od-07-traitement-du-chapitre-demo-apres-le-premier-upload">OD-07 : Traitement du chapitre demo apres le premier upload<a class="headerlink" href="#od-07-traitement-du-chapitre-demo-apres-le-premier-upload" title="Permanent link">&para;</a></h3>
+<p><strong>Statut</strong> : Decide -- 2026-04-03</p>
 <p><strong>Question</strong> : Z8-AC01 specifie que le chapitre demo est archive automatiquement quand le premier vrai chapitre produit &gt;= 1 item. Faut-il le supprimer ou l'archiver ?</p>
-<p><strong>Options</strong> :
-- <strong>(A) Archiver (masquer du dashboard)</strong> : le chapitre demo reste en base, les masteries demo sont conservees. L'eleve peut le retrouver dans les parametres.
-- <strong>(B) Supprimer</strong> : nettoyage complet. Pas de pollution en base.</p>
-<p><strong>Recommandation</strong> : Option (A). L'archivage est non-destructif. Si l'eleve veut revenir au chapitre demo (rare mais possible), il peut.</p>
+<p><strong>Decision</strong> : Garder le chapitre demo visible, marque "Demo", suppressible.</p>
+<p><strong>Justification</strong> : L'eleve peut le supprimer, mais il reste comme reference. L'archivage est non-destructif. Si l'eleve veut revenir au chapitre demo (rare mais possible), il peut. Le marquage "Demo" evite la confusion avec les vrais chapitres.</p>
 <p><strong>Impact</strong> : Logique d'archivage, filtre dashboard.</p>
 <hr />
-<h2 id="priorite-basse-post-mvp-mais-a-documenter">Priorite basse (post-MVP mais a documenter)<a class="headerlink" href="#priorite-basse-post-mvp-mais-a-documenter" title="Permanent link">&para;</a></h2>
+<h2 id="priorite-basse-post-mvp-mais-documente">Priorite basse (post-MVP mais documente)<a class="headerlink" href="#priorite-basse-post-mvp-mais-documente" title="Permanent link">&para;</a></h2>
 <h3 id="od-08-gestion-multi-enfants-pour-le-parent">OD-08 : Gestion multi-enfants pour le parent<a class="headerlink" href="#od-08-gestion-multi-enfants-pour-le-parent" title="Permanent link">&para;</a></h3>
+<p><strong>Statut</strong> : Reporte -- 2026-04-03</p>
 <p><strong>Question</strong> : Un parent avec 2 enfants dans l'app (ex: Theo en 4e et sa soeur en 6e) voit-il un dashboard unifie ou deux dashboards separes ?</p>
-<p><strong>Recommandation</strong> : Dashboard avec un selecteur d'enfant en haut. Notifications distinctes par enfant (Z6-AC39). A specifier en detail post-MVP.</p>
+<p><strong>Decision</strong> : Reporter multi-enfants au MVP.</p>
+<p><strong>Justification</strong> : Lot 0 = 1 pere + 1 fils. Le multi-enfants introduit de la complexite (selecteur d'enfant, notifications distinctes par enfant Z6-AC39) sans valeur pour le cas d'usage Lot 0. A specifier en detail post-MVP.</p>
 <hr />
 <h3 id="od-09-partage-de-contenu-entre-eleves">OD-09 : Partage de contenu entre eleves<a class="headerlink" href="#od-09-partage-de-contenu-entre-eleves" title="Permanent link">&para;</a></h3>
+<p><strong>Statut</strong> : Reporte -- 2026-04-03</p>
 <p><strong>Question</strong> : Deux eleves de la meme classe peuvent-ils partager un chapitre (eviter le double OCR) ?</p>
-<p><strong>Recommandation</strong> : Hors scope Lot 0. Le partage introduit des problemes de propriete des masteries, de RGPD, et d'integrite pedagogique. A evaluer en phase 2.</p>
+<p><strong>Decision</strong> : Reporter partage entre eleves.</p>
+<p><strong>Justification</strong> : Hors scope Lot 0 et MVP. Le partage introduit des problemes de propriete des masteries, de RGPD, et d'integrite pedagogique. A evaluer en phase 2.</p>
 <hr />
 <h3 id="od-10-localisation-langues-autres-que-le-francais">OD-10 : Localisation (langues autres que le francais)<a class="headerlink" href="#od-10-localisation-langues-autres-que-le-francais" title="Permanent link">&para;</a></h3>
+<p><strong>Statut</strong> : Reporte -- 2026-04-03</p>
 <p><strong>Question</strong> : L'app est entierement en francais. Faut-il prevoir l'internationalisation des le depart ?</p>
-<p><strong>Recommandation</strong> : Non pour le Lot 0. Les messages de feedback (growth mindset, debrief) sont trop culturellement specifiques pour etre traduits mecaniquement. Structurer le code pour i18n (fichiers de strings, pas de texte en dur dans les composants) mais ne pas investir dans les traductions.</p>
+<p><strong>Decision</strong> : Reporter localisation (francais uniquement).</p>
+<p><strong>Justification</strong> : MVP = marche francais. Les messages de feedback (growth mindset, debrief) sont trop culturellement specifiques pour etre traduits mecaniquement. Structurer le code pour i18n (fichiers de strings, pas de texte en dur dans les composants) mais ne pas investir dans les traductions.</p>
 <hr />
 <h3 id="od-11-monetisation-et-impact-sur-lux">OD-11 : Monetisation et impact sur l'UX<a class="headerlink" href="#od-11-monetisation-et-impact-sur-lux" title="Permanent link">&para;</a></h3>
+<p><strong>Statut</strong> : Reporte -- 2026-04-03</p>
 <p><strong>Question</strong> : Le modele freemium (prevu en phase 3 du PRD) impactera l'experience. Quelles fonctionnalites sont candidates au paywall ?</p>
-<p><strong>Recommandation</strong> : A definir post-MVP. Ne pas designer de fonctionnalites avec un paywall en tete pour le Lot 0. Le risque est de degrader l'experience gratuite au point de perdre l'adoption.</p>
+<p><strong>Decision</strong> : Reporter monetisation.</p>
+<p><strong>Justification</strong> : Gratuit en Lot 0, monetisation post-MVP. Ne pas designer de fonctionnalites avec un paywall en tete pour le Lot 0. Le risque est de degrader l'experience gratuite au point de perdre l'adoption.</p>
 <hr />
-<h2 id="resume-par-priorite">Resume par priorite<a class="headerlink" href="#resume-par-priorite" title="Permanent link">&para;</a></h2>
+<h2 id="resume">Resume<a class="headerlink" href="#resume" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
 <th>ID</th>
 <th>Decision</th>
-<th>Priorite</th>
-<th>Bloquant pour</th>
+<th>Statut</th>
+<th>Date</th>
+<th>Justification</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>OD-01</td>
-<td>App unique vs separee (parent)</td>
-<td>Haute</td>
-<td>Architecture routes</td>
+<td>App unique, profil parent avec switch</td>
+<td>Decide</td>
+<td>2026-04-03</td>
+<td>Simplifie le developpement, une seule codebase</td>
 </tr>
 <tr>
 <td>OD-02</td>
-<td>Auto-eval vs scoring auto MCQ</td>
-<td>Haute</td>
-<td>Composant session</td>
+<td>Scoring automatique sur tout via LLM</td>
+<td>Decide</td>
+<td>2026-04-03</td>
+<td>Plus fiable que l'auto-evaluation</td>
 </tr>
 <tr>
 <td>OD-03</td>
-<td>Position bouton "Ajouter des pages"</td>
-<td>Haute</td>
-<td>Navigation capture</td>
+<td>Deux boutons "Ajouter des pages"</td>
+<td>Decide</td>
+<td>2026-04-03</td>
+<td>Accessibilite maximale, deux contextes naturels</td>
 </tr>
 <tr>
 <td>OD-04</td>
-<td>Moment saisie emploi du temps</td>
-<td>Moyenne</td>
-<td>Flow creation chapitre</td>
+<td>Reporter emploi du temps</td>
+<td>Reporte</td>
+<td>2026-04-03</td>
+<td>PRD S11 est post-MVP</td>
 </tr>
 <tr>
 <td>OD-05</td>
-<td>Regressions dans le debrief</td>
-<td>Moyenne</td>
-<td>Composant debrief</td>
+<td>Ton neutre pour regressions</td>
+<td>Decide</td>
+<td>2026-04-03</td>
+<td>Growth mindset</td>
 </tr>
 <tr>
 <td>OD-06</td>
-<td>Notifications parent par defaut</td>
-<td>Moyenne</td>
-<td>Preferences parent</td>
+<td>1 notification parent/semaine</td>
+<td>Decide</td>
+<td>2026-04-04</td>
+<td>Pas de spam en Lot 0</td>
 </tr>
 <tr>
 <td>OD-07</td>
-<td>Demo archive vs supprime</td>
-<td>Moyenne</td>
-<td>Logique archivage</td>
+<td>Demo visible, marquee, suppressible</td>
+<td>Decide</td>
+<td>2026-04-03</td>
+<td>Reference pour l'eleve</td>
 </tr>
 <tr>
 <td>OD-08</td>
-<td>Multi-enfants parent</td>
-<td>Basse</td>
-<td>Post-MVP</td>
+<td>Reporter multi-enfants</td>
+<td>Reporte</td>
+<td>2026-04-03</td>
+<td>Lot 0 = 1 pere + 1 fils</td>
 </tr>
 <tr>
 <td>OD-09</td>
-<td>Partage entre eleves</td>
-<td>Basse</td>
-<td>Post-MVP</td>
+<td>Reporter partage entre eleves</td>
+<td>Reporte</td>
+<td>2026-04-03</td>
+<td>Hors scope Lot 0 et MVP</td>
 </tr>
 <tr>
 <td>OD-10</td>
-<td>Internationalisation</td>
-<td>Basse</td>
-<td>Post-MVP</td>
+<td>Reporter localisation</td>
+<td>Reporte</td>
+<td>2026-04-03</td>
+<td>MVP = marche francais</td>
 </tr>
 <tr>
 <td>OD-11</td>
-<td>Monetisation et paywall</td>
-<td>Basse</td>
-<td>Phase 3</td>
+<td>Reporter monetisation</td>
+<td>Reporte</td>
+<td>2026-04-03</td>
+<td>Gratuit en Lot 0</td>
 </tr>
 </tbody>
 </table>
