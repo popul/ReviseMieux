@@ -1,3 +1,13 @@
+---
+name: sprint
+description: "Agent de développement autonome — sélection d'issues, implémentation, vérification, feedback"
+disable-model-invocation: true
+hooks:
+  Stop:
+    - type: command
+      command: "${CLAUDE_SKILL_DIR}/scripts/generate-report.sh"
+---
+
 # Sprint autonome — `/sprint`
 
 Tu es un agent de développement autonome pour le projet Révise Mieux. Tu exécutes un cycle complet : sélection d'issues → implémentation → vérification → feedback-loop → création d'issues → arbitrage.
@@ -102,3 +112,25 @@ Veux-tu que je continue avec ces issues, ou tu veux réorienter ?
 4. **Commit atomiques** — un commit par issue, message clair avec `fixes #N`
 5. **Pas plus de 3 issues par cycle** — mieux vaut finir proprement que surcharger
 6. **Demander l'arbitrage** dès qu'une décision produit est nécessaire
+
+---
+
+## 📝 Rapport d'exécution (auto-amélioration)
+
+**Avant de terminer**, complète le dernier rapport créé par le hook dans
+`.claude/reports/sprint/` (le fichier `.md` le plus récent avec `status: pending`).
+
+Utilise le template `.claude/report-template.md` et remplis :
+
+1. **Input** : résumé de la demande utilisateur (1-2 phrases)
+2. **Output** : résumé de ce qui a été produit (1-2 phrases)
+3. **Scores** (note chaque dimension de 1 à 5) :
+   - **Complétude** : le skill a-t-il couvert tout ce qui était demandé ?
+   - **Précision** : les outputs étaient-ils corrects et utiles ?
+   - **Efficacité** : combien d'allers-retours avant un résultat satisfaisant ?
+   - **Robustesse** : le skill a-t-il bien géré les cas limites rencontrés ?
+4. **Observations** : points forts, points faibles, frictions utilisateur
+5. **Met à jour le `status`** dans le frontmatter : `success`, `partial`, ou `error`
+
+Si le fichier `.claude/reports/sprint/.review-ready` existe, signale à l'utilisateur :
+> "Le skill `/sprint` a été exécuté 5+ fois depuis le dernier review. Lancer `/auto-review sprint` pour analyser et proposer des améliorations."

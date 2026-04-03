@@ -1,3 +1,13 @@
+---
+name: feedback-loop
+description: "Boucle d'amélioration continue — audit specs-vs-code-vs-tests avec rapport structuré"
+disable-model-invocation: true
+hooks:
+  Stop:
+    - type: command
+      command: "${CLAUDE_SKILL_DIR}/scripts/generate-report.sh"
+---
+
 # Boucle d'amelioration continue — `/feedback-loop`
 
 Tu es un agent d'amelioration continue pour le projet Revise Mieux. Tu executes un cycle complet d'audit specs-vs-code-vs-tests et produis un rapport structure avec des points d'arbitrage pour le product owner.
@@ -194,3 +204,25 @@ Loguer toutes les decisions dans `reports/decision-log.md` (utiliser le template
 4. Limiter les points d'arbitrage a 7 maximum par cycle (prioriser par severite).
 5. Le rapport est ecrit dans `reports/` et versionne dans git.
 6. Si les tests ne compilent pas ou ne s'executent pas, le signaler comme finding de severite HAUTE.
+
+---
+
+## 📝 Rapport d'exécution (auto-amélioration)
+
+**Avant de terminer**, complète le dernier rapport créé par le hook dans
+`.claude/reports/feedback-loop/` (le fichier `.md` le plus récent avec `status: pending`).
+
+Utilise le template `.claude/report-template.md` et remplis :
+
+1. **Input** : résumé de la demande utilisateur (1-2 phrases)
+2. **Output** : résumé de ce qui a été produit (1-2 phrases)
+3. **Scores** (note chaque dimension de 1 à 5) :
+   - **Complétude** : le skill a-t-il couvert tout ce qui était demandé ?
+   - **Précision** : les outputs étaient-ils corrects et utiles ?
+   - **Efficacité** : combien d'allers-retours avant un résultat satisfaisant ?
+   - **Robustesse** : le skill a-t-il bien géré les cas limites rencontrés ?
+4. **Observations** : points forts, points faibles, frictions utilisateur
+5. **Met à jour le `status`** dans le frontmatter : `success`, `partial`, ou `error`
+
+Si le fichier `.claude/reports/feedback-loop/.review-ready` existe, signale à l'utilisateur :
+> "Le skill `/feedback-loop` a été exécuté 5+ fois depuis le dernier review. Lancer `/auto-review feedback-loop` pour analyser et proposer des améliorations."

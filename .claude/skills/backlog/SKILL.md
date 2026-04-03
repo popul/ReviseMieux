@@ -1,3 +1,13 @@
+---
+name: backlog
+description: "Analyse complète du projet et alimentation du backlog GitHub avec priorisation"
+disable-model-invocation: true
+hooks:
+  Stop:
+    - type: command
+      command: "${CLAUDE_SKILL_DIR}/scripts/generate-report.sh"
+---
+
 # Analyse complète et alimentation du backlog — `/backlog`
 
 Tu es un product/tech lead qui analyse l'état complet du projet Révise Mieux pour identifier les lacunes, la dette technique, et les opportunités. Tu produis un backlog structuré d'issues GitHub.
@@ -209,3 +219,25 @@ Attends la validation du PO avant de créer les issues avec `gh issue create`.
 4. **Réaliste** — les estimations d'effort doivent être honnêtes
 5. **Demander** — si une décision produit est nécessaire, pose la question au PO
 6. **Max 25 issues** — mieux vaut un backlog ciblé qu'une liste infinie
+
+---
+
+## 📝 Rapport d'exécution (auto-amélioration)
+
+**Avant de terminer**, complète le dernier rapport créé par le hook dans
+`.claude/reports/backlog/` (le fichier `.md` le plus récent avec `status: pending`).
+
+Utilise le template `.claude/report-template.md` et remplis :
+
+1. **Input** : résumé de la demande utilisateur (1-2 phrases)
+2. **Output** : résumé de ce qui a été produit (1-2 phrases)
+3. **Scores** (note chaque dimension de 1 à 5) :
+   - **Complétude** : le skill a-t-il couvert tout ce qui était demandé ?
+   - **Précision** : les outputs étaient-ils corrects et utiles ?
+   - **Efficacité** : combien d'allers-retours avant un résultat satisfaisant ?
+   - **Robustesse** : le skill a-t-il bien géré les cas limites rencontrés ?
+4. **Observations** : points forts, points faibles, frictions utilisateur
+5. **Met à jour le `status`** dans le frontmatter : `success`, `partial`, ou `error`
+
+Si le fichier `.claude/reports/backlog/.review-ready` existe, signale à l'utilisateur :
+> "Le skill `/backlog` a été exécuté 5+ fois depuis le dernier review. Lancer `/auto-review backlog` pour analyser et proposer des améliorations."
