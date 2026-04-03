@@ -11,7 +11,7 @@
 >
 > Ce document a été rédigé **avant** l'exécution du benchmark. Les résultats estimés, les tableaux de scores fictifs et les recommandations de modèles ci-dessous sont **obsolètes**.
 >
-> Les **résultats réels** (21 modèles IDP, 17 modèles OCR) sont dans [`backend/testdata/benchmark/README.md`](../backend/testdata/benchmark/README.md).
+> Les **résultats réels** (21 modèles IDP, 17 modèles OCR) sont dans [`backend/testdata/benchmark/README.md`](https://github.com/popul/ReviseMieux/blob/reboot/backend/testdata/benchmark/README.md).
 >
 > Changements majeurs par rapport aux prédictions de ce document :
 > - **Claude Sonnet n'est plus recommandé** — seul modèle avec des hallucinations (8%), et 30-50x plus cher que les alternatives à qualité égale ou supérieure.
@@ -48,7 +48,7 @@ Le fichier `input.json` de chaque cas de test sert de **charnière** : c'est le 
 
 ### 2.1 Modèles testés
 
-> **Mis à jour mars 2026.** 21 modèles IDP, 17 modèles OCR testés. Voir [`backend/testdata/benchmark/README.md`](../backend/testdata/benchmark/README.md) pour les résultats complets.
+> **Mis à jour mars 2026.** 21 modèles IDP, 17 modèles OCR testés. Voir [`backend/testdata/benchmark/README.md`](https://github.com/popul/ReviseMieux/blob/reboot/backend/testdata/benchmark/README.md) pour les résultats complets.
 
 | Provider | Modèle | Vision | Accès | Benchmarks |
 |----------|--------|--------|-------|------------|
@@ -198,7 +198,7 @@ Cas prioritaires à ajouter pour rendre le benchmark fiable (diversité des mati
 | Maths / Physique | Formules, calculs, tableaux de mesures | Élevé |
 | Cahier brouillon | Écriture difficile, ratures | Élevé |
 
-Voir [`backend/testdata/benchmark/cases/README.md`](../backend/testdata/benchmark/cases/README.md) pour le guide de création de cas.
+Voir [`backend/testdata/benchmark/cases/README.md`](https://github.com/popul/ReviseMieux/blob/reboot/backend/testdata/benchmark/cases/README.md) pour le guide de création de cas.
 
 ### 4.2 Référence humaine (golden output)
 
@@ -360,7 +360,7 @@ Exemple de sortie console (résultats réels, mars 2026) :
 ╚══════════════════════════╩═══════╩═══════╩═══════╩═════════╩════════╩═══════════╝
 ```
 
-Voir [`backend/testdata/benchmark/README.md`](../backend/testdata/benchmark/README.md) pour les résultats complets des 21 modèles.
+Voir [`backend/testdata/benchmark/README.md`](https://github.com/popul/ReviseMieux/blob/reboot/backend/testdata/benchmark/README.md) pour les résultats complets des 21 modèles.
 
 ---
 
@@ -743,7 +743,7 @@ Recommandations :
 | **Ultra-cheap** | Nemotron Nano VL (gratuit) | Gemma 3 27B (quality 0.84) | ~$0.000 |
 | **Local (Ollama)** | Qwen3-VL-32B Q8 | Gemma 3 27B Q8 | $0 (~2 min/chapitre) |
 
-Voir [`backend/testdata/benchmark/README.md`](../backend/testdata/benchmark/README.md) pour le classement complet.
+Voir [`backend/testdata/benchmark/README.md`](https://github.com/popul/ReviseMieux/blob/reboot/backend/testdata/benchmark/README.md) pour le classement complet.
 
 ### 8.3 Scénarios de décision
 

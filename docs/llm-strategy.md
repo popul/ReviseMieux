@@ -13,7 +13,7 @@
 > - **mistral-small** et **Qwen3.5-397B** offrent une meilleure qualité (0.87-0.88) à $0.00006-0.00011/item.
 > - **L'exécution locale est viable** pour le Lot 0 (Qwen3-VL-32B + Gemma 3 27B via Ollama, ~2 min/chapitre, $0).
 >
-> Voir [`backend/testdata/benchmark/README.md`](../backend/testdata/benchmark/README.md) pour les résultats complets et les combos recommandés.
+> Voir [`backend/testdata/benchmark/README.md`](https://github.com/popul/ReviseMieux/blob/reboot/backend/testdata/benchmark/README.md) pour les résultats complets et les combos recommandés.
 >
 > L'architecture (ports, prompts versionnés, logging, monitoring, tests) décrite ci-dessous reste valide — seuls les choix de modèles changent.
 
@@ -509,7 +509,7 @@ Le framework de benchmark existe dans `backend/cmd/benchmark/`. Il faut ajouter 
 
 ## 9. Résumé des décisions
 
-> **Mis à jour mars 2026** après benchmark réel sur 21 modèles. Voir [`backend/testdata/benchmark/README.md`](../backend/testdata/benchmark/README.md).
+> **Mis à jour mars 2026** après benchmark réel sur 21 modèles. Voir [`backend/testdata/benchmark/README.md`](https://github.com/popul/ReviseMieux/blob/reboot/backend/testdata/benchmark/README.md).
 
 | Décision | Choix initial | Choix post-benchmark | Raison du changement |
 |----------|--------------|---------------------|---------------------|
