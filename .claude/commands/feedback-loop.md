@@ -66,7 +66,7 @@ cd backend && go build ./... 2>&1
 cd backend && go test ./... -v -count=1 2>&1
 
 # Coverage Go (si les tests passent)
-cd backend && go test -coverprofile=/tmp/coverage.out ./... 2>&1 && go tool cover -func=/tmp/coverage.out 2>&1
+cd backend && go test -coverprofile=coverage.out ./... 2>&1 && go tool cover -func=coverage.out 2>&1
 
 # Lint Go (optionnel -- ne pas bloquer si golangci-lint n'est pas installe)
 cd backend && golangci-lint run 2>&1 || echo "golangci-lint non disponible, skip"
