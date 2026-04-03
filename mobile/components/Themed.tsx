@@ -153,15 +153,18 @@ export function ProgressBar({
   progress,
   color,
   height = 8,
+  testID,
 }: {
   progress: number;
   color?: string;
   height?: number;
+  testID?: string;
 }) {
   const colors = useColors();
   const clamp = Math.max(0, Math.min(1, progress));
   return (
     <DefaultView
+      testID={testID}
       style={{
         height,
         borderRadius: height / 2,

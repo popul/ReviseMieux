@@ -155,7 +155,7 @@ export default function ChapterScreen() {
                 </Pressable>
 
                 {isExpanded && (
-                  <RNView style={styles.itemList}>
+                  <RNView testID="chapter-item-list" style={styles.itemList}>
                     {notion.items.map((item) => (
                       <RNView key={item.id} style={styles.itemRow}>
                         <RNView style={{ flex: 1 }}>
@@ -191,6 +191,7 @@ export default function ChapterScreen() {
       {/* Floating CTA */}
       <RNView style={[styles.floatingCTA, { backgroundColor: colors.background, borderTopColor: colors.border, paddingBottom: insets.bottom + spacing.sm }]}>
         <Button
+          testID="chapter-revise-btn"
           title="🎯  Lancer une session"
           variant="primary"
           fullWidth

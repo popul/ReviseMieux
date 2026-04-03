@@ -138,6 +138,7 @@ export default function DashboardScreen() {
       {/* Capture CTA */}
       <RNView style={[styles.section, { alignItems: 'center' }]}>
         <Button
+          testID="dashboard-capture-btn"
           title="📸  Capturer un cours"
           variant="primary"
           fullWidth
@@ -156,7 +157,7 @@ function ChapterCard({ chapter }: { chapter: Chapter }) {
   const pct = total > 0 ? Math.round((mastered / total) * 100) : 0;
 
   return (
-    <Pressable onPress={() => router.push(`/chapter/${chapter.id}`)}>
+    <Pressable testID="dashboard-chapter-card" onPress={() => router.push(`/chapter/${chapter.id}`)}>
       <Card style={{ marginBottom: spacing.sm }}>
         <RNView style={styles.chapterHeader}>
           <RNView style={{ flex: 1 }}>
@@ -177,6 +178,7 @@ function ChapterCard({ chapter }: { chapter: Chapter }) {
             {chapter.item_count} items
           </RNText>
           <Button
+            testID="dashboard-revise-btn"
             title={chapter.is_demo ? 'Essayer' : 'Réviser'}
             variant="secondary"
             onPress={() => router.push(`/chapter/${chapter.id}`)}

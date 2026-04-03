@@ -66,7 +66,7 @@ export default function ProcessingScreen() {
           {PHASE_MESSAGES[phase]}
         </RNText>
 
-        <RNView style={{ width: '80%', marginTop: spacing.xl }}>
+        <RNView testID="processing-indicator" style={{ width: '80%', marginTop: spacing.xl }}>
           <ProgressBar progress={progress} height={10} />
           <RNText style={[typography.caption, { color: colors.textSecondary, textAlign: 'center', marginTop: spacing.sm }]}>
             Phase {phase}/3 · {Math.round(progress * 100)}%

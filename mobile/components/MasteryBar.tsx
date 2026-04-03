@@ -40,7 +40,7 @@ export function MasteryBar({ breakdown, height = 10, showLabel = true }: Props) 
   ].filter((s) => s.value > 0);
 
   return (
-    <RNView style={{ gap: spacing.xs }}>
+    <RNView testID="mastery-bar" style={{ gap: spacing.xs }}>
       <RNView
         style={{
           height,
