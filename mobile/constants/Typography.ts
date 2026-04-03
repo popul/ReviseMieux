@@ -1,7 +1,8 @@
 import { TextStyle } from 'react-native';
 
 export const typography: Record<string, TextStyle> = {
-  h1: { fontSize: 28, fontWeight: '700', lineHeight: 34 },
+  display: { fontSize: 36, fontWeight: '700', lineHeight: 44 },
+  h1: { fontSize: 32, fontWeight: '700', lineHeight: 40 },
   h2: { fontSize: 22, fontWeight: '700', lineHeight: 28 },
   h3: { fontSize: 18, fontWeight: '600', lineHeight: 24 },
   body: { fontSize: 16, fontWeight: '400', lineHeight: 22 },
@@ -9,6 +10,13 @@ export const typography: Record<string, TextStyle> = {
   caption: { fontSize: 14, fontWeight: '400', lineHeight: 18 },
   captionBold: { fontSize: 14, fontWeight: '600', lineHeight: 18 },
   small: { fontSize: 12, fontWeight: '400', lineHeight: 16 },
+  label: {
+    fontSize: 14,
+    fontWeight: '700' as const,
+    lineHeight: 18,
+    textTransform: 'uppercase' as const,
+    letterSpacing: 0.5,
+  },
 };
 
 export const spacing = {

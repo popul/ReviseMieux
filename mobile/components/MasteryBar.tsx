@@ -1,4 +1,5 @@
-import { View as RNView, Text as RNText } from 'react-native';
+import { useRef, useEffect } from 'react';
+import { View as RNView, Text as RNText, Animated, Easing } from 'react-native';
 import { masteryColors } from '@/constants/Colors';
 import { useColors } from '@/components/Themed';
 import { typography, spacing, radius } from '@/constants/Typography';
@@ -14,6 +15,13 @@ type Props = {
   breakdown: MasteryBreakdown;
   height?: number;
   showLabel?: boolean;
+};
+
+export const masteryLabels: Record<string, string> = {
+  unknown: 'Nouveau',
+  fragile: 'En cours',
+  ok: 'Compris',
+  solid: 'Acquis',
 };
 
 export function MasteryBar({ breakdown, height = 10, showLabel = true }: Props) {
@@ -43,13 +51,10 @@ export function MasteryBar({ breakdown, height = 10, showLabel = true }: Props) 
         }}
       >
         {segments.map((seg) => (
-          <RNView
+          <AnimatedSegment
             key={seg.key}
-            style={{
-              width: `${(seg.value / total) * 100}%`,
-              height: '100%',
-              backgroundColor: seg.color,
-            }}
+            widthPct={(seg.value / total) * 100}
+            color={seg.color}
           />
         ))}
       </RNView>
@@ -59,6 +64,39 @@ export function MasteryBar({ breakdown, height = 10, showLabel = true }: Props) 
         </RNText>
       )}
     </RNView>
+  );
+}
+
+type AnimatedSegmentProps = {
+  widthPct: number;
+  color: string;
+};
+
+function AnimatedSegment({ widthPct, color }: AnimatedSegmentProps) {
+  const animValue = useRef(new Animated.Value(widthPct)).current;
+
+  useEffect(() => {
+    Animated.timing(animValue, {
+      toValue: widthPct,
+      duration: 200,
+      easing: Easing.ease,
+      useNativeDriver: false,
+    }).start();
+  }, [widthPct, animValue]);
+
+  const widthStyle = animValue.interpolate({
+    inputRange: [0, 100],
+    outputRange: ['0%', '100%'],
+  });
+
+  return (
+    <Animated.View
+      style={{
+        width: widthStyle,
+        height: '100%',
+        backgroundColor: color,
+      }}
+    />
   );
 }
 

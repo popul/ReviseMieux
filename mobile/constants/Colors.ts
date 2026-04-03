@@ -8,6 +8,12 @@ const palette = {
   orangeLight: '#FFF3E0',
   red: '#FF3B30',
   redLight: '#FFEBEE',
+  secondary: '#7C5CFC',
+  secondaryLight: '#EDE8FF',
+  ambre: '#F5A623',
+  ambreLight: '#FFF8E1',
+  greenRich: '#2ECC71',
+  greenRichLight: '#E8F8F0',
   gray50: '#FAFAFA',
   gray100: '#F5F5F5',
   gray200: '#EEEEEE',
@@ -23,10 +29,10 @@ const palette = {
 };
 
 export const masteryColors = {
-  unknown: palette.gray400,
-  fragile: palette.orange,
+  unknown: palette.gray500,
+  fragile: palette.ambre,
   ok: palette.blue,
-  solid: palette.green,
+  solid: palette.greenRich,
 };
 
 export default {
