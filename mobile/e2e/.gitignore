@@ -1,3 +1,7 @@
 # Videos generees par maestro record
 videos/
 *.mp4
+
+# Debug artifacts Maestro
+.maestro-tests/
+

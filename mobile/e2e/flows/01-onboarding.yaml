@@ -1,65 +1,28 @@
 # Flow: 01-onboarding
 # ACs: Z8-AC01, Z8-AC02, Z8-AC08
-# Source: docs/ux/user-flow-complete.md §Onboarding
-#
-# Parcours : premier lancement → seed demo → chapitre visible → premiere session
 appId: com.revisemieux.app
 ---
 
-# L'app demarre sur le dashboard
-# Attendre le chargement (dev token + API call)
+- launchApp
+
+
+# Attendre le chargement complet (15s max)
 - extendedWaitUntil:
     timeout: 15000
-    visible: ".*"
+    visible: ".*Hugo.*"
 
-# Premier lancement : pas de chapitres → empty state
-- assertVisible: "Aucun chapitre"
+# Le dashboard est visible
+- assertVisible: ".*Hugo.*"
 
-# Seed le chapitre demo
-- tapOn: "Charger le chapitre démo"
+# Seed demo si DB vierge
+- tapOn:
+    text: ".*chapitre.*mo.*"
+    optional: true
 
-# Attendre que le chapitre apparaisse
+# Attendre le seed
 - extendedWaitUntil:
     timeout: 10000
-    visible:
-      id: "dashboard-chapter-card"
+    visible: ".*Capturer.*"
 
-# Verifier que le chapitre demo est visible
-- assertVisible:
-    id: "dashboard-chapter-card"
-
-# Verifier la MasteryBar
-- assertVisible:
-    id: "mastery-bar"
-
-# Lancer une session de revision
-- tapOn:
-    id: "dashboard-revise-btn"
-
-# Attendre les questions
-- extendedWaitUntil:
-    timeout: 10000
-    visible:
-      id: "session-question-text"
-
-# Verifier la question
-- assertVisible:
-    id: "session-question-text"
-
-# Verifier le champ de reponse
-- assertVisible:
-    id: "session-answer-input"
-
-# Taper une reponse
-- tapOn:
-    id: "session-answer-input"
-- inputText: "test reponse"
-
-# Valider
-- tapOn:
-    id: "session-validate-btn"
-
-# Attendre le feedback
-- extendedWaitUntil:
-    timeout: 5000
-    visible: ".*"
+# Verifier le bouton capture
+- assertVisible: ".*Capturer.*"

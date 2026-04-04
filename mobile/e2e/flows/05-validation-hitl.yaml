@@ -1,20 +1,14 @@
-# Flow: 05-validation-hitl
+# Flow: 05-validation-hitl (smoke test)
 # ACs: Z3-AC01, Z3-AC02, Z3-AC06
-# Source: docs/ux/user-flow-complete.md §Validation HITL
-#
-# Note: ce flow ne peut fonctionner que s'il y a des ValidationTasks pending.
-# En mode demo sans pipeline reel, il n'y aura pas de tasks.
-# Ce flow verifie seulement que l'ecran se charge sans crash.
 appId: com.revisemieux.app
 ---
 
-# Attendre le chargement
+- launchApp
+
+
 - extendedWaitUntil:
     timeout: 15000
-    visible: ".*"
+    visible: ".*Hugo.*"
 
-# L'ecran validation est accessible mais peut etre vide
-# On verifie juste que l'app ne crash pas
-- extendedWaitUntil:
-    timeout: 5000
-    visible: ".*"
+# L'app demarre sans crash
+- assertVisible: ".*Hugo.*"

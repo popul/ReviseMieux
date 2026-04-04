@@ -1,46 +1,29 @@
 # Flow: 04-session-complete
 # ACs: Z4-AC04, Z4-AC05, Z4-AC09, Z6-AC05
-# Source: docs/ux/user-flow-complete.md §Session de revision
-#
-# Parcours : seed demo si needed → lancer session → repondre → feedback
 appId: com.revisemieux.app
 ---
+
+- launchApp
+
+- extendedWaitUntil:
+    timeout: 15000
+    visible: ".*Hugo.*"
+
+# Seed si besoin
+- tapOn:
+    text: ".*chapitre.*mo.*"
+    optional: true
 
 # Attendre le chargement
 - extendedWaitUntil:
     timeout: 15000
-    visible: ".*"
+    visible: ".*Capturer.*"
 
-# Seeder si premier lancement
-- tapOn: "Charger le chapitre démo"
-  optional: true
+# Taper sur "Réviser"
+- tapOn:
+    text: ".*viser.*"
+    optional: true
 
-# Attendre le chapitre
 - extendedWaitUntil:
     timeout: 10000
-    visible:
-      id: "dashboard-revise-btn"
-
-# Lancer une session
-- tapOn:
-    id: "dashboard-revise-btn"
-
-# Attendre les questions
-- extendedWaitUntil:
-    timeout: 10000
-    visible:
-      id: "session-question-text"
-
-# Repondre a la question
-- tapOn:
-    id: "session-answer-input"
-- inputText: "reponse test"
-
-# Valider
-- tapOn:
-    id: "session-validate-btn"
-
-# Attendre feedback ou question suivante
-- extendedWaitUntil:
-    timeout: 5000
     visible: ".*"

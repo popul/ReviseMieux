@@ -1,27 +1,18 @@
 # Flow: 02-capture
 # ACs: Z2-AC01, Z2-AC10
-# Source: docs/ux/user-flow-complete.md §Capture J0
-#
-# Parcours : dashboard → tab capture
 appId: com.revisemieux.app
 ---
 
-# Attendre le chargement
+- launchApp
+
+
 - extendedWaitUntil:
     timeout: 15000
-    visible: ".*"
+    visible: ".*Hugo.*"
 
-# Le dashboard doit etre visible (ou l'empty state)
-# Aller sur le tab capture
-- tapOn:
-    id: "dashboard-capture-btn"
-    optional: true
+# Aller sur le tab Capturer (bottom tab bar)
+- tapOn: ".*apturer.*"
 
-# Si pas de bouton capture sur le dashboard, essayer le tab bar
-- tapOn: "Capturer"
-  optional: true
-
-# Attendre l'ecran capture
 - extendedWaitUntil:
     timeout: 5000
     visible: ".*"

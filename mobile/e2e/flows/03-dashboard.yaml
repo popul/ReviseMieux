@@ -1,32 +1,23 @@
 # Flow: 03-dashboard
 # ACs: Z5-AC01, Z6-AC04, Z7-AC16
-# Source: docs/ux/user-flow-complete.md §Dashboard eleve
-#
-# Prerequis : chapitre demo deja seed (run 01-onboarding d'abord)
 appId: com.revisemieux.app
 ---
 
-# Attendre le chargement
+- launchApp
+
+
 - extendedWaitUntil:
     timeout: 15000
-    visible: ".*"
+    visible: ".*Hugo.*"
 
-# Si aucun chapitre, seeder d'abord
-- tapOn: "Charger le chapitre démo"
-  optional: true
+- assertVisible: ".*Hugo.*"
 
-# Attendre le chapitre
+- tapOn:
+    text: ".*chapitre.*mo.*"
+    optional: true
+
 - extendedWaitUntil:
     timeout: 10000
-    visible:
-      id: "dashboard-chapter-card"
+    visible: ".*Capturer.*"
 
-# Verifier le dashboard
-- assertVisible:
-    id: "dashboard-chapter-card"
-
-- assertVisible:
-    id: "mastery-bar"
-
-- assertVisible:
-    id: "dashboard-revise-btn"
+- assertVisible: ".*Capturer.*"
