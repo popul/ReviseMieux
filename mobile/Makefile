@@ -126,6 +126,29 @@ test-watch: ## Tests en mode watch
 	@$(NPM) test -- --watch
 
 # ------------------------------------------------------------
+# Simulateur
+# ------------------------------------------------------------
+
+SIM_DEVICE ?= iPhone 17 Pro
+
+sim: ## Demarre le simulateur iOS
+	@xcrun simctl boot "$(SIM_DEVICE)" 2>/dev/null || true
+	@open -a Simulator
+	@echo "$(GREEN)Simulateur $(SIM_DEVICE) ready$(RESET)"
+
+sim-install: sim ## Build + installe l'app sur le simulateur
+	@echo "$(CYAN)Expo prebuild + build iOS...$(RESET)"
+	@API_URL=http://localhost:8080/api/v1 npx expo prebuild --platform ios --no-install 2>/dev/null
+	@cd ios && pod install --silent 2>/dev/null && \
+		xcodebuild -workspace RviseMieux.xcworkspace -scheme RviseMieux -configuration Debug \
+		-destination "platform=iOS Simulator,name=$(SIM_DEVICE)" -derivedDataPath build build 2>&1 | tail -1
+	@xcrun simctl install booted ios/build/Build/Products/Debug-iphonesimulator/RviseMieux.app
+	@echo "$(GREEN)App installee sur $(SIM_DEVICE)$(RESET)"
+
+sim-launch: ## Lance l'app sur le simulateur (via Metro)
+	@npx expo start --ios --port 8083
+
+# ------------------------------------------------------------
 # E2E (Maestro)
 # ------------------------------------------------------------
 
