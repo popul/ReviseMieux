@@ -44,7 +44,7 @@ appId: com.revisemieux.app
 - assertVisible:
     id: "session-progress-bar"
 
-- runFlow: courses/demo-densite/session-8-questions.yaml
+- runFlow: courses/demo-densite/session-8-all-correct.yaml
 
 # === DEBRIEF ===
 - extendedWaitUntil:
