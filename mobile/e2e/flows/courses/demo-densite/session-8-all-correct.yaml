@@ -1,63 +1,55 @@
-# Flow: session-8-questions — Cours demo "Densite et masse volumique"
+# Flow: session-8-all-correct — Cours demo "Densite et masse volumique"
 #
 # 8 items, toutes bonnes reponses
-# MCQ : choix 0 (toujours correct, "Vrai" pour les Vrai/Faux)
-# Texte libre : mots-cles specifiques a chaque item
+# Ordre reel : MCQ, TEXT, TEXT, MCQ, TEXT, TEXT, MCQ, TEXT
+# Les reponses texte incluent assez de mots-cles pour score >= 0.7
 appId: com.revisemieux.app
 ---
 
-# Q1 — Masse volumique = rapport masse/volume (KNOWLEDGE)
+# Q1 — MCQ (Vrai/Faux) : masse volumique = rapport masse/volume
 - runFlow:
-    file: ../../lib/answer-auto.yaml
+    file: ../../lib/answer-choice.yaml
     env:
       CHOICE_INDEX: "0"
-      ANSWER_TEXT: "masse volumique rapport masse corps volume"
 
-# Q2 — Unite SI = kg/m3 (KNOWLEDGE)
+# Q2 — TEXT : unite SI de la masse volumique
 - runFlow:
-    file: ../../lib/answer-auto.yaml
+    file: ../../lib/answer-text.yaml
     env:
-      CHOICE_INDEX: "0"
-      ANSWER_TEXT: "kilogramme par metre cube kg/m3"
+      ANSWER_TEXT: "kilogramme par metre cube kg/m3 unite SI masse volumique"
 
-# Q3 — rho = m / V (PROCEDURE)
+# Q3 — TEXT : rho = m / V (formule)
 - runFlow:
-    file: ../../lib/answer-auto.yaml
+    file: ../../lib/answer-text.yaml
     env:
-      CHOICE_INDEX: "0"
-      ANSWER_TEXT: "rho = m / V formule masse volumique"
+      ANSWER_TEXT: "rho est la formule masse volumique egale masse divise volume"
 
-# Q4 — Densite = masse volumique / eau (KNOWLEDGE)
+# Q4 — MCQ (Vrai/Faux) : densite = masse volumique / eau
 - runFlow:
-    file: ../../lib/answer-auto.yaml
+    file: ../../lib/answer-choice.yaml
     env:
       CHOICE_INDEX: "0"
-      ANSWER_TEXT: "densite rapport masse volumique eau"
 
-# Q5 — Flotte si densite < 1 (KNOWLEDGE)
+# Q5 — TEXT : un corps flotte si densite < 1
 - runFlow:
-    file: ../../lib/answer-auto.yaml
+    file: ../../lib/answer-text.yaml
     env:
-      CHOICE_INDEX: "0"
-      ANSWER_TEXT: "corps flotte densite inferieure 1"
+      ANSWER_TEXT: "un corps flotte si sa densite est inferieure a 1"
 
-# Q6 — Eau = 1000 kg/m3 (KNOWLEDGE)
+# Q6 — TEXT : masse volumique de l'eau = 1000 kg/m3
 - runFlow:
-    file: ../../lib/answer-auto.yaml
+    file: ../../lib/answer-text.yaml
     env:
-      CHOICE_INDEX: "0"
-      ANSWER_TEXT: "eau 1000 kg/m3 1 g/cm3"
+      ANSWER_TEXT: "masse volumique eau 1000 kg/m3 1 g/cm3"
 
-# Q7 — Conversion g/cm3 → kg/m3 : x1000 (PROCEDURE)
+# Q7 — MCQ (Vrai/Faux) : conversion g/cm3 en kg/m3 x1000
 - runFlow:
-    file: ../../lib/answer-auto.yaml
+    file: ../../lib/answer-choice.yaml
     env:
       CHOICE_INDEX: "0"
-      ANSWER_TEXT: "convertir g/cm3 kg/m3 multiplier 1000"
 
-# Q8 — Identifier un materiau (KNOWLEDGE)
+# Q8 — TEXT : masse volumique permet identifier un materiau
 - runFlow:
-    file: ../../lib/answer-auto.yaml
+    file: ../../lib/answer-text.yaml
     env:
-      CHOICE_INDEX: "0"
-      ANSWER_TEXT: "masse volumique identifier materiau inconnu"
+      ANSWER_TEXT: "la masse volumique permet identifier un materiau inconnu"

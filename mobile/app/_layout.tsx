@@ -1,8 +1,9 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
+import { Pressable, Text } from 'react-native';
 import { useColorScheme } from '@/components/useColorScheme';
 import { fetchDevToken, setAuthToken, getAuthToken } from '@/services/api';
 
@@ -62,7 +63,14 @@ function RootLayoutNav() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen
           name="chapter/[id]"
-          options={{ title: 'Chapitre', headerBackTitle: 'Retour' }}
+          options={{
+            title: 'Chapitre',
+            headerLeft: () => (
+              <Pressable testID="header-back-btn" onPress={() => router.back()}>
+                <Text style={{ color: '#4A90D9', fontSize: 17 }}>‹ Retour</Text>
+              </Pressable>
+            ),
+          }}
         />
         <Stack.Screen
           name="session/[id]"

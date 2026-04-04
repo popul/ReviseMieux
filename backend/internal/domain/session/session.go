@@ -1,6 +1,7 @@
 package session
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"time"
@@ -193,14 +194,17 @@ type Attempt struct {
 	CreatedAt         time.Time
 }
 
-// NewAttempt creates a new attempt.
-func NewAttempt(idGen event.IDGenerator, sessionID, questionID, userID uuid.UUID, answer []byte, score float64, now time.Time) *Attempt {
+// NewAttempt creates a new attempt. The answerText is the raw user answer as a string,
+// stored as JSON bytes for JSONB compatibility.
+func NewAttempt(idGen event.IDGenerator, sessionID, questionID, userID uuid.UUID, answerText string, score float64, now time.Time) *Attempt {
+	// Store as JSON string (quoted) for JSONB column
+	answerBytes, _ := json.Marshal(answerText)
 	return &Attempt{
 		ID:         idGen.New(),
 		SessionID:  sessionID,
 		QuestionID: questionID,
 		UserID:     userID,
-		Answer:     answer,
+		Answer:     answerBytes,
 		Score:      score,
 		Source:     AttemptInteractive,
 		CreatedAt:  now,

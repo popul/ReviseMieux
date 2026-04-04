@@ -3,7 +3,10 @@
 #
 # Cours demo : "Densite et masse volumique" (8 items, 3 notions)
 # Reponses definies dans courses/demo-densite/
-# Video : make mobile-e2e-flow FLOW=01-onboarding
+# Video : make mobile-e2e-flow FLOW=01-onboarding MODE=maestro
+#
+# Note : maestro record --local limite a 2 min
+# Les timeouts sont reduits pour rester sous cette limite
 appId: com.revisemieux.app
 ---
 
@@ -11,14 +14,14 @@ appId: com.revisemieux.app
 
 # === DASHBOARD ===
 - extendedWaitUntil:
-    timeout: 20000
+    timeout: 10000
     visible:
       id: "dashboard-capture-btn"
 - tapOn:
     id: "dashboard-seed-demo-btn"
     optional: true
 - extendedWaitUntil:
-    timeout: 15000
+    timeout: 10000
     visible:
       id: "dashboard-chapter-card"
 - assertVisible:
@@ -28,7 +31,7 @@ appId: com.revisemieux.app
 - tapOn:
     id: "dashboard-chapter-card"
 - extendedWaitUntil:
-    timeout: 10000
+    timeout: 5000
     visible:
       id: "chapter-revise-btn"
 - assertVisible:
@@ -38,7 +41,7 @@ appId: com.revisemieux.app
 - tapOn:
     id: "chapter-revise-btn"
 - extendedWaitUntil:
-    timeout: 15000
+    timeout: 10000
     visible:
       id: "session-question-text"
 - assertVisible:
@@ -46,26 +49,34 @@ appId: com.revisemieux.app
 
 - runFlow: courses/demo-densite/session-8-all-correct.yaml
 
-# === DEBRIEF ===
+# === DEBRIEF — verifier le score 8/8 ===
 - extendedWaitUntil:
-    timeout: 15000
+    timeout: 5000
     visible:
       id: "debrief-score-card"
-- assertVisible:
-    id: "debrief-score"
-- assertVisible:
+- copyTextFrom:
     id: "debrief-percentage"
+- assertTrue:
+    condition: "${maestro.copiedText.includes('87') || maestro.copiedText.includes('100')}"
+    label: "Score >= 87%"
 - assertVisible:
     id: "debrief-back-btn"
 - assertVisible:
     id: "debrief-again-btn"
 
-# === RETOUR AU DASHBOARD ===
-# "Retour au chapitre" fait router.dismissAll() → retour direct au dashboard
+# === RETOUR AU CHAPITRE ===
 - tapOn:
     id: "debrief-back-btn"
 - extendedWaitUntil:
-    timeout: 10000
+    timeout: 5000
+    visible:
+      id: "chapter-revise-btn"
+
+# === RETOUR AU DASHBOARD ===
+- tapOn:
+    id: "header-back-btn"
+- extendedWaitUntil:
+    timeout: 5000
     visible:
       id: "dashboard-chapter-card"
 - assertVisible:

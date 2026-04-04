@@ -17,6 +17,7 @@ NPM     := npm
 NPXE    := npx expo
 NPXEAS  := npx eas
 TSC     := npx tsc
+MAESTRO := $(HOME)/.maestro/bin/maestro
 
 # Couleurs
 ifneq ($(TERM),)
@@ -154,7 +155,7 @@ sim-launch: ## Lance l'app sur le simulateur (via Metro)
 
 e2e: ## Lance tous les tests E2E Maestro
 	@echo "$(CYAN)E2E Maestro...$(RESET)"
-	@maestro test e2e/flows/
+	@$(MAESTRO) test e2e/flows/
 	@echo "$(GREEN)E2E OK$(RESET)"
 
 e2e-flow: ## Lance un flow + video (FLOW=nom, MODE=simctl|maestro, defaut simctl)
@@ -163,13 +164,13 @@ e2e-flow: ## Lance un flow + video (FLOW=nom, MODE=simctl|maestro, defaut simctl
 	@rm -f e2e/videos/$(FLOW).mp4
 	@if [ "$(MODE)" = "maestro" ]; then \
 		echo "$(CYAN)Maestro record (scenario affiché): $(FLOW)$(RESET)"; \
-		maestro record --local e2e/flows/$(FLOW).yaml e2e/videos/$(FLOW).mp4; \
+		$(MAESTRO) record --local e2e/flows/$(FLOW).yaml e2e/videos/$(FLOW).mp4; \
 	else \
 		echo "$(CYAN)Maestro + simctl record: $(FLOW)$(RESET)"; \
 		xcrun simctl io booted recordVideo --codec h264 "$$(pwd)/e2e/videos/$(FLOW).mp4" & \
 		RPID=$$!; \
 		sleep 2; \
-		maestro test e2e/flows/$(FLOW).yaml || true; \
+		$(MAESTRO) test e2e/flows/$(FLOW).yaml || true; \
 		sleep 1; \
 		kill -INT $$RPID 2>/dev/null; \
 		wait $$RPID 2>/dev/null; \
@@ -183,7 +184,7 @@ e2e-record: ## Enregistre les videos de tous les flows
 	@for f in e2e/flows/*.yaml; do \
 		name=$$(basename "$$f" .yaml); \
 		echo "  Recording $$name..."; \
-		maestro record --local "$$f" "e2e/videos/$$name.mp4" 2>&1 || true; \
+		$(MAESTRO) record --local "$$f" "e2e/videos/$$name.mp4" 2>&1 || true; \
 	done
 	@echo "$(GREEN)Videos dans e2e/videos/$(RESET)"
 

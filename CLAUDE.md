@@ -341,6 +341,7 @@ Les handlers HTTP mappent ces erreurs vers les status codes appropriés.
 - Utiliser `interface{}` / `any` quand un type concret existe
 - Écrire un mock quand on peut tester avec la vraie implémentation (domaine pur)
 - Mettre de la logique métier dans les handlers HTTP
+- **Jamais de pansement.** Si un fix nécessite de contourner un mauvais design, corriger le design d'abord. La dette technique s'accumule silencieusement et coûte exponentiellement plus tard. Un refactoring propre maintenant vaut mieux qu'un workaround qui deviendra permanent.
 
 ### Code review checklist
 

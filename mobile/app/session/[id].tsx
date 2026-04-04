@@ -643,7 +643,7 @@ function DebriefView({
           title="Retour au chapitre"
           variant="outline"
           fullWidth
-          onPress={() => router.dismissAll()}
+          onPress={() => router.back()}
         />
         <Button
           testID="debrief-again-btn"

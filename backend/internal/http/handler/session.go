@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"errors"
 	"net/http"
 
@@ -195,14 +194,7 @@ func (h *Session) SubmitAnswer(c *gin.Context) {
 		return
 	}
 
-	// Wrap answer as valid JSON if it's not already JSON
-	answerBytes := []byte(req.Answer)
-	if len(answerBytes) == 0 || (answerBytes[0] != '{' && answerBytes[0] != '[' && answerBytes[0] != '"') {
-		quoted, _ := json.Marshal(req.Answer)
-		answerBytes = quoted
-	}
-
-	result, err := h.svc.SubmitAnswer(c.Request.Context(), sessionID, questionID, userID, answerBytes, req.Score)
+	result, err := h.svc.SubmitAnswer(c.Request.Context(), sessionID, questionID, userID, req.Answer, req.Score)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "failed to submit answer", Details: err.Error()})
 		return

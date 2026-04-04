@@ -67,6 +67,67 @@ func maskedTerm(s string) string {
 	return strings.Join(words, " ")
 }
 
+// scoreByKeywords scores a text answer by checking keyword overlap.
+// Returns 1.0 if ≥70% of expected keywords found, 0.5 if ≥40%, 0.0 otherwise.
+// stripAccents removes common French accents for fuzzy matching.
+func stripAccents(s string) string {
+	replacer := strings.NewReplacer(
+		"é", "e", "è", "e", "ê", "e", "ë", "e",
+		"à", "a", "â", "a", "ä", "a",
+		"ù", "u", "û", "u", "ü", "u",
+		"î", "i", "ï", "i",
+		"ô", "o", "ö", "o",
+		"ç", "c",
+		"³", "3", "²", "2",
+	)
+	return replacer.Replace(s)
+}
+
+func scoreByKeywords(expectedAnswer, keywords, userAnswer string) float64 {
+	normalize := func(s string) string {
+		return stripAccents(strings.ToLower(strings.TrimSpace(s)))
+	}
+	answer := normalize(userAnswer)
+
+	// Collect keywords from the keywords field (priority) and the expected answer
+	var allKeywords []string
+	if keywords != "" {
+		for _, kw := range strings.Split(keywords, ",") {
+			kw = normalize(kw)
+			if len(kw) > 1 {
+				allKeywords = append(allKeywords, kw)
+			}
+		}
+	}
+	// Also extract significant words from expected answer (>3 chars)
+	for _, word := range strings.Fields(normalize(expectedAnswer)) {
+		if len(word) > 3 {
+			allKeywords = append(allKeywords, word)
+		}
+	}
+
+	if len(allKeywords) == 0 {
+		return 0.0
+	}
+
+	// Count matches
+	matches := 0
+	for _, kw := range allKeywords {
+		if strings.Contains(answer, kw) {
+			matches++
+		}
+	}
+
+	ratio := float64(matches) / float64(len(allKeywords))
+	if ratio >= 0.7 {
+		return 1.0
+	}
+	if ratio >= 0.4 {
+		return 0.5
+	}
+	return 0.0
+}
+
 // Difficulty-1 templates eligible for evening_first sessions.
 var difficulty1Templates = []string{
 	"GEN.KNOW.FLASH_MCQ",
@@ -329,7 +390,7 @@ type SubmitAnswerResult struct {
 }
 
 // SubmitAnswer records an attempt and returns feedback (Z4-AC09).
-func (s *SessionService) SubmitAnswer(ctx context.Context, sessionID, questionID, userID uuid.UUID, answer []byte, score float64) (*SubmitAnswerResult, error) {
+func (s *SessionService) SubmitAnswer(ctx context.Context, sessionID, questionID, userID uuid.UUID, answerText string, score float64) (*SubmitAnswerResult, error) {
 	now := s.clock.Now()
 
 	// Find the question to get expected answer and template
@@ -338,22 +399,28 @@ func (s *SessionService) SubmitAnswer(ctx context.Context, sessionID, questionID
 		return nil, fmt.Errorf("session_service: find question: %w", err)
 	}
 
-	// Auto-score text answers via LLM (non-MCQ questions)
-	if s.scorer != nil && !strings.Contains(q.TemplateID, "MCQ") {
+	// Auto-score text answers (non-MCQ questions)
+	if !strings.Contains(q.TemplateID, "MCQ") {
 		var expected struct {
-			Answer string `json:"answer"`
+			Answer   string `json:"answer"`
+			Keywords string `json:"keywords"`
 		}
 		if json.Unmarshal(q.ExpectedAnswer, &expected) == nil && expected.Answer != "" {
-			result, err := s.scorer.ScoreAnswer(ctx, q.RenderedPrompt, expected.Answer, string(answer))
-			if err == nil {
-				score = result.Score
+			if s.scorer != nil {
+				// LLM-based scoring
+				result, err := s.scorer.ScoreAnswer(ctx, q.RenderedPrompt, expected.Answer, answerText)
+				if err == nil {
+					score = result.Score
+				}
+			} else {
+				// Fallback: keyword matching when no LLM scorer
+				score = scoreByKeywords(expected.Answer, expected.Keywords, answerText)
 			}
-			// On error, fall back to client-provided score silently
 		}
 	}
 
 	// Create and save the attempt
-	attempt := session.NewAttempt(s.idGen, sessionID, questionID, userID, answer, score, now)
+	attempt := session.NewAttempt(s.idGen, sessionID, questionID, userID, answerText, score, now)
 	if err := s.sessionRepo.SaveAttempt(ctx, attempt); err != nil {
 		return nil, fmt.Errorf("session_service: save attempt: %w", err)
 	}
@@ -361,7 +428,8 @@ func (s *SessionService) SubmitAnswer(ctx context.Context, sessionID, questionID
 	// Generate feedback for incorrect answers
 	var fb *Feedback
 	if score < 0.7 && q.ExpectedAnswer != nil {
-		f := GenerateFeedback(q.TemplateID, q.ExpectedAnswer, answer)
+		answerBytes, _ := json.Marshal(answerText)
+		f := GenerateFeedback(q.TemplateID, q.ExpectedAnswer, answerBytes)
 		fb = &f
 	}
 

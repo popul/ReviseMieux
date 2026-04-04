@@ -504,10 +504,10 @@ func TestNewAttempt_FieldsInitialized(t *testing.T) {
 	sessionID := uuid.Must(uuid.NewV7())
 	questionID := uuid.Must(uuid.NewV7())
 	userID := uuid.Must(uuid.NewV7())
-	answer := []byte(`{"choice":"A"}`)
+	answerText := "choice A"
 	now := time.Now()
 
-	a := NewAttempt(testIDGen, sessionID, questionID, userID, answer, 1.0, now)
+	a := NewAttempt(testIDGen, sessionID, questionID, userID, answerText, 1.0, now)
 
 	if a.ID == uuid.Nil {
 		t.Error("ID should not be nil")
