@@ -158,23 +158,18 @@ e2e: ## Lance tous les tests E2E Maestro
 	@$(MAESTRO) test e2e/flows/
 	@echo "$(GREEN)E2E OK$(RESET)"
 
-e2e-flow: ## Lance un flow + video (FLOW=nom, MODE=simctl|maestro, defaut simctl)
-	@if [ -z "$(FLOW)" ]; then echo "$(RED)Usage: make e2e-flow FLOW=01-onboarding [MODE=maestro]$(RESET)"; exit 1; fi
+e2e-flow: ## Lance un flow + video simctl (usage: make e2e-flow FLOW=01-onboarding)
+	@if [ -z "$(FLOW)" ]; then echo "$(RED)Usage: make e2e-flow FLOW=01-onboarding$(RESET)"; exit 1; fi
 	@mkdir -p e2e/videos
 	@rm -f e2e/videos/$(FLOW).mp4
-	@if [ "$(MODE)" = "maestro" ]; then \
-		echo "$(CYAN)Maestro record (scenario affiché): $(FLOW)$(RESET)"; \
-		$(MAESTRO) record --local e2e/flows/$(FLOW).yaml e2e/videos/$(FLOW).mp4; \
-	else \
-		echo "$(CYAN)Maestro + simctl record: $(FLOW)$(RESET)"; \
-		xcrun simctl io booted recordVideo --codec h264 "$$(pwd)/e2e/videos/$(FLOW).mp4" & \
+	@echo "$(CYAN)Maestro + simctl record: $(FLOW)$(RESET)"
+	@xcrun simctl io booted recordVideo --codec h264 "$$(pwd)/e2e/videos/$(FLOW).mp4" & \
 		RPID=$$!; \
 		sleep 2; \
 		$(MAESTRO) test e2e/flows/$(FLOW).yaml || true; \
 		sleep 1; \
 		kill -INT $$RPID 2>/dev/null; \
-		wait $$RPID 2>/dev/null; \
-	fi
+		wait $$RPID 2>/dev/null
 	@echo "$(GREEN)Video: e2e/videos/$(FLOW).mp4$(RESET)"
 	@open e2e/videos/$(FLOW).mp4
 

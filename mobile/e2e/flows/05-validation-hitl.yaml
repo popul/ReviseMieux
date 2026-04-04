@@ -1,28 +1,34 @@
-# Flow: 05-validation-hitl — Ecran validation parent
-# ACs: Z3-AC01, Z3-AC02, Z3-AC06
+# Flow: 05-validation-hitl — Verification app demarre correctement
+# ACs: Z3-AC06 (chapitre utilisable avec 0 validations)
 #
-# Scenario : le parent consulte les validations en attente.
-# En mode demo, il n'y a probablement pas de tasks —
-# on verifie que l'app ne crash pas et affiche le bon ecran.
+# Scenario court : dashboard → chapitre demo → carte lecon visible
+# Verifie que l'app fonctionne sans ValidationTasks
 appId: com.revisemieux.app
 ---
 
 - launchApp
 
+# Dashboard charge
 - extendedWaitUntil:
-    timeout: 15000
-    visible: ".*Hugo.*"
-
-# L'app demarre sans crash
-- assertVisible: ".*Hugo.*"
-- takeScreenshot: screenshots/validation-start
-
-# Naviguer vers Plus (tab bar)
+    timeout: 10000
+    visible:
+      id: "dashboard-capture-btn"
 - tapOn:
-    text: ".*lus.*"
+    id: "dashboard-seed-demo-btn"
     optional: true
+- extendedWaitUntil:
+    timeout: 10000
+    visible:
+      id: "dashboard-chapter-card"
+- assertVisible:
+    id: "mastery-bar"
 
+# Ouvrir le chapitre
+- tapOn:
+    id: "dashboard-chapter-card"
 - extendedWaitUntil:
     timeout: 5000
-    visible: ".*"
-- takeScreenshot: screenshots/validation-settings
+    visible:
+      id: "chapter-revise-btn"
+- assertVisible:
+    id: "chapter-item-list"
