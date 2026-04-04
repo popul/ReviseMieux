@@ -137,8 +137,15 @@ e2e: ## Lance tous les tests E2E Maestro
 e2e-flow: ## Lance un flow et genere la video (usage: make e2e-flow FLOW=01-onboarding)
 	@if [ -z "$(FLOW)" ]; then echo "$(RED)Usage: make e2e-flow FLOW=01-onboarding$(RESET)"; exit 1; fi
 	@mkdir -p e2e/videos
-	@echo "$(CYAN)Maestro flow: $(FLOW)$(RESET)"
-	@maestro record --local e2e/flows/$(FLOW).yaml e2e/videos/$(FLOW).mp4
+	@echo "$(CYAN)Maestro flow + video: $(FLOW)$(RESET)"
+	@rm -f e2e/videos/$(FLOW).mp4
+	@xcrun simctl io booted recordVideo --codec h264 "$$(pwd)/e2e/videos/$(FLOW).mp4" & \
+		RPID=$$!; \
+		sleep 2; \
+		maestro test e2e/flows/$(FLOW).yaml || true; \
+		sleep 1; \
+		kill -INT $$RPID 2>/dev/null; \
+		wait $$RPID 2>/dev/null
 	@echo "$(GREEN)Video: e2e/videos/$(FLOW).mp4$(RESET)"
 	@open e2e/videos/$(FLOW).mp4
 
