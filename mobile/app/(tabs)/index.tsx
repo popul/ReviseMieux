@@ -93,6 +93,7 @@ export default function DashboardScreen() {
             Essaie le chapitre démo pour découvrir l'app !
           </RNText>
           <Button
+            testID="dashboard-seed-demo-btn"
             title="Charger le chapitre démo"
             variant="primary"
             onPress={() => {

@@ -1,0 +1,31 @@
+# Mauvaise reponse — generique
+appId: com.revisemieux.app
+---
+
+- extendedWaitUntil:
+    timeout: 10000
+    visible:
+      id: "session-question-text"
+
+# MCQ → deuxieme choix (incorrect)
+- tapOn:
+    id: "session-choice-1"
+    optional: true
+
+# Texte libre → "Je ne sais pas"
+- tapOn:
+    id: "session-skip-btn"
+    optional: true
+
+# Valider (si MCQ)
+- tapOn:
+    id: "session-validate-btn"
+    optional: true
+
+- extendedWaitUntil:
+    timeout: 10000
+    visible:
+      id: "session-next-btn"
+
+- tapOn:
+    id: "session-next-btn"

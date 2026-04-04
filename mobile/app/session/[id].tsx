@@ -83,10 +83,11 @@ export default function SessionScreen() {
       });
   }, [id]);
 
-  const handleSelfScore = (userScore: number) => {
+  const handleSelfScore = (userScore: number, answerOverride?: string) => {
     if (!sessionId || !question) return;
     setSubmitting(true);
-    submitAnswer(sessionId, question.id, answer, userScore)
+    const answerText = answerOverride ?? answer;
+    submitAnswer(sessionId, question.id, answerText, userScore)
       .then((res) => {
         setLastFeedback(res);
         if (userScore >= 0.5) setScore((s) => s + 1);
@@ -306,6 +307,7 @@ export default function SessionScreen() {
                   const isSelected = answer === choice;
                   return (
                     <Pressable
+                      testID={`session-choice-${idx}`}
                       key={idx}
                       onPress={() => setAnswer(choice)}
                       style={[
@@ -367,6 +369,17 @@ export default function SessionScreen() {
             }}
             disabled={answer.trim().length === 0}
           />
+          {/* "Je ne sais pas" — only for text input questions */}
+          {!(question.choices && question.choices.length > 0) && (
+            <Button
+              testID="session-skip-btn"
+              title="Je ne sais pas"
+              variant="outline"
+              fullWidth
+              onPress={() => handleSelfScore(0.0, '(je ne sais pas)')}
+              style={{ marginTop: spacing.xs }}
+            />
+          )}
           <RNView style={styles.secondaryActions}>
             <Pressable onPress={() => setShowLessonModal(true)}>
               <RNText style={[typography.caption, { color: colors.tint }]}>Voir cours</RNText>
@@ -584,11 +597,11 @@ function DebriefView({
         </RNView>
 
         {/* Score card */}
-        <Card style={[styles.scoreCard, { marginTop: spacing.lg }]}>
-          <RNText style={[typography.h1, { color: colors.tint, textAlign: 'center' }]}>
+        <Card testID="debrief-score-card" style={[styles.scoreCard, { marginTop: spacing.lg }]}>
+          <RNText testID="debrief-score" style={[typography.h1, { color: colors.tint, textAlign: 'center' }]}>
             {debrief.score} / {debrief.total}
           </RNText>
-          <RNText style={[typography.h3, { color: colors.text, textAlign: 'center' }]}>
+          <RNText testID="debrief-percentage" style={[typography.h3, { color: colors.text, textAlign: 'center' }]}>
             {debrief.percentage}%
           </RNText>
           <RNText style={[typography.caption, { color: colors.textSecondary, textAlign: 'center', marginTop: spacing.xs }]}>
@@ -626,12 +639,14 @@ function DebriefView({
       {/* Bottom actions */}
       <RNView style={[styles.bottomActions, { borderTopColor: colors.border, paddingBottom: insets.bottom + spacing.sm }]}>
         <Button
+          testID="debrief-back-btn"
           title="Retour au chapitre"
           variant="outline"
           fullWidth
           onPress={() => router.replace(`/chapter/${chapterId}`)}
         />
         <Button
+          testID="debrief-again-btn"
           title="Encore une session"
           variant="primary"
           fullWidth

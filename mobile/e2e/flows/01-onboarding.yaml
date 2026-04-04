@@ -1,28 +1,73 @@
-# Flow: 01-onboarding
-# ACs: Z8-AC01, Z8-AC02, Z8-AC08
+# Flow: 01-onboarding — Parcours complet premier lancement
+# ACs: Z8-AC01, Z8-AC02, Z4-AC04, Z4-AC09
+#
+# Cours demo : "Densite et masse volumique" (8 items, 3 notions)
+# Les reponses sont definies dans courses/demo-densite/
 appId: com.revisemieux.app
 ---
 
 - launchApp
 
-
-# Attendre le chargement complet (15s max)
+# === 1. DASHBOARD ===
+- extendedWaitUntil:
+    timeout: 20000
+    visible:
+      id: "dashboard-capture-btn"
+- tapOn:
+    id: "dashboard-seed-demo-btn"
+    optional: true
 - extendedWaitUntil:
     timeout: 15000
-    visible: ".*Hugo.*"
+    visible:
+      id: "dashboard-chapter-card"
+- assertVisible:
+    id: "mastery-bar"
+- takeScreenshot: screenshots/01-dashboard
 
-# Le dashboard est visible
-- assertVisible: ".*Hugo.*"
-
-# Seed demo si DB vierge
+# === 2. CARTE LECON ===
 - tapOn:
-    text: ".*chapitre.*mo.*"
-    optional: true
-
-# Attendre le seed
+    id: "dashboard-chapter-card"
 - extendedWaitUntil:
     timeout: 10000
-    visible: ".*Capturer.*"
+    visible:
+      id: "chapter-revise-btn"
+- assertVisible:
+    id: "chapter-item-list"
+- takeScreenshot: screenshots/02-lesson-card
 
-# Verifier le bouton capture
-- assertVisible: ".*Capturer.*"
+# === 3. SESSION — 8 questions du cours demo ===
+- tapOn:
+    id: "chapter-revise-btn"
+- extendedWaitUntil:
+    timeout: 15000
+    visible:
+      id: "session-question-text"
+- assertVisible:
+    id: "session-progress-bar"
+- takeScreenshot: screenshots/03-session-start
+
+- runFlow: courses/demo-densite/session-8-questions.yaml
+
+# === 4. DEBRIEF ===
+- extendedWaitUntil:
+    timeout: 10000
+    visible:
+      id: "debrief-score-card"
+- assertVisible:
+    id: "debrief-score"
+- assertVisible:
+    id: "debrief-percentage"
+- assertVisible:
+    id: "debrief-back-btn"
+- assertVisible:
+    id: "debrief-again-btn"
+- takeScreenshot: screenshots/04-debrief
+
+# === 5. RETOUR AU CHAPITRE ===
+- tapOn:
+    id: "debrief-back-btn"
+- extendedWaitUntil:
+    timeout: 10000
+    visible:
+      id: "chapter-revise-btn"
+- takeScreenshot: screenshots/05-chapter-updated

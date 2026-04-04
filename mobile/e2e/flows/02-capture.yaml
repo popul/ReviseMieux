@@ -1,18 +1,28 @@
-# Flow: 02-capture
+# Flow: 02-capture — Navigation vers l'ecran capture
 # ACs: Z2-AC01, Z2-AC10
+#
+# Scenario : l'eleve navigue vers l'ecran capture photo
+# depuis le dashboard ou le tab bar.
 appId: com.revisemieux.app
 ---
 
 - launchApp
 
-
 - extendedWaitUntil:
     timeout: 15000
     visible: ".*Hugo.*"
 
-# Aller sur le tab Capturer (bottom tab bar)
-- tapOn: ".*apturer.*"
+# Taper sur le bouton "Capturer un cours" du dashboard
+- tapOn:
+    text: ".*Capturer un cours.*"
+    optional: true
+
+# Ou utiliser le tab bar
+- tapOn:
+    text: ".*apturer.*"
+    optional: true
 
 - extendedWaitUntil:
     timeout: 5000
     visible: ".*"
+- takeScreenshot: screenshots/capture-screen

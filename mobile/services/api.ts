@@ -1,13 +1,12 @@
 import Constants from 'expo-constants';
 
-// Use Mac's local IP for iPhone testing, fallback to localhost
-const BASE_URL =
-  Constants.expoConfig?.extra?.apiUrl ?? 'http://192.168.1.19:8080/api/v1';
+// API URL: localhost for simulator, override via Expo config for device/prod
+const DEFAULT_API_URL = 'http://localhost:8080/api/v1';
+const BASE_URL = __DEV__
+  ? DEFAULT_API_URL
+  : (Constants.expoConfig?.extra?.apiUrl ?? DEFAULT_API_URL);
 
-const DEV_TOKEN_URL =
-  Constants.expoConfig?.extra?.apiUrl
-    ? Constants.expoConfig.extra.apiUrl.replace('/api/v1', '/dev/token')
-    : 'http://192.168.1.19:8080/dev/token';
+const DEV_TOKEN_URL = BASE_URL.replace('/api/v1', '/dev/token');
 
 type RequestOptions = {
   method?: string;

@@ -1,0 +1,44 @@
+# Session complete — Cours demo "Densite et masse volumique"
+#
+# 8 items :
+# 1. Masse volumique = rapport masse/volume (KNOWLEDGE)
+# 2. Unite SI = kg/m3 (KNOWLEDGE)
+# 3. rho = m / V (PROCEDURE)
+# 4. Densite = masse volumique / eau (KNOWLEDGE)
+# 5. Flotte si densite < 1 (KNOWLEDGE)
+# 6. Eau = 1000 kg/m3 (KNOWLEDGE)
+# 7. Conversion g/cm3 → kg/m3 : x1000 (PROCEDURE)
+# 8. Identifier un materiau (KNOWLEDGE)
+#
+# Pattern : 5 bonnes + 3 mauvaises
+#
+# Parametres attendus :
+#   CORRECT_KEYWORDS : mots-cles pour les reponses texte libre correctes
+appId: com.revisemieux.app
+env:
+  CORRECT_KEYWORDS: "masse volumique rapport masse volume kg/m3 densite eau flottabilite"
+---
+
+# Q1 → BONNE REPONSE
+- runFlow: answer-correct.yaml
+
+# Q2 → BONNE REPONSE
+- runFlow: answer-correct.yaml
+
+# Q3 → MAUVAISE REPONSE
+- runFlow: answer-wrong.yaml
+
+# Q4 → BONNE REPONSE
+- runFlow: answer-correct.yaml
+
+# Q5 → MAUVAISE REPONSE
+- runFlow: answer-wrong.yaml
+
+# Q6 → BONNE REPONSE
+- runFlow: answer-correct.yaml
+
+# Q7 → MAUVAISE REPONSE
+- runFlow: answer-wrong.yaml
+
+# Q8 → BONNE REPONSE
+- runFlow: answer-correct.yaml

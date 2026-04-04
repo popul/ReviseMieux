@@ -1,10 +1,13 @@
-# Flow: 05-validation-hitl (smoke test)
+# Flow: 05-validation-hitl — Ecran validation parent
 # ACs: Z3-AC01, Z3-AC02, Z3-AC06
+#
+# Scenario : le parent consulte les validations en attente.
+# En mode demo, il n'y a probablement pas de tasks —
+# on verifie que l'app ne crash pas et affiche le bon ecran.
 appId: com.revisemieux.app
 ---
 
 - launchApp
-
 
 - extendedWaitUntil:
     timeout: 15000
@@ -12,3 +15,14 @@ appId: com.revisemieux.app
 
 # L'app demarre sans crash
 - assertVisible: ".*Hugo.*"
+- takeScreenshot: screenshots/validation-start
+
+# Naviguer vers Plus (tab bar)
+- tapOn:
+    text: ".*lus.*"
+    optional: true
+
+- extendedWaitUntil:
+    timeout: 5000
+    visible: ".*"
+- takeScreenshot: screenshots/validation-settings

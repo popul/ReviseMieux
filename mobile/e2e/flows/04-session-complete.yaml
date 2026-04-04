@@ -1,10 +1,14 @@
-# Flow: 04-session-complete
+# Flow: 04-session-complete — Session de revision complete
 # ACs: Z4-AC04, Z4-AC05, Z4-AC09, Z6-AC05
+#
+# Scenario : l'eleve lance une session, repond a toutes les questions,
+# voit les feedbacks, arrive au debrief avec son score.
 appId: com.revisemieux.app
 ---
 
 - launchApp
 
+# Attendre le dashboard
 - extendedWaitUntil:
     timeout: 15000
     visible: ".*Hugo.*"
@@ -13,17 +17,59 @@ appId: com.revisemieux.app
 - tapOn:
     text: ".*chapitre.*mo.*"
     optional: true
-
-# Attendre le chargement
 - extendedWaitUntil:
-    timeout: 15000
+    timeout: 10000
     visible: ".*Capturer.*"
 
-# Taper sur "Réviser"
+# --- Lancer la session ---
 - tapOn:
     text: ".*viser.*"
-    optional: true
+
+- extendedWaitUntil:
+    timeout: 15000
+    visible:
+      id: "session-answer-input"
+- takeScreenshot: screenshots/session-q1
+
+# --- Question 1 ---
+- tapOn:
+    id: "session-answer-input"
+- inputText: "reponse question 1"
+- tapOn:
+    id: "session-validate-btn"
 
 - extendedWaitUntil:
     timeout: 10000
     visible: ".*"
+- takeScreenshot: screenshots/session-feedback1
+
+# Suivant (si pas derniere question)
+- tapOn:
+    text: ".*uivant.*"
+    optional: true
+
+# --- Question 2 (si elle existe) ---
+- runFlow:
+    when:
+      visible:
+        id: "session-answer-input"
+    commands:
+      - tapOn:
+          id: "session-answer-input"
+      - inputText: "reponse question 2"
+      - tapOn:
+          id: "session-validate-btn"
+
+- extendedWaitUntil:
+    timeout: 5000
+    visible: ".*"
+
+# Voir le bilan (si disponible)
+- tapOn:
+    text: ".*bilan.*"
+    optional: true
+
+- extendedWaitUntil:
+    timeout: 5000
+    visible: ".*"
+- takeScreenshot: screenshots/session-debrief

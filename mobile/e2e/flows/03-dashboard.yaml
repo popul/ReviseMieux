@@ -1,17 +1,18 @@
-# Flow: 03-dashboard
+# Flow: 03-dashboard — Verification du dashboard
 # ACs: Z5-AC01, Z6-AC04, Z7-AC16
+#
+# Scenario : verifier que le dashboard affiche correctement
+# les chapitres, la progression mastery, et les actions.
 appId: com.revisemieux.app
 ---
 
 - launchApp
 
-
 - extendedWaitUntil:
     timeout: 15000
     visible: ".*Hugo.*"
 
-- assertVisible: ".*Hugo.*"
-
+# Seed si pas de chapitre
 - tapOn:
     text: ".*chapitre.*mo.*"
     optional: true
@@ -20,4 +21,11 @@ appId: com.revisemieux.app
     timeout: 10000
     visible: ".*Capturer.*"
 
+# --- Verifications dashboard ---
+- assertVisible: ".*Hugo.*"
 - assertVisible: ".*Capturer.*"
+- takeScreenshot: screenshots/dashboard-loaded
+
+# Verifier les tabs en bas
+- assertVisible: ".*ccueil.*"
+- takeScreenshot: screenshots/dashboard-tabs
