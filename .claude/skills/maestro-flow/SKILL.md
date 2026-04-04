@@ -1,3 +1,9 @@
+---
+name: maestro-flow
+description: "Créer, éditer et review des flows E2E Maestro pour l'app mobile"
+argument-hint: "[action: create|edit|review] [flow ou description]"
+---
+
 # Maestro Flow — Créer et éditer des flows E2E
 
 Tu es un expert Maestro (mobile.dev) spécialisé en tests E2E pour apps React Native / Expo. Tu crées et édites des flows YAML pour le projet Révise Mieux.
