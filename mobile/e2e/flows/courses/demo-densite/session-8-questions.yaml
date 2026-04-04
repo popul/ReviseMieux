@@ -1,62 +1,63 @@
 # Flow: session-8-questions — Cours demo "Densite et masse volumique"
 #
-# 8 items, pattern : 5 bonnes + 3 mauvaises
-# Utilise la bibliotheque lib/ pour les reponses
+# 8 items, toutes bonnes reponses
+# MCQ : choix 0 (toujours correct, "Vrai" pour les Vrai/Faux)
+# Texte libre : mots-cles specifiques a chaque item
 appId: com.revisemieux.app
 ---
 
-# Q1 → BONNE (MCQ: choix 0)
+# Q1 — Masse volumique = rapport masse/volume (KNOWLEDGE)
 - runFlow:
     file: ../../lib/answer-auto.yaml
     env:
       CHOICE_INDEX: "0"
-      ANSWER_TEXT: "masse volumique rapport masse volume kg/m3"
+      ANSWER_TEXT: "masse volumique rapport masse corps volume"
 
-# Q2 → BONNE
+# Q2 — Unite SI = kg/m3 (KNOWLEDGE)
 - runFlow:
     file: ../../lib/answer-auto.yaml
     env:
       CHOICE_INDEX: "0"
-      ANSWER_TEXT: "kilogramme par metre cube kg/m3 unite SI"
+      ANSWER_TEXT: "kilogramme par metre cube kg/m3"
 
-# Q3 → MAUVAISE (MCQ: choix 1, texte: skip)
+# Q3 — rho = m / V (PROCEDURE)
 - runFlow:
     file: ../../lib/answer-auto.yaml
     env:
-      CHOICE_INDEX: "1"
-      ANSWER_TEXT: "(je ne sais pas)"
+      CHOICE_INDEX: "0"
+      ANSWER_TEXT: "rho = m / V formule masse volumique"
 
-# Q4 → BONNE
+# Q4 — Densite = masse volumique / eau (KNOWLEDGE)
 - runFlow:
     file: ../../lib/answer-auto.yaml
     env:
       CHOICE_INDEX: "0"
       ANSWER_TEXT: "densite rapport masse volumique eau"
 
-# Q5 → MAUVAISE
+# Q5 — Flotte si densite < 1 (KNOWLEDGE)
 - runFlow:
     file: ../../lib/answer-auto.yaml
     env:
-      CHOICE_INDEX: "1"
-      ANSWER_TEXT: "(je ne sais pas)"
+      CHOICE_INDEX: "0"
+      ANSWER_TEXT: "corps flotte densite inferieure 1"
 
-# Q6 → BONNE
+# Q6 — Eau = 1000 kg/m3 (KNOWLEDGE)
 - runFlow:
     file: ../../lib/answer-auto.yaml
     env:
       CHOICE_INDEX: "0"
       ANSWER_TEXT: "eau 1000 kg/m3 1 g/cm3"
 
-# Q7 → MAUVAISE
-- runFlow:
-    file: ../../lib/answer-auto.yaml
-    env:
-      CHOICE_INDEX: "1"
-      ANSWER_TEXT: "(je ne sais pas)"
-
-# Q8 → BONNE
+# Q7 — Conversion g/cm3 → kg/m3 : x1000 (PROCEDURE)
 - runFlow:
     file: ../../lib/answer-auto.yaml
     env:
       CHOICE_INDEX: "0"
-      ANSWER_TEXT: "masse volumique identifier materiau"
+      ANSWER_TEXT: "convertir g/cm3 kg/m3 multiplier 1000"
+
+# Q8 — Identifier un materiau (KNOWLEDGE)
+- runFlow:
+    file: ../../lib/answer-auto.yaml
+    env:
+      CHOICE_INDEX: "0"
+      ANSWER_TEXT: "masse volumique identifier materiau inconnu"
