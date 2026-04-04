@@ -1,4 +1,6 @@
-# Mauvaise reponse — generique
+# Flow: answer-wrong — Mauvaise reponse (generique)
+# MCQ : choix 1 (incorrect) + validate obligatoire
+# Texte libre : "Je ne sais pas" (skip soumet directement)
 appId: com.revisemieux.app
 ---
 
@@ -7,19 +9,20 @@ appId: com.revisemieux.app
     visible:
       id: "session-question-text"
 
-# MCQ → deuxieme choix (incorrect)
-- tapOn:
-    id: "session-choice-1"
-    optional: true
+# MCQ → deuxieme choix (incorrect) + validate
+- runFlow:
+    when:
+      visible:
+        id: "session-choice-1"
+    commands:
+      - tapOn:
+          id: "session-choice-1"
+      - tapOn:
+          id: "session-validate-btn"
 
-# Texte libre → "Je ne sais pas"
+# Texte libre → "Je ne sais pas" (skip soumet directement, pas besoin de validate)
 - tapOn:
     id: "session-skip-btn"
-    optional: true
-
-# Valider (si MCQ)
-- tapOn:
-    id: "session-validate-btn"
     optional: true
 
 - extendedWaitUntil:

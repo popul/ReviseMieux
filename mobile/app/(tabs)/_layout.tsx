@@ -27,6 +27,7 @@ export default function TabLayout() {
         options={{
           title: 'Accueil',
           tabBarIcon: ({ color }) => <TabIcon emoji="🏠" color={color} />,
+          tabBarTestID: 'tab-accueil',
           headerShown: false,
         }}
       />
@@ -35,6 +36,7 @@ export default function TabLayout() {
         options={{
           title: 'Capturer',
           tabBarIcon: ({ color }) => <TabIcon emoji="📸" color={color} />,
+          tabBarTestID: 'tab-capturer',
           headerShown: false,
         }}
       />
@@ -43,6 +45,7 @@ export default function TabLayout() {
         options={{
           title: 'Plus',
           tabBarIcon: ({ color }) => <TabIcon emoji="⚙️" color={color} />,
+          tabBarTestID: 'tab-plus',
         }}
       />
     </Tabs>

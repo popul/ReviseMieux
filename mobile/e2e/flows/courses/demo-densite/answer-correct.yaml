@@ -1,4 +1,6 @@
-# Bonne reponse — generique, utilise les mots-cles du cours via ${CORRECT_KEYWORDS}
+# Flow: answer-correct — Bonne reponse (generique)
+# MCQ : choix 0 (correct) + validate
+# Texte libre : mots-cles du cours via ${CORRECT_KEYWORDS} + validate
 appId: com.revisemieux.app
 ---
 

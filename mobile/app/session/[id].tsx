@@ -643,7 +643,7 @@ function DebriefView({
           title="Retour au chapitre"
           variant="outline"
           fullWidth
-          onPress={() => router.replace(`/chapter/${chapterId}`)}
+          onPress={() => router.dismissAll()}
         />
         <Button
           testID="debrief-again-btn"

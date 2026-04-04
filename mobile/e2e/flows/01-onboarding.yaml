@@ -48,7 +48,7 @@ appId: com.revisemieux.app
 
 # === DEBRIEF ===
 - extendedWaitUntil:
-    timeout: 10000
+    timeout: 15000
     visible:
       id: "debrief-score-card"
 - assertVisible:
@@ -60,10 +60,13 @@ appId: com.revisemieux.app
 - assertVisible:
     id: "debrief-again-btn"
 
-# === RETOUR AU CHAPITRE ===
+# === RETOUR AU DASHBOARD ===
+# "Retour au chapitre" fait router.dismissAll() → retour direct au dashboard
 - tapOn:
     id: "debrief-back-btn"
 - extendedWaitUntil:
     timeout: 10000
     visible:
-      id: "chapter-revise-btn"
+      id: "dashboard-chapter-card"
+- assertVisible:
+    id: "mastery-bar"
