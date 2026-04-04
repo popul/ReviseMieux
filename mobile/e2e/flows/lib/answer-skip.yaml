@@ -1,0 +1,19 @@
+# Flow: lib/answer-skip — "Je ne sais pas" (texte libre uniquement)
+appId: com.revisemieux.app
+---
+
+- extendedWaitUntil:
+    timeout: 10000
+    visible:
+      id: "session-question-text"
+
+- tapOn:
+    id: "session-skip-btn"
+
+- extendedWaitUntil:
+    timeout: 10000
+    visible:
+      id: "session-next-btn"
+
+- tapOn:
+    id: "session-next-btn"

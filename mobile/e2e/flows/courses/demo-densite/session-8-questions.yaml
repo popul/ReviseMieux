@@ -1,44 +1,62 @@
-# Session complete — Cours demo "Densite et masse volumique"
+# Flow: session-8-questions — Cours demo "Densite et masse volumique"
 #
-# 8 items :
-# 1. Masse volumique = rapport masse/volume (KNOWLEDGE)
-# 2. Unite SI = kg/m3 (KNOWLEDGE)
-# 3. rho = m / V (PROCEDURE)
-# 4. Densite = masse volumique / eau (KNOWLEDGE)
-# 5. Flotte si densite < 1 (KNOWLEDGE)
-# 6. Eau = 1000 kg/m3 (KNOWLEDGE)
-# 7. Conversion g/cm3 → kg/m3 : x1000 (PROCEDURE)
-# 8. Identifier un materiau (KNOWLEDGE)
-#
-# Pattern : 5 bonnes + 3 mauvaises
-#
-# Parametres attendus :
-#   CORRECT_KEYWORDS : mots-cles pour les reponses texte libre correctes
+# 8 items, pattern : 5 bonnes + 3 mauvaises
+# Utilise la bibliotheque lib/ pour les reponses
 appId: com.revisemieux.app
-env:
-  CORRECT_KEYWORDS: "masse volumique rapport masse volume kg/m3 densite eau flottabilite"
 ---
 
-# Q1 → BONNE REPONSE
-- runFlow: answer-correct.yaml
+# Q1 → BONNE (MCQ: choix 0)
+- runFlow:
+    file: ../../lib/answer-auto.yaml
+    env:
+      CHOICE_INDEX: "0"
+      ANSWER_TEXT: "masse volumique rapport masse volume kg/m3"
 
-# Q2 → BONNE REPONSE
-- runFlow: answer-correct.yaml
+# Q2 → BONNE
+- runFlow:
+    file: ../../lib/answer-auto.yaml
+    env:
+      CHOICE_INDEX: "0"
+      ANSWER_TEXT: "kilogramme par metre cube kg/m3 unite SI"
 
-# Q3 → MAUVAISE REPONSE
-- runFlow: answer-wrong.yaml
+# Q3 → MAUVAISE (MCQ: choix 1, texte: skip)
+- runFlow:
+    file: ../../lib/answer-auto.yaml
+    env:
+      CHOICE_INDEX: "1"
+      ANSWER_TEXT: "(je ne sais pas)"
 
-# Q4 → BONNE REPONSE
-- runFlow: answer-correct.yaml
+# Q4 → BONNE
+- runFlow:
+    file: ../../lib/answer-auto.yaml
+    env:
+      CHOICE_INDEX: "0"
+      ANSWER_TEXT: "densite rapport masse volumique eau"
 
-# Q5 → MAUVAISE REPONSE
-- runFlow: answer-wrong.yaml
+# Q5 → MAUVAISE
+- runFlow:
+    file: ../../lib/answer-auto.yaml
+    env:
+      CHOICE_INDEX: "1"
+      ANSWER_TEXT: "(je ne sais pas)"
 
-# Q6 → BONNE REPONSE
-- runFlow: answer-correct.yaml
+# Q6 → BONNE
+- runFlow:
+    file: ../../lib/answer-auto.yaml
+    env:
+      CHOICE_INDEX: "0"
+      ANSWER_TEXT: "eau 1000 kg/m3 1 g/cm3"
 
-# Q7 → MAUVAISE REPONSE
-- runFlow: answer-wrong.yaml
+# Q7 → MAUVAISE
+- runFlow:
+    file: ../../lib/answer-auto.yaml
+    env:
+      CHOICE_INDEX: "1"
+      ANSWER_TEXT: "(je ne sais pas)"
 
-# Q8 → BONNE REPONSE
-- runFlow: answer-correct.yaml
+# Q8 → BONNE
+- runFlow:
+    file: ../../lib/answer-auto.yaml
+    env:
+      CHOICE_INDEX: "0"
+      ANSWER_TEXT: "masse volumique identifier materiau"

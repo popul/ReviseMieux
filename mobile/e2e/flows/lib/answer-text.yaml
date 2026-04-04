@@ -1,0 +1,26 @@
+# Flow: lib/answer-text — Repondre en texte libre
+# Params:
+#   ANSWER_TEXT : texte de la reponse
+appId: com.revisemieux.app
+---
+
+- extendedWaitUntil:
+    timeout: 10000
+    visible:
+      id: "session-question-text"
+
+- tapOn:
+    id: "session-answer-input"
+
+- inputText: "${ANSWER_TEXT}"
+
+- tapOn:
+    id: "session-validate-btn"
+
+- extendedWaitUntil:
+    timeout: 10000
+    visible:
+      id: "session-next-btn"
+
+- tapOn:
+    id: "session-next-btn"

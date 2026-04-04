@@ -1,0 +1,24 @@
+# Flow: lib/answer-choice — Repondre a un MCQ
+# Params:
+#   CHOICE_INDEX : index du choix (0 = correct, 1+ = incorrect)
+appId: com.revisemieux.app
+---
+
+- extendedWaitUntil:
+    timeout: 10000
+    visible:
+      id: "session-question-text"
+
+- tapOn:
+    id: "session-choice-${CHOICE_INDEX}"
+
+- tapOn:
+    id: "session-validate-btn"
+
+- extendedWaitUntil:
+    timeout: 10000
+    visible:
+      id: "session-next-btn"
+
+- tapOn:
+    id: "session-next-btn"
