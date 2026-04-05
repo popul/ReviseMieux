@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/popul/revisemieux/internal/app"
-	"github.com/popul/revisemieux/internal/domain/chapter"
 	"github.com/popul/revisemieux/internal/domain/validation"
 	"github.com/popul/revisemieux/internal/http/dto"
 	"github.com/popul/revisemieux/internal/http/middleware"
@@ -16,13 +15,12 @@ import (
 
 // Validation handles validation task HTTP endpoints.
 type Validation struct {
-	svc         *app.ValidationService
-	chapterRepo chapter.Repository
+	svc *app.ValidationService
 }
 
 // NewValidation creates a new Validation handler.
-func NewValidation(svc *app.ValidationService, chapterRepo chapter.Repository) *Validation {
-	return &Validation{svc: svc, chapterRepo: chapterRepo}
+func NewValidation(svc *app.ValidationService) *Validation {
+	return &Validation{svc: svc}
 }
 
 // ListPending godoc
@@ -130,12 +128,10 @@ func (h *Validation) toValidationTaskDTO(ctx context.Context, t *validation.Vali
 		CreatedAt:  t.CreatedAt,
 	}
 	// Enrich with item data (ChapterID + Term)
-	if h.chapterRepo != nil {
-		if item, err := h.chapterRepo.FindItemByID(ctx, t.ItemID); err == nil {
-			chapterID := item.ChapterID.String()
-			resp.ChapterID = chapterID
-			resp.ItemTerm = item.Term
-		}
+	if item, err := h.svc.GetItemByID(ctx, t.ItemID); err == nil {
+		chapterID := item.ChapterID.String()
+		resp.ChapterID = chapterID
+		resp.ItemTerm = item.Term
 	}
 	// Use UpdatedAt as ResolvedAt when task is resolved
 	if t.IsResolved() {

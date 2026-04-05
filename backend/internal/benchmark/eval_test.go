@@ -161,7 +161,7 @@ type mockProvider struct {
 	priceOut float64
 }
 
-func (m *mockProvider) Name() string            { return m.name }
+func (m *mockProvider) Name() string             { return m.name }
 func (m *mockProvider) ModelID() string          { return m.model }
 func (m *mockProvider) PricePerMInput() float64  { return m.priceIn }
 func (m *mockProvider) PricePerMOutput() float64 { return m.priceOut }

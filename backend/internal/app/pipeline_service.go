@@ -47,11 +47,11 @@ type PipelineResult struct {
 
 // RecoveryInfo provides context for the recovery screen (Z8-AC03).
 type RecoveryInfo struct {
-	IsFirstUpload   bool   // true if this was the user's first ever upload
-	CanRetry        bool   // true: user can re-take photos
-	CanContinue     bool   // true if some items were generated despite low confidence
-	HasDemoChapter  bool   // true if demo chapter available as fallback
-	Message         string // empathetic message
+	IsFirstUpload  bool   // true if this was the user's first ever upload
+	CanRetry       bool   // true: user can re-take photos
+	CanContinue    bool   // true if some items were generated despite low confidence
+	HasDemoChapter bool   // true if demo chapter available as fallback
+	Message        string // empathetic message
 }
 
 // PageProgress represents the progress after processing a single page.
@@ -262,6 +262,10 @@ func (s *PipelineService) UploadAndProcess(ctx context.Context, chapterID uuid.U
 		var itemIDs []uuid.UUID
 		for _, item := range allItems {
 			m := mastery.NewMastery(s.idGen, ch.UserID, item.ID, now)
+			// Z1-AC13: items with validation_required cap mastery at OK
+			if item.ValidationRequired {
+				m.CappedAtOK = true
+			}
 			masteries = append(masteries, m)
 			itemIDs = append(itemIDs, item.ID)
 		}

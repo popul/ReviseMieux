@@ -30,8 +30,8 @@ func GenerateFeedback(templateID string, expectedAnswer, studentAnswer []byte) F
 
 func generateKeywordsFeedback(expectedAnswer, _ []byte) Feedback {
 	var expected struct {
-		Answer   string   `json:"answer"`
-		Keywords string   `json:"keywords"`
+		Answer       string   `json:"answer"`
+		Keywords     string   `json:"keywords"`
 		KeywordsList []string `json:"keywords_list"`
 	}
 	json.Unmarshal(expectedAnswer, &expected)

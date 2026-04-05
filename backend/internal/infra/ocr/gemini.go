@@ -17,10 +17,10 @@ import (
 )
 
 const (
-	geminiBaseURL      = "https://generativelanguage.googleapis.com/v1beta/openai"
-	defaultModel       = "gemini-2.5-flash-preview-05-20"
-	defaultTimeout     = 90 * time.Second
-	defaultMaxTokens   = 8192
+	geminiBaseURL    = "https://generativelanguage.googleapis.com/v1beta/openai"
+	defaultModel     = "gemini-2.5-flash-preview-05-20"
+	defaultTimeout   = 90 * time.Second
+	defaultMaxTokens = 8192
 )
 
 // GeminiOCR implements chapter.OCRService using Gemini Flash as a VLM (direct vision).
@@ -94,7 +94,7 @@ func (g *GeminiOCR) ProcessPage(ctx context.Context, imageURL string) (*chapter.
 	systemPrompt, _ := json.Marshal(llm.OCRSystemPrompt)
 	userContent := []visionContent{
 		{
-			Type: "image_url",
+			Type:     "image_url",
 			ImageURL: &visionImageURL{URL: dataURL},
 		},
 		{

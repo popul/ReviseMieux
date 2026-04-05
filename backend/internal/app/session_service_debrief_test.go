@@ -90,7 +90,7 @@ func (m *mockChapterRepoForSession) FindItemByID(_ context.Context, _ uuid.UUID)
 func (m *mockChapterRepoForSession) FindItemsByChapter(_ context.Context, _ uuid.UUID, _ bool) ([]*chapter.Item, error) {
 	return nil, nil
 }
-func (m *mockChapterRepoForSession) SaveItem(_ context.Context, _ *chapter.Item) error   { return nil }
+func (m *mockChapterRepoForSession) SaveItem(_ context.Context, _ *chapter.Item) error    { return nil }
 func (m *mockChapterRepoForSession) SaveItems(_ context.Context, _ []*chapter.Item) error { return nil }
 func (m *mockChapterRepoForSession) FindNotionsByChapter(_ context.Context, _ uuid.UUID) ([]*chapter.Notion, error) {
 	return nil, nil
@@ -126,11 +126,16 @@ func (m *mockMasteryRepoForSession) FindByUserAndItem(_ context.Context, _, _ uu
 func (m *mockMasteryRepoForSession) FindDueByUser(_ context.Context, _ uuid.UUID, _ time.Time) ([]*mastery.Mastery, error) {
 	return nil, nil
 }
+func (m *mockMasteryRepoForSession) FindByItem(_ context.Context, _ uuid.UUID) ([]*mastery.Mastery, error) {
+	return nil, nil
+}
 func (m *mockMasteryRepoForSession) FindByUserAndState(_ context.Context, _ uuid.UUID, _ mastery.State) ([]*mastery.Mastery, error) {
 	return nil, nil
 }
-func (m *mockMasteryRepoForSession) Save(_ context.Context, _ *mastery.Mastery) error      { return nil }
-func (m *mockMasteryRepoForSession) SaveAll(_ context.Context, _ []*mastery.Mastery) error { return nil }
+func (m *mockMasteryRepoForSession) Save(_ context.Context, _ *mastery.Mastery) error { return nil }
+func (m *mockMasteryRepoForSession) SaveAll(_ context.Context, _ []*mastery.Mastery) error {
+	return nil
+}
 
 type mockPublisher struct{}
 

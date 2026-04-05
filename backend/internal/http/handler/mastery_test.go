@@ -171,7 +171,8 @@ func TestMastery_RecordAttempt_Success(t *testing.T) {
 	}
 	r := setupMasteryRouter(t, mRepo)
 
-	body, _ := json.Marshal(dto.RecordAttemptRequest{ItemID: itemID.String(), Score: 1.0})
+	score := 1.0
+	body, _ := json.Marshal(dto.RecordAttemptRequest{ItemID: itemID.String(), Score: &score})
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/masteries/attempt", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
@@ -221,7 +222,8 @@ func TestMastery_RecordAttempt_NotFound(t *testing.T) {
 	mRepo := &mockMasteryRepo{}
 	r := setupMasteryRouter(t, mRepo)
 
-	body, _ := json.Marshal(dto.RecordAttemptRequest{ItemID: uuid.Must(uuid.NewV7()).String(), Score: 0.5})
+	notFoundScore := 0.5
+	body, _ := json.Marshal(dto.RecordAttemptRequest{ItemID: uuid.Must(uuid.NewV7()).String(), Score: &notFoundScore})
 	w := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodPost, "/api/v1/masteries/attempt", bytes.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")

@@ -30,7 +30,7 @@ func NewOCRBenchmarkProvider(apiKey, model string, priceIn, priceOut float64) *O
 	}
 }
 
-func (p *OCRBenchmarkProvider) Name() string            { return p.name }
+func (p *OCRBenchmarkProvider) Name() string             { return p.name }
 func (p *OCRBenchmarkProvider) ModelID() string          { return p.model }
 func (p *OCRBenchmarkProvider) PricePerMInput() float64  { return p.priceIn }
 func (p *OCRBenchmarkProvider) PricePerMOutput() float64 { return p.priceOut }

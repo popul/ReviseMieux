@@ -50,14 +50,15 @@ func NewMastery(idGen event.IDGenerator, userID, itemID uuid.UUID, now time.Time
 // the state machine accordingly. The now parameter enables testable time control.
 //
 // State transitions:
-//   UNKNOWN + success → FRAGILE
-//   UNKNOWN + fail    → UNKNOWN
-//   FRAGILE + success → OK
-//   FRAGILE + fail    → FRAGILE (cs reset)
-//   OK      + success → SOLID (if spacing met and cs >= 2) or stays OK
-//   OK      + fail    → FRAGILE
-//   SOLID   + success → SOLID
-//   SOLID   + fail    → OK
+//
+//	UNKNOWN + success → FRAGILE
+//	UNKNOWN + fail    → UNKNOWN
+//	FRAGILE + success → OK
+//	FRAGILE + fail    → FRAGILE (cs reset)
+//	OK      + success → SOLID (if spacing met and cs >= 2) or stays OK
+//	OK      + fail    → FRAGILE
+//	SOLID   + success → SOLID
+//	SOLID   + fail    → OK
 func (m *Mastery) RecordAttempt(score float64, now time.Time) error {
 	success := score >= 0.7
 	m.LastReviewAt = &now

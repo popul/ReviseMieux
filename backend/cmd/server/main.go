@@ -67,7 +67,8 @@ func main() {
 	// --- Infrastructure ---
 	clock := event.RealClock{}
 	idGen := event.UUIDv7Generator{}
-	publisher := eventbus.NewLogPublisher()
+	dispatcher := eventbus.NewSyncDispatcher()
+	var publisher event.Publisher = dispatcher
 
 	// --- LLM Call Logger ---
 	llmLogger := postgres.NewLLMCallLogger(pool)
@@ -180,12 +181,103 @@ func main() {
 		}
 	}
 
+	// --- Repositories (continued) ---
+	examRepo := postgres.NewExamRepository(pool)
+
 	// --- Application Services ---
-	chapterSvc := app.NewChapterService(chapterRepo)
+	chapterSvc := app.NewChapterService(chapterRepo, masteryRepo)
 	masterySvc := app.NewMasteryService(masteryRepo, publisher, clock)
 	sessionSvc := app.NewSessionService(sessionRepo, chapterRepo, masteryRepo, publisher, clock, idGen, scorer)
 	validationSvc := app.NewValidationService(validationRepo, chapterRepo, publisher, clock, idGen)
 	onboardingSvc := app.NewOnboardingService(chapterRepo, masteryRepo, clock, idGen)
+	examSvc := app.NewExamService(examRepo, publisher, clock, idGen)
+	_ = examSvc // TODO: wire to handler when exam endpoints are added
+
+	// --- Event Handlers ---
+	// AttemptRecorded -> transition mastery state (connects Session → Mastery contexts).
+	// Uses repo directly to avoid re-publishing AttemptRecorded (which would loop).
+	dispatcher.On("attempt.recorded", func(ctx context.Context, evt event.Event) error {
+		ar, ok := evt.(event.AttemptRecorded)
+		if !ok {
+			return nil
+		}
+		m, err := masteryRepo.FindByUserAndItem(ctx, ar.UserID, ar.ItemID)
+		if err != nil {
+			log.Printf("[event] mastery transition: mastery not found for item %s: %v", ar.ItemID, err)
+			return nil
+		}
+		if err := m.RecordAttempt(ar.Score, clock.Now()); err != nil {
+			log.Printf("[event] mastery transition failed for item %s: %v", ar.ItemID, err)
+			return nil
+		}
+		if err := masteryRepo.Save(ctx, m); err != nil {
+			log.Printf("[event] mastery save failed for item %s: %v", ar.ItemID, err)
+		}
+		return nil
+	})
+
+	// ExamCreated -> apply tightening to all masteries in linked chapters
+	dispatcher.On("exam.created", func(ctx context.Context, evt event.Event) error {
+		ec, ok := evt.(event.ExamCreated)
+		if !ok {
+			return nil
+		}
+		exam, err := examSvc.GetByID(ctx, ec.ExamID)
+		if err != nil {
+			log.Printf("[event] exam tightening: exam not found: %v", err)
+			return nil
+		}
+		now := clock.Now()
+		daysUntil := exam.DaysUntil(now)
+		for _, chID := range ec.ChapterIDs {
+			items, err := chapterRepo.FindItemsByChapter(ctx, chID, false)
+			if err != nil {
+				continue
+			}
+			for _, item := range items {
+				m, err := masteryRepo.FindByUserAndItem(ctx, exam.UserID, item.ID)
+				if err != nil {
+					continue
+				}
+				m.ApplyExamTightening(daysUntil, now)
+				masteryRepo.Save(ctx, m)
+			}
+		}
+		log.Printf("[event] exam tightening applied: exam=%s days=%d chapters=%d", ec.ExamID, daysUntil, len(ec.ChapterIDs))
+		return nil
+	})
+
+	// ValidationResolved -> uncap mastery CappedAtOK (Z1-AC13 complement).
+	// When HITL confirms/corrects an item, the mastery cap at OK is lifted,
+	// allowing the student to progress to SOLID.
+	dispatcher.On("validation.resolved", func(ctx context.Context, evt event.Event) error {
+		vr, ok := evt.(event.ValidationResolved)
+		if !ok {
+			return nil
+		}
+		masteries, err := masteryRepo.FindByItem(ctx, vr.ItemID)
+		if err != nil {
+			log.Printf("[event] validation uncap: find masteries for item %s: %v", vr.ItemID, err)
+			return nil
+		}
+		for _, m := range masteries {
+			if !m.CappedAtOK {
+				continue
+			}
+			m.CappedAtOK = false
+			m.UpdatedAt = clock.Now()
+			if err := masteryRepo.Save(ctx, m); err != nil {
+				log.Printf("[event] validation uncap: save mastery %s: %v", m.ID, err)
+			}
+		}
+		log.Printf("[event] validation resolved: uncapped masteries for item %s (count=%d)", vr.ItemID, len(masteries))
+		return nil
+	})
+
+	// items.generated: intentionally unhandled in Lot 0.
+	// Future: could trigger ProposeEveningFirst session for the user.
+
+	log.Println("Event dispatcher initialized with handlers: attempt.recorded, exam.created, validation.resolved")
 
 	// --- Dev Handler (debug mode only) ---
 	var devHandler *handler.Dev
@@ -195,10 +287,10 @@ func main() {
 	}
 
 	// --- HTTP Handlers ---
-	chapterHandler := handler.NewChapter(chapterSvc, chapterRepo, masteryRepo, idGen, clock)
+	chapterHandler := handler.NewChapter(chapterSvc, idGen, clock)
 	masteryHandler := handler.NewMastery(masterySvc)
 	sessionHandler := handler.NewSession(sessionSvc)
-	validationHandler := handler.NewValidation(validationSvc, chapterRepo)
+	validationHandler := handler.NewValidation(validationSvc)
 	onboardingHandler := handler.NewOnboarding(onboardingSvc)
 
 	var pipelineHandler *handler.Pipeline

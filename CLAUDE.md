@@ -78,11 +78,13 @@ Le domaine se décompose en 4 contextes bornés, chacun avec son agrégat racine
 
 1. **Agrégat racine = point d'entrée unique.** Ne jamais modifier un `Item` directement — passer par `Chapter`. Ne jamais modifier un `Attempt` directement — passer par `Session`.
 2. **Entités vs Value Objects.** Les enums métier (`MasteryState`, `ItemType`, `SessionStatus`) sont des Value Objects immuables. Les transitions Mastery sont modélisées comme des méthodes sur l'entité `Mastery`, pas comme du code procédural dans un handler.
-3. **Domain Events.** Les transitions inter-contextes passent par des events, pas par des appels directs :
-   - `ItemsGenerated` → déclenche création des `Mastery` UNKNOWN
-   - `AttemptRecorded` → déclenche transition Mastery
-   - `ValidationResolved` → déclenche invalidation cache questions
-   - `ExamCreated` → déclenche resserrement intervalles
+3. **Domain Events.** Les transitions inter-contextes passent par des events via le `SyncDispatcher`, pas par des appels directs :
+   - `AttemptRecorded` → déclenche transition Mastery (Session → Mastery)
+   - `ExamCreated` → déclenche resserrement intervalles (Exam → Mastery)
+   - `ItemsGenerated` → déclenche création des `Mastery` UNKNOWN (Pipeline → Mastery)
+   - `ValidationResolved` → déclenche invalidation cache questions (Validation → Session)
+   
+   **Chaque event DOIT avoir un consumer enregistré dans `cmd/server/main.go` via `dispatcher.On("event.name", handler)`.** Un event sans consumer est du code mort — le `SyncDispatcher` logge les events mais seuls les handlers enregistrés produisent des effets.
 4. **Le domaine ne dépend de rien.** Les packages `domain/` n'importent ni Gin, ni pgx, ni Redis. Les dépendances pointent vers l'intérieur (hexagonal).
 5. **Langage ubiquitaire.** Utiliser les termes du PRD dans le code : `Mastery` (pas `Progress`), `Item` (pas `Card`), `Notion` (pas `Topic`), `Chapter` (pas `Course`).
 
@@ -111,9 +113,10 @@ backend/
 │   │
 │   ├── infra/                      # Adaptateurs (implémentations des ports)
 │   │   ├── postgres/               # Repositories pgx
-│   │   ├── redis/                  # Cache
+│   │   ├── eventbus/               # SyncDispatcher (event routing)
 │   │   ├── s3/                     # Storage objets
 │   │   ├── anthropic/              # Client LLM
+│   │   ├── openaicompat/           # Client LLM OpenAI-compatible (Gemini, Mistral)
 │   │   └── ocr/                    # Client OCR externe
 │   │
 │   ├── http/                       # Couche HTTP (handlers Gin, middleware, DTOs)
@@ -181,7 +184,7 @@ Le projet suit strictement l'architecture hexagonale. Le domaine est au centre, 
 
 5. **Application services (`app/`) orchestrent.** Ils reçoivent les ports par injection de constructeur et coordonnent les appels entre domaine et infrastructure. Ils ne contiennent pas de logique métier — celle-ci vit dans les entités du domaine.
 
-6. **Handlers HTTP (`http/handler/`) sont des adaptateurs driving.** Ils traduisent HTTP ↔ DTOs, appellent les services applicatifs, et mappent les erreurs domaine vers des status codes HTTP. Zéro logique métier.
+6. **Handlers HTTP (`http/handler/`) sont des adaptateurs driving.** Ils traduisent HTTP ↔ DTOs, appellent les services applicatifs, et mappent les erreurs domaine vers des status codes HTTP. Zéro logique métier. **Les handlers ne reçoivent JAMAIS de Repository en injection** — uniquement des services `app/`. Si un handler a besoin de données, ajouter une méthode au service correspondant.
 
 7. **Testabilité par design.** Grâce aux ports :
    - Les tests unitaires du domaine n'ont besoin d'aucun mock (logique pure)
@@ -319,6 +322,12 @@ Les handlers HTTP mappent ces erreurs vers les status codes appropriés.
 - `TIMESTAMPTZ` partout (jamais `TIMESTAMP`)
 - `ON DELETE CASCADE` sur les tables enfants d'un agrégat, `ON DELETE SET NULL` pour les refs cross-agrégat
 - Index nommés `idx_{table}_{colonnes}`
+- **CHECK constraints obligatoires** sur tout champ numérique à domaine borné :
+  - Scores et confidences : `CHECK (score >= 0 AND score <= 1)`
+  - Compteurs : `CHECK (consecutive_successes >= 0)`
+  - Difficulté : `CHECK (difficulty BETWEEN 1 AND 5)`
+  - Durées/tokens : `CHECK (duration_ms >= 0)`
+- **Cohérence struct ↔ table** : chaque champ du struct Go domaine DOIT avoir sa colonne SQL correspondante. Si un champ est ajouté au struct, la migration ET le repository (SELECT + INSERT/UPDATE) doivent être mis à jour dans le même commit.
 
 ---
 
@@ -330,7 +339,36 @@ Les handlers HTTP mappent ces erreurs vers les status codes appropriés.
 2. Écrire le test en Given/When/Then (TDD red)
 3. Implémenter le minimum pour passer le test (TDD green)
 4. Refactorer si nécessaire (TDD refactor)
-5. Mettre à jour `docs/lot0-tracker.md` (statut `[x]`)
+5. **Vérifier la Definition of Done** (voir ci-dessous)
+6. Lancer `make check` (doit passer avant tout commit)
+7. Mettre à jour `docs/lot0-tracker.md` (statut `[x]`)
+
+### Definition of Done — quand une AC est VRAIMENT terminée
+
+Une AC ne peut être marquée `[x]` dans le tracker que si **TOUS** ces critères sont remplis :
+
+1. **Test domaine** : un test unitaire prouve la logique métier (ex: `TestZ1AC01_UnknownToFragile`)
+2. **Persistence complète** : chaque champ de l'entité domaine a sa colonne SQL correspondante, et le repository le lit ET l'écrit
+3. **Event consumer** : si l'AC déclenche un domain event, il existe un handler enregistré dans le dispatcher qui produit l'effet attendu (pas juste un `log.Println`)
+4. **Bout en bout vérifiable** : un test `app/` ou `handler/` exerce le chemin complet (handler → service → repo/event)
+5. **CHECK constraints SQL** : tout champ numérique avec un domaine de valeur (score ∈ [0,1], difficulty ∈ [1,5]) a un CHECK en DB
+6. **`make check` passe** : format + vet + imports domaine + tests unitaires
+
+**Symptôme d'une AC faussement cochée** : le code existe mais il manque une migration SQL, un champ n'est pas persisté, un event n'a pas de consumer, ou le test ne couvre que le happy path.
+
+### Garanties exécutables (CI gate)
+
+```bash
+make check    # format + vet + domain imports + tests unitaires
+```
+
+Ce target est le filet de sécurité minimal. Il est composé de :
+- `fmt-check` : le code est formaté (`gofmt`)
+- `vet` : `go vet ./...`
+- `check-domain` : script `scripts/check-domain-imports.sh` vérifie que `domain/` n'importe jamais `infra/`, `http/`, `app/`, Gin, pgx, etc.
+- `test-unit` : tests du domaine et des services
+
+**Règle : ne jamais committer si `make check` échoue.**
 
 ### Ce qu'il ne faut PAS faire
 
@@ -341,14 +379,24 @@ Les handlers HTTP mappent ces erreurs vers les status codes appropriés.
 - Utiliser `interface{}` / `any` quand un type concret existe
 - Écrire un mock quand on peut tester avec la vraie implémentation (domaine pur)
 - Mettre de la logique métier dans les handlers HTTP
+- **Injecter un Repository dans un handler HTTP.** Les handlers dépendent uniquement des services `app/`. Si un handler a besoin de données, ajouter une méthode au service, pas un repo en paramètre.
+- **Publier un event sans consumer.** Chaque `publisher.Publish(event.Xxx{})` doit avoir un `dispatcher.On("xxx", handler)` correspondant dans `main.go`. Un event sans consumer est du code mort.
+- **Ajouter un champ à une entité domaine sans migration SQL.** Si le struct Go a un champ, la table doit avoir la colonne, le repository doit le lire/écrire, et les valeurs numériques doivent avoir un CHECK constraint.
+- **Marquer une AC `[x]` sans vérifier la persistence.** "Le code compile" ≠ "ça marche". Vérifier que le champ est dans le SELECT, l'INSERT, l'UPDATE du repository.
+- **Ignorer les erreurs de `publisher.Publish()`.** Toujours vérifier le retour d'erreur.
 - **Jamais de pansement.** Si un fix nécessite de contourner un mauvais design, corriger le design d'abord. La dette technique s'accumule silencieusement et coûte exponentiellement plus tard. Un refactoring propre maintenant vaut mieux qu'un workaround qui deviendra permanent.
 
 ### Code review checklist
 
-- [ ] Le test existe et couvre l'AC
-- [ ] Le domaine ne dépend d'aucun package infra
+- [ ] Le test existe et couvre l'AC (domaine + service)
+- [ ] Le domaine ne dépend d'aucun package infra (`make check-domain`)
 - [ ] Les erreurs sont wrappées avec contexte
 - [ ] Les transitions Mastery passent par l'entité, pas par SQL direct
 - [ ] Les DTOs sont séparés des entités domaine
 - [ ] Les migrations sont idempotentes ou versionnées
+- [ ] Tout champ numérique a un CHECK constraint en SQL
+- [ ] Tout champ du struct domaine est persisté (SELECT + INSERT/UPDATE)
+- [ ] Les handlers n'injectent aucun Repository directement
+- [ ] Tout event publié a un consumer enregistré dans le dispatcher
+- [ ] `make check` passe
 - [ ] Le tracker Lot 0 est mis à jour

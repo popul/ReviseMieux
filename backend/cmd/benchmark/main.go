@@ -45,9 +45,9 @@ import (
 
 // modelDef describes a benchmarkable LLM model.
 type modelDef struct {
-	ID         string // unique key used in --models flag
-	Provider   string // provider name for display
-	EnvKey     string // environment variable for API key
+	ID         string                                    // unique key used in --models flag
+	Provider   string                                    // provider name for display
+	EnvKey     string                                    // environment variable for API key
 	IDPBuilder func(apiKey string) benchmark.Provider    // builder for IDP benchmark
 	OCRBuilder func(apiKey string) benchmark.OCRProvider // builder for OCR benchmark (nil if not supported)
 }

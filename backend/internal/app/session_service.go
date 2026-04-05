@@ -521,10 +521,9 @@ type TransitionInfo struct {
 	To       string
 }
 
-// GetDebrief computes score statistics for a session's attempts.
+// GetDebrief computes score statistics and real mastery transitions for a session.
 func (s *SessionService) GetDebrief(ctx context.Context, sessionID uuid.UUID) (*DebriefResult, error) {
-	// Verify session exists
-	_, err := s.sessionRepo.FindByID(ctx, sessionID)
+	sess, err := s.sessionRepo.FindByID(ctx, sessionID)
 	if err != nil {
 		return nil, fmt.Errorf("session_service: get debrief: %w", err)
 	}
@@ -551,7 +550,112 @@ func (s *SessionService) GetDebrief(ctx context.Context, sessionID uuid.UUID) (*
 	result.Total = len(attempts)
 	result.Percentage = (totalScore / float64(len(attempts))) * 100
 
+	// Compute real mastery transitions by looking at current mastery state
+	// vs what it would have been before this session's attempts.
+	questions, err := s.sessionRepo.FindQuestionsBySession(ctx, sessionID)
+	if err != nil {
+		return result, nil // degrade gracefully
+	}
+
+	// Build question lookup
+	questionMap := make(map[uuid.UUID]*session.Question)
+	for _, q := range questions {
+		questionMap[q.ID] = q
+	}
+
+	// Build item->term lookup from chapter items
+	itemTerms := make(map[uuid.UUID]string)
+	if len(sess.ChapterIDs) > 0 {
+		for _, chID := range sess.ChapterIDs {
+			items, err := s.chapterRepo.FindItemsByChapter(ctx, chID, false)
+			if err != nil {
+				continue
+			}
+			for _, item := range items {
+				if item.Term != nil {
+					itemTerms[item.ID] = *item.Term
+				}
+			}
+		}
+	}
+
+	// For each attempt, compute what the transition was.
+	// We infer from the score: success (>=0.7) or failure, and the current mastery state.
+	seen := make(map[uuid.UUID]bool) // track items already processed
+	for _, a := range attempts {
+		q, ok := questionMap[a.QuestionID]
+		if !ok {
+			continue
+		}
+		if seen[q.ItemID] {
+			continue // only report first transition per item
+		}
+		seen[q.ItemID] = true
+
+		m, err := s.masteryRepo.FindByUserAndItem(ctx, a.UserID, q.ItemID)
+		if err != nil {
+			continue
+		}
+
+		// The current state IS the post-transition state (event handler already ran).
+		// Infer the previous state from the transition rules.
+		currentState := string(m.State)
+		prevState := inferPreviousState(m, a.Score)
+
+		if prevState != currentState {
+			term := itemTerms[q.ItemID]
+			if term == "" {
+				term = q.ItemID.String()
+			}
+			result.Transitions = append(result.Transitions, TransitionInfo{
+				ItemID:   q.ItemID,
+				ItemTerm: term,
+				From:     prevState,
+				To:       currentState,
+			})
+		}
+	}
+
 	return result, nil
+}
+
+// inferPreviousState reverses the mastery state machine to determine
+// what state the mastery was in before the last attempt.
+func inferPreviousState(m *mastery.Mastery, score float64) string {
+	success := score >= 0.7
+	current := m.State
+
+	switch current {
+	case mastery.Fragile:
+		if success {
+			// Success led to FRAGILE → was UNKNOWN
+			return string(mastery.Unknown)
+		}
+		// Failure kept FRAGILE, or regressed from OK
+		if m.ConsecutiveFailures >= 1 {
+			return string(mastery.OK)
+		}
+		return string(mastery.Fragile)
+	case mastery.OK:
+		if success {
+			// Success led to OK → was FRAGILE
+			return string(mastery.Fragile)
+		}
+		// Failure kept OK → was SOLID
+		return string(mastery.Solid)
+	case mastery.Solid:
+		if success {
+			// Success kept SOLID or led to SOLID → was OK
+			if m.ConsecutiveSuccesses <= 2 {
+				return string(mastery.OK)
+			}
+			return string(mastery.Solid)
+		}
+		return string(mastery.Solid) // shouldn't happen (SOLID+fail→OK)
+	case mastery.Unknown:
+		return string(mastery.Unknown) // failure on UNKNOWN stays UNKNOWN
+	}
+	return string(current)
 }
 
 // AvailableSessionTypes returns session types available based on schedule status.

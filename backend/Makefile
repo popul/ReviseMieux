@@ -142,6 +142,13 @@ fmt: ## Formatte le code Go
 fmt-check: ## Vérifie le formatage (CI)
 	@test -z "$$($(GOFMT) -l .)" || (echo "$(RED)Fichiers non formatés :$(RESET)" && $(GOFMT) -l . && exit 1)
 
+check-domain: ## Vérifie que domain/ n'importe pas d'infra/http/app
+	@echo "$(CYAN)Vérification imports domaine...$(RESET)"
+	@bash scripts/check-domain-imports.sh
+
+check: fmt-check vet check-domain test-unit ## Gate CI : format + vet + imports domaine + tests
+	@echo "$(GREEN)All checks passed$(RESET)"
+
 # ------------------------------------------------------------
 # Database & Migrations
 # ------------------------------------------------------------

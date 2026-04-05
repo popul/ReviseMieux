@@ -63,9 +63,51 @@ func setupTestApp(t *testing.T) *testApp {
 	masteryRepo := postgres.NewMasteryRepository(pool)
 	sessionRepo := postgres.NewSessionRepository(pool)
 	valRepo := postgres.NewValidationRepository(pool)
-	publisher := eventbus.NewLogPublisher()
 	clock := event.RealClock{}
 	idGen := event.UUIDv7Generator{}
+
+	// Use SyncDispatcher (like prod) so event handlers actually execute.
+	dispatcher := eventbus.NewSyncDispatcher()
+	var publisher event.Publisher = dispatcher
+
+	// AttemptRecorded -> transition mastery state (mirrors main.go wiring).
+	dispatcher.On("attempt.recorded", func(ctx context.Context, evt event.Event) error {
+		ar, ok := evt.(event.AttemptRecorded)
+		if !ok {
+			return nil
+		}
+		m, err := masteryRepo.FindByUserAndItem(ctx, ar.UserID, ar.ItemID)
+		if err != nil {
+			return nil
+		}
+		if err := m.RecordAttempt(ar.Score, clock.Now()); err != nil {
+			return nil
+		}
+		return masteryRepo.Save(ctx, m)
+	})
+
+	// ValidationResolved -> uncap mastery CappedAtOK (mirrors main.go wiring).
+	dispatcher.On("validation.resolved", func(ctx context.Context, evt event.Event) error {
+		vr, ok := evt.(event.ValidationResolved)
+		if !ok {
+			return nil
+		}
+		masteries, err := masteryRepo.FindByItem(ctx, vr.ItemID)
+		if err != nil {
+			return nil
+		}
+		for _, m := range masteries {
+			if !m.CappedAtOK {
+				continue
+			}
+			m.CappedAtOK = false
+			m.UpdatedAt = clock.Now()
+			if err := masteryRepo.Save(ctx, m); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 
 	// Services
 	chapterSvc := app.NewChapterService(chapterRepo, masteryRepo)
@@ -75,10 +117,10 @@ func setupTestApp(t *testing.T) *testApp {
 	onboardingSvc := app.NewOnboardingService(chapterRepo, masteryRepo, clock, idGen)
 
 	// Handlers
-	chapterHandler := handler.NewChapter(chapterSvc, chapterRepo, masteryRepo, idGen, clock)
+	chapterHandler := handler.NewChapter(chapterSvc, idGen, clock)
 	masteryHandler := handler.NewMastery(masterySvc)
 	sessionHandler := handler.NewSession(sessionSvc)
-	valHandler := handler.NewValidation(valSvc, chapterRepo)
+	valHandler := handler.NewValidation(valSvc)
 	onboardingHandler := handler.NewOnboarding(onboardingSvc)
 
 	// Router
@@ -106,7 +148,16 @@ func migrationsDir() string {
 
 func (ta *testApp) truncateAll() {
 	ctx := context.Background()
-	_, _ = ta.pool.Exec(ctx, `TRUNCATE users, exams, templates CASCADE`)
+	// Truncate all tables explicitly to avoid FK ordering issues.
+	_, _ = ta.pool.Exec(ctx, `TRUNCATE
+		attempts, questions, session_chapters, sessions,
+		masteries,
+		validation_tasks,
+		item_keywords, item_steps, item_visual_blocks, items,
+		visual_blocks, blocks, pages, chapter_revisions,
+		notion_exam_links, notions, chapter_exams,
+		chapters, exams, templates, users
+		CASCADE`)
 }
 
 // seedUser creates a user and returns the ID and a valid JWT token.
@@ -190,7 +241,7 @@ func (ta *testApp) seedValidationTask(itemID uuid.UUID) *validation.ValidationTa
 	task := &validation.ValidationTask{
 		ID: uuid.Must(uuid.NewV7()), ItemID: itemID,
 		Priority: 5, Status: validation.StatusPending,
-		Source: validation.SourceUncertainty,
+		Source:    validation.SourceUncertainty,
 		CreatedAt: now, UpdatedAt: now,
 	}
 	_, err := ta.pool.Exec(context.Background(),
@@ -394,7 +445,10 @@ func TestValidation_Resolve_Confirm(t *testing.T) {
 	}
 
 	// Verify item validation_required is now false and confidence >= 0.85
-	gotItem, _ := ta.chapterRepo.FindItemByID(context.Background(), item.ID)
+	gotItem, err := ta.chapterRepo.FindItemByID(context.Background(), item.ID)
+	if err != nil {
+		t.Fatalf("FindItemByID after confirm: %v", err)
+	}
 	if gotItem.ValidationRequired {
 		t.Error("ValidationRequired should be false after confirm")
 	}
@@ -590,11 +644,17 @@ func TestSession_FullFlow_CrossLayer(t *testing.T) {
 		t.Fatal("expected at least 1 question")
 	}
 
-	// Answer each question
+	// Answer each question.
+	// MCQ expected answer is "Vrai", so we send "Vrai" to get score=1.0 from auto-scoring.
+	// Non-MCQ answers are auto-scored via keyword matching; "test answer" won't match.
 	for _, q := range questions {
+		answer := "test answer"
+		if q["question_type"] == "MCQ" {
+			answer = "Vrai"
+		}
 		answerBody := map[string]interface{}{
 			"question_id": q["id"],
-			"answer":      "test answer",
+			"answer":      answer,
 			"score":       1.0,
 		}
 		w = doRequest(ta.router, "POST", "/api/v1/sessions/"+sessionID+"/answer", token, answerBody)

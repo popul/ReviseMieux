@@ -201,7 +201,7 @@ func TestSessionRepository_AttemptCRUD(t *testing.T) {
 		ID: uuid.Must(uuid.NewV7()), SessionID: sess.ID,
 		QuestionID: q.ID, UserID: userID,
 		Answer: mustJSON("rapport masse/volume"),
-		Score: 1.0, Feedback: &feedback,
+		Score:  1.0, Feedback: &feedback,
 		Source: session.AttemptInteractive, CreatedAt: now,
 	}
 

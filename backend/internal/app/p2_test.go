@@ -419,10 +419,10 @@ func TestZ6AC10_ExamCreationWithChapterLink(t *testing.T) {
 	clock := fixedClock{t: now}
 	idGen := &fixedIDGen{}
 
-	chRepo := newMockChapterRepo()
+	examRepo := &mockExamRepo{exams: make(map[uuid.UUID]*chapter.Exam)}
 	publisher := &mockPublisher{}
 
-	svc := NewExamService(chRepo, publisher, clock, idGen)
+	svc := NewExamService(examRepo, publisher, clock, idGen)
 
 	userID := uuid.New()
 	chID := uuid.New()
@@ -546,6 +546,28 @@ func TestZ7AC16_NotionMasteryAggregation(t *testing.T) {
 
 // --- Helper mocks for P2 tests ---
 
+type mockExamRepo struct {
+	exams map[uuid.UUID]*chapter.Exam
+}
+
+func (m *mockExamRepo) FindByID(_ context.Context, id uuid.UUID) (*chapter.Exam, error) {
+	e, ok := m.exams[id]
+	if !ok {
+		return nil, fmt.Errorf("exam not found")
+	}
+	return e, nil
+}
+func (m *mockExamRepo) FindByUser(_ context.Context, _ uuid.UUID) ([]*chapter.Exam, error) {
+	return nil, nil
+}
+func (m *mockExamRepo) FindActiveByChapter(_ context.Context, _ uuid.UUID) ([]*chapter.Exam, error) {
+	return nil, nil
+}
+func (m *mockExamRepo) Save(_ context.Context, exam *chapter.Exam) error {
+	m.exams[exam.ID] = exam
+	return nil
+}
+
 type statefulMasteryRepo struct {
 	masteries map[uuid.UUID]*mastery.Mastery // itemID → mastery
 }
@@ -569,6 +591,14 @@ func (m *statefulMasteryRepo) FindByUserAndItem(_ context.Context, userID, itemI
 
 func (m *statefulMasteryRepo) FindDueByUser(_ context.Context, _ uuid.UUID, _ time.Time) ([]*mastery.Mastery, error) {
 	return nil, nil
+}
+
+func (m *statefulMasteryRepo) FindByItem(_ context.Context, itemID uuid.UUID) ([]*mastery.Mastery, error) {
+	ms, ok := m.masteries[itemID]
+	if !ok {
+		return nil, nil
+	}
+	return []*mastery.Mastery{ms}, nil
 }
 
 func (m *statefulMasteryRepo) FindByUserAndState(_ context.Context, userID uuid.UUID, state mastery.State) ([]*mastery.Mastery, error) {

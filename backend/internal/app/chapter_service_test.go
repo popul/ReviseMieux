@@ -45,7 +45,7 @@ func TestZ5AC04_LessonCard_OnlyCurrentRevisionItems(t *testing.T) {
 	}
 	chRepo.SaveItem(ctx, item2)
 
-	svc := NewChapterService(chRepo)
+	svc := NewChapterService(chRepo, nil)
 
 	items, err := svc.GetLessonCardItems(ctx, ch.ID)
 	if err != nil {
@@ -93,7 +93,7 @@ func TestZ5AC06_ArchivedItemsExcludedFromSession(t *testing.T) {
 	}
 	chRepo.SaveItem(ctx, archivedItem)
 
-	svc := NewChapterService(chRepo)
+	svc := NewChapterService(chRepo, nil)
 
 	items, err := svc.GetSessionEligibleItems(ctx, ch.ID)
 	if err != nil {

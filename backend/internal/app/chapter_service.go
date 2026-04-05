@@ -9,6 +9,21 @@ import (
 	"github.com/popul/revisemieux/internal/domain/mastery"
 )
 
+// MasteryBreakdown represents the count of items per mastery state for a chapter.
+type MasteryBreakdown struct {
+	Unknown int
+	Fragile int
+	OK      int
+	Solid   int
+}
+
+// ChapterWithStats enriches a Chapter with computed stats.
+type ChapterWithStats struct {
+	Chapter *chapter.Chapter
+	Items   []*chapter.Item
+	Mastery *MasteryBreakdown
+}
+
 // NotionMastery represents aggregated mastery for a single notion (Z7-AC16).
 type NotionMastery struct {
 	Notion        *chapter.Notion
@@ -24,12 +39,75 @@ type ChapterService struct {
 }
 
 // NewChapterService creates a new ChapterService.
-func NewChapterService(chapterRepo chapter.Repository, masteryRepo ...mastery.Repository) *ChapterService {
-	svc := &ChapterService{chapterRepo: chapterRepo}
-	if len(masteryRepo) > 0 {
-		svc.masteryRepo = masteryRepo[0]
+func NewChapterService(chapterRepo chapter.Repository, masteryRepo mastery.Repository) *ChapterService {
+	return &ChapterService{chapterRepo: chapterRepo, masteryRepo: masteryRepo}
+}
+
+// ListWithStats returns all non-archived chapters for a user, enriched with
+// item counts and mastery breakdowns. This replaces direct repo access in handlers.
+func (s *ChapterService) ListWithStats(ctx context.Context, userID uuid.UUID) ([]ChapterWithStats, error) {
+	chapters, err := s.chapterRepo.FindByUser(ctx, userID, false)
+	if err != nil {
+		return nil, fmt.Errorf("chapter_service: find chapters: %w", err)
 	}
-	return svc
+
+	// Build a map of all user masteries by item ID for enrichment.
+	masteryByItem := make(map[uuid.UUID]mastery.State)
+	if s.masteryRepo != nil {
+		for _, state := range []mastery.State{mastery.Unknown, mastery.Fragile, mastery.OK, mastery.Solid} {
+			masteries, err := s.masteryRepo.FindByUserAndState(ctx, userID, state)
+			if err != nil {
+				continue
+			}
+			for _, m := range masteries {
+				masteryByItem[m.ItemID] = m.State
+			}
+		}
+	}
+
+	var result []ChapterWithStats
+	for _, ch := range chapters {
+		items, _ := s.chapterRepo.FindItemsByChapter(ctx, ch.ID, false)
+		mb := &MasteryBreakdown{}
+		for _, item := range items {
+			state, ok := masteryByItem[item.ID]
+			if !ok {
+				state = mastery.Unknown
+			}
+			switch state {
+			case mastery.Unknown:
+				mb.Unknown++
+			case mastery.Fragile:
+				mb.Fragile++
+			case mastery.OK:
+				mb.OK++
+			case mastery.Solid:
+				mb.Solid++
+			}
+		}
+		result = append(result, ChapterWithStats{
+			Chapter: ch,
+			Items:   items,
+			Mastery: mb,
+		})
+	}
+
+	return result, nil
+}
+
+// GetChapterByID returns a single chapter by ID (convenience method for handlers).
+func (s *ChapterService) GetChapterByID(ctx context.Context, chapterID uuid.UUID) (*chapter.Chapter, error) {
+	return s.chapterRepo.FindByID(ctx, chapterID)
+}
+
+// CreateChapter creates a new chapter and persists it.
+func (s *ChapterService) CreateChapter(ctx context.Context, ch *chapter.Chapter) error {
+	return s.chapterRepo.Save(ctx, ch)
+}
+
+// GetNotionsByChapter returns notions for a chapter (convenience for handlers).
+func (s *ChapterService) GetNotionsByChapter(ctx context.Context, chapterID uuid.UUID) ([]*chapter.Notion, error) {
+	return s.chapterRepo.FindNotionsByChapter(ctx, chapterID)
 }
 
 // GetLessonCardItems returns the non-archived items for a chapter's current revision.

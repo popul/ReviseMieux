@@ -53,7 +53,7 @@ func NewBenchmarkProvider(cfg Config) *BenchmarkProvider {
 	}
 }
 
-func (p *BenchmarkProvider) Name() string            { return p.name }
+func (p *BenchmarkProvider) Name() string             { return p.name }
 func (p *BenchmarkProvider) ModelID() string          { return p.model }
 func (p *BenchmarkProvider) PricePerMInput() float64  { return p.priceIn }
 func (p *BenchmarkProvider) PricePerMOutput() float64 { return p.priceOut }

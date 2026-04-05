@@ -88,8 +88,8 @@ const (
 type AttemptSource string
 
 const (
-	AttemptInteractive  AttemptSource = "interactive"
-	AttemptPaperReport  AttemptSource = "paper_report"
+	AttemptInteractive AttemptSource = "interactive"
+	AttemptPaperReport AttemptSource = "paper_report"
 )
 
 // --- Entities ---

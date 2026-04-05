@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	ErrNotFound   = errors.New("chapter: not found")
+	ErrNotFound     = errors.New("chapter: not found")
 	ErrItemArchived = errors.New("item is archived")
 	ErrNoRevision   = errors.New("chapter has no current revision")
 )
@@ -20,13 +20,13 @@ var (
 type BlockType string
 
 const (
-	BlockText      BlockType = "TEXT"
-	BlockPhoto     BlockType = "PHOTO"
-	BlockSchema    BlockType = "SCHEMA"
-	BlockMap       BlockType = "MAP"
-	BlockGraph     BlockType = "GRAPH"
-	BlockTable     BlockType = "TABLE"
-	BlockCircuit   BlockType = "CIRCUIT"
+	BlockText       BlockType = "TEXT"
+	BlockPhoto      BlockType = "PHOTO"
+	BlockSchema     BlockType = "SCHEMA"
+	BlockMap        BlockType = "MAP"
+	BlockGraph      BlockType = "GRAPH"
+	BlockTable      BlockType = "TABLE"
+	BlockCircuit    BlockType = "CIRCUIT"
 	BlockDecorative BlockType = "DECORATIVE"
 )
 
@@ -136,7 +136,7 @@ type Page struct {
 	PhotoURL      string
 	PageOrder     int
 	OCRStatus     PageStatus
-	FailReason    *string // Z2-AC02: e.g. "ocr_timeout"
+	FailReason    *string  // Z2-AC02: e.g. "ocr_timeout"
 	OCRConfidence *float32 // Z2-AC03: global confidence
 	CreatedAt     time.Time
 	UpdatedAt     time.Time

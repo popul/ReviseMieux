@@ -22,6 +22,7 @@ import (
 //  7. POST /api/v1/sessions/daily            → session created
 //  8. GET  /api/v1/sessions/{id}/questions   → 8 questions with types and prompts
 //  9. POST /api/v1/sessions/{id}/answer      → feedback (x8)
+//
 // 10. GET  /api/v1/sessions/{id}/debrief     → score + transitions
 func TestFirstConnectionJourney(t *testing.T) {
 	ta := setupTestApp(t)
@@ -203,20 +204,21 @@ func TestFirstConnectionJourney(t *testing.T) {
 	}
 
 	// ── Step 9: Answer all questions ─────────────────────────
-	correctCount := 0
+	// Auto-scoring (scoreByKeywords) overrides client-provided scores.
+	// MCQ expected answer is "Vrai" → sending "Vrai" scores 1.0.
+	// Non-MCQ: "test answer" won't match item keywords → scores 0.0.
+	var actualScoreSum float64
 	for i, q := range questions {
-		// Alternate: odd questions correct, even incorrect
-		score := 0.0
-		if i%2 == 0 {
-			score = 1.0
-			correctCount++
+		answer := "test answer"
+		if q.QuestionType == "MCQ" {
+			answer = "Vrai" // matches expected answer exactly
 		}
 
 		w = doRequest(ta.router, "POST", "/api/v1/sessions/"+sessionID+"/answer", token,
 			map[string]interface{}{
 				"question_id": q.ID,
-				"answer":      `{"text":"test answer"}`,
-				"score":       score,
+				"answer":      answer,
+				"score":       1.0,
 			})
 		assertStatus(t, w, http.StatusOK)
 
@@ -234,11 +236,11 @@ func TestFirstConnectionJourney(t *testing.T) {
 		if answerResp.AttemptID == "" {
 			t.Errorf("Step 9: question %d: attempt_id is empty", i)
 		}
-		if answerResp.Score != score {
-			t.Errorf("Step 9: question %d: score = %v, want %v", i, answerResp.Score, score)
-		}
+		actualScoreSum += answerResp.Score
+		t.Logf("Step 9: question %d (%s): score = %.1f", i, q.QuestionType, answerResp.Score)
+
 		// Failed answers (score < 0.7) should have feedback (Z4-AC09)
-		if score < 0.7 && answerResp.Feedback == nil {
+		if answerResp.Score < 0.7 && answerResp.Feedback == nil {
 			t.Errorf("Step 9: question %d: expected feedback for incorrect answer", i)
 		}
 	}
@@ -263,26 +265,29 @@ func TestFirstConnectionJourney(t *testing.T) {
 	if debrief.Total != len(questions) {
 		t.Errorf("Step 10: total = %d, want %d", debrief.Total, len(questions))
 	}
-	if debrief.Score != float64(correctCount) {
-		t.Errorf("Step 10: score = %v, want %v", debrief.Score, float64(correctCount))
+	// Score should match actual auto-scored sum (not client-provided scores)
+	if debrief.Score != actualScoreSum {
+		t.Errorf("Step 10: score = %v, want %v (sum of auto-scored answers)", debrief.Score, actualScoreSum)
 	}
-	expectedPct := (float64(correctCount) / float64(len(questions))) * 100
-	if debrief.Percentage != expectedPct {
-		t.Errorf("Step 10: percentage = %v, want %v", debrief.Percentage, expectedPct)
+	if debrief.Total > 0 {
+		expectedPct := (actualScoreSum / float64(debrief.Total)) * 100
+		if debrief.Percentage != expectedPct {
+			t.Errorf("Step 10: percentage = %v, want %v", debrief.Percentage, expectedPct)
+		}
 	}
 
 	// ── Verify mastery transitions ───────────────────────────
-	// Items that scored 1.0 should now be FRAGILE (Z1-AC01: UNKNOWN + success → FRAGILE)
+	// MCQ answers scored 1.0 → should trigger UNKNOWN → FRAGILE via AttemptRecorded event.
 	w = doRequest(ta.router, "GET", "/api/v1/masteries?state=FRAGILE", token, nil)
 	assertStatus(t, w, http.StatusOK)
 
 	var fragileMasteries []map[string]interface{}
 	json.Unmarshal(w.Body.Bytes(), &fragileMasteries)
 
-	// We answered correctCount questions with score=1.0
-	// Each should have triggered UNKNOWN → FRAGILE via the AttemptRecorded event
-	// Note: transitions depend on the event publisher being wired correctly
-	t.Logf("After session: %d FRAGILE masteries (expected up to %d)", len(fragileMasteries), correctCount)
+	t.Logf("After session: %d FRAGILE masteries, actual score sum = %.1f", len(fragileMasteries), actualScoreSum)
+	if actualScoreSum > 0 && len(fragileMasteries) == 0 {
+		t.Errorf("Mastery transitions: expected at least 1 FRAGILE mastery when score sum > 0")
+	}
 
 	// ── Verify seed-demo is idempotent ───────────────────────
 	w = doRequest(ta.router, "POST", "/api/v1/onboarding/seed-demo", token, nil)

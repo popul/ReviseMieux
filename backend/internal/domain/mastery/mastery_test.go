@@ -539,6 +539,40 @@ func TestZ1AC13_CappedAtOKBlocksSolid(t *testing.T) {
 	}
 }
 
+// Z1-AC13 complement — After validation resolves, uncapping allows OK → SOLID
+// GIVEN: An item with CappedAtOK=true in OK state, cs=2, spacing met.
+// WHEN:  CappedAtOK is set to false (validation resolved).
+// THEN:  Next RecordAttempt with success transitions to SOLID.
+func TestZ1AC13_UncappingAllowsSolidTransition(t *testing.T) {
+	m := newTestMastery(t)
+
+	// Setup: OK, capped, cs=2, spacing met
+	day1 := time.Date(2026, 3, 10, 18, 0, 0, 0, time.UTC)
+	m.State = OK
+	m.ConsecutiveSuccesses = 2
+	m.CappedAtOK = true
+	m.LastSuccessAt = &day1
+
+	// Verify capped behavior first
+	now := day1.Add(25 * time.Hour)
+	m.RecordAttempt(0.9, now)
+	if m.State != OK {
+		t.Fatalf("state: got %q, want OK (still capped)", m.State)
+	}
+
+	// Uncap (simulates validation.resolved handler)
+	m.CappedAtOK = false
+	m.ConsecutiveSuccesses = 2 // reset for clean test
+	m.LastSuccessAt = &now
+
+	// Next attempt with spacing should now reach SOLID
+	now2 := now.Add(25 * time.Hour)
+	m.RecordAttempt(0.9, now2)
+	if m.State != Solid {
+		t.Errorf("state: got %q, want SOLID (uncapped should allow transition)", m.State)
+	}
+}
+
 // Z1-AC08 — Resserrement proportionnel si contrôle posé (T=7 jours)
 // GIVEN: Un item en état OK avec un exam dans 7 jours.
 // WHEN:  L'intervalle est recalculé.

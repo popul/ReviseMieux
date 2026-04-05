@@ -21,6 +21,9 @@ type Repository interface {
 	// FindByUserAndState returns all masteries in a given state for a user.
 	FindByUserAndState(ctx context.Context, userID uuid.UUID, state State) ([]*Mastery, error)
 
+	// FindByItem returns all masteries for a given item (across all users).
+	FindByItem(ctx context.Context, itemID uuid.UUID) ([]*Mastery, error)
+
 	// Save persists a mastery (insert or update).
 	Save(ctx context.Context, m *Mastery) error
 

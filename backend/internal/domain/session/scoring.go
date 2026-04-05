@@ -16,8 +16,8 @@ type ScoreClass string
 
 const (
 	ClassSuccess     ScoreClass = "success"      // ≥ threshold
-	ClassHalfSuccess ScoreClass = "half_success"  // between half and full threshold
-	ClassFailure     ScoreClass = "failure"       // below half threshold
+	ClassHalfSuccess ScoreClass = "half_success" // between half and full threshold
+	ClassFailure     ScoreClass = "failure"      // below half threshold
 )
 
 // ScoreRubric computes a score for a RUBRIC question (Z1-AC10).

@@ -48,7 +48,7 @@ func (m *mockChapterRepo) FindItemsByChapter(_ context.Context, chapterID uuid.U
 	return m.items[chapterID], nil
 }
 
-func (m *mockChapterRepo) SaveItem(_ context.Context, _ *chapter.Item) error   { return nil }
+func (m *mockChapterRepo) SaveItem(_ context.Context, _ *chapter.Item) error    { return nil }
 func (m *mockChapterRepo) SaveItems(_ context.Context, _ []*chapter.Item) error { return nil }
 
 func (m *mockChapterRepo) FindNotionsByChapter(_ context.Context, _ uuid.UUID) ([]*chapter.Notion, error) {
@@ -97,6 +97,16 @@ func (m *mockMasteryRepo) FindDueByUser(_ context.Context, _ uuid.UUID, _ time.T
 	return nil, nil
 }
 
+func (m *mockMasteryRepo) FindByItem(_ context.Context, itemID uuid.UUID) ([]*mastery.Mastery, error) {
+	var result []*mastery.Mastery
+	for _, mst := range m.masteries {
+		if mst.ItemID == itemID {
+			result = append(result, mst)
+		}
+	}
+	return result, nil
+}
+
 func (m *mockMasteryRepo) FindByUserAndState(_ context.Context, userID uuid.UUID, state mastery.State) ([]*mastery.Mastery, error) {
 	var result []*mastery.Mastery
 	for _, mst := range m.masteries {
@@ -122,8 +132,8 @@ func setupChapterRouter(t *testing.T, chRepo chapter.Repository, mRepo mastery.R
 	t.Helper()
 	gin.SetMode(gin.TestMode)
 
-	chapterSvc := app.NewChapterService(chRepo)
-	h := handler.NewChapter(chapterSvc, chRepo, mRepo, stubIDGen{}, stubClock{now: time.Now()})
+	chapterSvc := app.NewChapterService(chRepo, mRepo)
+	h := handler.NewChapter(chapterSvc, stubIDGen{}, stubClock{now: time.Now()})
 
 	r := gin.New()
 	api := r.Group("/api/v1")
