@@ -9,23 +9,21 @@ import (
 	"github.com/popul/revisemieux/internal/app"
 	"github.com/popul/revisemieux/internal/domain/chapter"
 	"github.com/popul/revisemieux/internal/domain/event"
-	"github.com/popul/revisemieux/internal/domain/mastery"
 	"github.com/popul/revisemieux/internal/http/dto"
 	"github.com/popul/revisemieux/internal/http/middleware"
 )
 
 // Chapter handles chapter-related HTTP endpoints.
 type Chapter struct {
-	svc         *app.ChapterService
-	chapterRepo chapter.Repository
-	masteryRepo mastery.Repository
-	idGen       event.IDGenerator
-	clock       event.Clock
+	svc   *app.ChapterService
+	idGen event.IDGenerator
+	clock event.Clock
 }
 
 // NewChapter creates a new Chapter handler.
-func NewChapter(svc *app.ChapterService, chapterRepo chapter.Repository, masteryRepo mastery.Repository, idGen event.IDGenerator, clock event.Clock) *Chapter {
-	return &Chapter{svc: svc, chapterRepo: chapterRepo, masteryRepo: masteryRepo, idGen: idGen, clock: clock}
+// Uses ChapterService for all data access — no direct repository dependency.
+func NewChapter(svc *app.ChapterService, idGen event.IDGenerator, clock event.Clock) *Chapter {
+	return &Chapter{svc: svc, idGen: idGen, clock: clock}
 }
 
 // List godoc
@@ -43,60 +41,24 @@ func (h *Chapter) List(c *gin.Context) {
 		return
 	}
 
-	ctx := c.Request.Context()
-
-	chapters, err := h.chapterRepo.FindByUser(ctx, userID, false)
+	chaptersWithStats, err := h.svc.ListWithStats(c.Request.Context(), userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "failed to list chapters"})
 		return
 	}
 
-	// Build a map of all user masteries by item ID for enrichment.
-	masteryByItem := make(map[uuid.UUID]mastery.State)
-	if h.masteryRepo != nil {
-		for _, state := range []mastery.State{mastery.Unknown, mastery.Fragile, mastery.OK, mastery.Solid} {
-			masteries, err := h.masteryRepo.FindByUserAndState(ctx, userID, state)
-			if err != nil {
-				continue
-			}
-			for _, m := range masteries {
-				masteryByItem[m.ItemID] = m.State
+	result := make([]dto.ChapterResponse, len(chaptersWithStats))
+	for i, cws := range chaptersWithStats {
+		resp := toChapterDTO(cws.Chapter)
+		resp.ItemCount = len(cws.Items)
+		if len(cws.Items) > 0 {
+			resp.MasteryBreakdown = &dto.MasteryBreakdown{
+				Unknown: cws.Mastery.Unknown,
+				Fragile: cws.Mastery.Fragile,
+				Ok:      cws.Mastery.OK,
+				Solid:   cws.Mastery.Solid,
 			}
 		}
-	}
-
-	result := make([]dto.ChapterResponse, len(chapters))
-	for i, ch := range chapters {
-		resp := toChapterDTO(ch)
-
-		items, err := h.chapterRepo.FindItemsByChapter(ctx, ch.ID, false)
-		if err != nil {
-			items = nil
-		}
-
-		resp.ItemCount = len(items)
-
-		if len(items) > 0 {
-			mb := &dto.MasteryBreakdown{}
-			for _, item := range items {
-				state, ok := masteryByItem[item.ID]
-				if !ok {
-					state = mastery.Unknown
-				}
-				switch state {
-				case mastery.Unknown:
-					mb.Unknown++
-				case mastery.Fragile:
-					mb.Fragile++
-				case mastery.OK:
-					mb.Ok++
-				case mastery.Solid:
-					mb.Solid++
-				}
-			}
-			resp.MasteryBreakdown = mb
-		}
-
 		result[i] = resp
 	}
 	c.JSON(http.StatusOK, result)
@@ -125,7 +87,7 @@ func (h *Chapter) Create(c *gin.Context) {
 	}
 
 	ch := chapter.NewChapter(h.idGen, userID, req.Subject, req.ClassLevel, req.Name, h.clock.Now())
-	if err := h.chapterRepo.Save(c.Request.Context(), ch); err != nil {
+	if err := h.svc.CreateChapter(c.Request.Context(), ch); err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "failed to create chapter"})
 		return
 	}
@@ -152,7 +114,7 @@ func (h *Chapter) GetLessonCard(c *gin.Context) {
 
 	ctx := c.Request.Context()
 
-	ch, err := h.chapterRepo.FindByID(ctx, chapterID)
+	ch, err := h.svc.GetChapterByID(ctx, chapterID)
 	if err != nil {
 		if errors.Is(err, chapter.ErrNotFound) {
 			c.JSON(http.StatusNotFound, dto.ErrorResponse{Error: "chapter not found"})
@@ -176,7 +138,7 @@ func (h *Chapter) GetLessonCard(c *gin.Context) {
 		return
 	}
 
-	notions, err := h.chapterRepo.FindNotionsByChapter(ctx, chapterID)
+	notions, err := h.svc.GetNotionsByChapter(ctx, chapterID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "failed to fetch notions"})
 		return

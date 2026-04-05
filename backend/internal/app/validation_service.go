@@ -253,6 +253,11 @@ func (s *ValidationService) ListPending(ctx context.Context, limit int) ([]*vali
 	return s.valRepo.FindPendingAll(ctx, limit)
 }
 
+// GetItemByID returns a single item by ID (for enrichment in handlers).
+func (s *ValidationService) GetItemByID(ctx context.Context, itemID uuid.UUID) (*chapter.Item, error) {
+	return s.chapterRepo.FindItemByID(ctx, itemID)
+}
+
 // EligibleTemplates returns the templates available for an item based on
 // its validation_required status (Z3-AC01).
 func (s *ValidationService) EligibleTemplates(validationRequired bool) []string {

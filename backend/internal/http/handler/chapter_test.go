@@ -122,8 +122,8 @@ func setupChapterRouter(t *testing.T, chRepo chapter.Repository, mRepo mastery.R
 	t.Helper()
 	gin.SetMode(gin.TestMode)
 
-	chapterSvc := app.NewChapterService(chRepo)
-	h := handler.NewChapter(chapterSvc, chRepo, mRepo, stubIDGen{}, stubClock{now: time.Now()})
+	chapterSvc := app.NewChapterService(chRepo, mRepo)
+	h := handler.NewChapter(chapterSvc, stubIDGen{}, stubClock{now: time.Now()})
 
 	r := gin.New()
 	api := r.Group("/api/v1")

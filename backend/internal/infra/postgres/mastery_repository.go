@@ -28,7 +28,7 @@ func (r *MasteryRepository) FindByID(ctx context.Context, id uuid.UUID) (*master
 	const q = `
 		SELECT id, user_id, item_id, state, next_due_at, last_review_at,
 		       last_success_at, consecutive_successes, consecutive_failures,
-		       current_difficulty, created_at, updated_at
+		       current_difficulty, capped_at_ok, created_at, updated_at
 		FROM masteries
 		WHERE id = $1`
 
@@ -36,7 +36,7 @@ func (r *MasteryRepository) FindByID(ctx context.Context, id uuid.UUID) (*master
 	err := r.pool.QueryRow(ctx, q, id).Scan(
 		&m.ID, &m.UserID, &m.ItemID, &m.State, &m.NextDueAt, &m.LastReviewAt,
 		&m.LastSuccessAt, &m.ConsecutiveSuccesses, &m.ConsecutiveFailures,
-		&m.CurrentDifficulty, &m.CreatedAt, &m.UpdatedAt,
+		&m.CurrentDifficulty, &m.CappedAtOK, &m.CreatedAt, &m.UpdatedAt,
 	)
 	if err == pgx.ErrNoRows {
 		return nil, fmt.Errorf("mastery.Repository.FindByID: %w", mastery.ErrNotFound)
@@ -51,7 +51,7 @@ func (r *MasteryRepository) FindByUserAndItem(ctx context.Context, userID, itemI
 	const q = `
 		SELECT id, user_id, item_id, state, next_due_at, last_review_at,
 		       last_success_at, consecutive_successes, consecutive_failures,
-		       current_difficulty, created_at, updated_at
+		       current_difficulty, capped_at_ok, created_at, updated_at
 		FROM masteries
 		WHERE user_id = $1 AND item_id = $2`
 
@@ -59,7 +59,7 @@ func (r *MasteryRepository) FindByUserAndItem(ctx context.Context, userID, itemI
 	err := r.pool.QueryRow(ctx, q, userID, itemID).Scan(
 		&m.ID, &m.UserID, &m.ItemID, &m.State, &m.NextDueAt, &m.LastReviewAt,
 		&m.LastSuccessAt, &m.ConsecutiveSuccesses, &m.ConsecutiveFailures,
-		&m.CurrentDifficulty, &m.CreatedAt, &m.UpdatedAt,
+		&m.CurrentDifficulty, &m.CappedAtOK, &m.CreatedAt, &m.UpdatedAt,
 	)
 	if err == pgx.ErrNoRows {
 		return nil, fmt.Errorf("mastery.Repository.FindByUserAndItem: %w", mastery.ErrNotFound)
@@ -74,7 +74,7 @@ func (r *MasteryRepository) FindDueByUser(ctx context.Context, userID uuid.UUID,
 	const q = `
 		SELECT id, user_id, item_id, state, next_due_at, last_review_at,
 		       last_success_at, consecutive_successes, consecutive_failures,
-		       current_difficulty, created_at, updated_at
+		       current_difficulty, capped_at_ok, created_at, updated_at
 		FROM masteries
 		WHERE user_id = $1 AND (next_due_at IS NULL OR next_due_at <= $2)
 		ORDER BY next_due_at ASC NULLS FIRST`
@@ -92,7 +92,7 @@ func (r *MasteryRepository) FindByUserAndState(ctx context.Context, userID uuid.
 	const q = `
 		SELECT id, user_id, item_id, state, next_due_at, last_review_at,
 		       last_success_at, consecutive_successes, consecutive_failures,
-		       current_difficulty, created_at, updated_at
+		       current_difficulty, capped_at_ok, created_at, updated_at
 		FROM masteries
 		WHERE user_id = $1 AND state = $2
 		ORDER BY updated_at DESC`
@@ -111,8 +111,8 @@ func (r *MasteryRepository) Save(ctx context.Context, m *mastery.Mastery) error 
 		INSERT INTO masteries (
 			id, user_id, item_id, state, next_due_at, last_review_at,
 			last_success_at, consecutive_successes, consecutive_failures,
-			current_difficulty, created_at, updated_at
-		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+			current_difficulty, capped_at_ok, created_at, updated_at
+		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
 		ON CONFLICT (user_id, item_id) DO UPDATE SET
 			state = EXCLUDED.state,
 			next_due_at = EXCLUDED.next_due_at,
@@ -121,12 +121,13 @@ func (r *MasteryRepository) Save(ctx context.Context, m *mastery.Mastery) error 
 			consecutive_successes = EXCLUDED.consecutive_successes,
 			consecutive_failures = EXCLUDED.consecutive_failures,
 			current_difficulty = EXCLUDED.current_difficulty,
+			capped_at_ok = EXCLUDED.capped_at_ok,
 			updated_at = EXCLUDED.updated_at`
 
 	_, err := r.pool.Exec(ctx, q,
 		m.ID, m.UserID, m.ItemID, m.State, m.NextDueAt, m.LastReviewAt,
 		m.LastSuccessAt, m.ConsecutiveSuccesses, m.ConsecutiveFailures,
-		m.CurrentDifficulty, m.CreatedAt, m.UpdatedAt,
+		m.CurrentDifficulty, m.CappedAtOK, m.CreatedAt, m.UpdatedAt,
 	)
 	if err != nil {
 		return fmt.Errorf("mastery.Repository.Save: %w", err)
@@ -144,8 +145,8 @@ func (r *MasteryRepository) SaveAll(ctx context.Context, masteries []*mastery.Ma
 		INSERT INTO masteries (
 			id, user_id, item_id, state, next_due_at, last_review_at,
 			last_success_at, consecutive_successes, consecutive_failures,
-			current_difficulty, created_at, updated_at
-		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+			current_difficulty, capped_at_ok, created_at, updated_at
+		) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
 		ON CONFLICT (user_id, item_id) DO UPDATE SET
 			state = EXCLUDED.state,
 			next_due_at = EXCLUDED.next_due_at,
@@ -154,13 +155,14 @@ func (r *MasteryRepository) SaveAll(ctx context.Context, masteries []*mastery.Ma
 			consecutive_successes = EXCLUDED.consecutive_successes,
 			consecutive_failures = EXCLUDED.consecutive_failures,
 			current_difficulty = EXCLUDED.current_difficulty,
+			capped_at_ok = EXCLUDED.capped_at_ok,
 			updated_at = EXCLUDED.updated_at`
 
 	for _, m := range masteries {
 		batch.Queue(q,
 			m.ID, m.UserID, m.ItemID, m.State, m.NextDueAt, m.LastReviewAt,
 			m.LastSuccessAt, m.ConsecutiveSuccesses, m.ConsecutiveFailures,
-			m.CurrentDifficulty, m.CreatedAt, m.UpdatedAt,
+			m.CurrentDifficulty, m.CappedAtOK, m.CreatedAt, m.UpdatedAt,
 		)
 	}
 
@@ -182,7 +184,7 @@ func scanMasteries(rows pgx.Rows) ([]*mastery.Mastery, error) {
 		if err := rows.Scan(
 			&m.ID, &m.UserID, &m.ItemID, &m.State, &m.NextDueAt, &m.LastReviewAt,
 			&m.LastSuccessAt, &m.ConsecutiveSuccesses, &m.ConsecutiveFailures,
-			&m.CurrentDifficulty, &m.CreatedAt, &m.UpdatedAt,
+			&m.CurrentDifficulty, &m.CappedAtOK, &m.CreatedAt, &m.UpdatedAt,
 		); err != nil {
 			return nil, fmt.Errorf("mastery.Repository: scan: %w", err)
 		}

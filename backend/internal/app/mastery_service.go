@@ -56,12 +56,9 @@ func (s *MasteryService) RecordAttempt(ctx context.Context, userID, itemID uuid.
 		return nil, fmt.Errorf("mastery_service: save mastery: %w", err)
 	}
 
-	s.publisher.Publish(ctx, event.AttemptRecorded{
-		BaseEvent: event.BaseEvent{OccurredOn: now},
-		UserID:    userID,
-		ItemID:    itemID,
-		Score:     score,
-	})
+	// Note: AttemptRecorded is published by SessionService.SubmitAnswer, not here,
+	// to avoid double-publishing when the event dispatcher routes back to mastery.
+	// This method is for direct mastery recording (e.g., admin override).
 
 	return m, nil
 }

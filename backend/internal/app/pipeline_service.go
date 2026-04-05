@@ -262,6 +262,10 @@ func (s *PipelineService) UploadAndProcess(ctx context.Context, chapterID uuid.U
 		var itemIDs []uuid.UUID
 		for _, item := range allItems {
 			m := mastery.NewMastery(s.idGen, ch.UserID, item.ID, now)
+			// Z1-AC13: items with validation_required cap mastery at OK
+			if item.ValidationRequired {
+				m.CappedAtOK = true
+			}
 			masteries = append(masteries, m)
 			itemIDs = append(itemIDs, item.ID)
 		}

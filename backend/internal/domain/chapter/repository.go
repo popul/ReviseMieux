@@ -32,3 +32,11 @@ type Repository interface {
 	FindPagesByRevision(ctx context.Context, revisionID uuid.UUID) ([]*Page, error)
 	SavePage(ctx context.Context, p *Page) error
 }
+
+// ExamRepository is the port for exam aggregate persistence.
+type ExamRepository interface {
+	FindByID(ctx context.Context, id uuid.UUID) (*Exam, error)
+	FindByUser(ctx context.Context, userID uuid.UUID) ([]*Exam, error)
+	FindActiveByChapter(ctx context.Context, chapterID uuid.UUID) ([]*Exam, error)
+	Save(ctx context.Context, exam *Exam) error
+}

@@ -133,7 +133,9 @@ lint: ## Lint backend + mobile
 fmt: ## Formatte le code
 	@$(MAKE) -C $(BACKEND_DIR) fmt
 
-check: lint test ## Lint + tests (CI gate)
+check: ## Gate CI : format + vet + imports domaine + tests
+	@$(MAKE) -C $(BACKEND_DIR) check
+	@$(MAKE) -C $(MOBILE_DIR) test
 
 # ------------------------------------------------------------
 # Build
