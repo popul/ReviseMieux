@@ -63,9 +63,51 @@ func setupTestApp(t *testing.T) *testApp {
 	masteryRepo := postgres.NewMasteryRepository(pool)
 	sessionRepo := postgres.NewSessionRepository(pool)
 	valRepo := postgres.NewValidationRepository(pool)
-	publisher := eventbus.NewLogPublisher()
 	clock := event.RealClock{}
 	idGen := event.UUIDv7Generator{}
+
+	// Use SyncDispatcher (like prod) so event handlers actually execute.
+	dispatcher := eventbus.NewSyncDispatcher()
+	var publisher event.Publisher = dispatcher
+
+	// AttemptRecorded -> transition mastery state (mirrors main.go wiring).
+	dispatcher.On("attempt.recorded", func(ctx context.Context, evt event.Event) error {
+		ar, ok := evt.(event.AttemptRecorded)
+		if !ok {
+			return nil
+		}
+		m, err := masteryRepo.FindByUserAndItem(ctx, ar.UserID, ar.ItemID)
+		if err != nil {
+			return nil
+		}
+		if err := m.RecordAttempt(ar.Score, clock.Now()); err != nil {
+			return nil
+		}
+		return masteryRepo.Save(ctx, m)
+	})
+
+	// ValidationResolved -> uncap mastery CappedAtOK (mirrors main.go wiring).
+	dispatcher.On("validation.resolved", func(ctx context.Context, evt event.Event) error {
+		vr, ok := evt.(event.ValidationResolved)
+		if !ok {
+			return nil
+		}
+		masteries, err := masteryRepo.FindByItem(ctx, vr.ItemID)
+		if err != nil {
+			return nil
+		}
+		for _, m := range masteries {
+			if !m.CappedAtOK {
+				continue
+			}
+			m.CappedAtOK = false
+			m.UpdatedAt = clock.Now()
+			if err := masteryRepo.Save(ctx, m); err != nil {
+				return err
+			}
+		}
+		return nil
+	})
 
 	// Services
 	chapterSvc := app.NewChapterService(chapterRepo, masteryRepo)
@@ -602,11 +644,17 @@ func TestSession_FullFlow_CrossLayer(t *testing.T) {
 		t.Fatal("expected at least 1 question")
 	}
 
-	// Answer each question
+	// Answer each question.
+	// MCQ expected answer is "Vrai", so we send "Vrai" to get score=1.0 from auto-scoring.
+	// Non-MCQ answers are auto-scored via keyword matching; "test answer" won't match.
 	for _, q := range questions {
+		answer := "test answer"
+		if q["question_type"] == "MCQ" {
+			answer = "Vrai"
+		}
 		answerBody := map[string]interface{}{
 			"question_id": q["id"],
-			"answer":      "test answer",
+			"answer":      answer,
 			"score":       1.0,
 		}
 		w = doRequest(ta.router, "POST", "/api/v1/sessions/"+sessionID+"/answer", token, answerBody)
