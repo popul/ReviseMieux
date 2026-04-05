@@ -127,7 +127,7 @@ func (h *Mastery) RecordAttempt(c *gin.Context) {
 		return
 	}
 
-	m, err := h.svc.RecordAttempt(c.Request.Context(), userID, itemID, req.Score)
+	m, err := h.svc.RecordAttempt(c.Request.Context(), userID, itemID, *req.Score)
 	if err != nil {
 		if errors.Is(err, mastery.ErrNotFound) {
 			c.JSON(http.StatusNotFound, dto.ErrorResponse{Error: "mastery not found"})
