@@ -113,10 +113,10 @@ func TestMapBlockType(t *testing.T) {
 		{"CIRCUIT", chapter.BlockCircuit},
 		{"DECORATIVE", chapter.BlockDecorative},
 		// Non-standard types
-		{"DIAGRAM", chapter.BlockSchema},  // Explicit mapping in parseOCRResponse
-		{"FORMULA", chapter.BlockText},    // Unknown -> TEXT fallback
-		{"TITLE", chapter.BlockText},      // Unknown -> TEXT fallback
-		{"unknown", chapter.BlockText},    // Unknown -> TEXT fallback
+		{"DIAGRAM", chapter.BlockSchema}, // Explicit mapping in parseOCRResponse
+		{"FORMULA", chapter.BlockText},   // Unknown -> TEXT fallback
+		{"TITLE", chapter.BlockText},     // Unknown -> TEXT fallback
+		{"unknown", chapter.BlockText},   // Unknown -> TEXT fallback
 	}
 
 	for _, tt := range tests {

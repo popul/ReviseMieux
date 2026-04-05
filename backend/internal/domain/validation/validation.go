@@ -30,11 +30,11 @@ const (
 type TaskSource string
 
 const (
-	SourceUncertainty   TaskSource = "uncertainty_detection"
-	SourceStudentReport TaskSource = "student_report"
-	SourceAnomaly       TaskSource = "anomaly_detection"
-	SourceCoherence     TaskSource = "coherence_check"
-	SourceFidelity      TaskSource = "fidelity_check"
+	SourceUncertainty     TaskSource = "uncertainty_detection"
+	SourceStudentReport   TaskSource = "student_report"
+	SourceAnomaly         TaskSource = "anomaly_detection"
+	SourceCoherence       TaskSource = "coherence_check"
+	SourceFidelity        TaskSource = "fidelity_check"
 	SourceStudentDeferred TaskSource = "student_deferred"
 )
 

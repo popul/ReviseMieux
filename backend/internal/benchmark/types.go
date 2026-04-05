@@ -81,19 +81,19 @@ type ParsedItem struct {
 
 // EvalResult holds all evaluation metrics for one (provider, test case) pair.
 type EvalResult struct {
-	CaseID    string `json:"case_id"`
-	Provider  string `json:"provider"`
-	Model     string `json:"model"`
+	CaseID    string    `json:"case_id"`
+	Provider  string    `json:"provider"`
+	Model     string    `json:"model"`
 	Timestamp time.Time `json:"timestamp"`
 
 	// Quality indicators (0-1, higher is better except HallucinationRate)
-	CompletenessScore   float64 `json:"completeness_score"`    // Q1
-	ClassificationScore float64 `json:"classification_score"`  // Q2
-	FidelityScore       float64 `json:"fidelity_score"`        // Q3
-	KeywordScore        float64 `json:"keyword_score"`         // Q4
-	HallucinationRate   float64 `json:"hallucination_rate"`    // Q5 (lower is better)
-	NotionScore         float64 `json:"notion_score"`          // Q6
-	SchemaCompliance    bool    `json:"schema_compliance"`     // Q7
+	CompletenessScore   float64 `json:"completeness_score"`   // Q1
+	ClassificationScore float64 `json:"classification_score"` // Q2
+	FidelityScore       float64 `json:"fidelity_score"`       // Q3
+	KeywordScore        float64 `json:"keyword_score"`        // Q4
+	HallucinationRate   float64 `json:"hallucination_rate"`   // Q5 (lower is better)
+	NotionScore         float64 `json:"notion_score"`         // Q6
+	SchemaCompliance    bool    `json:"schema_compliance"`    // Q7
 
 	// Performance
 	LatencyMs    int64   `json:"latency_ms"`

@@ -190,7 +190,7 @@ func (ta *testApp) seedValidationTask(itemID uuid.UUID) *validation.ValidationTa
 	task := &validation.ValidationTask{
 		ID: uuid.Must(uuid.NewV7()), ItemID: itemID,
 		Priority: 5, Status: validation.StatusPending,
-		Source: validation.SourceUncertainty,
+		Source:    validation.SourceUncertainty,
 		CreatedAt: now, UpdatedAt: now,
 	}
 	_, err := ta.pool.Exec(context.Background(),

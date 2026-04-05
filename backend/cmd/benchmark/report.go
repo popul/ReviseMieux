@@ -86,17 +86,17 @@ func loadSummaries(path string) ([]benchmark.RunSummary, error) {
 }
 
 type reportData struct {
-	Title          string
-	RunDir         string
-	Models         []string
-	ModelsJSON     template.JS
-	SummariesJSON  template.JS
-	Summaries      []benchmark.RunSummary
-	MetricsRadar   template.JS
-	MetricsBar     template.JS
-	CostData       template.JS
-	LatencyData    template.JS
-	CompositeData  template.JS
+	Title         string
+	RunDir        string
+	Models        []string
+	ModelsJSON    template.JS
+	SummariesJSON template.JS
+	Summaries     []benchmark.RunSummary
+	MetricsRadar  template.JS
+	MetricsBar    template.JS
+	CostData      template.JS
+	LatencyData   template.JS
+	CompositeData template.JS
 }
 
 func buildReportData(summaries []benchmark.RunSummary, dir string) reportData {
@@ -156,8 +156,8 @@ func buildReportData(summaries []benchmark.RunSummary, dir string) reportData {
 
 	// Cost data
 	type costEntry struct {
-		Model      string  `json:"model"`
-		TotalCost  float64 `json:"total_cost"`
+		Model       string  `json:"model"`
+		TotalCost   float64 `json:"total_cost"`
 		CostPerItem float64 `json:"cost_per_item"`
 	}
 	var costEntries []costEntry

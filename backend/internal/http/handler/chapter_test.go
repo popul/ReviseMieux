@@ -48,7 +48,7 @@ func (m *mockChapterRepo) FindItemsByChapter(_ context.Context, chapterID uuid.U
 	return m.items[chapterID], nil
 }
 
-func (m *mockChapterRepo) SaveItem(_ context.Context, _ *chapter.Item) error   { return nil }
+func (m *mockChapterRepo) SaveItem(_ context.Context, _ *chapter.Item) error    { return nil }
 func (m *mockChapterRepo) SaveItems(_ context.Context, _ []*chapter.Item) error { return nil }
 
 func (m *mockChapterRepo) FindNotionsByChapter(_ context.Context, _ uuid.UUID) ([]*chapter.Notion, error) {

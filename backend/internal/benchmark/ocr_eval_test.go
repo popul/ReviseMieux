@@ -7,39 +7,39 @@ import (
 
 func TestWordOverlap(t *testing.T) {
 	tests := []struct {
-		name    string
-		golden  string
+		name     string
+		golden   string
 		produced string
-		min     float64
-		max     float64
+		min      float64
+		max      float64
 	}{
 		{
-			name:    "identical texts",
-			golden:  "La masse volumique est le rapport de la masse sur le volume",
+			name:     "identical texts",
+			golden:   "La masse volumique est le rapport de la masse sur le volume",
 			produced: "La masse volumique est le rapport de la masse sur le volume",
-			min:     1.0,
-			max:     1.0,
+			min:      1.0,
+			max:      1.0,
 		},
 		{
-			name:    "partial match",
-			golden:  "Les poils absorbants permettent l'absorption de l'eau et des sels minéraux",
+			name:     "partial match",
+			golden:   "Les poils absorbants permettent l'absorption de l'eau et des sels minéraux",
 			produced: "Les poils absorbants absorbent l'eau",
-			min:     0.4,
-			max:     0.9,
+			min:      0.4,
+			max:      0.9,
 		},
 		{
-			name:    "no match",
-			golden:  "Le théorème de Pythagore",
+			name:     "no match",
+			golden:   "Le théorème de Pythagore",
 			produced: "Les cellules végétales contiennent des chloroplastes",
-			min:     0.0,
-			max:     0.1,
+			min:      0.0,
+			max:      0.1,
 		},
 		{
-			name:    "empty golden",
-			golden:  "",
+			name:     "empty golden",
+			golden:   "",
 			produced: "anything",
-			min:     1.0,
-			max:     1.0,
+			min:      1.0,
+			max:      1.0,
 		},
 	}
 	for _, tt := range tests {
@@ -171,7 +171,7 @@ type mockOCRProvider struct {
 	priceOut float64
 }
 
-func (m *mockOCRProvider) Name() string            { return m.name }
+func (m *mockOCRProvider) Name() string             { return m.name }
 func (m *mockOCRProvider) ModelID() string          { return m.model }
 func (m *mockOCRProvider) PricePerMInput() float64  { return m.priceIn }
 func (m *mockOCRProvider) PricePerMOutput() float64 { return m.priceOut }

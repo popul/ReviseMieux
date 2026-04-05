@@ -22,6 +22,7 @@ import (
 //  7. POST /api/v1/sessions/daily            → session created
 //  8. GET  /api/v1/sessions/{id}/questions   → 8 questions with types and prompts
 //  9. POST /api/v1/sessions/{id}/answer      → feedback (x8)
+//
 // 10. GET  /api/v1/sessions/{id}/debrief     → score + transitions
 func TestFirstConnectionJourney(t *testing.T) {
 	ta := setupTestApp(t)

@@ -12,10 +12,10 @@ import (
 
 // ExamService handles exam-related use cases (Z6-AC10).
 type ExamService struct {
-	examRepo chapter.ExamRepository
-	publisher   event.Publisher
-	clock       event.Clock
-	idGen       event.IDGenerator
+	examRepo  chapter.ExamRepository
+	publisher event.Publisher
+	clock     event.Clock
+	idGen     event.IDGenerator
 }
 
 // NewExamService creates a new ExamService.
@@ -26,10 +26,10 @@ func NewExamService(
 	idGen event.IDGenerator,
 ) *ExamService {
 	return &ExamService{
-		examRepo: examRepo,
-		publisher:   publisher,
-		clock:       clock,
-		idGen:       idGen,
+		examRepo:  examRepo,
+		publisher: publisher,
+		clock:     clock,
+		idGen:     idGen,
 	}
 }
 

@@ -14,27 +14,27 @@ import (
 type OnboardingStep string
 
 const (
-	StepAccountCreated   OnboardingStep = "account_created"    // (1)
-	StepDemoAvailable    OnboardingStep = "demo_available"     // (2) demo chapter + empty state
-	StepDemoSession      OnboardingStep = "demo_session"       // (3) optional demo evening_first
-	StepFirstUpload      OnboardingStep = "first_upload"       // (4+5) tutorial → upload → pipeline
-	StepFirstSession     OnboardingStep = "first_session"      // (6) evening_first on real chapter
-	StepDebrief          OnboardingStep = "debrief"            // (7) debrief + parent invite
-	StepOnboardingDone   OnboardingStep = "done"               // onboarding complete
+	StepAccountCreated OnboardingStep = "account_created" // (1)
+	StepDemoAvailable  OnboardingStep = "demo_available"  // (2) demo chapter + empty state
+	StepDemoSession    OnboardingStep = "demo_session"    // (3) optional demo evening_first
+	StepFirstUpload    OnboardingStep = "first_upload"    // (4+5) tutorial → upload → pipeline
+	StepFirstSession   OnboardingStep = "first_session"   // (6) evening_first on real chapter
+	StepDebrief        OnboardingStep = "debrief"         // (7) debrief + parent invite
+	StepOnboardingDone OnboardingStep = "done"            // onboarding complete
 )
 
 // OnboardingStatus represents the current onboarding step for a user.
 type OnboardingStatus struct {
-	AccountCreated     bool           `json:"account_created"`
-	DemoSessionDone    bool           `json:"demo_session_done"`
-	FirstChapterReady  bool           `json:"first_chapter_ready"`
-	HasDemoChapter     bool           `json:"has_demo_chapter"`
-	DemoChapterID      *uuid.UUID     `json:"demo_chapter_id,omitempty"`
-	CurrentStep        OnboardingStep `json:"current_step"`
-	CompletedSteps     []OnboardingStep `json:"completed_steps"`
-	Step1Label         string         `json:"step1_label"`
-	Step2Label         string         `json:"step2_label"`
-	Step3Label         string         `json:"step3_label"`
+	AccountCreated    bool             `json:"account_created"`
+	DemoSessionDone   bool             `json:"demo_session_done"`
+	FirstChapterReady bool             `json:"first_chapter_ready"`
+	HasDemoChapter    bool             `json:"has_demo_chapter"`
+	DemoChapterID     *uuid.UUID       `json:"demo_chapter_id,omitempty"`
+	CurrentStep       OnboardingStep   `json:"current_step"`
+	CompletedSteps    []OnboardingStep `json:"completed_steps"`
+	Step1Label        string           `json:"step1_label"`
+	Step2Label        string           `json:"step2_label"`
+	Step3Label        string           `json:"step3_label"`
 }
 
 // DemoNotion is a pre-defined notion for the demo chapter.
@@ -52,10 +52,10 @@ var demoNotions = []DemoNotion{
 
 // DemoItem is a pre-defined item for the demo chapter.
 type DemoItem struct {
-	Term       string
-	ItemType   chapter.ItemType
-	Keywords   []string
-	NotionIdx  int // index into demoNotions
+	Term      string
+	ItemType  chapter.ItemType
+	Keywords  []string
+	NotionIdx int // index into demoNotions
 }
 
 // demoItems contains the 8 pre-generated items for the demo chapter (Z8-AC01).

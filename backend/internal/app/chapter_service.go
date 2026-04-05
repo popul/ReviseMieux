@@ -19,9 +19,9 @@ type MasteryBreakdown struct {
 
 // ChapterWithStats enriches a Chapter with computed stats.
 type ChapterWithStats struct {
-	Chapter  *chapter.Chapter
-	Items    []*chapter.Item
-	Mastery  *MasteryBreakdown
+	Chapter *chapter.Chapter
+	Items   []*chapter.Item
+	Mastery *MasteryBreakdown
 }
 
 // NotionMastery represents aggregated mastery for a single notion (Z7-AC16).

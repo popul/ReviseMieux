@@ -269,7 +269,10 @@ type fixedClock struct{ t time.Time }
 
 func (c fixedClock) Now() time.Time { return c.t }
 
-type fixedIDGen struct{ ids []uuid.UUID; idx int }
+type fixedIDGen struct {
+	ids []uuid.UUID
+	idx int
+}
 
 func (g *fixedIDGen) New() uuid.UUID {
 	if g.idx < len(g.ids) {

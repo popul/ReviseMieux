@@ -47,11 +47,11 @@ type PipelineResult struct {
 
 // RecoveryInfo provides context for the recovery screen (Z8-AC03).
 type RecoveryInfo struct {
-	IsFirstUpload   bool   // true if this was the user's first ever upload
-	CanRetry        bool   // true: user can re-take photos
-	CanContinue     bool   // true if some items were generated despite low confidence
-	HasDemoChapter  bool   // true if demo chapter available as fallback
-	Message         string // empathetic message
+	IsFirstUpload  bool   // true if this was the user's first ever upload
+	CanRetry       bool   // true: user can re-take photos
+	CanContinue    bool   // true if some items were generated despite low confidence
+	HasDemoChapter bool   // true if demo chapter available as fallback
+	Message        string // empathetic message
 }
 
 // PageProgress represents the progress after processing a single page.
