@@ -235,6 +235,15 @@ func (m *mockMasteryRepo) FindDueByUser(_ context.Context, userID uuid.UUID, bef
 	}
 	return result, nil
 }
+func (m *mockMasteryRepo) FindByItem(_ context.Context, itemID uuid.UUID) ([]*mastery.Mastery, error) {
+	var result []*mastery.Mastery
+	for _, ms := range m.saved {
+		if ms.ItemID == itemID {
+			result = append(result, ms)
+		}
+	}
+	return result, nil
+}
 func (m *mockMasteryRepo) FindByUserAndState(_ context.Context, _ uuid.UUID, _ mastery.State) ([]*mastery.Mastery, error) {
 	return nil, nil
 }

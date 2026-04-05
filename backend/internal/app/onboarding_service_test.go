@@ -132,6 +132,16 @@ func (m *mockMasteryRepoOnboarding) FindDueByUser(_ context.Context, _ uuid.UUID
 	return nil, nil
 }
 
+func (m *mockMasteryRepoOnboarding) FindByItem(_ context.Context, itemID uuid.UUID) ([]*mastery.Mastery, error) {
+	var result []*mastery.Mastery
+	for _, ms := range m.masteries {
+		if ms.ItemID == itemID {
+			result = append(result, ms)
+		}
+	}
+	return result, nil
+}
+
 func (m *mockMasteryRepoOnboarding) FindByUserAndState(_ context.Context, _ uuid.UUID, _ mastery.State) ([]*mastery.Mastery, error) {
 	return nil, nil
 }

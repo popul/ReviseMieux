@@ -126,6 +126,9 @@ func (m *mockMasteryRepoForSession) FindByUserAndItem(_ context.Context, _, _ uu
 func (m *mockMasteryRepoForSession) FindDueByUser(_ context.Context, _ uuid.UUID, _ time.Time) ([]*mastery.Mastery, error) {
 	return nil, nil
 }
+func (m *mockMasteryRepoForSession) FindByItem(_ context.Context, _ uuid.UUID) ([]*mastery.Mastery, error) {
+	return nil, nil
+}
 func (m *mockMasteryRepoForSession) FindByUserAndState(_ context.Context, _ uuid.UUID, _ mastery.State) ([]*mastery.Mastery, error) {
 	return nil, nil
 }

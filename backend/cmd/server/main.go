@@ -247,7 +247,37 @@ func main() {
 		return nil
 	})
 
-	log.Println("Event dispatcher initialized with handlers: attempt.recorded, exam.created")
+	// ValidationResolved -> uncap mastery CappedAtOK (Z1-AC13 complement).
+	// When HITL confirms/corrects an item, the mastery cap at OK is lifted,
+	// allowing the student to progress to SOLID.
+	dispatcher.On("validation.resolved", func(ctx context.Context, evt event.Event) error {
+		vr, ok := evt.(event.ValidationResolved)
+		if !ok {
+			return nil
+		}
+		masteries, err := masteryRepo.FindByItem(ctx, vr.ItemID)
+		if err != nil {
+			log.Printf("[event] validation uncap: find masteries for item %s: %v", vr.ItemID, err)
+			return nil
+		}
+		for _, m := range masteries {
+			if !m.CappedAtOK {
+				continue
+			}
+			m.CappedAtOK = false
+			m.UpdatedAt = clock.Now()
+			if err := masteryRepo.Save(ctx, m); err != nil {
+				log.Printf("[event] validation uncap: save mastery %s: %v", m.ID, err)
+			}
+		}
+		log.Printf("[event] validation resolved: uncapped masteries for item %s (count=%d)", vr.ItemID, len(masteries))
+		return nil
+	})
+
+	// items.generated: intentionally unhandled in Lot 0.
+	// Future: could trigger ProposeEveningFirst session for the user.
+
+	log.Println("Event dispatcher initialized with handlers: attempt.recorded, exam.created, validation.resolved")
 
 	// --- Dev Handler (debug mode only) ---
 	var devHandler *handler.Dev

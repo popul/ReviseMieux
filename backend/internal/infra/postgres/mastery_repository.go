@@ -106,6 +106,24 @@ func (r *MasteryRepository) FindByUserAndState(ctx context.Context, userID uuid.
 	return scanMasteries(rows)
 }
 
+func (r *MasteryRepository) FindByItem(ctx context.Context, itemID uuid.UUID) ([]*mastery.Mastery, error) {
+	const q = `
+		SELECT id, user_id, item_id, state, next_due_at, last_review_at,
+		       last_success_at, consecutive_successes, consecutive_failures,
+		       current_difficulty, capped_at_ok, created_at, updated_at
+		FROM masteries
+		WHERE item_id = $1
+		ORDER BY created_at ASC`
+
+	rows, err := r.pool.Query(ctx, q, itemID)
+	if err != nil {
+		return nil, fmt.Errorf("mastery.Repository.FindByItem: %w", err)
+	}
+	defer rows.Close()
+
+	return scanMasteries(rows)
+}
+
 func (r *MasteryRepository) Save(ctx context.Context, m *mastery.Mastery) error {
 	const q = `
 		INSERT INTO masteries (

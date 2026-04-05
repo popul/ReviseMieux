@@ -571,6 +571,14 @@ func (m *statefulMasteryRepo) FindDueByUser(_ context.Context, _ uuid.UUID, _ ti
 	return nil, nil
 }
 
+func (m *statefulMasteryRepo) FindByItem(_ context.Context, itemID uuid.UUID) ([]*mastery.Mastery, error) {
+	ms, ok := m.masteries[itemID]
+	if !ok {
+		return nil, nil
+	}
+	return []*mastery.Mastery{ms}, nil
+}
+
 func (m *statefulMasteryRepo) FindByUserAndState(_ context.Context, userID uuid.UUID, state mastery.State) ([]*mastery.Mastery, error) {
 	var result []*mastery.Mastery
 	for _, ms := range m.masteries {
