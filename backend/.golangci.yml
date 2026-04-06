@@ -1,0 +1,37 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+  build-tags:
+    - integration
+
+linters:
+  default: none
+  enable:
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
+    - gosec
+    - unconvert
+    - bodyclose
+    - nilerr
+    - rowserrcheck
+
+  settings:
+    gosec:
+      excludes:
+        - G404  # math/rand non-crypto use
+        - G115  # integer overflow conversion
+        - G304  # file inclusion via variable (we control the paths)
+
+  exclusions:
+    rules:
+      - path: _test\.go
+        linters:
+          - errcheck
+          - gosec
+      - path: cmd/
+        linters:
+          - gosec

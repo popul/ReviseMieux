@@ -133,14 +133,15 @@ test-mastery: ## Tests du domaine Mastery uniquement
 # Qualité
 # ------------------------------------------------------------
 
-lint: vet ## Lint (golangci-lint + vet)
+lint: ## Lint (golangci-lint) — installation requise (make tools)
 ifdef GOLANGCI_LINT
 	@echo "$(CYAN)golangci-lint...$(RESET)"
 	@golangci-lint run ./...
-else
-	@echo "$(YELLOW)golangci-lint non installé — make tools pour l'installer$(RESET)"
-endif
 	@echo "$(GREEN)Lint OK$(RESET)"
+else
+	@echo "$(RED)golangci-lint non installé — run: make tools$(RESET)"
+	@exit 1
+endif
 
 vet: ## Go vet
 	@echo "$(CYAN)go vet...$(RESET)"
@@ -158,7 +159,7 @@ check-domain: ## Vérifie que domain/ n'importe pas d'infra/http/app
 	@echo "$(CYAN)Vérification imports domaine...$(RESET)"
 	@bash scripts/check-domain-imports.sh
 
-check: fmt-check vet check-domain test-unit ## Gate CI : format + vet + imports domaine + tests
+check: fmt-check vet lint check-domain test-unit ## Gate CI : format + vet + lint + imports domaine + tests
 	@echo "$(GREEN)All checks passed$(RESET)"
 
 # ------------------------------------------------------------

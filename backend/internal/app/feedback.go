@@ -34,7 +34,7 @@ func generateKeywordsFeedback(expectedAnswer, _ []byte) Feedback {
 		Keywords     string   `json:"keywords"`
 		KeywordsList []string `json:"keywords_list"`
 	}
-	json.Unmarshal(expectedAnswer, &expected)
+	_ = json.Unmarshal(expectedAnswer, &expected) // best-effort: zero-value struct is an acceptable fallback
 
 	// keywords can be a comma-separated string or a list
 	kw := expected.Keywords
@@ -59,7 +59,7 @@ func generateMCQFeedback(expectedAnswer, _ []byte) Feedback {
 		Correct     string `json:"correct"`
 		Explanation string `json:"explanation"`
 	}
-	json.Unmarshal(expectedAnswer, &expected)
+	_ = json.Unmarshal(expectedAnswer, &expected) // best-effort: zero-value struct is an acceptable fallback
 
 	// Support both "answer" and "correct" fields
 	correctValue := expected.Correct
@@ -82,7 +82,7 @@ func generateShortAnswerFeedback(expectedAnswer, _ []byte) Feedback {
 	var expected struct {
 		Answer string `json:"answer"`
 	}
-	json.Unmarshal(expectedAnswer, &expected)
+	_ = json.Unmarshal(expectedAnswer, &expected) // best-effort: zero-value struct is an acceptable fallback
 
 	return Feedback{
 		CorrectAnswer:  fmt.Sprintf("La réponse attendue était : %s", expected.Answer),

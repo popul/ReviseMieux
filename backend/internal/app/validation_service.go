@@ -105,10 +105,12 @@ func (s *ValidationService) Confirm(ctx context.Context, taskID, resolverID uuid
 	}
 
 	// Publish ValidationResolved event → triggers cache invalidation
-	s.publisher.Publish(ctx, event.ValidationResolved{
+	if err := s.publisher.Publish(ctx, event.ValidationResolved{
 		BaseEvent: event.BaseEvent{OccurredOn: now},
 		ItemID:    task.ItemID,
-	})
+	}); err != nil {
+		return fmt.Errorf("validation_service: publish resolved: %w", err)
+	}
 
 	return nil
 }
@@ -144,10 +146,12 @@ func (s *ValidationService) Correct(ctx context.Context, taskID, resolverID uuid
 		return fmt.Errorf("validation_service: save item: %w", err)
 	}
 
-	s.publisher.Publish(ctx, event.ValidationResolved{
+	if err := s.publisher.Publish(ctx, event.ValidationResolved{
 		BaseEvent: event.BaseEvent{OccurredOn: now},
 		ItemID:    task.ItemID,
-	})
+	}); err != nil {
+		return fmt.Errorf("validation_service: publish resolved: %w", err)
+	}
 
 	return nil
 }
@@ -203,7 +207,7 @@ const maxValidationTasks = 8
 
 // CreateValidationTasksIfNeeded creates validation tasks for items below
 // the confidence threshold (Z3-AC09), capped at 8 highest-priority items (Z2-AC09).
-func (s *ValidationService) CreateValidationTasksIfNeeded(ctx context.Context, items []*chapter.Item) []*validation.ValidationTask {
+func (s *ValidationService) CreateValidationTasksIfNeeded(ctx context.Context, items []*chapter.Item) ([]*validation.ValidationTask, error) {
 	now := s.clock.Now()
 
 	// Collect eligible items sorted by lowest confidence first (highest priority)
@@ -236,11 +240,13 @@ func (s *ValidationService) CreateValidationTasksIfNeeded(ctx context.Context, i
 	var tasks []*validation.ValidationTask
 	for i := 0; i < limit; i++ {
 		task := validation.NewValidationTask(s.idGen, candidates[i].item.ID, validation.SourceUncertainty, now)
-		s.valRepo.Save(ctx, task)
+		if err := s.valRepo.Save(ctx, task); err != nil {
+			return nil, fmt.Errorf("validation_service: save validation task: %w", err)
+		}
 		tasks = append(tasks, task)
 	}
 
-	return tasks
+	return tasks, nil
 }
 
 // GetByID returns a single validation task by its ID.

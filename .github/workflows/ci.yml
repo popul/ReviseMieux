@@ -24,6 +24,13 @@ jobs:
       - name: Build
         run: go build ./...
 
+      - name: Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: v2.8.0
+          working-directory: backend
+          args: --timeout=5m
+
       - name: Unit tests
         run: go test ./... -v -count=1
 

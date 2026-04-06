@@ -274,12 +274,8 @@ func (s *OnboardingService) GetOnboardingStatus(ctx context.Context, userID uuid
 		status.CurrentStep = StepFirstSession
 	}
 
-	// If user already has sessions on real chapters, they're past first session
-	if hasRealChapterWithItems {
-		// Check for completed sessions on real chapters
-		// For MVP, approximate: if items exist, user is at least at first_session
-		// The mobile app will track actual session completion
-	}
+	// TODO: when session tracking is wired, advance CurrentStep past StepFirstSession
+	// based on hasRealChapterWithItems + completed sessions. For MVP, mobile tracks this.
 
 	return status, nil
 }

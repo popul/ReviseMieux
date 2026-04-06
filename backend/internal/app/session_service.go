@@ -434,12 +434,14 @@ func (s *SessionService) SubmitAnswer(ctx context.Context, sessionID, questionID
 	}
 
 	// Publish attempt event for mastery transition
-	s.publisher.Publish(ctx, event.AttemptRecorded{
+	if err := s.publisher.Publish(ctx, event.AttemptRecorded{
 		BaseEvent: event.BaseEvent{OccurredOn: now},
 		UserID:    userID,
 		ItemID:    q.ItemID,
 		Score:     score,
-	})
+	}); err != nil {
+		return nil, fmt.Errorf("session_service: publish attempt: %w", err)
+	}
 
 	return &SubmitAnswerResult{
 		AttemptID: attempt.ID,
@@ -554,7 +556,8 @@ func (s *SessionService) GetDebrief(ctx context.Context, sessionID uuid.UUID) (*
 	// vs what it would have been before this session's attempts.
 	questions, err := s.sessionRepo.FindQuestionsBySession(ctx, sessionID)
 	if err != nil {
-		return result, nil // degrade gracefully
+		//nolint:nilerr // degrade gracefully: return partial result rather than failing the whole summary
+		return result, nil
 	}
 
 	// Build question lookup

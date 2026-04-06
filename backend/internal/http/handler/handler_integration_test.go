@@ -78,10 +78,10 @@ func setupTestApp(t *testing.T) *testApp {
 		}
 		m, err := masteryRepo.FindByUserAndItem(ctx, ar.UserID, ar.ItemID)
 		if err != nil {
-			return nil
+			return err
 		}
 		if err := m.RecordAttempt(ar.Score, clock.Now()); err != nil {
-			return nil
+			return err
 		}
 		return masteryRepo.Save(ctx, m)
 	})
@@ -94,7 +94,7 @@ func setupTestApp(t *testing.T) *testApp {
 		}
 		masteries, err := masteryRepo.FindByItem(ctx, vr.ItemID)
 		if err != nil {
-			return nil
+			return err
 		}
 		for _, m := range masteries {
 			if !m.CappedAtOK {

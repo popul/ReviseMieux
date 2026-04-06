@@ -352,14 +352,14 @@ Une AC ne peut être marquée `[x]` dans le tracker que si **TOUS** ces critère
 3. **Event consumer** : si l'AC déclenche un domain event, il existe un handler enregistré dans le dispatcher qui produit l'effet attendu (pas juste un `log.Println`)
 4. **Bout en bout vérifiable** : un test `app/` ou `handler/` exerce le chemin complet (handler → service → repo/event)
 5. **CHECK constraints SQL** : tout champ numérique avec un domaine de valeur (score ∈ [0,1], difficulty ∈ [1,5]) a un CHECK en DB
-6. **`make check` passe** : format + vet + imports domaine + tests unitaires
+6. **`make check` passe** : format + vet + lint (golangci-lint) + imports domaine + tests unitaires
 
 **Symptôme d'une AC faussement cochée** : le code existe mais il manque une migration SQL, un champ n'est pas persisté, un event n'a pas de consumer, ou le test ne couvre que le happy path.
 
 ### Garanties exécutables (CI gate)
 
 ```bash
-make check    # format + vet + domain imports + tests unitaires
+make check    # format + vet + lint + domain imports + tests unitaires
 ```
 
 Ce target est le filet de sécurité minimal. Il est composé de :
@@ -384,6 +384,7 @@ Ce target est le filet de sécurité minimal. Il est composé de :
 - **Ajouter un champ à une entité domaine sans migration SQL.** Si le struct Go a un champ, la table doit avoir la colonne, le repository doit le lire/écrire, et les valeurs numériques doivent avoir un CHECK constraint.
 - **Marquer une AC `[x]` sans vérifier la persistence.** "Le code compile" ≠ "ça marche". Vérifier que le champ est dans le SELECT, l'INSERT, l'UPDATE du repository.
 - **Ignorer les erreurs de `publisher.Publish()`.** Toujours vérifier le retour d'erreur.
+- **Utiliser `t.Skip()` dans un test d'intégration.** Un skip silencieux masque des régressions (incident : `make test-integration` a passé en vert pendant une période alors qu'il skippait tous les tests à cause d'un mismatch `DATABASE_URL`/`TEST_DATABASE_URL`). Un test d'intégration doit échouer bruyamment si ses préconditions ne sont pas réunies — utiliser `t.Fatal()` avec un message d'action ("run: make test-db-up"). La CI refuse désormais tout `Action: "skip"` sur les tests integration-tagged.
 - **Jamais de pansement.** Si un fix nécessite de contourner un mauvais design, corriger le design d'abord. La dette technique s'accumule silencieusement et coûte exponentiellement plus tard. Un refactoring propre maintenant vaut mieux qu'un workaround qui deviendra permanent.
 
 ### Code review checklist
