@@ -361,7 +361,7 @@ Une AC ne peut être marquée `[x]` dans le tracker que si **TOUS** ces critère
 ```bash
 make check      # format + vet + lint + domain imports + tests unitaires
 make check-ci   # reproduit EXACTEMENT la CI (check + integration + garde-fou anti-skip)
-make check-ci-act  # optionnel : exécute les workflows GitHub via nektos/act (attrape les erreurs d'actions tierces)
+make check-ci-act  # optionnel : exécute ci.yml + integration.yml via nektos/act (attrape les incompat d'actions tierces). Requiert act ≥ 0.2.87 et assez d'espace Docker (prévoir >5 GB libres, sinon `docker system prune -af`).
 ```
 
 `make check` est le filet de sécurité minimal.

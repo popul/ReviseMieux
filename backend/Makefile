@@ -179,12 +179,12 @@ check-ci: check test-db-up ## Reproduit la CI localement (check + integration + 
 	@echo "$(GREEN)== CI mirror: no mandatory skips ==$(RESET)"
 	@echo "$(GREEN)All CI checks reproduced locally — safe to push$(RESET)"
 
-check-ci-act: ## Lance les workflows GitHub Actions en local via nektos/act (plus strict — attrape les erreurs d'actions tierces)
-	@command -v act >/dev/null || (echo "$(RED)act not installed — brew install act$(RESET)" && exit 1)
-	@echo "$(CYAN)== Running ci.yml via act ==$(RESET)"
-	@cd .. && act -j backend -W .github/workflows/ci.yml
+check-ci-act: ## Lance ci.yml + integration.yml en local via nektos/act (attrape les incompat d'actions tierces)
+	@command -v act >/dev/null || (echo "$(RED)act not installed — brew install act (≥ 0.2.87 required for node20 actions)$(RESET)" && exit 1)
+	@echo "$(CYAN)== Running ci.yml via act (architecture: linux/amd64) ==$(RESET)"
+	@cd .. && act -j backend -W .github/workflows/ci.yml --container-architecture linux/amd64
 	@echo "$(CYAN)== Running integration.yml via act ==$(RESET)"
-	@cd .. && act -j backend-integration -W .github/workflows/integration.yml
+	@cd .. && act -j backend-integration -W .github/workflows/integration.yml --container-architecture linux/amd64
 	@echo "$(GREEN)act: all workflows passed$(RESET)"
 
 # ------------------------------------------------------------
