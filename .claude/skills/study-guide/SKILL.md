@@ -33,8 +33,27 @@ Le chemin peut être :
 L'utilisateur peut aussi fournir dans le prompt (optionnel) :
 - La **matière** et le **niveau** (ex: "PC 4ème", "HG 3ème")
 - La **date d'un contrôle** à venir
+- La **note visée** (ex: "objectif 16", "objectif 20/20")
 
 Si la matière n'est pas précisée, la déduire du contenu des photos.
+
+### Note visée — question obligatoire au démarrage
+
+**Avant de lancer l'analyse**, si l'utilisateur n'a pas précisé la note qu'il vise, poser la question via `AskUserQuestion` :
+
+> « Quelle note Louis (ou le prénom déduit) vise-t-il sur ce contrôle ? »
+> Options : `12-14 (moyenne correcte)`, `15-17 (bonne note)`, `18-20 (excellence)`, `Je ne sais pas`
+
+La note visée conditionne la **profondeur** et le **volume** de la fiche :
+
+| Note visée | Ce que la fiche contient |
+|---|---|
+| **12-14** | Sections 1→6 de base : résumé, notions, 3 docs générés, Session 1 (15 Q), Session 2 (15 Q), corrigés, plan. Pas de Session 3, pas d'annexes. |
+| **15-17** | Tout ce qui précède + Annexes partielles : frise chronologique, vocabulaire exhaustif, pièges renforcés. Pas de Session 3. |
+| **18-20** | **Tout** : Session 3 « contrôle blanc » (10 Q type contrôle + corrigé abrégé), frise, vocabulaire exhaustif, fiches personnages, tableau comparatif des notions proches (ex: roman/gothique), rédactions modèles avec grille d'évaluation, méthodes spécifiques par type de document (plan, texte, miniature, carte). Chaque TRAP et SHORT_LIST est renforcé par une question dédiée dans la Session 3. |
+| **Je ne sais pas** | Traiter comme « 15-17 » par défaut. |
+
+**Règle** : une fiche « 20/20 » DOIT contenir au minimum une Section 8 « Annexes objectif 20/20 » et une Section 9 « Session 3 — Contrôle blanc ».
 
 ---
 
@@ -252,6 +271,22 @@ Pour chaque `TRAP` de l'étape 2, produire une ligne dans un encadré dédié :
 | séculier / régulier | séculier = dans le monde, régulier = dans un monastère | « séculier = dans le siècle, avec les gens » |
 | châsse / vitrail | châsse = coffre à reliques, vitrail = fenêtre colorée | « la châsse chasse les impuretés autour des reliques » |
 ```
+
+#### 3H bis — Exercices complets d'analyse de document (OBLIGATOIRE si matière = HG/français)
+
+Ne pas se contenter de poser 1-2 questions ponctuelles sur les documents. **Créer au moins 3 exercices complets d'analyse de document** qui simulent l'exercice-type du contrôle, un par nature de document :
+
+1. **Analyse d'un document texte** (extrait de chronique, contrat, règlement, lettre…) — inédit mais réaliste.
+2. **Analyse d'un document iconographique** : miniature, enluminure, peinture, gravure, **dessin ou caricature** selon la matière/époque (rare au Moyen Âge mais présent dès le XVIIIe en HG).
+3. **Analyse d'un document cartographique** (carte, plan) ou **statistique** (tableau, graphique) selon le chapitre.
+
+Chaque exercice suit un format strict :
+- **Présentation du document** (nature réelle + source fictive réaliste)
+- **5-7 questions qui suivent la méthode N-D-S-I-D** (nature, date, source, idée principale, détails, interprétation)
+- **Corrigé modèle rédigé** qui montre le niveau attendu à l'écrit (phrases complètes, citations entre guillemets, vocabulaire précis)
+- **Erreurs à éviter** listées explicitement
+
+C'est l'exercice qui rapporte le plus de points au contrôle en HG. Un élève qui maîtrise la méthode gagne 5-7 points gratuits à chaque contrôle.
 
 #### 3H — Schémas légendés à reproduire de mémoire (OBLIGATOIRE si VISUAL_VOCAB détecté)
 
@@ -530,8 +565,36 @@ La fiche **doit** être générée sous forme d'un **fichier HTML autonome** (`f
 6. **Sommaire cliquable** avec ancres `id` sur chaque section
 7. **Sections visuellement distinctes** : bordures colorées par type (session 1 = bleu, session 2 = or, corrigés = vert, documents = coral)
 8. **Corrigés dans des balises `<details>`** : repliables par défaut pour que l'élève ne voie pas les réponses
-9. **Responsive** : max-width 900px, adapté mobile
-10. **Print-friendly** : `@media print` pour impression propre
+9. **Responsive mobile-first** : la fiche doit être lisible et confortable sur téléphone (portrait ET paysage) et sur tablette. Règles minimales :
+    - `<meta name="viewport" content="width=device-width,initial-scale=1">` dans `<head>`.
+    - Breakpoints obligatoires :
+      - `@media (max-width: 768px)` : padding wrap réduit (12px), header padding 16px, h1 à 20px, grille photos 2 colonnes, SVG `max-height:260px`, tableaux dans un wrapper `overflow-x:auto` pour scroller horizontalement.
+      - `@media (max-width: 480px)` : grille photos 2 colonnes serrées, boutons print repositionnés en bas (barre fixe `bottom:0; left:0; right:0`) avec `flex:1` chacun pour occuper toute la largeur, zones cliquables ≥ 44px.
+      - `@media (orientation: landscape) and (max-height: 500px)` : header compacté (padding 10px, h1 18px), sommaire replié, photos en 4 colonnes, boutons print en haut droite mais plus petits.
+    - **Tableaux** : chaque `<table>` doit être enveloppé dans un `<div class="table-wrap">` avec `overflow-x:auto`, bord arrondi et indicateur visuel de scroll (`box-shadow` latéral ou `mask-image` gradient) qui disparaît en fin de scroll. Les cellules doivent garder `white-space:normal` pour que le texte se wrappe naturellement.
+    - **Menu hamburger** : un bouton fixe (position `fixed`, top-left, z-index élevé) doit ouvrir un **tiroir latéral** (drawer) contenant les liens du sommaire pour naviguer rapidement dans la fiche. Le drawer :
+      - slide depuis la gauche avec transition CSS
+      - fond semi-transparent derrière (backdrop cliquable qui ferme le menu)
+      - liste verticale des sections avec scroll interne si besoin
+      - fermeture au clic sur un lien (navigation + close)
+      - icône hamburger `☰` qui devient `✕` quand ouvert
+      - masqué à l'impression (`@media print { .hamburger, .drawer, .drawer-backdrop { display:none!important } }`)
+      - visible sur desktop ET mobile (pas seulement mobile) car utile partout
+      - Le bouton est stylé avec la couleur teal du projet, rond ou carré 44x44px, ombre portée.
+    - Les `<details>` doivent rester lisibles : padding réduit mais summary ≥ 40px de hauteur tactile.
+    - Pas de `position:fixed` qui recouvre le contenu sur petits écrans sans compensation de padding-bottom.
+10. **Print-friendly** : `@media print` **doit garantir que tout le contenu est visible sur papier**, notamment :
+    - Les `<details>` repliables (corrigés, session 3) doivent être **forcés ouverts** à l'impression via `details{display:block} details>summary{display:block} details>*{display:block!important}` et `details[open]` ignoré. La règle minimale qui marche : `@media print { details > *:not(summary) { display: block !important; } details { break-inside: avoid; } }`.
+    - La lightbox des photos doit être cachée : `.lightbox{display:none!important}`.
+    - La grille photos doit passer en 3-4 colonnes fixes pour tenir sur une page A4.
+    - Chaque `<section>` doit avoir `break-inside: avoid` quand c'est possible pour éviter les coupures disgracieuses, et chaque titre de session une `page-break-before: auto`.
+    - Les SVG doivent avoir une taille max raisonnable (`max-width:100%; max-height:400px`) pour ne pas déborder.
+    - Tester mentalement : si Louis imprime la fiche, il DOIT voir toutes les questions ET tous les corrigés sans avoir à cliquer.
+11. **Deux boutons d'impression** fixés en haut à droite (position `fixed`, masqués à l'impression) :
+    - **🖨️ Imprimer version élève** : cache toute la section corrigés et les `<details>` des corrigés de la Session 3. L'élève reçoit les questions seules pour s'entraîner.
+    - **🖨️ Imprimer version parent** : imprime tout (questions + corrigés ouverts + annexes). Le parent peut corriger avec Louis.
+    - Implémentation : chaque bouton ajoute une classe (`print-eleve` ou `print-parent`) sur `<body>`, appelle `window.print()`, puis retire la classe via `window.onafterprint`. Le CSS `@media print` utilise ces classes : `body.print-eleve .corriges, body.print-eleve details.corrige { display: none !important }`.
+    - Les boutons sont stylés (`position:fixed; top:16px; right:16px; z-index:100`) avec les couleurs du projet et masqués via `@media print { .print-buttons { display: none !important } }`.
 
 ### Procédure de génération
 
