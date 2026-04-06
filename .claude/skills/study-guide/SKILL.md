@@ -60,6 +60,21 @@ Classer chaque élément extrait en **Items** typés :
 
 Regrouper les items en **Notions** (clusters sémantiques de 3-7 items).
 
+#### Types d'items transverses — OBLIGATOIRES
+
+En plus des items extraits du cours, **toujours générer** ces items transverses s'ils sont pertinents à la matière :
+
+| Type transverse | Quand l'inclure | Exemples |
+|---|---|---|
+| **METHOD** | Toute matière avec analyse de documents (HG, SVT, français, PC) | "Analyser un document : nature → date → source → auteur → idée principale" |
+| **VISUAL_VOCAB** | Dès qu'il y a une iconographie classique du chapitre | Attributs du pèlerin (chapeau/pèlerine/besace/bourdon), parties d'une église (nef/chœur/transept), organes, circuits |
+| **TRAP** | Dès qu'il y a des homophones, paronymes, ou inversions classiques | église/Église, séculier/régulier, châsse/vitrail, miniature/illustration |
+| **SHORT_LIST** | Toute liste fermée de 3-5 éléments à restituer exhaustivement | Les 3 obligations du chrétien, les 5 sens, les 3 états de la matière |
+
+**Règle critique** : une `SHORT_LIST` ne doit JAMAIS être noyée dans un grand tableau. Elle mérite sa propre carte mentale / encadré visuel dédié, car l'élève perdra des points s'il en oublie un élément.
+
+**Règle critique** : les `TRAP` ont TOUJOURS un moyen mnémotechnique associé (ex: « séculier = dans le siècle, avec les gens » ; « Église majuscule = institution, église minuscule = bâtiment »).
+
 ### Étape 3 — Génération de documents originaux
 
 À partir des items extraits, **créer de nouveaux documents inédits** qui ne sont pas dans le cours original. Ces documents servent de supports d'exercice et renforcent le double codage (verbal + visuel).
@@ -209,6 +224,41 @@ mindmap
 ```
 ````
 
+#### 3F — Fiche-méthode « analyser un document » (OBLIGATOIRE si matière = HG/SVT/français/PC)
+
+Toujours inclure un encadré méthode réutilisable :
+
+```
+📋 MÉTHODE — Analyser un document
+1. NATURE : quel type ? (miniature, photo, gravure, carte, texte, graphique, tableau…)
+   ⚠️ Piège fréquent : « illustration » est trop vague. Préciser : miniature, enluminure, fresque, photo, affiche…
+2. DATE : siècle ou année précise si donnée
+3. SOURCE : titre, auteur, lieu de conservation
+4. IDÉE PRINCIPALE : ce que le document montre/dit en 1 phrase
+5. DÉTAILS UTILES : éléments que je vais réutiliser pour répondre aux questions
+```
+
+Ces 2-3 points sont quasi gratuits et reviennent à chaque contrôle.
+
+#### 3G — Encadré « pièges & mnémotechniques » (OBLIGATOIRE si items TRAP détectés)
+
+Pour chaque `TRAP` de l'étape 2, produire une ligne dans un encadré dédié :
+
+```
+⚠️ PIÈGES CLASSIQUES DU CHAPITRE
+| Confusion | Distinction | Mnémo |
+|---|---|---|
+| église / Église | minuscule = bâtiment, majuscule = institution | « l'Église avec un grand É = la grande organisation » |
+| séculier / régulier | séculier = dans le monde, régulier = dans un monastère | « séculier = dans le siècle, avec les gens » |
+| châsse / vitrail | châsse = coffre à reliques, vitrail = fenêtre colorée | « la châsse chasse les impuretés autour des reliques » |
+```
+
+#### 3H — Schémas légendés à reproduire de mémoire (OBLIGATOIRE si VISUAL_VOCAB détecté)
+
+Pour chaque item `VISUAL_VOCAB`, produire un schéma SVG légendé avec **deux versions** : une complète (référence) et une vide (à compléter en Session 2 via `LABEL_COMPLETION`). L'objectif est que l'élève puisse **reproduire le schéma de mémoire**, pas juste reconnaître les mots.
+
+Exemple : le pèlerin de Saint-Jacques avec ses 4 attributs (chapeau à large bord, pèlerine, besace, bourdon) numérotés 1→4.
+
 #### Règles globales de génération de documents
 
 1. **Originalité** : les documents générés doivent être **inédits**, pas des copies du cahier. Utiliser des valeurs, exemples et contextes différents.
@@ -217,6 +267,17 @@ mindmap
 4. **Variété de format** : utiliser au minimum 2 formats différents (Mermaid + SVG, ou Markdown table + Mermaid) dans une fiche.
 5. **Au moins 3 documents générés** par fiche si le cours contient des éléments visuels. Au moins 1 document même si le cours est purement textuel (un tableau de synthèse ou un schéma de processus).
 6. **Questions associées** : chaque document généré doit être la base d'au moins 1 question dans les sessions.
+
+### Étape 3bis — Pondération selon la grille du contrôle
+
+**Leçon tirée d'un 13/20** : un plan peut couvrir tout le savoir et rater des points parce qu'il sous-estime la part « exercices sur documents » (qui pèse souvent 50-70% du barème en HG/SVT).
+
+**Règle de pondération** :
+1. Si l'utilisateur fournit un **barème** ou un **type de contrôle** (ex: « contrôle d'histoire », « DS de SVT »), estimer la répartition typique : ~40% savoir pur, ~60% exercices sur documents.
+2. La proportion de questions dans les sessions DOIT refléter cette répartition. Pour un contrôle HG type : au moins **8 questions sur 15** exploitent les documents générés (Section 3) ou la fiche-méthode (3F).
+3. Chaque `SHORT_LIST` identifiée → au moins 1 question de restitution exhaustive en Session 2 (format `CLOZE_KEYWORDS` ou réponse libre).
+4. Chaque `TRAP` identifié → au moins 1 `MISCONCEPTION.MCQ` dont les distracteurs utilisent la confusion.
+5. Chaque `VISUAL_VOCAB` → au moins 1 `LABEL_COMPLETION` sur le schéma de la section 3H.
 
 ### Étape 4 — Assemblage de la fiche
 
