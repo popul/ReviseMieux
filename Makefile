@@ -171,6 +171,27 @@ docs-deploy: ## Déploie le site docs sur GitHub Pages
 	@mkdocs gh-deploy --force
 
 # ------------------------------------------------------------
+# Fiches de révision (skill /study-guide)
+# ------------------------------------------------------------
+
+FICHES_ROOT ?= backend/testdata/benchmark/cases
+FICHE_PORT ?= 8080
+
+fiche-serve: ## Sert toutes les fiches de révision (FICHES_ROOT=... FICHE_PORT=8080)
+	@printf '<!doctype html><meta charset=utf-8><title>Fiches de révision</title><style>body{font-family:-apple-system,sans-serif;max-width:720px;margin:40px auto;padding:0 20px;background:#FBF8F3;color:#1b1b1b}h1{color:#1A4D4D;border-bottom:3px solid #F5C542;padding-bottom:8px}a{display:block;padding:14px 18px;margin:8px 0;background:#fff;border-left:4px solid #E85D4C;border-radius:6px;text-decoration:none;color:#1A4D4D;box-shadow:0 1px 3px rgba(0,0,0,.05)}a:hover{background:#fff8f6}</style><h1>📚 Fiches de révision disponibles</h1>' > $(FICHES_ROOT)/index.html
+	@find $(FICHES_ROOT) -mindepth 2 -maxdepth 2 -name fiche-revision.html | sort | sed "s|$(FICHES_ROOT)/||" | while read f; do \
+		dir=$$(dirname "$$f"); \
+		printf '<a href="%s">%s</a>' "$$f" "$$dir" >> $(FICHES_ROOT)/index.html; \
+	done
+	@echo "Index : http://localhost:$(FICHE_PORT)/"
+	@LAN_IP=$$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null); \
+		if [ -n "$$LAN_IP" ]; then echo "LAN : http://$$LAN_IP:$(FICHE_PORT)/"; fi
+	@cd $(FICHES_ROOT) && python3 -m http.server $(FICHE_PORT) --bind 0.0.0.0
+
+fiche-stop: ## Arrête le serveur fiche (tue le process sur FICHE_PORT)
+	@lsof -ti:$(FICHE_PORT) | xargs kill 2>/dev/null && echo "Serveur arrêté." || echo "Aucun serveur sur :$(FICHE_PORT)"
+
+# ------------------------------------------------------------
 # Clean
 # ------------------------------------------------------------
 
