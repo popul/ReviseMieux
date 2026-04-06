@@ -359,10 +359,14 @@ Une AC ne peut être marquée `[x]` dans le tracker que si **TOUS** ces critère
 ### Garanties exécutables (CI gate)
 
 ```bash
-make check    # format + vet + lint + domain imports + tests unitaires
+make check      # format + vet + lint + domain imports + tests unitaires
+make check-ci   # reproduit EXACTEMENT la CI (check + integration + garde-fou anti-skip)
+make check-ci-act  # optionnel : exécute les workflows GitHub via nektos/act (attrape les erreurs d'actions tierces)
 ```
 
-Ce target est le filet de sécurité minimal. Il est composé de :
+`make check` est le filet de sécurité minimal.
+
+**Règle : tout nouveau gate CI (workflow job, filtre, action GitHub) doit avoir une contrepartie exécutable en local.** La logique vit dans `make check-ci`, les workflows `.github/workflows/*.yml` ne doivent faire que l'invoquer ou la dupliquer à l'identique. Historique : un garde-fou anti-skip trop strict et un `golangci-lint-action@v6` incompatible sont passés en CI parce qu'ils n'étaient testables qu'en poussant. Avant tout push touchant `.github/workflows/`, `Makefile`, ou `.golangci.yml` : lancer `make check-ci` (et idéalement `make check-ci-act`). Il est composé de :
 - `fmt-check` : le code est formaté (`gofmt`)
 - `vet` : `go vet ./...`
 - `check-domain` : script `scripts/check-domain-imports.sh` vérifie que `domain/` n'importe jamais `infra/`, `http/`, `app/`, Gin, pgx, etc.

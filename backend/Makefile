@@ -162,6 +162,31 @@ check-domain: ## Vérifie que domain/ n'importe pas d'infra/http/app
 check: fmt-check vet lint check-domain test-unit ## Gate CI : format + vet + lint + imports domaine + tests
 	@echo "$(GREEN)All checks passed$(RESET)"
 
+# check-ci: reproduit localement EXACTEMENT ce que fait la CI (ci.yml + integration.yml).
+# À lancer avant tout push qui modifie .github/workflows/, Makefile, ou un gate CI.
+# Inclut le garde-fou anti-skip avec le même filtre jq que integration.yml.
+check-ci: check test-db-up ## Reproduit la CI localement (check + integration + garde-fou anti-skip)
+	@echo "$(CYAN)== CI mirror: integration tests (JSON) ==$(RESET)"
+	@TEST_DATABASE_URL=$(TEST_DATABASE_URL) $(GOTEST) -tags=integration -p 1 ./... -count=1 -json > /tmp/rm-itest.json || (cat /tmp/rm-itest.json; exit 1)
+	@echo "$(CYAN)== CI mirror: anti-skip guardrail ==$(RESET)"
+	@command -v jq >/dev/null || (echo "$(RED)jq required for guardrail — brew install jq$(RESET)" && exit 1)
+	@skipped=$$(jq -r 'select(.Action == "skip" and .Test != null) | select(.Package | test("internal/infra/postgres|internal/http/handler")) | "\(.Package) \(.Test)"' /tmp/rm-itest.json); \
+	if [ -n "$$skipped" ]; then \
+		echo "$(RED)Mandatory integration tests were skipped:$(RESET)"; \
+		echo "$$skipped"; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)== CI mirror: no mandatory skips ==$(RESET)"
+	@echo "$(GREEN)All CI checks reproduced locally — safe to push$(RESET)"
+
+check-ci-act: ## Lance les workflows GitHub Actions en local via nektos/act (plus strict — attrape les erreurs d'actions tierces)
+	@command -v act >/dev/null || (echo "$(RED)act not installed — brew install act$(RESET)" && exit 1)
+	@echo "$(CYAN)== Running ci.yml via act ==$(RESET)"
+	@cd .. && act -j backend -W .github/workflows/ci.yml
+	@echo "$(CYAN)== Running integration.yml via act ==$(RESET)"
+	@cd .. && act -j backend-integration -W .github/workflows/integration.yml
+	@echo "$(GREEN)act: all workflows passed$(RESET)"
+
 # ------------------------------------------------------------
 # Database & Migrations
 # ------------------------------------------------------------
