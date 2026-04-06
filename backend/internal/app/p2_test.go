@@ -165,9 +165,8 @@ func TestZ2AC03_BlurryPageDetected(t *testing.T) {
 	// Check page has OCRConfidence set and is marked blurry
 	for _, page := range chRepo.pages {
 		if page.OCRConfidence != nil && *page.OCRConfidence < blurryThreshold {
-			if page.OCRStatus != chapter.PageBlurry && page.OCRStatus != chapter.PageDone {
-				// blurry pages that produce items end up as PageDone after LLM step
-			}
+			// Blurry pages may end up as PageBlurry or PageDone (after LLM step);
+			// both are acceptable as long as the page is marked with OCRConfidence.
 			return // success
 		}
 	}
@@ -327,7 +326,10 @@ func TestZ2AC09_ValidationQueueCappedAt8(t *testing.T) {
 		})
 	}
 
-	tasks := svc.CreateValidationTasksIfNeeded(context.Background(), items)
+	tasks, err := svc.CreateValidationTasksIfNeeded(context.Background(), items)
+	if err != nil {
+		t.Fatalf("CreateValidationTasksIfNeeded: %v", err)
+	}
 
 	if len(tasks) > maxValidationTasks {
 		t.Errorf("expected max %d tasks, got %d", maxValidationTasks, len(tasks))

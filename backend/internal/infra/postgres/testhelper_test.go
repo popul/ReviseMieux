@@ -32,7 +32,7 @@ func setupTestDB(t *testing.T) *testDB {
 	t.Helper()
 	dsn := os.Getenv("TEST_DATABASE_URL")
 	if dsn == "" {
-		t.Skip("TEST_DATABASE_URL not set, skipping integration test")
+		t.Fatal("TEST_DATABASE_URL not set — integration tests require a dedicated test DB (see `make test-db-up`)")
 	}
 
 	pool, err := pgxpool.New(context.Background(), dsn)

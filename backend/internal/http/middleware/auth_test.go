@@ -233,10 +233,10 @@ func TestGenerateToken_ClaimsContent(t *testing.T) {
 		t.Errorf("iss: got %q, want %q", claims.Issuer, "revisemieux")
 	}
 	wantExp := now.Add(ttl)
-	if !claims.ExpiresAt.Time.Equal(wantExp) {
+	if !claims.ExpiresAt.Equal(wantExp) {
 		t.Errorf("exp: got %v, want %v", claims.ExpiresAt.Time, wantExp)
 	}
-	if !claims.IssuedAt.Time.Equal(now) {
+	if !claims.IssuedAt.Equal(now) {
 		t.Errorf("iat: got %v, want %v", claims.IssuedAt.Time, now)
 	}
 }

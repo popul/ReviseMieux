@@ -178,7 +178,7 @@ func (s *PipelineService) UploadAndProcess(ctx context.Context, chapterID uuid.U
 			// Z2-AC05: page failure does not block the pipeline
 			page.OCRStatus = chapter.PageItemsFailed
 			page.UpdatedAt = now
-			s.chapterRepo.SavePage(ctx, page)
+			_ = s.chapterRepo.SavePage(ctx, page) // best-effort status update; tracked in #76
 			result.FailedPages++
 			s.notifyProgress(PageProgress{
 				RevisionID: rev.ID, PageOrder: page.PageOrder,
@@ -191,7 +191,7 @@ func (s *PipelineService) UploadAndProcess(ctx context.Context, chapterID uuid.U
 			// Z2-AC04: no items extracted
 			page.OCRStatus = chapter.PageNoItems
 			page.UpdatedAt = now
-			s.chapterRepo.SavePage(ctx, page)
+			_ = s.chapterRepo.SavePage(ctx, page) // best-effort status update; tracked in #76
 			result.ProcessedPages++
 			s.notifyProgress(PageProgress{
 				RevisionID: rev.ID, PageOrder: page.PageOrder,
@@ -202,7 +202,7 @@ func (s *PipelineService) UploadAndProcess(ctx context.Context, chapterID uuid.U
 
 		page.OCRStatus = chapter.PageDone
 		page.UpdatedAt = now
-		s.chapterRepo.SavePage(ctx, page)
+		_ = s.chapterRepo.SavePage(ctx, page) // best-effort status update; tracked in #76
 		result.ProcessedPages++
 		allItems = append(allItems, items...)
 		s.notifyProgress(PageProgress{
@@ -224,12 +224,16 @@ func (s *PipelineService) UploadAndProcess(ctx context.Context, chapterID uuid.U
 	} else {
 		rev.Status = chapter.RevisionReady
 	}
-	s.chapterRepo.SaveRevision(ctx, rev)
+	if err := s.chapterRepo.SaveRevision(ctx, rev); err != nil {
+		return nil, fmt.Errorf("pipeline: save revision: %w", err)
+	}
 
 	// 6. Set chapter's current revision
 	ch.CurrentRevisionID = &rev.ID
 	ch.UpdatedAt = now
-	s.chapterRepo.Save(ctx, ch)
+	if err := s.chapterRepo.Save(ctx, ch); err != nil {
+		return nil, fmt.Errorf("pipeline: save chapter: %w", err)
+	}
 
 	// Z8-AC03: Build recovery info if pipeline failed or produced 0 items
 	if rev.Status == chapter.RevisionFailed || result.TotalItems == 0 {
@@ -273,11 +277,13 @@ func (s *PipelineService) UploadAndProcess(ctx context.Context, chapterID uuid.U
 			return nil, fmt.Errorf("pipeline: save masteries: %w", err)
 		}
 
-		s.publisher.Publish(ctx, event.ItemsGenerated{
+		if err := s.publisher.Publish(ctx, event.ItemsGenerated{
 			BaseEvent: event.BaseEvent{OccurredOn: now},
 			ChapterID: ch.ID,
 			ItemIDs:   itemIDs,
-		})
+		}); err != nil {
+			return nil, fmt.Errorf("pipeline: publish ItemsGenerated: %w", err)
+		}
 	}
 
 	return result, nil
@@ -294,7 +300,9 @@ func (s *PipelineService) processPage(
 	// OCR with retry (Z2-AC02)
 	page.OCRStatus = chapter.PageOCRProcessing
 	page.UpdatedAt = now
-	s.chapterRepo.SavePage(ctx, page)
+	if err := s.chapterRepo.SavePage(ctx, page); err != nil {
+		return nil, fmt.Errorf("save page (ocr): %w", err)
+	}
 
 	ocrResult, err := s.ocrWithRetry(ctx, page.PhotoURL)
 	if err != nil {
@@ -313,7 +321,7 @@ func (s *PipelineService) processPage(
 	if globalConf < blurryThreshold {
 		page.OCRStatus = chapter.PageBlurry
 		page.UpdatedAt = now
-		s.chapterRepo.SavePage(ctx, page)
+		_ = s.chapterRepo.SavePage(ctx, page) // best-effort status update; tracked in #76
 		// Still continue — items will be marked validation_required
 	}
 
@@ -356,7 +364,9 @@ func (s *PipelineService) processPage(
 	// Structuration via LLM (only text blocks)
 	page.OCRStatus = chapter.PageItemsGenerating
 	page.UpdatedAt = now
-	s.chapterRepo.SavePage(ctx, page)
+	if err := s.chapterRepo.SavePage(ctx, page); err != nil {
+		return nil, fmt.Errorf("save page (generating): %w", err)
+	}
 
 	structResult, err := s.llm.StructureBlocks(ctx, ch.Subject, textBlocks)
 	if err != nil {
@@ -377,7 +387,9 @@ func (s *PipelineService) processPage(
 				SortOrder: len(notionCache),
 				CreatedAt: now,
 			}
-			s.chapterRepo.SaveNotion(ctx, notion)
+			if err := s.chapterRepo.SaveNotion(ctx, notion); err != nil {
+				return nil, fmt.Errorf("save notion: %w", err)
+			}
 			notionCache[notionName] = notion
 		}
 	}
@@ -459,7 +471,7 @@ func (s *PipelineService) checkItemFidelity(ctx context.Context, item *chapter.I
 	// Score 0.5-0.7 → neutral zone, no flag
 
 	item.UpdatedAt = now
-	s.chapterRepo.SaveItem(ctx, item)
+	_ = s.chapterRepo.SaveItem(ctx, item) // degraded mode: best-effort persist of fidelity flag
 }
 
 // isFirstUpload checks if this is the user's first non-demo chapter upload (Z8-AC03).
@@ -599,20 +611,20 @@ func (s *PipelineService) ResumeRevision(ctx context.Context, revisionID uuid.UU
 		if err != nil {
 			page.OCRStatus = chapter.PageItemsFailed
 			page.UpdatedAt = now
-			s.chapterRepo.SavePage(ctx, page)
+			_ = s.chapterRepo.SavePage(ctx, page) // best-effort status update; tracked in #76
 			result.FailedPages++
 			continue
 		}
 		if len(items) == 0 {
 			page.OCRStatus = chapter.PageNoItems
 			page.UpdatedAt = now
-			s.chapterRepo.SavePage(ctx, page)
+			_ = s.chapterRepo.SavePage(ctx, page) // best-effort status update; tracked in #76
 			result.ProcessedPages++
 			continue
 		}
 		page.OCRStatus = chapter.PageDone
 		page.UpdatedAt = now
-		s.chapterRepo.SavePage(ctx, page)
+		_ = s.chapterRepo.SavePage(ctx, page) // best-effort status update; tracked in #76
 		result.ProcessedPages++
 		allItems = append(allItems, items...)
 	}
@@ -627,7 +639,9 @@ func (s *PipelineService) ResumeRevision(ctx context.Context, revisionID uuid.UU
 	} else {
 		rev.Status = chapter.RevisionReady
 	}
-	s.chapterRepo.SaveRevision(ctx, rev)
+	if err := s.chapterRepo.SaveRevision(ctx, rev); err != nil {
+		return nil, fmt.Errorf("retry: save revision: %w", err)
+	}
 
 	return result, nil
 }

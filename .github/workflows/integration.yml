@@ -37,6 +37,34 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23'
+          cache-dependency-path: backend/go.sum
 
       - name: Integration tests
-        run: go test -tags=integration ./... -v -count=1
+        run: |
+          set -o pipefail
+          # Emit JSON to a file (consumed by the anti-skip guardrail) and
+          # extract the human-readable output lines to the CI log.
+          # fromjson? silently drops any non-JSON line (e.g. `go: downloading`).
+          # stderr intentionally NOT redirected into the pipe — it goes to the CI log directly.
+          go test -tags=integration -p 1 ./... -count=1 -json \
+            | tee /tmp/itest.json \
+            | jq -jR 'fromjson? | select(.Output != null) | .Output'
+        shell: bash
+
+      - name: Fail on skipped tests (postgres + handler only)
+        run: |
+          set -e
+          # Only packages that depend on TEST_DATABASE_URL are mandatory.
+          # s3 (MinIO) and ocr (external API keys) may legitimately skip.
+          skipped=$(jq -r '
+            select(.Action == "skip" and .Test != null)
+            | select(.Package | test("internal/infra/postgres|internal/http/handler"))
+            | "\(.Package) \(.Test)"
+          ' /tmp/itest.json)
+          if [ -n "$skipped" ]; then
+            echo "::error::Mandatory integration tests were skipped (silent failure):"
+            echo "$skipped"
+            exit 1
+          fi
+          echo "No mandatory skips — OK"
+        shell: bash

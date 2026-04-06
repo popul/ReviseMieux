@@ -27,6 +27,8 @@ GOMOD       := $(GO) mod
 
 # DB (configurable via .env ou env vars)
 DATABASE_URL ?= postgres://revisemieux:revisemieux@localhost:5432/revisemieux?sslmode=disable
+# Test DB — base isolée (service postgres-test de docker-compose, port 5433)
+TEST_DATABASE_URL ?= postgres://test:test@localhost:5433/revisemieux_test?sslmode=disable
 
 # Tools (installés dans GOBIN)
 GOLANGCI_LINT := $(shell which golangci-lint 2>/dev/null)
@@ -99,9 +101,19 @@ test-unit: ## Tests unitaires (domaine + app, sans DB)
 	@$(GOTEST) -short -race -count=1 ./internal/domain/... ./internal/app/...
 	@echo "$(GREEN)Tests unitaires OK$(RESET)"
 
-test-integration: ## Tests d'intégration (nécessite PostgreSQL)
+test-db-up: ## Démarre la DB de test (postgres-test, port 5433)
+	@echo "$(CYAN)Démarrage postgres-test...$(RESET)"
+	@docker compose --profile test up -d postgres-test
+	@echo "$(CYAN)Attente readiness...$(RESET)"
+	@until docker exec rm-postgres-test pg_isready -U test >/dev/null 2>&1; do sleep 1; done
+	@echo "$(GREEN)postgres-test prêt$(RESET)"
+
+test-db-down: ## Arrête la DB de test
+	@docker compose --profile test down postgres-test
+
+test-integration: test-db-up ## Tests d'intégration (nécessite PostgreSQL)
 	@echo "$(CYAN)Tests intégration...$(RESET)"
-	@DATABASE_URL=$(DATABASE_URL) $(GOTEST) -race -count=1 -tags=integration ./internal/infra/...
+	@TEST_DATABASE_URL=$(TEST_DATABASE_URL) $(GOTEST) -count=1 -p 1 -tags=integration ./...
 	@echo "$(GREEN)Tests intégration OK$(RESET)"
 
 test-all: test-unit test-integration ## Tous les tests
@@ -121,14 +133,15 @@ test-mastery: ## Tests du domaine Mastery uniquement
 # Qualité
 # ------------------------------------------------------------
 
-lint: vet ## Lint (golangci-lint + vet)
+lint: ## Lint (golangci-lint) — installation requise (make tools)
 ifdef GOLANGCI_LINT
 	@echo "$(CYAN)golangci-lint...$(RESET)"
 	@golangci-lint run ./...
-else
-	@echo "$(YELLOW)golangci-lint non installé — make tools pour l'installer$(RESET)"
-endif
 	@echo "$(GREEN)Lint OK$(RESET)"
+else
+	@echo "$(RED)golangci-lint non installé — run: make tools$(RESET)"
+	@exit 1
+endif
 
 vet: ## Go vet
 	@echo "$(CYAN)go vet...$(RESET)"
@@ -146,8 +159,33 @@ check-domain: ## Vérifie que domain/ n'importe pas d'infra/http/app
 	@echo "$(CYAN)Vérification imports domaine...$(RESET)"
 	@bash scripts/check-domain-imports.sh
 
-check: fmt-check vet check-domain test-unit ## Gate CI : format + vet + imports domaine + tests
+check: fmt-check vet lint check-domain test-unit ## Gate CI : format + vet + lint + imports domaine + tests
 	@echo "$(GREEN)All checks passed$(RESET)"
+
+# check-ci: reproduit localement EXACTEMENT ce que fait la CI (ci.yml + integration.yml).
+# À lancer avant tout push qui modifie .github/workflows/, Makefile, ou un gate CI.
+# Inclut le garde-fou anti-skip avec le même filtre jq que integration.yml.
+check-ci: check test-db-up ## Reproduit la CI localement (check + integration + garde-fou anti-skip)
+	@echo "$(CYAN)== CI mirror: integration tests (JSON) ==$(RESET)"
+	@TEST_DATABASE_URL=$(TEST_DATABASE_URL) $(GOTEST) -tags=integration -p 1 ./... -count=1 -json > /tmp/rm-itest.json || (cat /tmp/rm-itest.json; exit 1)
+	@echo "$(CYAN)== CI mirror: anti-skip guardrail ==$(RESET)"
+	@command -v jq >/dev/null || (echo "$(RED)jq required for guardrail — brew install jq$(RESET)" && exit 1)
+	@skipped=$$(jq -r 'select(.Action == "skip" and .Test != null) | select(.Package | test("internal/infra/postgres|internal/http/handler")) | "\(.Package) \(.Test)"' /tmp/rm-itest.json); \
+	if [ -n "$$skipped" ]; then \
+		echo "$(RED)Mandatory integration tests were skipped:$(RESET)"; \
+		echo "$$skipped"; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)== CI mirror: no mandatory skips ==$(RESET)"
+	@echo "$(GREEN)All CI checks reproduced locally — safe to push$(RESET)"
+
+check-ci-act: ## Lance ci.yml + integration.yml en local via nektos/act (attrape les incompat d'actions tierces)
+	@command -v act >/dev/null || (echo "$(RED)act not installed — brew install act (≥ 0.2.87 required for node20 actions)$(RESET)" && exit 1)
+	@echo "$(CYAN)== Running ci.yml via act (architecture: linux/amd64) ==$(RESET)"
+	@cd .. && act -j backend -W .github/workflows/ci.yml --container-architecture linux/amd64
+	@echo "$(CYAN)== Running integration.yml via act ==$(RESET)"
+	@cd .. && act -j backend-integration -W .github/workflows/integration.yml --container-architecture linux/amd64
+	@echo "$(GREEN)act: all workflows passed$(RESET)"
 
 # ------------------------------------------------------------
 # Database & Migrations

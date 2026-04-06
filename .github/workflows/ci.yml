@@ -20,9 +20,17 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23'
+          cache-dependency-path: backend/go.sum
 
       - name: Build
         run: go build ./...
+
+      - name: Lint
+        uses: golangci/golangci-lint-action@v7
+        with:
+          version: v2.8.0
+          working-directory: backend
+          args: --timeout=5m
 
       - name: Unit tests
         run: go test ./... -v -count=1
@@ -33,7 +41,7 @@ jobs:
           go tool cover -func=coverage.out | tail -1
 
       - name: Upload coverage
-        if: always()
+        if: always() && !env.ACT
         uses: actions/upload-artifact@v4
         with:
           name: backend-coverage

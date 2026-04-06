@@ -20,6 +20,28 @@ services:
       retries: 5
 
   # -----------------------------------------------------------
+  # PostgreSQL 16 — test database (isolated, port 5433)
+  # -----------------------------------------------------------
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: rm-postgres-test
+    environment:
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+      POSTGRES_DB: revisemieux_test
+    ports:
+      - "5433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    profiles:
+      - test
+
+  # -----------------------------------------------------------
   # Redis 7
   # -----------------------------------------------------------
   redis:

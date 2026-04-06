@@ -322,7 +322,10 @@ func TestZ3AC09_NoValidationIfHighConfidence(t *testing.T) {
 		{ID: uuid.Must(uuid.NewV7()), Confidence: 0.85},
 	}
 
-	tasks := svc.CreateValidationTasksIfNeeded(context.Background(), items)
+	tasks, err := svc.CreateValidationTasksIfNeeded(context.Background(), items)
+	if err != nil {
+		t.Fatalf("CreateValidationTasksIfNeeded: %v", err)
+	}
 
 	if len(tasks) != 0 {
 		t.Errorf("expected 0 tasks for high-confidence items, got %d", len(tasks))
@@ -347,7 +350,10 @@ func TestZ3AC09_ValidationForLowConfidence(t *testing.T) {
 		{ID: uuid.Must(uuid.NewV7()), Confidence: 0.40}, // below threshold
 	}
 
-	tasks := svc.CreateValidationTasksIfNeeded(context.Background(), items)
+	tasks, err := svc.CreateValidationTasksIfNeeded(context.Background(), items)
+	if err != nil {
+		t.Fatalf("CreateValidationTasksIfNeeded: %v", err)
+	}
 
 	if len(tasks) != 2 {
 		t.Errorf("expected 2 tasks for low-confidence items, got %d", len(tasks))

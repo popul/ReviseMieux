@@ -45,7 +45,7 @@ func setupTestApp(t *testing.T) *testApp {
 
 	dsn := os.Getenv("TEST_DATABASE_URL")
 	if dsn == "" {
-		t.Skip("TEST_DATABASE_URL not set, skipping integration test")
+		t.Fatal("TEST_DATABASE_URL not set — integration tests require a dedicated test DB (see `make test-db-up`)")
 	}
 
 	pool, err := pgxpool.New(context.Background(), dsn)
@@ -78,10 +78,10 @@ func setupTestApp(t *testing.T) *testApp {
 		}
 		m, err := masteryRepo.FindByUserAndItem(ctx, ar.UserID, ar.ItemID)
 		if err != nil {
-			return nil
+			return err
 		}
 		if err := m.RecordAttempt(ar.Score, clock.Now()); err != nil {
-			return nil
+			return err
 		}
 		return masteryRepo.Save(ctx, m)
 	})
@@ -94,7 +94,7 @@ func setupTestApp(t *testing.T) *testApp {
 		}
 		masteries, err := masteryRepo.FindByItem(ctx, vr.ItemID)
 		if err != nil {
-			return nil
+			return err
 		}
 		for _, m := range masteries {
 			if !m.CappedAtOK {
@@ -149,15 +149,18 @@ func migrationsDir() string {
 func (ta *testApp) truncateAll() {
 	ctx := context.Background()
 	// Truncate all tables explicitly to avoid FK ordering issues.
-	_, _ = ta.pool.Exec(ctx, `TRUNCATE
+	_, err := ta.pool.Exec(ctx, `TRUNCATE
 		attempts, questions, session_chapters, sessions,
 		masteries,
 		validation_tasks,
 		item_keywords, item_steps, item_visual_blocks, items,
 		visual_blocks, blocks, pages, chapter_revisions,
-		notion_exam_links, notions, chapter_exams,
+		notions, chapter_exams,
 		chapters, exams, templates, users
 		CASCADE`)
+	if err != nil {
+		ta.t.Fatalf("truncateAll: %v", err)
+	}
 }
 
 // seedUser creates a user and returns the ID and a valid JWT token.

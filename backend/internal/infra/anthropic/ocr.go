@@ -16,9 +16,8 @@ import (
 
 // OCRProcessor implements chapter.OCRService using the Anthropic vision API.
 type OCRProcessor struct {
-	client  sdkanthro.Client
-	model   string
-	subject string // default subject for context
+	client sdkanthro.Client
+	model  string
 }
 
 // NewOCRProcessor creates an OCR processor using the Anthropic vision API.

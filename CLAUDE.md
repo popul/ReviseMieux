@@ -352,17 +352,21 @@ Une AC ne peut être marquée `[x]` dans le tracker que si **TOUS** ces critère
 3. **Event consumer** : si l'AC déclenche un domain event, il existe un handler enregistré dans le dispatcher qui produit l'effet attendu (pas juste un `log.Println`)
 4. **Bout en bout vérifiable** : un test `app/` ou `handler/` exerce le chemin complet (handler → service → repo/event)
 5. **CHECK constraints SQL** : tout champ numérique avec un domaine de valeur (score ∈ [0,1], difficulty ∈ [1,5]) a un CHECK en DB
-6. **`make check` passe** : format + vet + imports domaine + tests unitaires
+6. **`make check` passe** : format + vet + lint (golangci-lint) + imports domaine + tests unitaires
 
 **Symptôme d'une AC faussement cochée** : le code existe mais il manque une migration SQL, un champ n'est pas persisté, un event n'a pas de consumer, ou le test ne couvre que le happy path.
 
 ### Garanties exécutables (CI gate)
 
 ```bash
-make check    # format + vet + domain imports + tests unitaires
+make check      # format + vet + lint + domain imports + tests unitaires
+make check-ci   # reproduit EXACTEMENT la CI (check + integration + garde-fou anti-skip)
+make check-ci-act  # optionnel : exécute ci.yml + integration.yml via nektos/act (attrape les incompat d'actions tierces). Requiert act ≥ 0.2.87 et assez d'espace Docker (prévoir >5 GB libres, sinon `docker system prune -af`).
 ```
 
-Ce target est le filet de sécurité minimal. Il est composé de :
+`make check` est le filet de sécurité minimal.
+
+**Règle : tout nouveau gate CI (workflow job, filtre, action GitHub) doit avoir une contrepartie exécutable en local.** La logique vit dans `make check-ci`, les workflows `.github/workflows/*.yml` ne doivent faire que l'invoquer ou la dupliquer à l'identique. Historique : un garde-fou anti-skip trop strict et un `golangci-lint-action@v6` incompatible sont passés en CI parce qu'ils n'étaient testables qu'en poussant. Avant tout push touchant `.github/workflows/`, `Makefile`, ou `.golangci.yml` : lancer `make check-ci` (et idéalement `make check-ci-act`). Il est composé de :
 - `fmt-check` : le code est formaté (`gofmt`)
 - `vet` : `go vet ./...`
 - `check-domain` : script `scripts/check-domain-imports.sh` vérifie que `domain/` n'importe jamais `infra/`, `http/`, `app/`, Gin, pgx, etc.
@@ -384,7 +388,10 @@ Ce target est le filet de sécurité minimal. Il est composé de :
 - **Ajouter un champ à une entité domaine sans migration SQL.** Si le struct Go a un champ, la table doit avoir la colonne, le repository doit le lire/écrire, et les valeurs numériques doivent avoir un CHECK constraint.
 - **Marquer une AC `[x]` sans vérifier la persistence.** "Le code compile" ≠ "ça marche". Vérifier que le champ est dans le SELECT, l'INSERT, l'UPDATE du repository.
 - **Ignorer les erreurs de `publisher.Publish()`.** Toujours vérifier le retour d'erreur.
+- **Utiliser `t.Skip()` dans un test d'intégration.** Un skip silencieux masque des régressions (incident : `make test-integration` a passé en vert pendant une période alors qu'il skippait tous les tests à cause d'un mismatch `DATABASE_URL`/`TEST_DATABASE_URL`). Un test d'intégration doit échouer bruyamment si ses préconditions ne sont pas réunies — utiliser `t.Fatal()` avec un message d'action ("run: make test-db-up"). La CI refuse désormais tout `Action: "skip"` sur les tests integration-tagged.
 - **Jamais de pansement.** Si un fix nécessite de contourner un mauvais design, corriger le design d'abord. La dette technique s'accumule silencieusement et coûte exponentiellement plus tard. Un refactoring propre maintenant vaut mieux qu'un workaround qui deviendra permanent.
+- **Ne jamais sauter à une cause plausible sans lire les logs jusqu'au bout.** Quand une commande échoue, quand un container est "unhealthy", quand un test flaky — la première action est de **lire le message d'erreur complet** (`docker logs`, `go test -v`, stderr en entier), pas de proposer une explication qui "sonne bien". Historique : "postgres:16 unhealthy sous act" a été diagnostiqué à tort comme un problème d'émulation ARM/health check alors que la vraie cause était `No space left on device` dans Docker Desktop — visible en 2 secondes avec `docker logs`. Un diagnostic plausible mais faux coûte plus cher qu'un "je ne sais pas, je regarde". Règle : si tu n'as pas vu le message d'erreur avec tes yeux, tu n'as pas diagnostiqué — tu as deviné.
+- **Ne jamais committer un target/gate/script sans l'avoir exécuté au moins une fois.** "Ça devrait marcher" n'est pas une vérification. Historique : `make check-ci-act` a été poussé sans test, puis a fallu deux itérations correctives parce que (a) `golangci-lint-action@v6` ne supporte pas golangci-lint v2, (b) `actions/upload-artifact@v4` réclame un token absent en local, (c) act avait besoin de `--container-architecture linux/amd64`. Tous ces problèmes auraient été vus au premier lancement local.
 
 ### Code review checklist
 
