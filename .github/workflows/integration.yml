@@ -42,12 +42,13 @@ jobs:
       - name: Integration tests
         run: |
           set -o pipefail
-          # Emit JSON to a file (for the anti-skip guardrail below) and
+          # Emit JSON to a file (consumed by the anti-skip guardrail) and
           # extract the human-readable output lines to the CI log.
-          go test -tags=integration -p 1 ./... -count=1 -json 2>&1 \
+          # fromjson? silently drops any non-JSON line (e.g. `go: downloading`).
+          # stderr intentionally NOT redirected into the pipe — it goes to the CI log directly.
+          go test -tags=integration -p 1 ./... -count=1 -json \
             | tee /tmp/itest.json \
-            | jq -r 'select(.Output != null) | .Output' \
-            | cat
+            | jq -rR 'fromjson? | select(.Output != null) | .Output'
         shell: bash
 
       - name: Fail on skipped tests (postgres + handler only)
