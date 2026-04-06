@@ -27,6 +27,8 @@ GOMOD       := $(GO) mod
 
 # DB (configurable via .env ou env vars)
 DATABASE_URL ?= postgres://revisemieux:revisemieux@localhost:5432/revisemieux?sslmode=disable
+# Test DB — base isolée (service postgres-test de docker-compose, port 5433)
+TEST_DATABASE_URL ?= postgres://test:test@localhost:5433/revisemieux_test?sslmode=disable
 
 # Tools (installés dans GOBIN)
 GOLANGCI_LINT := $(shell which golangci-lint 2>/dev/null)
@@ -99,9 +101,19 @@ test-unit: ## Tests unitaires (domaine + app, sans DB)
 	@$(GOTEST) -short -race -count=1 ./internal/domain/... ./internal/app/...
 	@echo "$(GREEN)Tests unitaires OK$(RESET)"
 
-test-integration: ## Tests d'intégration (nécessite PostgreSQL)
+test-db-up: ## Démarre la DB de test (postgres-test, port 5433)
+	@echo "$(CYAN)Démarrage postgres-test...$(RESET)"
+	@docker compose --profile test up -d postgres-test
+	@echo "$(CYAN)Attente readiness...$(RESET)"
+	@until docker exec rm-postgres-test pg_isready -U test >/dev/null 2>&1; do sleep 1; done
+	@echo "$(GREEN)postgres-test prêt$(RESET)"
+
+test-db-down: ## Arrête la DB de test
+	@docker compose --profile test down postgres-test
+
+test-integration: test-db-up ## Tests d'intégration (nécessite PostgreSQL)
 	@echo "$(CYAN)Tests intégration...$(RESET)"
-	@DATABASE_URL=$(DATABASE_URL) $(GOTEST) -race -count=1 -tags=integration ./internal/infra/...
+	@TEST_DATABASE_URL=$(TEST_DATABASE_URL) $(GOTEST) -count=1 -p 1 -tags=integration ./...
 	@echo "$(GREEN)Tests intégration OK$(RESET)"
 
 test-all: test-unit test-integration ## Tous les tests
