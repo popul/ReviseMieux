@@ -149,15 +149,18 @@ func migrationsDir() string {
 func (ta *testApp) truncateAll() {
 	ctx := context.Background()
 	// Truncate all tables explicitly to avoid FK ordering issues.
-	_, _ = ta.pool.Exec(ctx, `TRUNCATE
+	_, err := ta.pool.Exec(ctx, `TRUNCATE
 		attempts, questions, session_chapters, sessions,
 		masteries,
 		validation_tasks,
 		item_keywords, item_steps, item_visual_blocks, items,
 		visual_blocks, blocks, pages, chapter_revisions,
-		notion_exam_links, notions, chapter_exams,
+		notions, chapter_exams,
 		chapters, exams, templates, users
 		CASCADE`)
+	if err != nil {
+		ta.t.Fatalf("truncateAll: %v", err)
+	}
 }
 
 // seedUser creates a user and returns the ID and a valid JWT token.
