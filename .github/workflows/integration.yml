@@ -37,9 +37,17 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23'
+          cache-dependency-path: backend/go.sum
 
       - name: Integration tests
-        run: go test -tags=integration -p 1 ./... -count=1 -json | tee /tmp/itest.json | go tool test2json -t 2>/dev/null || (cat /tmp/itest.json; exit 1)
+        run: |
+          set -o pipefail
+          # Emit JSON to a file (for the anti-skip guardrail below) and
+          # extract the human-readable output lines to the CI log.
+          go test -tags=integration -p 1 ./... -count=1 -json 2>&1 \
+            | tee /tmp/itest.json \
+            | jq -r 'select(.Output != null) | .Output' \
+            | cat
         shell: bash
 
       - name: Fail on skipped tests (postgres + handler only)
