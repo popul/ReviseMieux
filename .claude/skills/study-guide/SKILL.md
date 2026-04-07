@@ -50,7 +50,7 @@ La note visée conditionne la **profondeur** et le **volume** de la fiche :
 |---|---|
 | **12-14** | Sections 1→6 de base : résumé, notions, 3 docs générés, Session 1 (15 Q), Session 2 (15 Q), corrigés, plan. Pas de Session 3, pas d'annexes. |
 | **15-17** | Tout ce qui précède + Annexes partielles : frise chronologique, vocabulaire exhaustif, pièges renforcés. Pas de Session 3. |
-| **18-20** | **Tout** : Session 3 « contrôle blanc » (10 Q type contrôle + corrigé abrégé), frise, vocabulaire exhaustif, fiches personnages, tableau comparatif des notions proches (ex: roman/gothique), rédactions modèles avec grille d'évaluation, méthodes spécifiques par type de document (plan, texte, miniature, carte). Chaque TRAP et SHORT_LIST est renforcé par une question dédiée dans la Session 3. |
+| **18-20** | **Tout** : Session 3 « contrôle blanc » (10 Q type contrôle + corrigé abrégé + 1 question `MINDMAP_REBUILD` : carte du chapitre entièrement vide à reconstruire), frise, vocabulaire exhaustif, fiches personnages, tableau comparatif des notions proches (ex: roman/gothique), rédactions modèles avec grille d'évaluation, méthodes spécifiques par type de document (plan, texte, miniature, carte). Chaque TRAP et SHORT_LIST est renforcé par une question dédiée dans la Session 3. |
 | **Je ne sais pas** | Traiter comme « 15-17 » par défaut. |
 
 **Règle** : une fiche « 20/20 » DOIT contenir au minimum une Section 8 « Annexes objectif 20/20 » et une Section 9 « Session 3 — Contrôle blanc ».
@@ -61,23 +61,13 @@ La note visée conditionne la **profondeur** et le **volume** de la fiche :
 
 ### Étape 1 — OCR & Extraction
 
-Analyser chaque photo et extraire :
-1. **Texte principal** : titres, définitions, théorèmes, formules, dates, vocabulaire
-2. **Visuels** : schémas, graphiques, tableaux, cartes, diagrammes — les **reproduire** en Markdown (tableaux) ou les **décrire précisément** (schémas) pour générer des exercices dessus
-3. **Structure** : identifier les sections, sous-sections, et la hiérarchie du cours
+**Suis intégralement** le prompt figé : `${CLAUDE_PROJECT_DIR}/backend/prompts/ocr/system.md` (block_type, confidence, format JSON, règles d'extraction fidèle). C'est la source de vérité unique, partagée avec le backend Go (`internal/infra/anthropic`, `internal/infra/openaicompat`). Ne pas redupliquer ses règles ici — toute évolution stabilisée se fait dans ce fichier.
 
 ### Étape 2 — Structuration en Items
 
-Classer chaque élément extrait en **Items** typés :
+**Suis intégralement** le prompt figé : `${CLAUDE_PROJECT_DIR}/backend/prompts/structuration/system.md` (types KNOWLEDGE / PROCEDURE / DOCUMENT / WRITING, règles par type, regroupement en notions, format JSON, confidence). C'est la source de vérité unique partagée avec le backend Go. Ne pas redupliquer ses règles ici.
 
-| Type | Description | Exemples |
-|------|-------------|----------|
-| **KNOWLEDGE** | Définitions, vocabulaire, dates, concepts | "La masse volumique est le rapport masse/volume" |
-| **PROCEDURE** | Méthodes, étapes, algorithmes | "Pour calculer ρ : 1) mesurer m, 2) mesurer V, 3) ρ = m/V" |
-| **DOCUMENT** | Éléments visuels exploitables (graphiques, cartes, tableaux) | Un tableau de valeurs, un schéma légendé |
-| **WRITING** | Rédactions, argumentations (rare au collège) | "Expliquer pourquoi..." |
-
-Regrouper les items en **Notions** (clusters sémantiques de 3-7 items).
+Les **types d'items transverses ci-dessous** sont propres au skill (prototype, pas encore figés dans le backend) et complètent ceux du prompt :
 
 #### Types d'items transverses — OBLIGATOIRES
 
@@ -220,28 +210,35 @@ Règles :
 - Utiliser des **lettres/numéros** pour les zones, pas les noms (ceux-ci sont à deviner)
 - Cohérent avec les localisations du cours
 
-#### 3E — Diagrammes de classification et mind maps
+#### 3E — Mini-cartes mentales à trous (exercices progressifs)
 
-Pour les notions avec des catégories/hiérarchies :
+Les mini-cartes de la Section 2 sont déclinées en **3 niveaux d'exercice** pour les sessions. Chaque version est un SVG distinct.
 
-````markdown
-```mermaid
-mindmap
-  root((Changements d'état))
-    Fusion
-      Solide → Liquide
-      Exemple : ?
-    Solidification
-      Liquide → Solide
-      Exemple : ?
-    Vaporisation
-      Liquide → Gaz
-      Ébullition vs Évaporation
-    Liquéfaction
-      Gaz → Liquide
-      Exemple : ?
+**Noeud vide (à compléter)** — utiliser un style visuel distinct :
+```svg
+<rect x="..." y="..." width="115" height="32" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+<text x="..." y="..." text-anchor="middle" fill="#999" font-size="11" font-style="italic">?</text>
 ```
-````
+
+**Niveau 1 — MINDMAP_PARTIAL** (Session 1, reconnaissance) :
+- La structure complète est visible (noeud central + toutes les connexions)
+- **2-3 feuilles sur 5-7 sont remplacées par `?`** (cases grises en pointillé)
+- L'élève reconnaît les éléments manquants parmi ceux qu'il vient de lire
+- Inclure un `<details>` avec les réponses sous le SVG
+
+**Niveau 2 — MINDMAP_RECALL** (Session 2, rappel) :
+- Seul le **noeud central** est affiché avec son label
+- **Toutes les feuilles sont vides** et numérotées (`1. ?`, `2. ?`, etc.)
+- L'élève doit retrouver tous les éléments de mémoire
+- Question formulée : « Quels sont les N éléments de [Notion] ? »
+- Inclure un `<details>` avec les réponses sous le SVG
+
+**Niveau 3 — MINDMAP_REBUILD** (Session 3, objectif 18-20, reconstruction totale) :
+- Seul le **thème du chapitre** est affiché au centre
+- Les **branches (notions) ET les feuilles** sont toutes vides
+- L'élève reconstruit la carte entière sur papier puis vérifie
+- SVG plus grand (~500x300) avec layout en étoile (4-6 branches)
+- Inclure un `<details>` avec la carte complète sous le SVG
 
 #### 3F — Fiche-méthode « analyser un document » (OBLIGATOIRE si matière = HG/SVT/français/PC)
 
@@ -338,18 +335,53 @@ Produire un document Markdown structuré en **6 sections** :
 - Vocabulaire important en **gras**
 - Formules encadrées en blocs de code
 
-### SECTION 2 — Notions clés & Carte mentale
+### SECTION 2 — Notions clés & Mini-cartes mentales
 
-Pour chaque Notion identifiée :
+**Principe** : au lieu d'une seule mindmap géante, générer **une mini-carte SVG par notion** (3-7 éléments max par carte). Cela respecte le chunking cognitif (mémoire de travail = 3-7 éléments) et permet leur réutilisation comme exercices dans les sessions.
+
+#### Format des mini-cartes
+
+Chaque mini-carte est un **SVG inline** avec :
+- **1 noeud central** (coral `#E85D4C`, `rx` arrondi, texte blanc gras) = le nom de la notion
+- **3-7 noeuds feuilles** (gold `#F5C542`, texte sombre) = les éléments clés à retenir
+- **Connexions** en courbes bézier (`<path>` avec `Q`) légères (gris `#ccc`)
+- Layout radial simple : feuilles réparties autour du centre (haut/bas, gauche/droite)
+- `viewBox` compact (~380x200) pour tenir dans une grille 2 colonnes sur mobile
+
+```svg
+<svg viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:system-ui,sans-serif">
+  <!-- Noeud central -->
+  <rect x="120" y="75" width="140" height="44" rx="22" fill="#E85D4C"/>
+  <text x="190" y="102" text-anchor="middle" fill="#fff" font-weight="700" font-size="12">[Notion]</text>
+  <!-- Feuille (répéter pour chaque élément) -->
+  <path d="M120,97 Q80,97 60,55" stroke="#ccc" stroke-width="1.5" fill="none"/>
+  <rect x="2" y="35" width="115" height="32" rx="6" fill="#F5C542"/>
+  <text x="59" y="56" text-anchor="middle" fill="#1b1b1b" font-size="10">[Élément]</text>
+</svg>
+```
+
+#### Mise en page
+
+Afficher les mini-cartes en **grille 2 colonnes** (1 colonne sur mobile < 600px). Chaque carte dans un conteneur avec bordure gauche teal, fond blanc, ombre légère.
+
+#### Pour chaque Notion, ajouter sous la carte :
+
 ```
 ### 📌 [Nom de la Notion]
 - **Items** : liste des items rattachés
 - **Mots-clés** : termes essentiels à retenir
 - **Liens** : connexions avec d'autres notions du cours
+- **A retenir** : 2-3 points essentiels de la notion, formulés comme des phrases courtes que l'élève peut se répéter (ex: « Les foires de Champagne attirent des marchands de toute l'Europe »)
 ```
+
+Chaque noeud feuille de la mini-carte SVG doit correspondre à un item listé dans le bloc texte sous la carte. L'élève peut ainsi **aller-retour entre le visuel (carte) et le détail (texte)** pour ancrer sa compréhension.
 
 Reproduire les **tableaux** du cours en Markdown.
 Décrire les **schémas** avec suffisamment de détail pour générer des exercices.
+
+#### Règle de réutilisation
+
+Les mini-cartes de la Section 2 servent de **référence**. Elles sont réutilisées en versions dégradées dans les sessions (voir `MINDMAP_PARTIAL` et `MINDMAP_RECALL`).
 
 ### SECTION 3 — Documents d'exercice générés
 
@@ -384,6 +416,7 @@ Générer **15 questions** en respectant ces règles :
 3. **Définition courte** (`DEF_SHORT`) — "Qu'est-ce que [terme] ?"
 4. **Observation simple** (`DOC.DESCRIBE`) — "Que représente ce schéma/tableau ?"
 5. **Lecture de valeur** (`DOC.READ_VALUE`) — "D'après le tableau, quelle est la valeur de X ?"
+6. **Mini-carte à trous** (`MINDMAP_PARTIAL`) — mini-carte SVG de la Section 2 avec 2-3 feuilles remplacées par `?`. L'élève identifie les éléments manquants. **1-2 questions de ce type par session max.**
 
 #### Contraintes de composition :
 - **Variété** : ne jamais enchaîner plus de 2 questions du même type
@@ -421,6 +454,7 @@ Générer **15 questions** en respectant ces règles :
 6. **Interprétation de tendance** (`DOC.INTERPRET_TREND`) — "Comment évolue X d'après le graphique ?"
 7. **Légende à compléter** (`LABEL_COMPLETION`) — remplir les légendes manquantes d'un schéma
 8. **Valeur numérique + unité** (`NUMERIC`) — "Calculer X. Donner la valeur et l'unité."
+9. **Mini-carte rappel** (`MINDMAP_RECALL`) — mini-carte SVG avec seulement le noeud central visible, toutes les feuilles vides et numérotées. L'élève reconstruit de mémoire. **1-2 questions de ce type par session max.**
 
 #### Composition 70/20/10 :
 - **70% (≈10-11 questions)** : items urgents — ceux qui étaient FRAGILE après Session 1, en priorité ceux échoués

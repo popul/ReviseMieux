@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prototype Mindmap — Ville médiévale</title>
+<style>
+:root{--coral:#E85D4C;--teal:#1A4D4D;--gold:#F5C542;--cream:#FBF8F3;--ink:#1b1b1b;--muted:#6b6b6b;--blue:#4A90D9;--green:#5BA55B;--orange:#E8943A;--red:#D94A4A;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--cream);color:var(--ink);padding:20px;max-width:900px;margin:0 auto}
+h1{color:var(--teal);font-size:24px;margin-bottom:8px}
+h2{color:var(--coral);font-size:20px;margin:32px 0 12px;padding-bottom:6px;border-bottom:2px solid var(--coral)}
+h3{color:var(--teal);font-size:16px;margin:24px 0 8px}
+p{line-height:1.5;margin-bottom:12px;color:var(--muted);font-size:14px}
+.subtitle{color:var(--muted);font-size:14px;margin-bottom:24px}
+
+/* Mindmap grid */
+.mindmap-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:16px 0}
+@media(max-width:600px){.mindmap-grid{grid-template-columns:1fr}}
+.mindmap-card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,.08);border-left:4px solid var(--teal)}
+.mindmap-card h4{font-size:14px;color:var(--teal);margin-bottom:10px}
+
+/* SVG styles */
+.node-central{fill:var(--coral);rx:24}
+.node-central text{fill:#fff;font-weight:700;font-size:13px}
+.node-branche{fill:var(--teal);rx:8}
+.node-branche text{fill:#fff;font-weight:600;font-size:11px}
+.node-feuille{fill:var(--gold);rx:6}
+.node-feuille text{fill:var(--ink);font-size:10px}
+.node-blank{fill:#e0e0e0;rx:6;stroke:#bbb;stroke-width:1;stroke-dasharray:4}
+.node-blank text{fill:#999;font-size:11px;font-style:italic}
+.edge{stroke:#ccc;stroke-width:1.5;fill:none}
+
+/* Session badges */
+.badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;color:#fff;margin-bottom:12px}
+.badge-ref{background:var(--teal)}
+.badge-s1{background:var(--blue)}
+.badge-s2{background:var(--gold);color:var(--ink)}
+.badge-s3{background:var(--coral)}
+
+/* Legend */
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin:12px 0 24px;font-size:12px}
+.legend-item{display:flex;align-items:center;gap:5px}
+.legend-dot{width:14px;height:14px;border-radius:4px}
+
+/* Tabs */
+.tabs{display:flex;gap:4px;margin:20px 0 0;flex-wrap:wrap}
+.tab{padding:8px 16px;border:none;border-radius:8px 8px 0 0;cursor:pointer;font-size:13px;font-weight:600;background:#e8e8e8;color:var(--muted);transition:.2s}
+.tab.active{background:#fff;color:var(--teal);box-shadow:0 -2px 6px rgba(0,0,0,.06)}
+.tab-content{display:none;background:#fff;border-radius:0 12px 12px 12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.tab-content.active{display:block}
+
+/* Full width card */
+.mindmap-full{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin:16px 0}
+
+/* Answer reveal */
+details{margin:8px 0}
+details summary{cursor:pointer;color:var(--teal);font-weight:600;font-size:13px}
+details p{font-size:13px;margin-top:4px}
+</style>
+</head>
+<body>
+
+<h1>Prototype Mindmap progressive</h1>
+<p class="subtitle">Chapitre : L'emergence d'une societe urbaine (XIe-XIIIe s.) — 4 mini-cartes au lieu d'1 grosse</p>
+
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--coral)"></div> Concept central</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--teal)"></div> Branche</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--gold)"></div> Detail</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e0e0e0;border:1px dashed #bbb"></div> A completer</div>
+</div>
+
+<!-- ============================================================ -->
+<h2>Section 2 — Mini-cartes de reference</h2>
+<p>Chaque notion a sa propre carte mentale. 3-5 elements max par carte = pas de surcharge.</p>
+
+<div class="mindmap-grid">
+
+<!-- Carte 1 : Essor economique -->
+<div class="mindmap-card">
+<h4>1. Essor economique</h4>
+<svg viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:system-ui,sans-serif">
+  <!-- Central -->
+  <rect x="120" y="75" width="140" height="44" rx="22" fill="#E85D4C"/>
+  <text x="190" y="102" text-anchor="middle" fill="#fff" font-weight="700" font-size="12">Essor economique</text>
+  <!-- Branches -->
+  <path d="M120,97 Q80,97 60,55" class="edge"/>
+  <rect x="2" y="35" width="115" height="32" rx="6" fill="#F5C542"/>
+  <text x="59" y="56" text-anchor="middle" fill="#1b1b1b" font-size="10">Croissance demographique</text>
+
+  <path d="M260,97 Q300,97 320,55" class="edge"/>
+  <rect x="260" y="35" width="115" height="32" rx="6" fill="#F5C542"/>
+  <text x="317" y="56" text-anchor="middle" fill="#1b1b1b" font-size="10">Foires de Champagne</text>
+
+  <path d="M190,119 Q190,155 130,170" class="edge"/>
+  <rect x="55" y="155" width="110" height="32" rx="6" fill="#F5C542"/>
+  <text x="110" y="176" text-anchor="middle" fill="#1b1b1b" font-size="10">Flandre et Italie</text>
+
+  <path d="M190,119 Q190,155 260,170" class="edge"/>
+  <rect x="210" y="155" width="110" height="32" rx="6" fill="#F5C542"/>
+  <text x="265" y="176" text-anchor="middle" fill="#1b1b1b" font-size="10">Grands marchands</text>
+</svg>
+<div style="font-size:12px;margin-top:8px;padding:8px 10px;background:#f9f7f2;border-radius:6px;line-height:1.6">
+  <b>A retenir :</b><br/>
+  &bull; La population double entre le Xe et le XIIIe siecle<br/>
+  &bull; Les foires de Champagne attirent des marchands de toute l'Europe<br/>
+  &bull; Flandre = draps, Italie = banques et epices
+</div>
+</div>
+
+<!-- Carte 2 : Organisation de la ville -->
+<div class="mindmap-card">
+<h4>2. Organisation de la ville</h4>
+<svg viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:system-ui,sans-serif">
+  <rect x="115" y="75" width="150" height="44" rx="22" fill="#E85D4C"/>
+  <text x="190" y="102" text-anchor="middle" fill="#fff" font-weight="700" font-size="12">Organisation urbaine</text>
+
+  <path d="M115,90 Q60,80 40,50" class="edge"/>
+  <rect x="2" y="30" width="85" height="32" rx="6" fill="#F5C542"/>
+  <text x="44" y="51" text-anchor="middle" fill="#1b1b1b" font-size="10">Enceinte</text>
+
+  <path d="M265,90 Q310,80 320,50" class="edge"/>
+  <rect x="275" y="30" width="95" height="32" rx="6" fill="#F5C542"/>
+  <text x="322" y="51" text-anchor="middle" fill="#1b1b1b" font-size="10">Faubourgs</text>
+
+  <path d="M155,119 Q120,155 80,165" class="edge"/>
+  <rect x="20" y="150" width="90" height="32" rx="6" fill="#F5C542"/>
+  <text x="65" y="171" text-anchor="middle" fill="#1b1b1b" font-size="10">Halle</text>
+
+  <path d="M190,119 Q190,155 190,160" class="edge"/>
+  <rect x="145" y="155" width="90" height="32" rx="6" fill="#F5C542"/>
+  <text x="190" y="176" text-anchor="middle" fill="#1b1b1b" font-size="10">Beffroi</text>
+
+  <path d="M225,119 Q270,155 300,165" class="edge"/>
+  <rect x="258" y="150" width="115" height="32" rx="6" fill="#F5C542"/>
+  <text x="315" y="171" text-anchor="middle" fill="#1b1b1b" font-size="10">Plan en etoile</text>
+</svg>
+<div style="font-size:12px;margin-top:8px;padding:8px 10px;background:#f9f7f2;border-radius:6px;line-height:1.6">
+  <b>A retenir :</b><br/>
+  &bull; L'enceinte protege la ville ; les faubourgs poussent a l'exterieur<br/>
+  &bull; La halle = lieu de commerce, le beffroi = symbole de liberte communale<br/>
+  &bull; Les rues partent du centre (eglise/marche) en etoile
+</div>
+</div>
+
+<!-- Carte 3 : Artisans et corporations -->
+<div class="mindmap-card">
+<h4>3. Artisans et corporations</h4>
+<svg viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:system-ui,sans-serif">
+  <rect x="120" y="75" width="140" height="44" rx="22" fill="#E85D4C"/>
+  <text x="190" y="102" text-anchor="middle" fill="#fff" font-weight="700" font-size="12">Corporations</text>
+
+  <path d="M140,80 Q80,40 60,30" class="edge"/>
+  <rect x="10" y="12" width="100" height="32" rx="6" fill="#F5C542"/>
+  <text x="60" y="33" text-anchor="middle" fill="#1b1b1b" font-size="10">Maitre</text>
+
+  <path d="M190,75 Q190,35 190,25" class="edge"/>
+  <rect x="140" y="5" width="100" height="32" rx="6" fill="#F5C542"/>
+  <text x="190" y="26" text-anchor="middle" fill="#1b1b1b" font-size="10">Compagnon</text>
+
+  <path d="M240,80 Q300,40 310,30" class="edge"/>
+  <rect x="268" y="12" width="100" height="32" rx="6" fill="#F5C542"/>
+  <text x="318" y="33" text-anchor="middle" fill="#1b1b1b" font-size="10">Apprenti</text>
+
+  <path d="M190,119 Q140,155 90,165" class="edge"/>
+  <rect x="18" y="150" width="130" height="32" rx="6" fill="#F5C542"/>
+  <text x="83" y="171" text-anchor="middle" fill="#1b1b1b" font-size="10">Reglements stricts</text>
+
+  <path d="M190,119 Q240,155 290,165" class="edge"/>
+  <rect x="228" y="150" width="135" height="32" rx="6" fill="#F5C542"/>
+  <text x="295" y="171" text-anchor="middle" fill="#1b1b1b" font-size="10">Jures (inspecteurs)</text>
+</svg>
+<div style="font-size:12px;margin-top:8px;padding:8px 10px;background:#f9f7f2;border-radius:6px;line-height:1.6">
+  <b>A retenir :</b><br/>
+  &bull; 3 niveaux : maitre (patron) &rarr; compagnon (salarie) &rarr; apprenti (eleve)<br/>
+  &bull; Les reglements fixent prix, qualite et horaires — pas de concurrence libre<br/>
+  &bull; Les jures verifient le respect des regles (= inspecteurs du travail)
+</div>
+</div>
+
+<!-- Carte 4 : Libertes urbaines -->
+<div class="mindmap-card">
+<h4>4. Libertes urbaines</h4>
+<svg viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:system-ui,sans-serif">
+  <rect x="115" y="75" width="150" height="44" rx="22" fill="#E85D4C"/>
+  <text x="190" y="102" text-anchor="middle" fill="#fff" font-weight="700" font-size="12">Libertes urbaines</text>
+
+  <path d="M120,85 Q60,60 50,45" class="edge"/>
+  <rect x="2" y="25" width="130" height="32" rx="6" fill="#F5C542"/>
+  <text x="67" y="46" text-anchor="middle" fill="#1b1b1b" font-size="10">Chartes de franchise</text>
+
+  <path d="M265,85 Q310,60 320,45" class="edge"/>
+  <rect x="268" y="25" width="105" height="32" rx="6" fill="#F5C542"/>
+  <text x="320" y="46" text-anchor="middle" fill="#1b1b1b" font-size="10">Communes</text>
+
+  <path d="M155,119 Q100,155 75,165" class="edge"/>
+  <rect x="10" y="150" width="100" height="32" rx="6" fill="#F5C542"/>
+  <text x="60" y="171" text-anchor="middle" fill="#1b1b1b" font-size="10">Echevins</text>
+
+  <path d="M225,119 Q290,155 310,165" class="edge"/>
+  <rect x="248" y="150" width="125" height="32" rx="6" fill="#F5C542"/>
+  <text x="310" y="171" text-anchor="middle" fill="#1b1b1b" font-size="10">Revolte de Laon</text>
+</svg>
+<div style="font-size:12px;margin-top:8px;padding:8px 10px;background:#f9f7f2;border-radius:6px;line-height:1.6">
+  <b>A retenir :</b><br/>
+  &bull; Charte de franchise = document qui accorde des droits a la ville<br/>
+  &bull; Les echevins gouvernent la commune (= conseillers municipaux)<br/>
+  &bull; Revolte de Laon (1112) : les bourgeois tuent l'eveque pour garder leur commune
+</div>
+</div>
+
+</div><!-- /grid -->
+
+
+<!-- ============================================================ -->
+<h2>Session 1 — Mindmap a trous (reconnaissance)</h2>
+<p>L'eleve voit la structure + la plupart des elements. Quelques feuilles sont masquees — il doit les retrouver.</p>
+
+<div class="mindmap-grid">
+
+<!-- S1 : Essor economique avec trous -->
+<div class="mindmap-card" style="border-left-color:var(--blue)">
+<span class="badge badge-s1">Session 1</span>
+<h4>Essor economique — Complete les cases grises</h4>
+<svg viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:system-ui,sans-serif">
+  <rect x="120" y="75" width="140" height="44" rx="22" fill="#E85D4C"/>
+  <text x="190" y="102" text-anchor="middle" fill="#fff" font-weight="700" font-size="12">Essor economique</text>
+
+  <path d="M120,97 Q80,97 60,55" class="edge"/>
+  <rect x="2" y="35" width="115" height="32" rx="6" fill="#F5C542"/>
+  <text x="59" y="56" text-anchor="middle" fill="#1b1b1b" font-size="10">Croissance demographique</text>
+
+  <path d="M260,97 Q300,97 320,55" class="edge"/>
+  <rect x="260" y="35" width="115" height="32" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="317" y="56" text-anchor="middle" fill="#999" font-size="11" font-style="italic">?</text>
+
+  <path d="M190,119 Q190,155 130,170" class="edge"/>
+  <rect x="55" y="155" width="110" height="32" rx="6" fill="#F5C542"/>
+  <text x="110" y="176" text-anchor="middle" fill="#1b1b1b" font-size="10">Flandre et Italie</text>
+
+  <path d="M190,119 Q190,155 260,170" class="edge"/>
+  <rect x="210" y="155" width="110" height="32" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="265" y="176" text-anchor="middle" fill="#999" font-size="11" font-style="italic">?</text>
+</svg>
+<details><summary>Voir les reponses</summary><p><b>En haut a droite :</b> Foires de Champagne<br/><b>En bas a droite :</b> Grands marchands</p></details>
+</div>
+
+<!-- S1 : Corporations avec trous -->
+<div class="mindmap-card" style="border-left-color:var(--blue)">
+<span class="badge badge-s1">Session 1</span>
+<h4>Corporations — Qui manque dans la hierarchie ?</h4>
+<svg viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:system-ui,sans-serif">
+  <rect x="120" y="75" width="140" height="44" rx="22" fill="#E85D4C"/>
+  <text x="190" y="102" text-anchor="middle" fill="#fff" font-weight="700" font-size="12">Corporations</text>
+
+  <path d="M140,80 Q80,40 60,30" class="edge"/>
+  <rect x="10" y="12" width="100" height="32" rx="6" fill="#F5C542"/>
+  <text x="60" y="33" text-anchor="middle" fill="#1b1b1b" font-size="10">Maitre</text>
+
+  <path d="M190,75 Q190,35 190,25" class="edge"/>
+  <rect x="140" y="5" width="100" height="32" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="190" y="26" text-anchor="middle" fill="#999" font-size="11" font-style="italic">?</text>
+
+  <path d="M240,80 Q300,40 310,30" class="edge"/>
+  <rect x="268" y="12" width="100" height="32" rx="6" fill="#F5C542"/>
+  <text x="318" y="33" text-anchor="middle" fill="#1b1b1b" font-size="10">Apprenti</text>
+
+  <path d="M190,119 Q140,155 90,165" class="edge"/>
+  <rect x="18" y="150" width="130" height="32" rx="6" fill="#F5C542"/>
+  <text x="83" y="171" text-anchor="middle" fill="#1b1b1b" font-size="10">Reglements stricts</text>
+
+  <path d="M190,119 Q240,155 290,165" class="edge"/>
+  <rect x="228" y="150" width="135" height="32" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="295" y="171" text-anchor="middle" fill="#999" font-size="11" font-style="italic">?</text>
+</svg>
+<details><summary>Voir les reponses</summary><p><b>Centre haut :</b> Compagnon (entre maitre et apprenti)<br/><b>Bas droite :</b> Jures (inspecteurs)</p></details>
+</div>
+
+</div><!-- /grid -->
+
+
+<!-- ============================================================ -->
+<h2>Session 2 — Branches vides (rappel)</h2>
+<p>Seul le noeud central est donne. L'eleve reconstruit les branches de memoire.</p>
+
+<div class="mindmap-grid">
+
+<!-- S2 : Essor economique vide -->
+<div class="mindmap-card" style="border-left-color:var(--gold)">
+<span class="badge badge-s2">Session 2</span>
+<h4>Quels sont les 4 elements de l'essor economique ?</h4>
+<svg viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:system-ui,sans-serif">
+  <rect x="120" y="75" width="140" height="44" rx="22" fill="#E85D4C"/>
+  <text x="190" y="102" text-anchor="middle" fill="#fff" font-weight="700" font-size="12">Essor economique</text>
+
+  <path d="M120,97 Q80,97 60,55" class="edge"/>
+  <rect x="2" y="35" width="115" height="32" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="59" y="56" text-anchor="middle" fill="#999" font-size="11" font-style="italic">1. ?</text>
+
+  <path d="M260,97 Q300,97 320,55" class="edge"/>
+  <rect x="260" y="35" width="115" height="32" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="317" y="56" text-anchor="middle" fill="#999" font-size="11" font-style="italic">2. ?</text>
+
+  <path d="M190,119 Q190,155 130,170" class="edge"/>
+  <rect x="55" y="155" width="110" height="32" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="110" y="176" text-anchor="middle" fill="#999" font-size="11" font-style="italic">3. ?</text>
+
+  <path d="M190,119 Q190,155 260,170" class="edge"/>
+  <rect x="210" y="155" width="110" height="32" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="265" y="176" text-anchor="middle" fill="#999" font-size="11" font-style="italic">4. ?</text>
+</svg>
+<details><summary>Voir les reponses</summary><p>1. Croissance demographique<br/>2. Foires de Champagne<br/>3. Flandre et Italie<br/>4. Grands marchands</p></details>
+</div>
+
+<!-- S2 : Libertes urbaines vide -->
+<div class="mindmap-card" style="border-left-color:var(--gold)">
+<span class="badge badge-s2">Session 2</span>
+<h4>Quels sont les 4 elements des libertes urbaines ?</h4>
+<svg viewBox="0 0 380 200" xmlns="http://www.w3.org/2000/svg" style="width:100%;font-family:system-ui,sans-serif">
+  <rect x="115" y="75" width="150" height="44" rx="22" fill="#E85D4C"/>
+  <text x="190" y="102" text-anchor="middle" fill="#fff" font-weight="700" font-size="12">Libertes urbaines</text>
+
+  <path d="M120,85 Q60,60 50,45" class="edge"/>
+  <rect x="2" y="25" width="130" height="32" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="67" y="46" text-anchor="middle" fill="#999" font-size="11" font-style="italic">1. ?</text>
+
+  <path d="M265,85 Q310,60 320,45" class="edge"/>
+  <rect x="268" y="25" width="105" height="32" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="320" y="46" text-anchor="middle" fill="#999" font-size="11" font-style="italic">2. ?</text>
+
+  <path d="M155,119 Q100,155 75,165" class="edge"/>
+  <rect x="10" y="150" width="100" height="32" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="60" y="171" text-anchor="middle" fill="#999" font-size="11" font-style="italic">3. ?</text>
+
+  <path d="M225,119 Q290,155 310,165" class="edge"/>
+  <rect x="248" y="150" width="125" height="32" rx="6" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="310" y="171" text-anchor="middle" fill="#999" font-size="11" font-style="italic">4. ?</text>
+</svg>
+<details><summary>Voir les reponses</summary><p>1. Chartes de franchise<br/>2. Communes<br/>3. Echevins<br/>4. Revolte de Laon (1112)</p></details>
+</div>
+
+</div><!-- /grid -->
+
+
+<!-- ============================================================ -->
+<h2>Session 3 (objectif 20) — Reconstruction totale</h2>
+<p>Seul le theme du chapitre est donne. L'eleve doit reconstruire toutes les branches et feuilles.</p>
+
+<div class="mindmap-full">
+<span class="badge badge-s3">Session 3</span>
+<h4>Reconstruis la carte complete de la ville medievale</h4>
+<p style="margin:8px 0 16px">Rappelle-toi les 4 grands themes et leurs elements. Ecris-les sur une feuille, puis verifie.</p>
+<svg viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:500px;display:block;margin:0 auto;font-family:system-ui,sans-serif">
+  <!-- Central -->
+  <rect x="175" y="120" width="150" height="50" rx="25" fill="#E85D4C"/>
+  <text x="250" y="150" text-anchor="middle" fill="#fff" font-weight="700" font-size="13">Ville medievale</text>
+
+  <!-- 4 branches vides -->
+  <path d="M195,130 Q120,80 80,60" class="edge"/>
+  <rect x="20" y="35" width="120" height="36" rx="8" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="80" y="58" text-anchor="middle" fill="#999" font-size="12" font-style="italic">Theme 1 ?</text>
+
+  <path d="M305,130 Q380,80 400,60" class="edge"/>
+  <rect x="345" y="35" width="120" height="36" rx="8" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="405" y="58" text-anchor="middle" fill="#999" font-size="12" font-style="italic">Theme 2 ?</text>
+
+  <path d="M195,160 Q120,220 80,240" class="edge"/>
+  <rect x="20" y="225" width="120" height="36" rx="8" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="80" y="248" text-anchor="middle" fill="#999" font-size="12" font-style="italic">Theme 3 ?</text>
+
+  <path d="M305,160 Q380,220 400,240" class="edge"/>
+  <rect x="345" y="225" width="120" height="36" rx="8" fill="#e0e0e0" stroke="#bbb" stroke-width="1" stroke-dasharray="4"/>
+  <text x="405" y="248" text-anchor="middle" fill="#999" font-size="12" font-style="italic">Theme 4 ?</text>
+</svg>
+<details><summary>Voir les 4 themes</summary><p>1. <b>Essor economique</b> (croissance, foires, Flandre/Italie, marchands)<br/>2. <b>Organisation urbaine</b> (enceinte, faubourgs, halle, beffroi, plan)<br/>3. <b>Corporations</b> (maitre, compagnon, apprenti, reglements, jures)<br/>4. <b>Libertes urbaines</b> (chartes, communes, echevins, revolte de Laon)</p></details>
+</div>
+
+<!-- ============================================================ -->
+<h2>Recapitulatif du concept</h2>
+
+<div style="background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin:16px 0">
+<table style="width:100%;border-collapse:collapse;font-size:13px">
+<tr style="background:var(--teal);color:#fff">
+  <th style="padding:8px;text-align:left">Etape</th>
+  <th style="padding:8px;text-align:left">Ce que l'eleve voit</th>
+  <th style="padding:8px;text-align:left">Ce qu'il fait</th>
+  <th style="padding:8px;text-align:left">Objectif mastery</th>
+</tr>
+<tr style="border-bottom:1px solid #eee">
+  <td style="padding:8px"><span class="badge badge-ref">Reference</span></td>
+  <td style="padding:8px">Mini-cartes completes</td>
+  <td style="padding:8px">Lit et memorise</td>
+  <td style="padding:8px">—</td>
+</tr>
+<tr style="border-bottom:1px solid #eee">
+  <td style="padding:8px"><span class="badge badge-s1">Session 1</span></td>
+  <td style="padding:8px">Cartes avec 2-3 trous</td>
+  <td style="padding:8px">Retrouve les elements manquants</td>
+  <td style="padding:8px">UNKNOWN &rarr; FRAGILE</td>
+</tr>
+<tr style="border-bottom:1px solid #eee">
+  <td style="padding:8px"><span class="badge badge-s2">Session 2</span></td>
+  <td style="padding:8px">Noeud central seul</td>
+  <td style="padding:8px">Reconstruit toutes les feuilles</td>
+  <td style="padding:8px">FRAGILE &rarr; OK</td>
+</tr>
+<tr>
+  <td style="padding:8px"><span class="badge badge-s3">Session 3</span></td>
+  <td style="padding:8px">Theme du chapitre seul</td>
+  <td style="padding:8px">Reconstruit branches + feuilles</td>
+  <td style="padding:8px">OK &rarr; SOLID</td>
+</tr>
+</table>
+</div>
+
+</body>
+</html>
