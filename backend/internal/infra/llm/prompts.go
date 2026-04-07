@@ -1,42 +1,52 @@
 // Package llm provides shared LLM prompt templates used across all providers.
 //
-// Prompts are stored as .txt files in the prompts/ directory and loaded via
-// //go:embed. This ensures a single source of truth shared between production
-// code (anthropic, openaicompat) and the benchmark generation script (Python).
+// Prompts live in backend/prompts/ (single source of truth shared with the
+// study-guide skill and benchmark scripts) and are embedded by the
+// github.com/popul/revisemieux/prompts package via //go:embed.
+// This file re-exports them with versioning + drift-detection helpers.
 package llm
 
 import (
 	"crypto/sha256"
-	_ "embed"
 	"fmt"
+
+	"github.com/popul/revisemieux/prompts"
 )
 
 // Prompt versions — increment when changing prompt content.
 const (
 	StructurationPromptVersion = "v1.1.0"
 	OCRPromptVersion           = "v1.0.0"
+	ScoringPromptVersion       = "v1.0.0"
 	FidelityPromptVersion      = "v1.0.0"
 )
 
 // StructurationSystemPrompt is the system prompt for OCR → Items structuration.
-//
-//go:embed prompts/structuration_system.txt
-var StructurationSystemPrompt string
+var StructurationSystemPrompt = prompts.StructurationSystem
 
 // OCRSystemPrompt is the system prompt for image → OCR blocks extraction.
-//
-//go:embed prompts/ocr_system.txt
-var OCRSystemPrompt string
+var OCRSystemPrompt = prompts.OCRSystem
+
+// ScoringSystemPrompt is the system prompt for student answer scoring.
+var ScoringSystemPrompt = prompts.ScoringSystem
 
 // StructurationPromptHash returns the SHA-256 hash of the structuration prompt.
 func StructurationPromptHash() string {
-	h := sha256.Sum256([]byte(StructurationSystemPrompt))
-	return fmt.Sprintf("sha256:%x", h[:8])
+	return shortHash(StructurationSystemPrompt)
 }
 
 // OCRPromptHash returns the SHA-256 hash of the OCR prompt.
 func OCRPromptHash() string {
-	h := sha256.Sum256([]byte(OCRSystemPrompt))
+	return shortHash(OCRSystemPrompt)
+}
+
+// ScoringPromptHash returns the SHA-256 hash of the scoring prompt.
+func ScoringPromptHash() string {
+	return shortHash(ScoringSystemPrompt)
+}
+
+func shortHash(s string) string {
+	h := sha256.Sum256([]byte(s))
 	return fmt.Sprintf("sha256:%x", h[:8])
 }
 
