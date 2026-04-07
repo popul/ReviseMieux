@@ -4,7 +4,8 @@
 
 .PHONY: help deps build run dev test test-unit test-integration \
         lint fmt vet db-migrate db-create-migration swagger clean \
-        docker-build bench bench-idp bench-ocr bench-all bench-report
+        docker-build bench bench-idp bench-ocr bench-all bench-report \
+        check check-domain check-skill fmt-check
 
 .DEFAULT_GOAL := help
 
@@ -159,7 +160,11 @@ check-domain: ## Vérifie que domain/ n'importe pas d'infra/http/app
 	@echo "$(CYAN)Vérification imports domaine...$(RESET)"
 	@bash scripts/check-domain-imports.sh
 
-check: fmt-check vet lint check-domain test-unit ## Gate CI : format + vet + lint + imports domaine + tests
+check-skill: ## Vérifie que SKILL.md référence (sans dupliquer) les prompts figés
+	@echo "$(CYAN)Vérification cohérence SKILL ↔ prompts figés...$(RESET)"
+	@bash scripts/check-skill-prompts.sh
+
+check: fmt-check vet lint check-domain check-skill test-unit ## Gate CI : format + vet + lint + imports domaine + skill + tests
 	@echo "$(GREEN)All checks passed$(RESET)"
 
 # check-ci: reproduit localement EXACTEMENT ce que fait la CI (ci.yml + integration.yml).
