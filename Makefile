@@ -163,12 +163,12 @@ bench-report: ## Génère le rapport HTML depuis les derniers résultats
 # ------------------------------------------------------------
 
 docs-serve: ## Prévisualisation du site docs en local (http://localhost:8000)
-	@pip install mkdocs-material -q 2>/dev/null
-	@mkdocs serve
+	@python3 -m pip install mkdocs-material -q 2>/dev/null
+	@python3 -m mkdocs serve
 
 docs-deploy: ## Déploie le site docs sur GitHub Pages
-	@pip install mkdocs-material -q 2>/dev/null
-	@mkdocs gh-deploy --force
+	@python3 -m pip install mkdocs-material -q 2>/dev/null
+	@python3 -m mkdocs gh-deploy --force
 
 # ------------------------------------------------------------
 # Fiches de révision (skill /study-guide)
