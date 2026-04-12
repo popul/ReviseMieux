@@ -26,6 +26,13 @@ GOVET       := $(GO) vet
 GOFMT       := gofmt
 GOMOD       := $(GO) mod
 
+# Charge le .env racine s'il existe
+ROOT_ENV := $(wildcard $(CURDIR)/../.env)
+ifneq ($(ROOT_ENV),)
+  include $(ROOT_ENV)
+  export
+endif
+
 # DB (configurable via .env ou env vars)
 DATABASE_URL ?= postgres://revisemieux:revisemieux@localhost:5432/revisemieux?sslmode=disable
 # Test DB — base isolée (service postgres-test de docker-compose, port 5433)
@@ -196,12 +203,11 @@ check-ci-act: ## Lance ci.yml + integration.yml en local via nektos/act (attrape
 # Database & Migrations
 # ------------------------------------------------------------
 
-db-migrate: ## Applique toutes les migrations
+db-migrate: ## Applique toutes les migrations (via le migrateur Go avec tracking)
+	@echo "$(CYAN)Waiting for PostgreSQL...$(RESET)"
+	@until docker exec rm-postgres pg_isready -U revisemieux > /dev/null 2>&1; do sleep 1; done
 	@echo "$(CYAN)Migrations...$(RESET)"
-	@for f in $(MIGRATIONS)/*.sql; do \
-		echo "  Applying $$(basename $$f)..."; \
-		psql "$(DATABASE_URL)" -f "$$f" -v ON_ERROR_STOP=1 || exit 1; \
-	done
+	@$(GO) run ./cmd/migrate
 	@echo "$(GREEN)Migrations OK$(RESET)"
 
 db-create-migration: ## Crée un fichier de migration (usage: make db-create-migration NAME=add_foo)

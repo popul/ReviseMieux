@@ -72,9 +72,9 @@ deps: ## Installe les dépendances backend + mobile
 # Infrastructure (Docker Compose)
 # ------------------------------------------------------------
 
-infra-up: ## Démarre PostgreSQL + Redis
-	@$(COMPOSE) up -d postgres redis
-	@echo "$(GREEN)Infra up$(RESET) — Postgres :5432, Redis :6379"
+infra-up: ## Démarre PostgreSQL
+	@$(COMPOSE) up -d postgres
+	@echo "$(GREEN)Infra up$(RESET) — Postgres :5432"
 
 infra-down: ## Arrête l'infra
 	@$(COMPOSE) down

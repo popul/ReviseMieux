@@ -2,7 +2,7 @@
 # Révise Mieux — Mobile Makefile (Expo + React Native)
 # ============================================================
 
-.PHONY: help deps dev start android ios web test test-watch lint typecheck \
+.PHONY: help deps dev start android sim-start web test test-watch lint typecheck \
         build build-dev build-dev-sim build-preview \
         device-register eas-login eas-whoami \
         clean prebuild nuke
@@ -73,7 +73,7 @@ start: dev ## Alias de dev
 android: ## Lance sur Android
 	@$(NPXE) start --android
 
-ios: ## Lance sur iOS simulator
+sim-start: ## Lance l'app sur le simulateur iOS
 	@$(NPXE) start --ios
 
 web: ## Lance sur web
@@ -153,35 +153,41 @@ sim-launch: ## Lance l'app sur le simulateur (via Metro)
 # E2E (Maestro)
 # ------------------------------------------------------------
 
+E2E_REPORTS  := e2e/reports
+E2E_VIDEOS   := e2e/videos
+E2E_LOG_PATH := $(CURDIR)/$(E2E_REPORTS)/backend.log
+
 e2e: ## Lance tous les tests E2E Maestro
 	@echo "$(CYAN)E2E Maestro...$(RESET)"
-	@$(MAESTRO) test e2e/flows/
-	@echo "$(GREEN)E2E OK$(RESET)"
+	@rm -rf $(E2E_REPORTS) && mkdir -p $(E2E_REPORTS)
+	@$(MAESTRO) test --debug-output $(E2E_REPORTS) --flatten-debug-output --format HTML --output $(E2E_REPORTS)/report.html -e LOG_PATH=$(E2E_LOG_PATH) e2e/flows/
+	@echo "$(GREEN)E2E OK — rapport: $(E2E_REPORTS)/$(RESET)"
 
-e2e-flow: ## Lance un flow + video simctl (usage: make e2e-flow FLOW=01-onboarding)
+e2e-flow: ## Lance un flow sans video (usage: make e2e-flow FLOW=01-onboarding)
 	@if [ -z "$(FLOW)" ]; then echo "$(RED)Usage: make e2e-flow FLOW=01-onboarding$(RESET)"; exit 1; fi
-	@mkdir -p e2e/videos
-	@rm -f e2e/videos/$(FLOW).mp4
-	@echo "$(CYAN)Maestro + simctl record: $(FLOW)$(RESET)"
-	@xcrun simctl io booted recordVideo --codec h264 "$$(pwd)/e2e/videos/$(FLOW).mp4" & \
-		RPID=$$!; \
-		sleep 2; \
-		$(MAESTRO) test e2e/flows/$(FLOW).yaml || true; \
-		sleep 1; \
-		kill -INT $$RPID 2>/dev/null; \
-		wait $$RPID 2>/dev/null
-	@echo "$(GREEN)Video: e2e/videos/$(FLOW).mp4$(RESET)"
-	@open e2e/videos/$(FLOW).mp4
+	@rm -rf $(E2E_REPORTS) && mkdir -p $(E2E_REPORTS)
+	@echo "$(CYAN)Maestro test: $(FLOW)$(RESET)"
+	@$(MAESTRO) test --debug-output $(E2E_REPORTS) --flatten-debug-output -e LOG_PATH=$(E2E_LOG_PATH) e2e/flows/$(FLOW).yaml
+	@echo "$(GREEN)Rapport: $(E2E_REPORTS)/$(RESET)"
+
+e2e-record-flow: ## Enregistre un flow avec panneau scenario (usage: make e2e-record-flow FLOW=01-onboarding)
+	@if [ -z "$(FLOW)" ]; then echo "$(RED)Usage: make e2e-record-flow FLOW=01-onboarding$(RESET)"; exit 1; fi
+	@rm -rf $(E2E_REPORTS) && mkdir -p $(E2E_VIDEOS) $(E2E_REPORTS)
+	@rm -f $(E2E_VIDEOS)/$(FLOW).mp4
+	@echo "$(CYAN)Maestro record: $(FLOW)$(RESET)"
+	@$(MAESTRO) record --debug-output $(E2E_REPORTS) -e LOG_PATH=$(E2E_LOG_PATH) --local e2e/flows/$(FLOW).yaml $(E2E_VIDEOS)/$(FLOW).mp4 2>&1 || true
+	@echo "$(GREEN)Video: $(E2E_VIDEOS)/$(FLOW).mp4 — rapport: $(E2E_REPORTS)/$(RESET)"
+	@open $(E2E_VIDEOS)/$(FLOW).mp4
 
 e2e-record: ## Enregistre les videos de tous les flows
 	@echo "$(CYAN)E2E Maestro (record all)...$(RESET)"
-	@mkdir -p e2e/videos
+	@rm -rf $(E2E_REPORTS) && mkdir -p $(E2E_VIDEOS) $(E2E_REPORTS)
 	@for f in e2e/flows/*.yaml; do \
 		name=$$(basename "$$f" .yaml); \
 		echo "  Recording $$name..."; \
-		$(MAESTRO) record --local "$$f" "e2e/videos/$$name.mp4" 2>&1 || true; \
+		$(MAESTRO) record --debug-output $(E2E_REPORTS) -e LOG_PATH=$(E2E_LOG_PATH) --local "$$f" "$(E2E_VIDEOS)/$$name.mp4" 2>&1 || true; \
 	done
-	@echo "$(GREEN)Videos dans e2e/videos/$(RESET)"
+	@echo "$(GREEN)Videos dans $(E2E_VIDEOS)/ — rapports dans $(E2E_REPORTS)/$(RESET)"
 
 # ------------------------------------------------------------
 # Qualité

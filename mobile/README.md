@@ -32,7 +32,7 @@ Ouvre l'app **Révise Mieux** sur ton iPhone — elle se connecte automatiquemen
 | Commande | Description |
 |----------|-------------|
 | `make dev` | Lance le serveur Metro (dev client) |
-| `make ios` | Lance sur simulateur iOS |
+| `make sim-start` | Lance l'app sur le simulateur iOS |
 | `make web` | Lance sur navigateur web |
 | `make test` | Tests Jest |
 | `make test-watch` | Tests en mode watch |
