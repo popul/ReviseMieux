@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/google/uuid"
@@ -69,7 +70,7 @@ func maskedTerm(s string) string {
 
 // scoreByKeywords scores a text answer by checking keyword overlap.
 // Returns 1.0 if ≥70% of expected keywords found, 0.5 if ≥40%, 0.0 otherwise.
-// stripAccents removes common French accents for fuzzy matching.
+// stripAccents removes common French accents and Greek symbols for fuzzy matching.
 func stripAccents(s string) string {
 	replacer := strings.NewReplacer(
 		"é", "e", "è", "e", "ê", "e", "ë", "e",
@@ -79,22 +80,41 @@ func stripAccents(s string) string {
 		"ô", "o", "ö", "o",
 		"ç", "c",
 		"³", "3", "²", "2",
+		"ρ", "rho", "Ω", "omega", "π", "pi", "Δ", "delta",
 	)
 	return replacer.Replace(s)
 }
 
+// stripPunctuation removes punctuation that interferes with keyword matching
+// (apostrophes, periods, commas, etc.) and normalizes whitespace.
+func stripPunctuation(s string) string {
+	var b strings.Builder
+	for _, r := range s {
+		switch r {
+		case '\'', '\u2019', '\u2018': // apostrophes → space
+			b.WriteRune(' ')
+		case '.', ',', ';', ':', '!', '?', '(', ')', '"':
+			// drop punctuation
+		default:
+			b.WriteRune(r)
+		}
+	}
+	// collapse multiple spaces
+	return strings.Join(strings.Fields(b.String()), " ")
+}
+
 func scoreByKeywords(expectedAnswer, keywords, userAnswer string) float64 {
 	normalize := func(s string) string {
-		return stripAccents(strings.ToLower(strings.TrimSpace(s)))
+		return stripPunctuation(stripAccents(strings.ToLower(strings.TrimSpace(s))))
 	}
 	answer := normalize(userAnswer)
 
-	// Collect keywords from the keywords field (priority) and the expected answer
+	// Collect keywords from the keywords field (priority) — keep all, including 1-char
 	var allKeywords []string
 	if keywords != "" {
 		for _, kw := range strings.Split(keywords, ",") {
 			kw = normalize(kw)
-			if len(kw) > 1 {
+			if kw != "" {
 				allKeywords = append(allKeywords, kw)
 			}
 		}
@@ -399,6 +419,12 @@ func (s *SessionService) SubmitAnswer(ctx context.Context, sessionID, questionID
 		return nil, fmt.Errorf("session_service: find question: %w", err)
 	}
 
+	// Count existing attempts to determine question rank in session
+	questions, _ := s.sessionRepo.FindQuestionsBySession(ctx, sessionID)
+	totalQ := len(questions)
+	attempts, _ := s.sessionRepo.FindAttemptsBySession(ctx, sessionID)
+	qNum := len(attempts) + 1
+
 	// Auto-score text answers (non-MCQ questions)
 	if !strings.Contains(q.TemplateID, "MCQ") {
 		var expected struct {
@@ -411,12 +437,25 @@ func (s *SessionService) SubmitAnswer(ctx context.Context, sessionID, questionID
 				result, err := s.scorer.ScoreAnswer(ctx, q.RenderedPrompt, expected.Answer, answerText)
 				if err == nil {
 					score = result.Score
+					log.Printf("[scoring] q=%d/%d template=%s method=llm score=%.2f prompt=%q answer=%q",
+						qNum, totalQ, q.TemplateID, score, q.RenderedPrompt, answerText)
+				} else {
+					log.Printf("[scoring] q=%d/%d template=%s method=llm error=%v, falling back to keywords",
+						qNum, totalQ, q.TemplateID, err)
+					score = scoreByKeywords(expected.Answer, expected.Keywords, answerText)
+					log.Printf("[scoring] q=%d/%d template=%s method=keywords(fallback) score=%.2f prompt=%q answer=%q expected_keywords=%q",
+						qNum, totalQ, q.TemplateID, score, q.RenderedPrompt, answerText, expected.Keywords)
 				}
 			} else {
 				// Fallback: keyword matching when no LLM scorer
 				score = scoreByKeywords(expected.Answer, expected.Keywords, answerText)
+				log.Printf("[scoring] q=%d/%d template=%s method=keywords score=%.2f prompt=%q answer=%q",
+					qNum, totalQ, q.TemplateID, score, q.RenderedPrompt, answerText)
 			}
 		}
+	} else {
+		log.Printf("[scoring] q=%d/%d template=%s method=auto(MCQ) score=%.2f",
+			qNum, totalQ, q.TemplateID, score)
 	}
 
 	// Create and save the attempt

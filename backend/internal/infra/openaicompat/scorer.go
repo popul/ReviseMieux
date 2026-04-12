@@ -44,7 +44,6 @@ func (s *AnswerScorer) ScoreAnswer(ctx context.Context, prompt string, expectedA
 			{Role: "system", Content: llm.ScoringSystemPrompt},
 			{Role: "user", Content: userPrompt},
 		},
-		MaxTokens:   256,
 		Temperature: ptrFloat(0.0),
 	}
 
@@ -78,26 +77,27 @@ func (s *AnswerScorer) ScoreAnswer(ctx context.Context, prompt string, expectedA
 
 	var chatResp chatResponse
 	if err := json.Unmarshal(respBody, &chatResp); err != nil {
-		return nil, fmt.Errorf("openaicompat.ScoreAnswer: parse response: %w", err)
+		return nil, fmt.Errorf("openaicompat.ScoreAnswer: parse response: %w (body: %s)", err, truncate(string(respBody), 500))
 	}
 
 	if len(chatResp.Choices) == 0 {
-		return nil, fmt.Errorf("openaicompat.ScoreAnswer: no choices in response")
+		return nil, fmt.Errorf("openaicompat.ScoreAnswer: no choices in response (body: %s)", truncate(string(respBody), 500))
 	}
 
 	text := chatResp.Choices[0].Message.Content
 	if text == "" {
-		return nil, fmt.Errorf("openaicompat.ScoreAnswer: empty response")
+		return nil, fmt.Errorf("openaicompat.ScoreAnswer: empty content in response (body: %s)", truncate(string(respBody), 500))
 	}
 
 	// Parse JSON response (strip markdown fences if present)
+	cleaned := stripMarkdownFences(text)
 	var raw struct {
 		Score       float64 `json:"score"`
 		IsCorrect   bool    `json:"is_correct"`
 		Explanation string  `json:"explanation"`
 	}
-	if err := json.Unmarshal([]byte(stripMarkdownFences(text)), &raw); err != nil {
-		return nil, fmt.Errorf("openaicompat.ScoreAnswer: parse response JSON: %w", err)
+	if err := json.Unmarshal([]byte(cleaned), &raw); err != nil {
+		return nil, fmt.Errorf("openaicompat.ScoreAnswer: parse response JSON: %w (cleaned: %q, raw: %q)", err, truncate(cleaned, 300), truncate(text, 300))
 	}
 
 	return &session.LLMScoreResult{
