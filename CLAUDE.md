@@ -328,6 +328,7 @@ Les handlers HTTP mappent ces erreurs vers les status codes appropriés.
   - Difficulté : `CHECK (difficulty BETWEEN 1 AND 5)`
   - Durées/tokens : `CHECK (duration_ms >= 0)`
 - **Cohérence struct ↔ table** : chaque champ du struct Go domaine DOIT avoir sa colonne SQL correspondante. Si un champ est ajouté au struct, la migration ET le repository (SELECT + INSERT/UPDATE) doivent être mis à jour dans le même commit.
+- **Catégorisation des tables** : chaque table doit être taggée via `COMMENT ON TABLE xxx IS 'reference'` ou `'user_data'` dans sa migration. `reference` = données seedées par les migrations (templates, config), jamais modifiées au runtime. `user_data` = données créées par l'application au runtime. Cette metadata est utilisée par le reset E2E et les tests d'intégration pour savoir quelles tables truncater.
 
 ---
 

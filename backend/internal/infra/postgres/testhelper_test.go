@@ -63,11 +63,30 @@ func migrationsDir() string {
 
 var runtimeCaller = runtime.Caller
 
-// truncateAll removes all data from all tables using TRUNCATE CASCADE.
-// Only root tables need to be listed — CASCADE handles FK-dependent tables.
+// truncateAll removes all user data while preserving reference tables (templates, etc.).
+// Table categories are defined by COMMENT ON TABLE in migration 006_table_categories.sql.
 func (tdb *testDB) truncateAll() {
 	ctx := context.Background()
-	_, _ = tdb.pool.Exec(ctx, `TRUNCATE users, exams, templates, llm_call_logs CASCADE`)
+	_, err := tdb.pool.Exec(ctx, `
+		DO $$
+		DECLARE t text;
+		BEGIN
+			FOR t IN
+				SELECT c.relname
+				FROM pg_class c
+				JOIN pg_namespace n ON n.oid = c.relnamespace
+				LEFT JOIN pg_description d ON d.objoid = c.oid AND d.objsubid = 0
+				WHERE n.nspname = 'public'
+				  AND c.relkind = 'r'
+				  AND d.description = 'user_data'
+			LOOP
+				EXECUTE 'TRUNCATE TABLE ' || quote_ident(t) || ' CASCADE';
+			END LOOP;
+		END $$
+	`)
+	if err != nil {
+		tdb.t.Fatalf("truncateAll: %v", err)
+	}
 }
 
 // seedUser inserts a test user and returns its ID.

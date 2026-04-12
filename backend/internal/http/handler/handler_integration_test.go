@@ -146,18 +146,27 @@ func migrationsDir() string {
 	return filepath.Join(filepath.Dir(filename), "..", "..", "..", "migrations")
 }
 
+// truncateAll removes all user data while preserving reference tables (templates, etc.).
+// Table categories are defined by COMMENT ON TABLE in migration 006_table_categories.sql.
 func (ta *testApp) truncateAll() {
 	ctx := context.Background()
-	// Truncate all tables explicitly to avoid FK ordering issues.
-	_, err := ta.pool.Exec(ctx, `TRUNCATE
-		attempts, questions, session_chapters, sessions,
-		masteries,
-		validation_tasks,
-		item_keywords, item_steps, item_visual_blocks, items,
-		visual_blocks, blocks, pages, chapter_revisions,
-		notions, chapter_exams,
-		chapters, exams, templates, users
-		CASCADE`)
+	_, err := ta.pool.Exec(ctx, `
+		DO $$
+		DECLARE t text;
+		BEGIN
+			FOR t IN
+				SELECT c.relname
+				FROM pg_class c
+				JOIN pg_namespace n ON n.oid = c.relnamespace
+				LEFT JOIN pg_description d ON d.objoid = c.oid AND d.objsubid = 0
+				WHERE n.nspname = 'public'
+				  AND c.relkind = 'r'
+				  AND d.description = 'user_data'
+			LOOP
+				EXECUTE 'TRUNCATE TABLE ' || quote_ident(t) || ' CASCADE';
+			END LOOP;
+		END $$
+	`)
 	if err != nil {
 		ta.t.Fatalf("truncateAll: %v", err)
 	}
