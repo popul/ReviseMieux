@@ -77,10 +77,6 @@ function RootLayoutNav() {
           options={{ headerShown: false, gestureEnabled: false }}
         />
         <Stack.Screen
-          name="capture"
-          options={{ title: 'Capturer', presentation: 'fullScreenModal' }}
-        />
-        <Stack.Screen
           name="processing"
           options={{ title: '', headerShown: false }}
         />

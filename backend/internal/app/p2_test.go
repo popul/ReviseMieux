@@ -613,6 +613,16 @@ func (m *statefulMasteryRepo) FindByUserAndState(_ context.Context, userID uuid.
 	return result, nil
 }
 
+func (m *statefulMasteryRepo) FindAllByUser(_ context.Context, userID uuid.UUID) ([]*mastery.Mastery, error) {
+	var result []*mastery.Mastery
+	for _, ms := range m.masteries {
+		if ms.UserID == userID {
+			result = append(result, ms)
+		}
+	}
+	return result, nil
+}
+
 func (m *statefulMasteryRepo) Save(_ context.Context, ms *mastery.Mastery) error {
 	m.masteries[ms.ItemID] = ms
 	return nil

@@ -41,13 +41,18 @@ func (h *Mastery) GetByUser(c *gin.Context) {
 	}
 
 	stateStr := c.Query("state")
-	state, err := mastery.ParseState(stateStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: "invalid state", Details: err.Error()})
-		return
+	var masteries []*mastery.Mastery
+	var err error
+	if stateStr != "" {
+		state, parseErr := mastery.ParseState(stateStr)
+		if parseErr != nil {
+			c.JSON(http.StatusBadRequest, dto.ErrorResponse{Error: "invalid state", Details: parseErr.Error()})
+			return
+		}
+		masteries, err = h.svc.GetByUser(c.Request.Context(), userID, state)
+	} else {
+		masteries, err = h.svc.GetAllByUser(c.Request.Context(), userID)
 	}
-
-	masteries, err := h.svc.GetByUser(c.Request.Context(), userID, state)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, dto.ErrorResponse{Error: "failed to fetch masteries"})
 		return

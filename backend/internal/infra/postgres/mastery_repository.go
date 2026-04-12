@@ -88,6 +88,24 @@ func (r *MasteryRepository) FindDueByUser(ctx context.Context, userID uuid.UUID,
 	return scanMasteries(rows)
 }
 
+func (r *MasteryRepository) FindAllByUser(ctx context.Context, userID uuid.UUID) ([]*mastery.Mastery, error) {
+	const q = `
+		SELECT id, user_id, item_id, state, next_due_at, last_review_at,
+		       last_success_at, consecutive_successes, consecutive_failures,
+		       current_difficulty, capped_at_ok, created_at, updated_at
+		FROM masteries
+		WHERE user_id = $1
+		ORDER BY updated_at DESC`
+
+	rows, err := r.pool.Query(ctx, q, userID)
+	if err != nil {
+		return nil, fmt.Errorf("mastery.Repository.FindAllByUser: %w", err)
+	}
+	defer rows.Close()
+
+	return scanMasteries(rows)
+}
+
 func (r *MasteryRepository) FindByUserAndState(ctx context.Context, userID uuid.UUID, state mastery.State) ([]*mastery.Mastery, error) {
 	const q = `
 		SELECT id, user_id, item_id, state, next_due_at, last_review_at,

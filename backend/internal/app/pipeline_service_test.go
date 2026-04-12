@@ -247,6 +247,9 @@ func (m *mockMasteryRepo) FindByItem(_ context.Context, itemID uuid.UUID) ([]*ma
 func (m *mockMasteryRepo) FindByUserAndState(_ context.Context, _ uuid.UUID, _ mastery.State) ([]*mastery.Mastery, error) {
 	return nil, nil
 }
+func (m *mockMasteryRepo) FindAllByUser(_ context.Context, _ uuid.UUID) ([]*mastery.Mastery, error) {
+	return nil, nil
+}
 func (m *mockMasteryRepo) Save(_ context.Context, ms *mastery.Mastery) error {
 	m.saved = append(m.saved, ms)
 	return nil

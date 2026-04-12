@@ -18,6 +18,9 @@ type Repository interface {
 	// FindDueByUser returns all masteries due for review for a user.
 	FindDueByUser(ctx context.Context, userID uuid.UUID, before time.Time) ([]*Mastery, error)
 
+	// FindAllByUser returns all masteries for a user (all states).
+	FindAllByUser(ctx context.Context, userID uuid.UUID) ([]*Mastery, error)
+
 	// FindByUserAndState returns all masteries in a given state for a user.
 	FindByUserAndState(ctx context.Context, userID uuid.UUID, state State) ([]*Mastery, error)
 

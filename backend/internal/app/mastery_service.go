@@ -29,6 +29,11 @@ func NewMasteryService(
 	}
 }
 
+// GetAllByUser returns all masteries for a user (all states).
+func (s *MasteryService) GetAllByUser(ctx context.Context, userID uuid.UUID) ([]*mastery.Mastery, error) {
+	return s.masteryRepo.FindAllByUser(ctx, userID)
+}
+
 // GetByUser returns all masteries for a user in a given state.
 func (s *MasteryService) GetByUser(ctx context.Context, userID uuid.UUID, state mastery.State) ([]*mastery.Mastery, error) {
 	return s.masteryRepo.FindByUserAndState(ctx, userID, state)

@@ -146,6 +146,10 @@ func (m *mockMasteryRepoOnboarding) FindByUserAndState(_ context.Context, _ uuid
 	return nil, nil
 }
 
+func (m *mockMasteryRepoOnboarding) FindAllByUser(_ context.Context, _ uuid.UUID) ([]*mastery.Mastery, error) {
+	return nil, nil
+}
+
 func (m *mockMasteryRepoOnboarding) Save(_ context.Context, ms *mastery.Mastery) error {
 	m.masteries = append(m.masteries, ms)
 	return nil
