@@ -281,9 +281,12 @@ func main() {
 
 	// --- Dev Handler (debug mode only) ---
 	var devHandler *handler.Dev
+	var logWriter *handler.SwitchableWriter
 	if cfg.GinMode == "debug" {
-		devHandler = handler.NewDev(cfg.JWTSecret, pool)
+		logWriter = handler.NewSwitchableWriter(os.Stdout)
+		devHandler = handler.NewDev(cfg.JWTSecret, pool, onboardingSvc, cfg.MigrationsDir, logWriter)
 		log.Println("Dev token endpoint enabled: GET /dev/token")
+		log.Println("E2E seed endpoint enabled: POST /e2e/seed/:scenario")
 	}
 
 	// --- HTTP Handlers ---
@@ -303,6 +306,7 @@ func main() {
 	r := apphttp.NewRouter(apphttp.RouterConfig{
 		JWTSecret:         cfg.JWTSecret,
 		Version:           Version,
+		LogWriter:         logWriter,
 		PipelineHandler:   pipelineHandler,
 		ChapterHandler:    chapterHandler,
 		MasteryHandler:    masteryHandler,

@@ -14,7 +14,7 @@ import (
 
 func TestDevToken_Returns200WithValidJWT(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	h := handler.NewDev("test-secret", nil)
+	h := handler.NewDev("test-secret", nil, nil, "", nil)
 
 	r := gin.New()
 	r.GET("/dev/token", h.Token)
@@ -60,7 +60,7 @@ func TestDevToken_Returns200WithValidJWT(t *testing.T) {
 
 func TestDevToken_ReturnsDeterministicUserID(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	h := handler.NewDev("test-secret", nil)
+	h := handler.NewDev("test-secret", nil, nil, "", nil)
 
 	r := gin.New()
 	r.GET("/dev/token", h.Token)

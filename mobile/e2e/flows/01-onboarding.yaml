@@ -3,81 +3,110 @@
 #
 # Cours demo : "Densite et masse volumique" (8 items, 3 notions)
 # Reponses definies dans courses/demo-densite/
-# Video : make mobile-e2e-flow FLOW=01-onboarding MODE=maestro
+# Video : make mobile-e2e-record-flow FLOW=01-onboarding
 #
 # Note : maestro record --local limite a 2 min
 # Les timeouts sont reduits pour rester sous cette limite
 appId: com.revisemieux.app
 ---
 
-- launchApp
+# === RESET E2E — remet la DB a l'etat initial (user seul, pas de chapitre) ===
+# LOG_PATH est injecte par le Makefile pour capturer les logs backend dans e2e/reports/
+- runScript:
+    file: lib/seed-scenario.js
+    env:
+      SCENARIO: "onboarding"
+      LOG_PATH: "${LOG_PATH}"
 
-# === DASHBOARD ===
+- launchApp:
+    label: "Lancement de l'app"
+
+# === DASHBOARD (etat vide) — charger le chapitre demo ===
 - extendedWaitUntil:
     timeout: 10000
     visible:
-      id: "dashboard-capture-btn"
+      id: "dashboard-seed-demo-btn"
+    label: "Dashboard — etat vide"
 - tapOn:
     id: "dashboard-seed-demo-btn"
-    optional: true
+    label: "Dashboard — Charger le chapitre demo"
 - extendedWaitUntil:
     timeout: 10000
     visible:
       id: "dashboard-chapter-card"
+    label: "Dashboard — Chapitre demo charge"
 - assertVisible:
     id: "mastery-bar"
+    label: "Dashboard — Barre mastery visible"
 
 # === CARTE LECON ===
 - tapOn:
     id: "dashboard-chapter-card"
+    label: "Carte lecon — Ouvrir le chapitre"
 - extendedWaitUntil:
     timeout: 5000
     visible:
       id: "chapter-revise-btn"
+    label: "Carte lecon — Detail du chapitre"
 - assertVisible:
     id: "chapter-item-list"
+    label: "Carte lecon — Liste des items"
 
 # === SESSION — 8 questions ===
 - tapOn:
     id: "chapter-revise-btn"
+    label: "Session — Lancer la revision"
 - extendedWaitUntil:
     timeout: 10000
     visible:
       id: "session-question-text"
+    label: "Session — Premiere question"
 - assertVisible:
     id: "session-progress-bar"
+    label: "Session — Barre de progression"
 
-- runFlow: courses/demo-densite/session-8-all-correct.yaml
+- runFlow:
+    file: courses/demo-densite/session-8-all-correct.yaml
+    label: "Session — 8 questions (toutes correctes)"
 
 # === DEBRIEF — verifier le score 8/8 ===
 - extendedWaitUntil:
     timeout: 5000
     visible:
       id: "debrief-score-card"
+    label: "Debrief — Score affiche"
 - copyTextFrom:
     id: "debrief-percentage"
+    label: "Debrief — Lire le pourcentage"
 - assertTrue:
     condition: "${maestro.copiedText.includes('87') || maestro.copiedText.includes('100')}"
-    label: "Score >= 87%"
+    label: "Debrief — Score >= 87%"
 - assertVisible:
     id: "debrief-back-btn"
+    label: "Debrief — Bouton retour"
 - assertVisible:
     id: "debrief-again-btn"
+    label: "Debrief — Bouton rejouer"
 
 # === RETOUR AU CHAPITRE ===
 - tapOn:
     id: "debrief-back-btn"
+    label: "Retour — Vers la carte lecon"
 - extendedWaitUntil:
     timeout: 5000
     visible:
       id: "chapter-revise-btn"
+    label: "Carte lecon — Retour OK"
 
 # === RETOUR AU DASHBOARD ===
 - tapOn:
     id: "header-back-btn"
+    label: "Retour — Vers le dashboard"
 - extendedWaitUntil:
     timeout: 5000
     visible:
       id: "dashboard-chapter-card"
+    label: "Dashboard — Chapitre visible"
 - assertVisible:
     id: "mastery-bar"
+    label: "Dashboard — Mastery mise a jour"

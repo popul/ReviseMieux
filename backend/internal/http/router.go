@@ -13,6 +13,7 @@ import (
 type RouterConfig struct {
 	JWTSecret         string
 	Version           string
+	LogWriter         *handler.SwitchableWriter
 	PipelineHandler   *handler.Pipeline
 	MasteryHandler    *handler.Mastery
 	ChapterHandler    *handler.Chapter
@@ -25,7 +26,11 @@ type RouterConfig struct {
 // NewRouter creates and configures the Gin router with all routes.
 func NewRouter(cfg RouterConfig) *gin.Engine {
 	r := gin.New()
-	r.Use(gin.Logger(), gin.Recovery())
+	if cfg.LogWriter != nil {
+		r.Use(gin.LoggerWithWriter(cfg.LogWriter), gin.Recovery())
+	} else {
+		r.Use(gin.Logger(), gin.Recovery())
+	}
 
 	// --- Swagger ---
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
@@ -34,9 +39,10 @@ func NewRouter(cfg RouterConfig) *gin.Engine {
 	health := handler.NewHealth(cfg.Version)
 	r.GET("/health", health.Check)
 
-	// Dev token (only registered when DevHandler is provided, i.e. debug mode)
+	// Dev / E2E (only registered when DevHandler is provided, i.e. debug mode)
 	if cfg.DevHandler != nil {
 		r.GET("/dev/token", cfg.DevHandler.Token)
+		r.POST("/e2e/seed/:scenario", cfg.DevHandler.SeedScenario)
 	}
 
 	// --- Authenticated routes ---
