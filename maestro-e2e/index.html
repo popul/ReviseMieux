@@ -1,0 +1,2648 @@
+
+<!doctype html>
+<html lang="fr" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://popul.github.io/ReviseMieux/maestro-e2e/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Tests E2E Maestro — Guide pratique - Revise Mieux — Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tests-e2e-maestro-guide-pratique" class="md-skip">
+          Aller au contenu
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="En-tête">
+    <a href=".." title="Revise Mieux — Documentation" class="md-header__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Revise Mieux — Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tests E2E Maestro — Guide pratique
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode sombre"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mode sombre" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue" data-md-color-accent="amber"  aria-label="Mode clair"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mode clair" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Rechercher" placeholder="Rechercher" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Recherche">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Effacer" aria-label="Effacer" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initialisation de la recherche
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Onglets" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href=".." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Accueil
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../getting-started/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Demarrage
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../PRD/" class="md-tabs__link">
+          
+  
+  
+  Produit
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../ac/Z1/" class="md-tabs__link">
+          
+  
+  
+  Criteres d'acceptation
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../architecture/" class="md-tabs__link">
+          
+  
+  
+  Architecture
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../ux/user-flow-complete/" class="md-tabs__link">
+          
+  
+  
+  UX
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../design/" class="md-tabs__link">
+          
+  
+  
+  Design System
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../llm-strategy/" class="md-tabs__link">
+          
+  
+  
+  Technique
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../user-journeys/first-connection/" class="md-tabs__link">
+          
+  
+  
+  Parcours
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../contributing/" class="md-tabs__link">
+          
+  
+  
+  Contribuer
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Revise Mieux — Documentation" class="md-nav__button md-logo" aria-label="Revise Mieux — Documentation" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Revise Mieux — Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/popul/ReviseMieux" title="Aller au dépôt" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    popul/ReviseMieux
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Accueil
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Demarrage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Produit
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Produit
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../PRD/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    PRD
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../MVP-scope/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scope MVP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../lot0-tracker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tracker Lot 0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Criteres d'acceptation
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Criteres d'acceptation
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z1/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z1 — Mastery
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z2/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z2 — Pipeline J0
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z3 — Validation HITL
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z4/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z4 — Sessions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z5/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z5 — Identity
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z6/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z6 — Schedule
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z7/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z7 — Orchestration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ac/Z8/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Z8 — Onboarding
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/ocr-idp-incremental/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OCR/IDP incremental
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture/merge-decision-table/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Regles de merge
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    UX
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    UX
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/user-flow-complete/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    User Flow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/personas/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Personas
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/screen-inventory/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Ecrans
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/state-model/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Modele d'etats
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/edge-cases/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Edge cases
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ux/open-decisions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisions ouvertes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Design System
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Design System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Vue d'ensemble
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/design-principles/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Principes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/color-system/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Couleurs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/typography/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Typographie
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/component-philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Composants
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/do-dont/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Do / Don't
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/moodboard/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Moodboard
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../design/scalability/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scalabilite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+        
+          
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Technique
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Technique
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm-strategy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Strategie LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm-benchmark/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Benchmark LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../process/feedback-loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Feedback Loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+        
+          
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parcours
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Parcours
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../user-journeys/first-connection/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Premiere connexion
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contribuer
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Contribuer
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contributing/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guide contribution
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../deployment/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deploiement
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table des matières">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table des matières
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup-complet-de-zero-a-un-test-qui-tourne" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup complet (de zéro à un test qui tourne)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup complet (de zéro à un test qui tourne)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-installer-maestro-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Installer Maestro CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-demarrer-linfra-postgresql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Démarrer l'infra (PostgreSQL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-lancer-le-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Lancer le backend
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-builder-et-lancer-lapp-sur-le-simulateur" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Builder et lancer l'app sur le simulateur
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-lancer-les-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Lancer les tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resume-express-copier-coller" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Résumé express (copier-coller)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ce-qui-se-passe-automatiquement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ce qui se passe automatiquement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#categorisation-des-tables-reference-vs-user_data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Catégorisation des tables (reference vs user_data)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variables-denvironnement-du-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variables d'environnement du backend
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commandes-rapides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commandes rapides
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#enregistrement-video" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enregistrement vidéo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Enregistrement vidéo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#maestro-record-video-avec-panneau-scenario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        maestro record — vidéo avec panneau scénario
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#structure-des-fichiers-e2e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structure des fichiers E2E
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anatomie-dun-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anatomie d'un flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Anatomie d&#39;un flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#conventions-de-nommage-des-testid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conventions de nommage des testID
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sous-flows-reutilisables-lib" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sous-flows réutilisables (lib/)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Sous-flows réutilisables (lib/)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#answer-choiceyaml-repondre-a-un-qcm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        answer-choice.yaml — Répondre à un QCM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#answer-textyaml-repondre-en-texte-libre" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        answer-text.yaml — Répondre en texte libre
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#answer-skipyaml-passer-une-question" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        answer-skip.yaml — Passer une question
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#flow-onboarding-en-detail" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Flow onboarding en détail
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creer-un-nouveau-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Créer un nouveau flow
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="tests-e2e-maestro-guide-pratique">Tests E2E Maestro — Guide pratique<a class="headerlink" href="#tests-e2e-maestro-guide-pratique" title="Permanent link">&para;</a></h1>
+<h2 id="setup-complet-de-zero-a-un-test-qui-tourne">Setup complet (de zéro à un test qui tourne)<a class="headerlink" href="#setup-complet-de-zero-a-un-test-qui-tourne" title="Permanent link">&para;</a></h2>
+<h3 id="1-installer-maestro-cli">1. Installer Maestro CLI<a class="headerlink" href="#1-installer-maestro-cli" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>-Ls<span class="w"> </span><span class="s2">&quot;https://get.maestro.mobile.dev&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>bash
+</code></pre></div>
+<p>Vérifier :</p>
+<div class="highlight"><pre><span></span><code>maestro<span class="w"> </span>--version
+</code></pre></div>
+<h3 id="2-demarrer-linfra-postgresql">2. Démarrer l'infra (PostgreSQL)<a class="headerlink" href="#2-demarrer-linfra-postgresql" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Depuis la racine du monorepo</span>
+make<span class="w"> </span>infra-up
+
+<span class="c1"># Si doute sur l&#39;état de la DB → repart de zéro (destroy volumes + recrée)</span>
+make<span class="w"> </span>infra-reset
+</code></pre></div>
+<h3 id="3-lancer-le-backend">3. Lancer le backend<a class="headerlink" href="#3-lancer-le-backend" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Terminal 1 (depuis la racine)</span>
+make<span class="w"> </span>backend-dev
+</code></pre></div>
+<p>Le backend applique automatiquement les migrations au démarrage (avec tracking <code>schema_migrations</code> — les migrations déjà appliquées sont skippées). Il expose <code>GET /dev/token</code> en mode dev pour l'auto-login.</p>
+<h3 id="4-builder-et-lancer-lapp-sur-le-simulateur">4. Builder et lancer l'app sur le simulateur<a class="headerlink" href="#4-builder-et-lancer-lapp-sur-le-simulateur" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Terminal 2 (depuis la racine)</span>
+make<span class="w"> </span>mobile-sim-start
+</code></pre></div>
+<p>L'app se build, s'installe sur le simulateur iOS et se lance. Au premier démarrage, elle récupère automatiquement un dev token (<code>GET /dev/token</code>) — aucune action manuelle.</p>
+<h3 id="5-lancer-les-tests">5. Lancer les tests<a class="headerlink" href="#5-lancer-les-tests" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Terminal 3 (depuis la racine, attendre que l&#39;app soit visible sur le simulateur)</span>
+make<span class="w"> </span>mobile-e2e-flow<span class="w"> </span><span class="nv">FLOW</span><span class="o">=</span><span class="m">01</span>-onboarding<span class="w">   </span><span class="c1"># un flow avec vidéo + panneau scénario</span>
+<span class="c1"># ou</span>
+make<span class="w"> </span>mobile-e2e<span class="w">                                   </span><span class="c1"># tous les flows sans vidéo</span>
+</code></pre></div>
+<h3 id="resume-express-copier-coller">Résumé express (copier-coller)<a class="headerlink" href="#resume-express-copier-coller" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># Terminal 1 — infra + backend</span>
+make<span class="w"> </span>infra-reset
+make<span class="w"> </span>backend-dev
+
+<span class="c1"># Terminal 2 — mobile</span>
+make<span class="w"> </span>mobile-sim-start
+
+<span class="c1"># Terminal 3 — tests (attendre que l&#39;app soit visible sur le simulateur)</span>
+make<span class="w"> </span>mobile-e2e-flow<span class="w"> </span><span class="nv">FLOW</span><span class="o">=</span><span class="m">01</span>-onboarding
+</code></pre></div>
+<h3 id="ce-qui-se-passe-automatiquement">Ce qui se passe automatiquement<a class="headerlink" href="#ce-qui-se-passe-automatiquement" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Étape</th>
+<th>Mécanisme</th>
+<th>Détail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reset DB</td>
+<td><code>POST /e2e/seed/onboarding</code></td>
+<td>Appelé par <code>runScript</code> en début de flow. Truncate les tables <code>user_data</code>, préserve les tables <code>reference</code> (templates). Recrée le user dev + chapitre démo (8 items UNKNOWN).</td>
+</tr>
+<tr>
+<td>Auth</td>
+<td><code>GET /dev/token</code></td>
+<td>L'app appelle ce endpoint au lancement en mode <code>__DEV__</code>. Crée un user <code>Hugo (dev)</code> avec un JWT 24h.</td>
+</tr>
+<tr>
+<td>Données démo</td>
+<td><code>POST /onboarding/seed-demo</code></td>
+<td>Le flow Maestro tape sur le bouton "Charger le chapitre démo" (<code>dashboard-seed-demo-btn</code>). Crée 8 items, 3 notions, 1 chapitre "Densité et masse volumique". Idempotent.</td>
+</tr>
+<tr>
+<td>Scoring texte</td>
+<td>LLM (Gemini)</td>
+<td>Les réponses texte libre sont scorées par le LLM. Nécessite une clé API configurée (<code>GEMINI_API_KEY</code> ou <code>ANTHROPIC_API_KEY</code>).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="categorisation-des-tables-reference-vs-user_data">Catégorisation des tables (reference vs user_data)<a class="headerlink" href="#categorisation-des-tables-reference-vs-user_data" title="Permanent link">&para;</a></h3>
+<p>Chaque table PostgreSQL est taggée via <code>COMMENT ON TABLE</code> (migration <code>006_table_categories.sql</code>) :</p>
+<table>
+<thead>
+<tr>
+<th>Catégorie</th>
+<th>Description</th>
+<th>Exemples</th>
+<th>Truncatée au reset E2E ?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reference</code></td>
+<td>Données seedées par les migrations, jamais modifiées au runtime</td>
+<td><code>templates</code>, <code>template_variables</code></td>
+<td>Non</td>
+</tr>
+<tr>
+<td><code>user_data</code></td>
+<td>Données créées par l'application au runtime (utilisateurs, sessions, etc.)</td>
+<td><code>users</code>, <code>chapters</code>, <code>items</code>, <code>masteries</code>, <code>sessions</code></td>
+<td>Oui</td>
+</tr>
+</tbody>
+</table>
+<p>Cette metadata est la source de vérité unique — le code Go (endpoint E2E et tests d'intégration) la lit dynamiquement, sans liste hardcodée. Pour ajouter une nouvelle table, il suffit d'ajouter un <code>COMMENT ON TABLE xxx IS 'user_data'</code> (ou <code>'reference'</code>) dans la migration qui la crée.</p>
+<h3 id="variables-denvironnement-du-backend">Variables d'environnement du backend<a class="headerlink" href="#variables-denvironnement-du-backend" title="Permanent link">&para;</a></h3>
+<p>Le backend a besoin au minimum de :</p>
+<div class="highlight"><pre><span></span><code><span class="nv">DATABASE_URL</span><span class="o">=</span>postgres://revisemieux:revisemieux@localhost:5432/revisemieux?sslmode<span class="o">=</span>disable
+<span class="nv">JWT_SECRET</span><span class="o">=</span>dev-secret<span class="w">           </span><span class="c1"># n&#39;importe quelle valeur en dev</span>
+<span class="nv">GIN_MODE</span><span class="o">=</span>debug<span class="w">                  </span><span class="c1"># active /dev/token</span>
+</code></pre></div>
+<p>Ces valeurs sont les défauts de <code>docker-compose.yml</code> — rien à configurer si on utilise <code>make setup</code>.</p>
+<hr />
+<h2 id="commandes-rapides">Commandes rapides<a class="headerlink" href="#commandes-rapides" title="Permanent link">&para;</a></h2>
+<p>Depuis la racine du monorepo :</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Lancer UN flow (sans vidéo)</span>
+make<span class="w"> </span>mobile-e2e-flow<span class="w"> </span><span class="nv">FLOW</span><span class="o">=</span><span class="m">01</span>-onboarding
+
+<span class="c1"># Lancer tous les flows</span>
+make<span class="w"> </span>mobile-e2e
+
+<span class="c1"># Lancer UN flow avec vidéo + panneau scénario</span>
+make<span class="w"> </span>mobile-e2e-record-flow<span class="w"> </span><span class="nv">FLOW</span><span class="o">=</span><span class="m">01</span>-onboarding
+
+<span class="c1"># Enregistrer tous les flows avec vidéo</span>
+make<span class="w"> </span>mobile-e2e-record
+</code></pre></div>
+<p>Les rapports (screenshots, logs) sont dans <code>mobile/e2e/reports/</code>. Les vidéos dans <code>mobile/e2e/videos/</code>.</p>
+<hr />
+<h2 id="enregistrement-video">Enregistrement vidéo<a class="headerlink" href="#enregistrement-video" title="Permanent link">&para;</a></h2>
+<p>La vidéo n'est générée que sur demande explicite via les commandes <code>record</code>.</p>
+<h3 id="maestro-record-video-avec-panneau-scenario"><code>maestro record</code> — vidéo avec panneau scénario<a class="headerlink" href="#maestro-record-video-avec-panneau-scenario" title="Permanent link">&para;</a></h3>
+<p>Génère une vidéo avec le <strong>panneau scénario à gauche</strong> (étapes Maestro) et l'écran du simulateur à droite. <strong>Limitée à 2 minutes</strong> — les timeouts des flows sont calibrés pour rester sous cette limite.</p>
+<div class="highlight"><pre><span></span><code>make<span class="w"> </span>mobile-e2e-record-flow<span class="w"> </span><span class="nv">FLOW</span><span class="o">=</span><span class="m">01</span>-onboarding
+<span class="c1"># -&gt; e2e/videos/01-onboarding.mp4</span>
+</code></pre></div>
+<hr />
+<h2 id="structure-des-fichiers-e2e">Structure des fichiers E2E<a class="headerlink" href="#structure-des-fichiers-e2e" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code>mobile/e2e/
+├── config/
+│   └── maestro-config.yaml     # Config globale (appId, délais)
+├── flows/
+│   ├── 01-onboarding.yaml      # Parcours complet premier lancement
+│   ├── 02-capture.yaml         # Upload photo + pipeline
+│   ├── 03-dashboard.yaml       # Navigation dashboard
+│   ├── 04-session-complete.yaml # Session de révision
+│   ├── 05-validation-hitl.yaml # Validation humaine
+│   ├── lib/                    # Sous-flows réutilisables
+│   │   ├── answer-choice.yaml  # Répondre à un QCM
+│   │   ├── answer-text.yaml    # Répondre en texte libre
+│   │   └── answer-skip.yaml    # &quot;Je ne sais pas&quot;
+│   └── courses/
+│       └── demo-densite/
+│           └── session-8-all-correct.yaml  # Réponses du cours démo
+├── edge-cases/
+│   └── EC-09-tous-solid.yaml   # Tous items SOLID
+├── record-flow.sh              # Script d&#39;enregistrement standalone
+└── videos/                     # Vidéos générées (gitignored)
+</code></pre></div>
+<hr />
+<h2 id="anatomie-dun-flow">Anatomie d'un flow<a class="headerlink" href="#anatomie-dun-flow" title="Permanent link">&para;</a></h2>
+<p>Chaque flow est un fichier YAML. Exemple simplifié :</p>
+<div class="highlight"><pre><span></span><code><span class="nt">appId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">com.revisemieux.app</span>
+<span class="nn">---</span>
+
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">launchApp</span>
+
+<span class="c1"># Attendre qu&#39;un élément soit visible</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">extendedWaitUntil</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">timeout</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10000</span>
+<span class="w">    </span><span class="nt">visible</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;dashboard-capture-btn&quot;</span>
+
+<span class="c1"># Tapper sur un élément</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">tapOn</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;dashboard-chapter-card&quot;</span>
+
+<span class="c1"># Vérifier la présence d&#39;un élément</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">assertVisible</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;mastery-bar&quot;</span>
+
+<span class="c1"># Exécuter un sous-flow avec paramètres</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">runFlow</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib/answer-choice.yaml</span>
+<span class="w">    </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">CHOICE_INDEX</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0&quot;</span>
+</code></pre></div>
+<h3 id="conventions-de-nommage-des-testid">Conventions de nommage des testID<a class="headerlink" href="#conventions-de-nommage-des-testid" title="Permanent link">&para;</a></h3>
+<p>Les flows utilisent la prop <code>testID</code> des composants React Native. Convention : <code>{écran}-{élément}[-{variante}]</code>.</p>
+<p>Exemples : <code>dashboard-chapter-card</code>, <code>session-question-text</code>, <code>session-choice-0</code>, <code>debrief-score-card</code>.</p>
+<hr />
+<h2 id="sous-flows-reutilisables-lib">Sous-flows réutilisables (<code>lib/</code>)<a class="headerlink" href="#sous-flows-reutilisables-lib" title="Permanent link">&para;</a></h2>
+<h3 id="answer-choiceyaml-repondre-a-un-qcm"><code>answer-choice.yaml</code> — Répondre à un QCM<a class="headerlink" href="#answer-choiceyaml-repondre-a-un-qcm" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">runFlow</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib/answer-choice.yaml</span>
+<span class="w">    </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">CHOICE_INDEX</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0&quot;</span><span class="w">    </span><span class="c1"># 0 = premier choix</span>
+</code></pre></div>
+<p>Séquence : attend la question → tape le choix → valide → attend le feedback → tape "suivant".</p>
+<h3 id="answer-textyaml-repondre-en-texte-libre"><code>answer-text.yaml</code> — Répondre en texte libre<a class="headerlink" href="#answer-textyaml-repondre-en-texte-libre" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">runFlow</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib/answer-text.yaml</span>
+<span class="w">    </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">ANSWER_TEXT</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;masse</span><span class="nv"> </span><span class="s">volumique</span><span class="nv"> </span><span class="s">eau</span><span class="nv"> </span><span class="s">1000</span><span class="nv"> </span><span class="s">kg/m3&quot;</span>
+</code></pre></div>
+<p>Séquence : attend la question → tape dans l'input → saisit le texte → valide → attend le feedback → tape "suivant".</p>
+<h3 id="answer-skipyaml-passer-une-question"><code>answer-skip.yaml</code> — Passer une question<a class="headerlink" href="#answer-skipyaml-passer-une-question" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">runFlow</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lib/answer-skip.yaml</span>
+</code></pre></div>
+<p>Séquence : attend la question → tape "je ne sais pas" → attend le feedback → tape "suivant".</p>
+<hr />
+<h2 id="flow-onboarding-en-detail">Flow onboarding en détail<a class="headerlink" href="#flow-onboarding-en-detail" title="Permanent link">&para;</a></h2>
+<p>Le flow <code>01-onboarding.yaml</code> teste le parcours complet d'un premier lancement :</p>
+<table>
+<thead>
+<tr>
+<th>Étape</th>
+<th>Actions</th>
+<th>Vérifications</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dashboard</td>
+<td>Seed cours démo</td>
+<td>Carte chapitre visible, barre mastery</td>
+</tr>
+<tr>
+<td>Carte leçon</td>
+<td>Tap sur la carte</td>
+<td>Liste des items, bouton "Réviser"</td>
+</tr>
+<tr>
+<td>Session</td>
+<td>8 questions (via sous-flow)</td>
+<td>Barre de progression</td>
+</tr>
+<tr>
+<td>Débrief</td>
+<td>Lecture du score</td>
+<td>Score &gt;= 87%, boutons retour/rejouer</td>
+</tr>
+<tr>
+<td>Retour</td>
+<td>Navigation arrière</td>
+<td>Dashboard avec mastery mis à jour</td>
+</tr>
+</tbody>
+</table>
+<p>Le sous-flow <code>courses/demo-densite/session-8-all-correct.yaml</code> enchaîne 8 réponses correctes (3 QCM + 5 texte libre) sur le cours "Densité et masse volumique".</p>
+<hr />
+<h2 id="creer-un-nouveau-flow">Créer un nouveau flow<a class="headerlink" href="#creer-un-nouveau-flow" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Créer <code>mobile/e2e/flows/XX-nom-du-flow.yaml</code></li>
+<li>Commencer par <code>appId: com.revisemieux.app</code> + séparateur <code>---</code></li>
+<li>Utiliser les sous-flows <code>lib/</code> pour les interactions récurrentes</li>
+<li>Documenter les ACs couvertes en commentaire d'en-tête</li>
+<li>Tester : <code>make e2e-flow FLOW=XX-nom-du-flow</code></li>
+</ol>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Problème</th>
+<th>Solution</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>maestro: command not found</code></td>
+<td>Vérifier que <code>~/.maestro/bin</code> est dans le PATH, ou utiliser le chemin complet</td>
+</tr>
+<tr>
+<td><code>No booted device</code></td>
+<td>Lancer le simulateur : <code>open -a Simulator</code> puis <code>make sim-start</code></td>
+</tr>
+<tr>
+<td>Vidéo vide ou non créée</td>
+<td>Vérifier qu'un seul simulateur est "booted" : <code>xcrun simctl list devices booted</code></td>
+</tr>
+<tr>
+<td>Timeout sur <code>extendedWaitUntil</code></td>
+<td>L'app est peut-être lente au démarrage — augmenter le timeout ou vérifier que l'app tourne</td>
+</tr>
+<tr>
+<td><code>maestro record</code> coupe à 2 min</td>
+<td>Utiliser <code>make e2e-flow</code> (simctl) à la place, pas de limite de durée</td>
+</tr>
+<tr>
+<td>Flow échoue sur <code>tapOn</code></td>
+<td>Vérifier que le <code>testID</code> existe dans le composant React Native</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Retour en haut de la page
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+        
+<div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/popul/ReviseMieux" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copi\u00e9 dans le presse-papier", "clipboard.copy": "Copier dans le presse-papier", "search.result.more.one": "1 de plus sur cette page", "search.result.more.other": "# de plus sur cette page", "search.result.none": "Aucun document trouv\u00e9", "search.result.one": "1 document trouv\u00e9", "search.result.other": "# documents trouv\u00e9s", "search.result.placeholder": "Taper pour d\u00e9marrer la recherche", "search.result.term.missing": "Non trouv\u00e9", "select.version": "S\u00e9lectionner la version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
