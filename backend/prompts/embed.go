@@ -26,3 +26,9 @@ var StructurationSystem string
 //
 //go:embed scoring/system.md
 var ScoringSystem string
+
+// E2ESystem is the system prompt for end-to-end vision → structured items extraction.
+//
+//go:embed e2e/system.md
+var E2ESystem string
+

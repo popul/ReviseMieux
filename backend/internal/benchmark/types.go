@@ -5,16 +5,17 @@ import (
 	"time"
 )
 
-// Provider abstracts an LLM API for benchmarking.
-type Provider interface {
-	// Name returns the provider display name (e.g., "Anthropic").
+// ProviderInfo holds metadata for any benchmark provider (used by Evaluate for cost computation).
+type ProviderInfo interface {
 	Name() string
-	// ModelID returns the model identifier (e.g., "claude-sonnet-4-6-20250217").
 	ModelID() string
-	// PricePerMInput returns the cost in USD per 1M input tokens.
 	PricePerMInput() float64
-	// PricePerMOutput returns the cost in USD per 1M output tokens.
 	PricePerMOutput() float64
+}
+
+// Provider abstracts an LLM API for IDP benchmarking (text → structured items).
+type Provider interface {
+	ProviderInfo
 	// StructureBlocks sends the structuration prompt and returns the raw response.
 	StructureBlocks(ctx context.Context, systemPrompt, userPrompt string) (*Response, error)
 }
@@ -123,6 +124,24 @@ type OCRProvider interface {
 	PricePerMOutput() float64
 	// ExtractBlocks sends images to the vision API and returns OCR blocks.
 	ExtractBlocks(ctx context.Context, imagePaths []string, subject string) (*Response, error)
+}
+
+// E2EProvider abstracts a vision LLM API for end-to-end benchmarking (images → structured items).
+type E2EProvider interface {
+	Name() string
+	ModelID() string
+	PricePerMInput() float64
+	PricePerMOutput() float64
+	// StructureImages sends images directly to the VLM with the structuration prompt
+	// and returns the structured items JSON.
+	StructureImages(ctx context.Context, imagePaths []string, subject string) (*Response, error)
+}
+
+// HybridProvider abstracts a vision LLM API for hybrid benchmarking (images + OCR blocks → structured items).
+type HybridProvider interface {
+	ProviderInfo
+	// StructureHybrid sends images + OCR text blocks to the VLM and returns structured items JSON.
+	StructureHybrid(ctx context.Context, imagePaths []string, blocksJSON string, subject string) (*Response, error)
 }
 
 // OCREvalResult holds all evaluation metrics for one (provider, test case) OCR benchmark pair.

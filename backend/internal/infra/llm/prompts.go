@@ -30,6 +30,9 @@ var OCRSystemPrompt = prompts.OCRSystem
 // ScoringSystemPrompt is the system prompt for student answer scoring.
 var ScoringSystemPrompt = prompts.ScoringSystem
 
+// E2ESystemPrompt is the system prompt for end-to-end vision → structured items.
+var E2ESystemPrompt = prompts.E2ESystem
+
 // StructurationPromptHash returns the SHA-256 hash of the structuration prompt.
 func StructurationPromptHash() string {
 	return shortHash(StructurationSystemPrompt)
@@ -58,4 +61,18 @@ func BuildUserPrompt(subject string, blocksJSON string) string {
 // BuildOCRUserPrompt builds the user message for OCR extraction.
 func BuildOCRUserPrompt(subject string) string {
 	return fmt.Sprintf("Matière : %s\n\nExtrait tous les blocs de texte visibles sur ces photos de cahier.", subject)
+}
+
+// BuildE2EUserPrompt builds the user message for E2E (images → items) extraction.
+func BuildE2EUserPrompt(subject string) string {
+	return fmt.Sprintf("Matière : %s\n\nAnalyse les photos de cahier ci-dessus et extrais les items de révision.", subject)
+}
+
+// HybridSystemPrompt is the system prompt for hybrid pipeline (OCR → images+blocks → items).
+// Reuses the E2E prompt since the model receives both images and OCR text.
+var HybridSystemPrompt = prompts.E2ESystem
+
+// BuildHybridUserPrompt builds the user message for hybrid extraction (images + real OCR blocks).
+func BuildHybridUserPrompt(subject string, blocksJSON string) string {
+	return fmt.Sprintf("Matière : %s\n\nBlocs OCR pré-extraits :\n%s\n\nUtilise ces blocs ET les photos ci-dessus pour extraire les items de révision.", subject, blocksJSON)
 }

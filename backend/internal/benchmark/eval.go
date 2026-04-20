@@ -24,7 +24,7 @@ const (
 )
 
 // Evaluate computes all quality and performance metrics for a single run.
-func Evaluate(tc TestCase, parsed *ParsedOutput, resp *Response, provider Provider) EvalResult {
+func Evaluate(tc TestCase, parsed *ParsedOutput, resp *Response, provider ProviderInfo) EvalResult {
 	result := EvalResult{
 		CaseID:   tc.ID,
 		Provider: provider.Name(),

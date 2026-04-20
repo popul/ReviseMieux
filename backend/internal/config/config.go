@@ -21,7 +21,7 @@ type Config struct {
 	S3SecretKey   string
 	S3Region      string
 
-	// LLM provider selection: "gemini" (default), "anthropic", "mistral"
+	// LLM provider selection: "gemini" (default), "anthropic", "mistral", "lmstudio"
 	LLMProvider string
 
 	// Anthropic LLM
@@ -36,6 +36,12 @@ type Config struct {
 	// Mistral LLM
 	MistralAPIKey      string
 	MistralStructModel string // Model for structuration (default: mistral-small-latest)
+
+	// LM Studio (local)
+	// NOTE: le modèle local Mistral Small 3.1 (24B) ≠ cloud "mistral-small-latest" (Small 4, 119B MoE)
+	LMStudioBaseURL    string // Base URL (default: http://localhost:1234/v1)
+	LMStudioStructModel string // Model for IDP structuration (default: mistral-small-3.1-24b-instruct-2503)
+	LMStudioOCRModel    string // Model for OCR vision (default: qwen3-vl-32b-instruct)
 }
 
 // Load reads configuration from environment variables with sensible defaults.
@@ -64,6 +70,10 @@ func Load() (*Config, error) {
 
 		MistralAPIKey:      envOrDefault("MISTRAL_API_KEY", ""),
 		MistralStructModel: envOrDefault("MISTRAL_STRUCT_MODEL", "mistral-small-latest"),
+
+		LMStudioBaseURL:     envOrDefault("LMSTUDIO_BASE_URL", "http://localhost:1234/v1"),
+		LMStudioStructModel: envOrDefault("LMSTUDIO_STRUCT_MODEL", "mistral-small-3.1-24b-instruct-2503"),
+		LMStudioOCRModel:    envOrDefault("LMSTUDIO_OCR_MODEL", "qwen3-vl-32b-instruct"),
 	}
 
 	if cfg.JWTSecret == "" {

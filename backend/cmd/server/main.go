@@ -113,6 +113,13 @@ func main() {
 		} else {
 			log.Println("WARNING: MISTRAL_API_KEY not set — LLM structuration disabled")
 		}
+	case "lmstudio":
+		llmStructurer = openaicompat.NewStructurer(
+			cfg.LMStudioBaseURL,
+			"lm-studio",
+			cfg.LMStudioStructModel,
+		)
+		log.Printf("LLM structurer initialized: provider=lmstudio model=%s", cfg.LMStudioStructModel)
 	default:
 		log.Printf("WARNING: unknown LLM_PROVIDER %q — LLM structuration disabled", cfg.LLMProvider)
 	}
@@ -136,15 +143,25 @@ func main() {
 		log.Println("WARNING: S3_ACCESS_KEY/S3_SECRET_KEY not set — pipeline disabled")
 	}
 
-	// --- OCR Service (Gemini Flash VLM) ---
+	// --- OCR Service ---
 	var ocrService chapter.OCRService
-	if cfg.GoogleAIAPIKey != "" {
+	switch cfg.LLMProvider {
+	case "lmstudio":
 		ocrService = ocr.NewGeminiOCR(ocr.Config{
-			APIKey: cfg.GoogleAIAPIKey,
+			BaseURL: cfg.LMStudioBaseURL,
+			APIKey:  "lm-studio",
+			Model:   cfg.LMStudioOCRModel,
 		})
-		log.Println("OCR service initialized: provider=gemini-flash-vlm")
-	} else {
-		log.Println("WARNING: GOOGLE_AI_API_KEY not set — OCR disabled")
+		log.Printf("OCR service initialized: provider=lmstudio model=%s", cfg.LMStudioOCRModel)
+	default:
+		if cfg.GoogleAIAPIKey != "" {
+			ocrService = ocr.NewGeminiOCR(ocr.Config{
+				APIKey: cfg.GoogleAIAPIKey,
+			})
+			log.Println("OCR service initialized: provider=gemini-flash-vlm")
+		} else {
+			log.Println("WARNING: GOOGLE_AI_API_KEY not set — OCR disabled")
+		}
 	}
 
 	// --- PipelineService (wired only if all dependencies available) ---
@@ -179,6 +196,13 @@ func main() {
 			)
 			log.Printf("Answer scorer initialized: provider=mistral model=%s", cfg.MistralStructModel)
 		}
+	case "lmstudio":
+		scorer = openaicompat.NewAnswerScorer(
+			cfg.LMStudioBaseURL,
+			"lm-studio",
+			cfg.LMStudioStructModel,
+		)
+		log.Printf("Answer scorer initialized: provider=lmstudio model=%s", cfg.LMStudioStructModel)
 	}
 
 	// --- Repositories (continued) ---

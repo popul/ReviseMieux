@@ -25,31 +25,35 @@ type BenchmarkProvider struct {
 	model          string
 	priceIn        float64
 	priceOut       float64
-	reasoningModel bool
+	reasoningModel   bool
+	disableThinking  bool
 }
 
 // Config holds the configuration for creating an OpenAI-compatible benchmark provider.
 type Config struct {
-	BaseURL        string
-	APIKey         string
-	Name           string
-	Model          string
-	PriceIn        float64 // USD per 1M input tokens
-	PriceOut       float64 // USD per 1M output tokens
-	ReasoningModel bool    // Use max_completion_tokens instead of max_tokens (o3, deepseek-reasoner)
+	BaseURL         string
+	APIKey          string
+	Name            string
+	Model           string
+	PriceIn         float64 // USD per 1M input tokens
+	PriceOut        float64 // USD per 1M output tokens
+	ReasoningModel  bool    // Use max_completion_tokens instead of max_tokens (o3, deepseek-reasoner)
+	DisableThinking bool    // Send reasoning_effort=none to skip thinking (Qwen3.6 on LM Studio)
+	PerPage         bool    // Process images one at a time and merge results (for small VLMs like RolmOCR)
 }
 
 // NewBenchmarkProvider creates a benchmark provider for an OpenAI-compatible API.
 func NewBenchmarkProvider(cfg Config) *BenchmarkProvider {
 	return &BenchmarkProvider{
-		httpClient:     &http.Client{Timeout: 120 * time.Second},
-		baseURL:        cfg.BaseURL,
-		apiKey:         cfg.APIKey,
-		name:           cfg.Name,
-		model:          cfg.Model,
-		priceIn:        cfg.PriceIn,
-		priceOut:       cfg.PriceOut,
-		reasoningModel: cfg.ReasoningModel,
+		httpClient:      &http.Client{Timeout: 5 * time.Minute},
+		baseURL:         cfg.BaseURL,
+		apiKey:          cfg.APIKey,
+		name:            cfg.Name,
+		model:           cfg.Model,
+		priceIn:         cfg.PriceIn,
+		priceOut:        cfg.PriceOut,
+		reasoningModel:  cfg.ReasoningModel,
+		disableThinking: cfg.DisableThinking,
 	}
 }
 
@@ -65,6 +69,7 @@ type chatRequest struct {
 	MaxTokens           int           `json:"max_tokens,omitempty"`
 	MaxCompletionTokens int           `json:"max_completion_tokens,omitempty"`
 	Temperature         *float64      `json:"temperature,omitempty"`
+	ReasoningEffort     string        `json:"reasoning_effort,omitempty"`
 }
 
 type chatMessage struct {
@@ -97,8 +102,13 @@ func (p *BenchmarkProvider) StructureBlocks(ctx context.Context, systemPrompt, u
 			{Role: "user", Content: userPrompt},
 		},
 	}
-	if p.reasoningModel {
-		reqBody.MaxCompletionTokens = 8192
+	if p.disableThinking {
+		temp := 0.0
+		reqBody.MaxTokens = 8192
+		reqBody.Temperature = &temp
+		reqBody.ReasoningEffort = "none"
+	} else if p.reasoningModel {
+		reqBody.MaxCompletionTokens = 16384
 	} else {
 		temp := 0.0
 		reqBody.MaxTokens = 4096

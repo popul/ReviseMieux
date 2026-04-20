@@ -242,18 +242,18 @@ bench: ## Lance le benchmark IDP (alias, usage: make bench PROVIDER=anthropic)
 bench-idp: ## Benchmark IDP — structuration LLM (OCR blocks → items)
 ifdef ALL
 	@echo "$(CYAN)Benchmark IDP — tous les modèles...$(RESET)"
-	@$(GO) run $(BENCH_CMD) --type=idp --all $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
+	@$(GO) run $(BENCH_CMD) --type=idp --all $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT)) $(if $(APPEND_TO),--append-to=$(APPEND_TO))
 else ifdef MODELS
 	@echo "$(CYAN)Benchmark IDP — $(MODELS)...$(RESET)"
-	@$(GO) run $(BENCH_CMD) --type=idp --models=$(MODELS) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
+	@$(GO) run $(BENCH_CMD) --type=idp --models=$(MODELS) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT)) $(if $(APPEND_TO),--append-to=$(APPEND_TO))
 else ifdef PROVIDER
 	@echo "$(CYAN)Benchmark IDP — $(PROVIDER)...$(RESET)"
-	@$(GO) run $(BENCH_CMD) --type=idp --provider=$(PROVIDER) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
+	@$(GO) run $(BENCH_CMD) --type=idp --provider=$(PROVIDER) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT)) $(if $(APPEND_TO),--append-to=$(APPEND_TO))
 else
 	@echo "$(YELLOW)Usage :$(RESET)"
 	@echo "  make bench-idp ALL=1                                    — tous les modèles"
 	@echo "  make bench-idp PROVIDER=anthropic                       — tous les modèles d'un provider"
-	@echo "  make bench-idp MODELS=gpt-4o,claude-sonnet-4-6          — sélection de modèles"
+	@echo "  make bench-idp MODELS=gpt-4.1-mini,gemini-2.5-flash          — sélection de modèles"
 	@echo ""
 	@echo "$(YELLOW)Modèles disponibles :$(RESET)"
 	@$(GO) run $(BENCH_CMD) --list-models
@@ -262,25 +262,46 @@ endif
 bench-ocr: ## Benchmark OCR — extraction vision (images → OCR blocks)
 ifdef ALL
 	@echo "$(CYAN)Benchmark OCR — tous les modèles vision...$(RESET)"
-	@$(GO) run $(BENCH_CMD) --type=ocr --all $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
+	@$(GO) run $(BENCH_CMD) --type=ocr --all $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT)) $(if $(APPEND_TO),--append-to=$(APPEND_TO))
 else ifdef MODELS
 	@echo "$(CYAN)Benchmark OCR — $(MODELS)...$(RESET)"
-	@$(GO) run $(BENCH_CMD) --type=ocr --models=$(MODELS) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
+	@$(GO) run $(BENCH_CMD) --type=ocr --models=$(MODELS) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT)) $(if $(APPEND_TO),--append-to=$(APPEND_TO))
 else ifdef PROVIDER
 	@echo "$(CYAN)Benchmark OCR — $(PROVIDER)...$(RESET)"
-	@$(GO) run $(BENCH_CMD) --type=ocr --provider=$(PROVIDER) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT))
+	@$(GO) run $(BENCH_CMD) --type=ocr --provider=$(PROVIDER) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT)) $(if $(APPEND_TO),--append-to=$(APPEND_TO))
 else
 	@echo "$(YELLOW)Usage :$(RESET)"
 	@echo "  make bench-ocr ALL=1                                    — tous les modèles vision"
 	@echo "  make bench-ocr PROVIDER=anthropic                       — tous les modèles d'un provider"
-	@echo "  make bench-ocr MODELS=gpt-4o,claude-sonnet-4-6          — sélection de modèles"
+	@echo "  make bench-ocr MODELS=gpt-4.1-mini,gemini-2.5-flash          — sélection de modèles"
 	@echo ""
 	@echo "$(YELLOW)Modèles vision disponibles :$(RESET)"
 	@$(GO) run $(BENCH_CMD) --list-models
 endif
 
-bench-all: ## Benchmark tous les modèles (IDP)
+bench-e2e: ## Benchmark E2E — images → items structurés (single VLM pass)
+ifdef ALL
+	@echo "$(CYAN)Benchmark E2E — tous les modèles vision...$(RESET)"
+	@$(GO) run $(BENCH_CMD) --type=e2e --all $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT)) $(if $(APPEND_TO),--append-to=$(APPEND_TO))
+else ifdef MODELS
+	@echo "$(CYAN)Benchmark E2E — $(MODELS)...$(RESET)"
+	@$(GO) run $(BENCH_CMD) --type=e2e --models=$(MODELS) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT)) $(if $(APPEND_TO),--append-to=$(APPEND_TO))
+else ifdef PROVIDER
+	@echo "$(CYAN)Benchmark E2E — $(PROVIDER)...$(RESET)"
+	@$(GO) run $(BENCH_CMD) --type=e2e --provider=$(PROVIDER) $(if $(CASE),--case=$(CASE)) $(if $(RUNS),--runs=$(RUNS)) $(if $(OUTPUT),--output=$(OUTPUT)) $(if $(APPEND_TO),--append-to=$(APPEND_TO))
+else
+	@echo "$(YELLOW)Usage :$(RESET)"
+	@echo "  make bench-e2e ALL=1                                    — tous les modèles vision"
+	@echo "  make bench-e2e MODELS=gpt-4.1-mini,gemini-2.5-flash    — sélection de modèles"
+	@echo ""
+	@echo "$(YELLOW)Modèles vision disponibles :$(RESET)"
+	@$(GO) run $(BENCH_CMD) --list-models
+endif
+
+bench-all: ## Benchmark tous les modèles (IDP + OCR + E2E)
 	@$(MAKE) bench-idp ALL=1
+	@$(MAKE) bench-ocr ALL=1
+	@$(MAKE) bench-e2e ALL=1
 
 bench-models: ## Liste les modèles disponibles
 	@$(GO) run $(BENCH_CMD) --list-models
