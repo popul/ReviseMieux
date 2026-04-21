@@ -1,5 +1,51 @@
 # Architecture LLM Pipeline — Go vs Agent Python
 
+## Synthèse — Plus-values d'un framework agentic
+
+### Développement
+
+- **Schéma = validation = documentation = prompt.** Un modèle Pydantic définit à la fois le format attendu, les contraintes de validation, la description pour le LLM, et la doc pour l'équipe. En Go, ces 4 fonctions vivent dans 4 endroits différents qui dérivent.
+- **Ratio de code 5:1.** ~2500 lignes Go d'orchestration LLM → ~300 lignes Python. Moins de code = moins de bugs, moins de maintenance, revue plus rapide.
+- **Itération instantanée.** Modifier un prompt, tester un nouveau modèle, ajuster un paramètre : exécution immédiate. Pas de cycle build/compile/redéploy.
+- **Multi-provider en 1 ligne.** Switcher de Gemini à OpenAI à Mistral à un modèle local = changer une string.
+
+### Qualité
+
+- **Structured output garanti.** instructor valide l'output contre le schéma Pydantic et retry automatiquement si le JSON est invalide, tronqué, ou enveloppé dans du markdown.
+- **Retry intelligent.** instructor renvoie l'erreur de validation au LLM ("le champ keywords est vide, corrige") et le LLM corrige. Taux de réussite de ~85% (premier essai) à ~99% (après retry).
+- **Contraintes métier dans le schéma.** `confidence: float = Field(ge=0, le=1)`, `type: Literal["KNOWLEDGE", "PROCEDURE"]` — les invariants sont vérifiés à chaque appel.
+- **Détection de dérive automatique.** Un eval dataset + un cron hebdomadaire détecte si un provider a silencieusement changé de modèle.
+
+### Coût
+
+- **Tracking automatique.** Chaque appel LLM est tracé avec ses tokens et son coût réel en dollars.
+- **Budget alerting.** `litellm.max_budget = 100` → exception si le budget mensuel est dépassé.
+- **Routing par complexité.** Document simple → modèle cheap, document complexe → modèle premium. Réduction estimée de 30% du coût moyen.
+- **Cache sémantique.** litellm intègre un cache qui évite de refaire un appel identique.
+
+### Exploitation / supervision
+
+- **Observabilité clé en main.** LangFuse s'active en 1 ligne. Chaque appel est tracé avec le prompt complet, la réponse brute, les retries, la latence, le coût.
+- **Troubleshooting en 1 clic.** Dashboard → filtre par document_id → prompt exact, réponse brute, raison de l'échec, replay possible.
+- **A/B testing de prompts.** Deux versions tournent en parallèle, scores comparés dans le dashboard.
+- **Alerting.** Taux d'erreur ou latence anormale → alerte automatique.
+
+### Boucle de feedback
+
+- **Chaque correction HITL enrichit le système.** Correction parent → dataset d'évaluation → few-shot dans le prompt.
+- **Eval automatique avant déploiement.** Nouveau prompt ou modèle testé sur les corrections HITL avant mise en production.
+- **Chemin vers le fine-tuning.** Après 500 corrections HITL → dataset supervisé → fine-tuning modèle open-source.
+- **Le système s'améliore avec l'usage.** Plus les parents valident, meilleur devient le pipeline.
+
+### Ce que ça ne remplace pas
+
+- Le domaine métier Go (Mastery, Session, Validation)
+- L'API HTTP mobile
+- La base de données et le cache
+- Le déploiement simple (1 binaire Go vs 2 services)
+
+---
+
 ## Contexte
 
 Le backend Révise Mieux est en Go (Gin, pgx, architecture hexagonale). Le pipeline LLM actuel (OCR → structuration) est implémenté comme un adaptateur Go dans `internal/infra/`. L'outil de benchmark (12 modèles, 3 approches, 5 types de bench) a mis en évidence des frictions récurrentes dans l'orchestration LLM en Go.
