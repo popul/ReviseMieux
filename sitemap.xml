@@ -2,174 +2,178 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://popul.github.io/ReviseMieux/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/MVP-scope/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/PRD/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
+    </url>
+    <url>
+         <loc>https://popul.github.io/ReviseMieux/architecture-llm-go-vs-python/</loc>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/benchmark-architectures-llm/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/contributing/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/deployment/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/e2e-feasibility/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/e2e-poc-result/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/getting-started/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/llm-benchmark/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/llm-strategy/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/lot0-tracker/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/maestro-e2e/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ac/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ac/Z1/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ac/Z2/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ac/Z3/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ac/Z4/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ac/Z5/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ac/Z6/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ac/Z7/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ac/Z8/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/admin/spec-ihm-admin/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/architecture/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/architecture/merge-decision-table/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/architecture/ocr-idp-incremental/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/design/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/design/color-system/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/design/component-philosophy/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/design/design-principles/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/design/design-system/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/design/do-dont/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/design/moodboard/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/design/scalability/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/design/typography/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/process/feedback-loop/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/user-journeys/first-connection/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ux/edge-cases/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ux/open-decisions/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ux/personas/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ux/screen-inventory/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ux/state-model/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
     <url>
          <loc>https://popul.github.io/ReviseMieux/ux/user-flow-complete/</loc>
-         <lastmod>2026-04-20</lastmod>
+         <lastmod>2026-04-21</lastmod>
     </url>
 </urlset>
