@@ -4,7 +4,7 @@
 >
 > | | |
 > |---|---|
-> | **Périmètre** | 8 zones critiques · 171 AC en format Given/When/Then |
+> | **Périmètre** | 9 zones critiques · 186 AC en format Given/When/Then (Z0 = Lot -1, Z1-Z8 = Lot 0+) |
 > | **Usage** | Chaque zone est un fichier séparé pour un chargement ciblé en contexte agent |
 
 ---
@@ -13,6 +13,7 @@
 
 | # | Zone | Risque | ACs | Fichier |
 |---|---|---|---|---|
+| Z0 | **Lot -1 (web-v0 one-shot generator)** | Élevé | 15 | [Z0.md](Z0.md) |
 | Z1 | Transitions Mastery | Très élevé | 28 | [Z1.md](Z1.md) |
 | Z2 | Pipeline J0 — Error paths & timeouts | Très élevé | 18 | [Z2.md](Z2.md) |
 | Z3 | Validation HITL — Skip / Ignore / Qualité items | Élevé | 17 | [Z3.md](Z3.md) |
@@ -21,7 +22,9 @@
 | Z6 | Emploi du temps, Notifications, Engagement & Confiance parent | Élevé | 46 | [Z6.md](Z6.md) |
 | Z7 | Routine de soirée & Orchestration | Très élevé | 26 | [Z7.md](Z7.md) |
 | Z8 | Onboarding & First Use Experience | Très élevé | 8 | [Z8.md](Z8.md) |
-| | **Total** | | **171** | |
+| | **Total** | | **186** | |
+
+> **Z0 (Lot -1)** est disjoint de Z1-Z8 : pas de mastery, pas de spaced rep, pas de comptes. Il décrit la qualité d'un site web one-page qui livre une fiche HTML autonome. Il s'appuie sur les critères techniques `[AC-CONT-*]`, `[AC-HTML-*]`, `[AC-15-*]`, `[AC-20-*]` portés par la skill `study-guide` (`prompts/study-guide/system.md`). Toutes les ACs Z0 sont **bloquantes** pour le Lot -1 — pas de répartition P1/P2.
 
 ---
 

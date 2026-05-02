@@ -39,6 +39,14 @@
 
 Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schémas, documents) en un assistant de révision personnalisé pour collégiens. À partir d'un upload de cours, le produit génère une carte de leçon structurée, des entraînements adaptatifs (rappel actif, analyse documentaire, méthodes de calcul), des contrôles blancs, et met les parents dans la boucle via un reporting rassurant basé sur des preuves de maîtrise réelles.
 
+Le produit est livré en **trois paliers** :
+
+| Palier | Statut | Périmètre | ACs |
+|---|---|---|---|
+| **Lot -1** (web-v0) | en ligne | Site web one-page : photos → fiche de révision HTML autonome. Pas de comptes, pas de DB, pas de suivi. Cf. § 3.4. | 15 (Z0) |
+| **Lot 0** (pré-MVP père-fils) | en cours | Boucle pédagogique locale, 4 packs pilotes, mastery + spaced rep. Cf. § 3.2. | 53 sur 171 |
+| **MVP** (produit complet) | spec | Multi-utilisateur, ENT, parents actifs, admin. Cf. § 3.1. | 171 |
+
 ### Chapitres pilotes MVP
 
 | Matière | Chapitres pilotes | Pack |
@@ -84,6 +92,38 @@ Révise Mieux est un SaaS qui transforme des photos de cahier (manuscrit, schém
 ---
 
 ## 3. Périmètre & séquencement
+
+### 3.0 Vue d'ensemble du séquencement
+
+Le produit progresse en **trois paliers** complémentaires, chaque palier livrant une valeur autonome :
+
+```
+   Lot -1               Lot 0                    MVP
+  (web-v0)         (pré-MVP local)          (produit complet)
+     │                   │                        │
+     ▼                   ▼                        ▼
+ site one-page     boucle pédagogique       multi-utilisateur
+ photos → HTML  →  père-fils, 4 packs   →   ENT, parents actifs
+ pas de suivi     mastery + spaced rep      admin, RGPD J+30
+     │                   │                        │
+   15 ACs              53 ACs                  171 ACs
+   (Z0)               (Z1-Z8 ⊂)              (Z1-Z8 complet)
+     │                   │                        │
+   en ligne           en cours                  spec
+```
+
+| | Lot -1 | Lot 0 | MVP |
+|---|---|---|---|
+| **Cible utilisateur** | Louis seul, à la dernière minute | binôme père-fils | familles, écoles |
+| **Persistance** | aucune (mémoire process) | local (Postgres) | cloud + S3 + Redis |
+| **Comptes** | aucun | 1 famille | multi-utilisateur |
+| **Suivi** | aucun | mastery + spaced rep | mastery + reporting parent |
+| **Stack** | FastAPI + Jinja + LM Studio | Go + RN + Postgres | Go + RN + Postgres + S3 + Redis |
+| **Déploiement** | image Docker GHCR + K3s homelab | local docker-compose | cloud (à choisir) |
+| **Domaine** | `revise-lab.musso.io` | localhost | TBD |
+| **Détail** | § 3.4 | § 3.2 | § 3.1 |
+
+> **Lot -1 est volontairement disjoint** des autres paliers : il n'est pas un sous-ensemble fonctionnel mais un **produit séparé** qui valide la qualité de la fiche générée. Aucune ligne de code n'est partagée avec Lot 0/MVP en dehors du **prompt système de la skill `study-guide`** (`prompts/study-guide/system.md`), qui est la source unique pour les deux familles de produits.
 
 ### 3.1 Périmètre MVP (produit complet)
 
@@ -179,6 +219,76 @@ Créer les artefacts d'ancrage **avant toute fonctionnalité** :
 8. Onboarding complet (Z8-AC01→AC04, AC08)
 
 > **Critère de validation :** le fils utilise l'app quotidiennement pendant 1 semaine sur un vrai chapitre, avec un exam posé.
+
+### 3.4 Lot -1 — One-shot generator (web-v0)
+
+> **Statut :** en ligne sur `https://revise-lab.musso.io/`. **Code :** [`web-v0/`](../web-v0/). **ACs :** [Z0](ac/Z0.md) (15 critères, tous bloquants).
+>
+> Précède Lot 0. C'est un produit **autonome** qui sert deux objectifs : (1) livrer une valeur immédiate à un seul utilisateur (Louis) sans attendre la boucle pédagogique complète ; (2) valider la qualité opérationnelle de la skill `study-guide` (le prompt système qui fabrique la fiche) sur des données réelles, avant que le pipeline LLM soit ré-implémenté en Go côté Lot 0/MVP.
+
+#### Périmètre
+
+| ✅ Inclus | ❌ Exclu (différé Lot 0) |
+|---|---|
+| Upload multi-photos via formulaire web (1-30 photos, jpg/png/heic/webp). | Comptes utilisateurs / authentification. |
+| Génération d'une **fiche HTML autonome unique** (auto-suffisante, lisible hors ligne). | Persistance des photos ou des fiches au-delà du TTL job (1 h). |
+| Choix de la **note visée** (12-14 / 15-17 / 18-20) qui module la profondeur de la fiche. | Suivi de mastery, sessions répétées, spaced repetition. |
+| Sections 1-6 + Section 8 (annexes) + Section 9 (contrôle blanc) selon la cible. | Reporting parent, notifications, emploi du temps. |
+| **Drawer hamburger** + **deux boutons d'impression** (élève / parent) + mode `@media print`. | Stockage S3 ou base de données. |
+| `/preview` pour tests sans LLM. | Multi-tenant, RGPD J+30, admin backoffice. |
+| Image OCI publique (`ghcr.io/popul/revisemieux-web-v0`) déployée en K3s par ArgoCD. | Mobile native (Lot -1 reste 100% web responsive). |
+
+#### Architecture
+
+```
+[Photos] ──POST /jobs──▶ FastAPI ──HTTP──▶ LM Studio (Qwen 3.6 35B-A3B vision)
+   │                       │
+   │                       ▼
+   │                  Pydantic Fiche (schema.py)
+   │                       │
+   │                       ▼
+   └──poll /jobs/{id}──▶ Jinja shell (shell.html.j2) ──▶ HTML autonome
+                          ↑
+                          └── /preview (fixture.json)
+```
+
+- **Stack** : Python 3.12, FastAPI, Pydantic v2, Jinja2, Uvicorn.
+- **LLM** : Qwen 3.6 35B-A3B via LM Studio (compatible OpenAI), tournant sur la machine de dev locale du développeur. Endpoint configurable `LLM_URL`.
+- **Pipeline** : un seul appel LLM en mode thinking activé (`chat_template_kwargs.enable_thinking=true`), avec rappel des critères d'acceptance ([AC-CONT-*], [AC-HTML-*], [AC-15-*], [AC-20-*]) en fin de prompt utilisateur pour saliency.
+- **Source du prompt** : [`prompts/study-guide/system.md`](../prompts/study-guide/) — **partagée** avec la skill Claude Code `/study-guide` (cf. § 3.0).
+
+#### Personas
+
+Reprend le persona « Louis » du § 4 mais dans un usage solo, à la veille du contrôle. Le parent n'utilise pas le Lot -1 directement (sauf pour imprimer la version « Parent » et corriger avec Louis le lendemain).
+
+#### KPIs Lot -1
+
+| KPI | Cible | Mesure |
+|---|---|---|
+| Délai génération E2E (12 photos, cible 18-20) | P95 ≤ 5 min, P50 ≤ 3 min | logs `elapsed=…` Z0-AC10 |
+| Conformité AC pédagogiques | 100% des [AC-CONT-*] et [AC-HTML-*] applicables | audit manuel + `grep` sur HTML |
+| Taux de troncature | 0% (pas de `finish=length`) | logs `output_truncated` Z0-AC10 |
+| Adoption | Louis utilise pour ≥ 1 contrôle / semaine | autodéclaration |
+| Coût | 0 € (LLM local, GHCR public, K3s homelab) | — |
+
+#### Risques & mitigations
+
+| Risque | Impact | Mitigation |
+|---|---|---|
+| Le LLM tronque la fiche (output > `max_tokens`) | fiche partielle = inutilisable | logs warning `output_truncated`, alerte explicite, `max_tokens=32000` actuel |
+| Le shell HTML diverge des fiches passées (chrome cassé) | drawer/print buttons KO | endpoint `/preview` + smoke test à chaque déploiement (cf. Z0-AC12) |
+| Photos envoyées à un LLM tiers | leak privé | LLM tourne 100% en local sur la machine du dev (pas de cloud) |
+| LM Studio offline | service down | sortie en erreur explicite côté pod, pas de fallback (acceptable pour Lot -1) |
+| Le prompt source diverge entre Lot -1 et la skill Claude Code | régression silencieuse | `make sync-skill-prompt` + CI `skill-prompt-sync` (cf. § 3.0) |
+
+#### Phases d'implémentation Lot -1
+
+Cf. [`lot-minus-1-tracker.md`](lot-minus-1-tracker.md). Quatre phases, dont 0 et 1 sont livrées :
+
+- **Phase 0** — Shell Jinja + schéma Pydantic + endpoint `/preview` ✓
+- **Phase 1** — Pipeline 1-stage HTML (legacy actuel, conservé tant que Stage 2 n'est pas prêt) ✓
+- **Phase 2** — Pipeline 2-stage JSON : LLM → JSON validé → render Jinja (en cours)
+- **Phase 3** — Itération sur les 15 ACs Z0 + ouverture publique (rate-limit Cloudflare Access)
 
 ---
 

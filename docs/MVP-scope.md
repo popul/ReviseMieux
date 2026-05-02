@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Total ACs** | 171 (8 zones) · dont **53 Lot 0** (33 P1 + 20 P2) |
+| **Total ACs** | 186 (9 zones) · 15 Lot -1 (Z0) + 53 Lot 0 (Z1-Z8 ⊂) + 118 différés au MVP |
 
 ---
 
@@ -19,6 +19,37 @@
 | **P1** | La boucle fonctionne. Version locale minimale père-fils. |
 | **P2** | Expérience quotidienne complète sur les 4 packs pilotes. |
 | **—** | Différé au MVP complet. |
+
+| Lot -1 | Description |
+|---|---|
+| **bloquant** | AC nécessaire à la livraison du site one-shot web-v0. La livraison Lot -1 est atomique : pas de répartition P1/P2. |
+| **—** | N'appartient pas au Lot -1 (s'applique au Lot 0+ uniquement). |
+
+> Z0 (Lot -1) est totalement disjoint de Z1-Z8. Voir [`ac/Z0.md`](ac/Z0.md) pour le détail des 15 ACs.
+
+---
+
+## Z0 — Lot -1 (web-v0 one-shot generator) (15 ACs)
+
+| AC | Titre | Lot -1 | Zone aval (Lot 0+) |
+|---|---|---|---|
+| Z0-AC01 | Pipeline end-to-end photos → HTML téléchargeable | bloquant | — |
+| Z0-AC02 | Fiche conforme aux critères de contenu de la skill | bloquant | — |
+| Z0-AC03 | Annexes obligatoires pour la cible 18-20 | bloquant | — |
+| Z0-AC04 | Drawer hamburger fonctionnel | bloquant | — |
+| Z0-AC05 | Deux boutons d'impression distincts | bloquant | — |
+| Z0-AC06 | Mode impression élève masque les corrigés | bloquant | — |
+| Z0-AC07 | Mobile-first et safe area iOS | bloquant | — |
+| Z0-AC08 | SLA de génération | bloquant | — |
+| Z0-AC09 | Survie au timeout de bordure Cloudflare | bloquant | — |
+| Z0-AC10 | Observabilité : logs structurés par job | bloquant | — |
+| Z0-AC11 | Validation Pydantic du résultat LLM (Stage 2) | bloquant Stage 2 | — |
+| Z0-AC12 | Endpoint /preview de validation chrome sans LLM | bloquant | — |
+| Z0-AC13 | Privacy : pas de persistance des photos | bloquant | — |
+| Z0-AC14 | Pas d'authentification mais protection minimale | bloquant | — |
+| Z0-AC15 | Déploiement par image OCI publique | bloquant | — |
+
+> **Note :** les 15 ACs ci-dessus s'appuient sur les critères techniques `[AC-CONT-*]`, `[AC-HTML-*]`, `[AC-15-*]`, `[AC-20-*]` portés par le prompt système (`prompts/study-guide/system.md`). Ces derniers sont la **vérité opérationnelle** vérifiée par le LLM au runtime ; les Z0-AC sont leur **encadrement produit** vérifié par tests d'intégration. Cf. [`ac/Z0.md`](ac/Z0.md).
 
 ---
 
