@@ -1,0 +1,384 @@
+{%- macro render_question(q) -%}
+<div class="q" id="q-{{ q.id }}">
+  <div class="qhead">
+    <div><span class="qid">{{ q.id }}</span>{% if q.type %} <span class="qtype">{{ q.type }}</span>{% endif %}</div>
+    {% if q.notion %}<div class="qnotion">Notion : {{ q.notion }}</div>{% endif %}
+  </div>
+  <div class="qstem">{{ q.stem_html|safe }}</div>
+  {% if q.options %}<ol type="A" class="options">{% for o in q.options %}<li>{{ o|safe }}</li>{% endfor %}</ol>{% endif %}
+  {% if q.svg %}{{ q.svg|safe }}{% endif %}
+</div>
+{%- endmacro -%}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>{{ meta.title }} — Fiche de révision</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+:root{--coral:#E85D4C;--teal:#1A4D4D;--teal-d:#0f3535;--gold:#F5C542;--cream:#FBF8F3;--ink:#1b1b1b;--mute:#6b6b6b;--ok:#2e7d32;--warn:#b08900;--bad:#c0392b;--shadow:0 2px 8px rgba(0,0,0,.12)}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--cream);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.55}
+body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)}
+a{color:var(--teal);text-decoration:none}
+a:hover{text-decoration:underline}
+img,svg{max-width:100%;height:auto}
+table{border-collapse:collapse;width:100%;margin:12px 0}
+th,td{border:1px solid #ddd;padding:8px;text-align:left;vertical-align:top}
+th{background:rgba(26,77,77,.06);font-weight:700}
+.table-wrap{overflow-x:auto;border-radius:6px;-webkit-overflow-scrolling:touch}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+pre{background:#0f3535;color:#fff;padding:12px;border-radius:6px;overflow-x:auto}
+hr{border:0;border-top:1px solid #e5e0d6;margin:24px 0}
+
+/* Layout */
+.page{max-width:880px;margin:0 auto;padding:16px}
+header.app{background:linear-gradient(135deg,var(--teal) 0%,var(--teal-d) 100%);color:#fff;padding:28px 20px;border-radius:12px;margin-bottom:20px;position:relative}
+header.app h1{margin:0 0 6px;font-size:24px}
+header.app .meta{opacity:.85;font-size:13px}
+header.app .target-pill{display:inline-block;background:var(--gold);color:var(--ink);padding:3px 10px;border-radius:999px;font-weight:700;font-size:12px;margin-top:8px}
+
+section.card{background:#fff;border-radius:12px;padding:20px;margin:16px 0;box-shadow:var(--shadow);border-left:4px solid transparent}
+section.card.resume{border-left-color:var(--teal)}
+section.card.notions{border-left-color:var(--coral)}
+section.card.documents{border-left-color:var(--gold)}
+section.card.method{border-left-color:var(--teal)}
+section.card.traps{border-left-color:var(--bad)}
+section.card.doc-exercises{border-left-color:var(--coral)}
+section.card.session{border-left-color:#4a90d9}
+section.card.session.s1{border-left-color:#4a90d9}
+section.card.session.s2{border-left-color:#7cb342}
+section.card.session.s3{border-left-color:var(--coral)}
+section.card.corriges{border-left-color:var(--ok)}
+section.card.plan{border-left-color:var(--teal)}
+section.card.mastery{border-left-color:var(--mute)}
+section.card.annexes{border-left-color:var(--gold)}
+section.card>h2{margin:0 0 12px;color:var(--teal);font-size:20px;display:flex;align-items:center;gap:8px}
+section.card>h3{color:var(--teal-d);font-size:16px;margin:18px 0 8px}
+section.card>h4{font-size:14px;margin:14px 0 6px;color:var(--ink)}
+
+/* Mini-cards (notion mind-maps) */
+.notion-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.notion{padding:12px;border:1px solid #ece7da;border-radius:10px;background:#fff}
+.notion h3{margin:0 0 6px}
+.notion ul{margin:6px 0 0 18px;padding:0}
+.notion .memo{font-style:italic;color:var(--mute);font-size:13px;margin-top:8px;border-top:1px dashed #ece7da;padding-top:8px}
+
+/* Documents */
+.doc{padding:12px;border:1px dashed #d8d2c2;border-radius:10px;margin:10px 0;background:#fffef9}
+.doc .doc-title{font-weight:700;color:var(--teal-d);margin-bottom:6px}
+.doc .doc-tag{display:inline-block;font-size:11px;background:var(--gold);color:var(--ink);padding:2px 8px;border-radius:999px;margin-right:6px;text-transform:uppercase;letter-spacing:.04em}
+
+/* Question blocks */
+.q{padding:12px;border-bottom:1px solid #f0ebde}
+.q:last-child{border-bottom:0}
+.q .qhead{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.q .qid{font-weight:700;color:var(--teal-d)}
+.q .qtype{font-size:11px;background:rgba(26,77,77,.08);padding:2px 8px;border-radius:999px;color:var(--teal-d)}
+.q .qnotion{font-size:11px;color:var(--mute)}
+.q .options{margin:6px 0 0;padding-left:22px}
+.q .options li{margin:2px 0}
+
+/* Corrigés (collapsible) */
+details.corrige{margin:10px 0;border:1px solid #e2e8e0;border-radius:8px;background:#f6fbf6}
+details.corrige>summary{padding:10px 14px;cursor:pointer;font-weight:600;color:var(--ok);min-height:40px;display:flex;align-items:center;list-style:none}
+details.corrige>summary::-webkit-details-marker{display:none}
+details.corrige>summary::before{content:'▸ ';margin-right:6px;transition:transform .15s}
+details.corrige[open]>summary::before{transform:rotate(90deg);display:inline-block}
+details.corrige .body{padding:0 14px 14px}
+.corrige .ok{color:var(--ok);font-weight:600}
+.corrige .miss{color:var(--warn);font-weight:600}
+.corrige .memo{color:var(--coral);font-weight:600}
+
+/* Traps */
+.traps-table th{background:rgba(192,57,43,.08);color:var(--bad)}
+
+/* Method box */
+.method-box{background:rgba(26,77,77,.06);border-left:4px solid var(--teal);padding:12px 14px;border-radius:6px;margin:12px 0}
+
+/* Annexes */
+.annex-block{margin:14px 0;padding:12px;border:1px solid #ece7da;border-radius:8px;background:#fffdf6}
+.annex-block h3{margin-top:0}
+
+/* Mastery table compact */
+.mastery-table th,.mastery-table td{font-size:13px;padding:6px 8px}
+.fragile{color:var(--warn);font-weight:600}
+.ok-st{color:var(--ok);font-weight:600}
+.unknown{color:var(--bad);font-weight:600}
+
+/* Plan calendar */
+.plan-cal{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+.plan-day{padding:14px;border-radius:10px;background:#fff;border:1px solid #e5e0d6}
+.plan-day h3{margin-top:0;color:var(--teal)}
+
+/* ===== Chrome controls ===== */
+.hamburger{position:fixed;top:max(12px,env(safe-area-inset-top,12px));left:max(12px,env(safe-area-inset-left,12px));z-index:9000;background:var(--teal);color:#fff;border:none;width:46px;height:46px;border-radius:50%;font-size:22px;cursor:pointer;box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;-webkit-tap-highlight-color:transparent}
+.hamburger:active{transform:translateY(1px)}
+.drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:8500;opacity:0;pointer-events:none;transition:opacity .25s ease}
+.drawer-backdrop.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;bottom:0;left:-300px;width:280px;background:#fff;z-index:8800;box-shadow:2px 0 14px rgba(0,0,0,.18);overflow-y:auto;transition:left .25s ease;padding:60px 14px 20px}
+.drawer.open{left:0}
+.drawer h3{color:var(--teal);font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin:14px 6px 6px}
+.drawer a{display:block;padding:10px 12px;border-radius:8px;color:var(--ink);font-size:14px}
+.drawer a:hover,.drawer a:focus{background:rgba(26,77,77,.06);text-decoration:none}
+
+.print-buttons{position:fixed;top:max(12px,env(safe-area-inset-top,12px));right:max(12px,env(safe-area-inset-right,12px));z-index:9000;display:flex;gap:8px;flex-wrap:wrap}
+.print-buttons button{-webkit-tap-highlight-color:transparent;min-height:44px;padding:8px 14px;border-radius:10px;border:none;background:var(--teal);color:#fff;font-weight:700;cursor:pointer;box-shadow:var(--shadow);font-size:14px}
+.print-buttons button.parent{background:var(--coral)}
+.print-buttons button:active{transform:translateY(1px)}
+
+/* ===== Mobile ===== */
+@media (max-width:600px){
+  .page{padding:10px}
+  header.app{padding:20px 16px}
+  header.app h1{font-size:20px}
+  section.card{padding:14px;margin:12px 0}
+  section.card>h2{font-size:18px}
+  .notion-grid{grid-template-columns:1fr}
+}
+@media (max-width:480px){
+  /* Print buttons jump to bottom for thumb reach */
+  .print-buttons{top:auto !important;bottom:max(12px,env(safe-area-inset-bottom,12px));left:12px;right:12px;justify-content:space-around}
+  .print-buttons button{flex:1}
+}
+@media (orientation:landscape) and (max-height:520px){
+  header.app{padding:14px 16px}
+  header.app h1{font-size:18px}
+  .hamburger{width:38px;height:38px;font-size:18px}
+  .print-buttons button{padding:6px 10px;min-height:38px}
+}
+
+/* ===== Print ===== */
+@media print{
+  body{background:#fff}
+  .hamburger,.drawer,.drawer-backdrop,.print-buttons{display:none !important}
+  .page{max-width:none;padding:0}
+  header.app{background:none;color:var(--ink);box-shadow:none;padding:8px 0;margin-bottom:8px;border-bottom:2px solid var(--teal);border-radius:0}
+  header.app h1{color:var(--teal)}
+  section.card{break-inside:avoid;page-break-inside:avoid;box-shadow:none;border:1px solid #e5e0d6;border-left-width:4px;margin:8px 0}
+  /* Force <details> open */
+  details{display:block}
+  details>summary{display:block}
+  details>*:not(summary){display:block !important}
+  details>summary::before{transform:rotate(90deg) !important;display:inline-block}
+  /* Pupil mode: hide all corrigés sections */
+  body.print-eleve section.card.corriges,body.print-eleve details.corrige{display:none !important}
+  /* Parent mode: show everything */
+  /* SVG sizing */
+  svg{max-height:380px}
+  /* Avoid widow titles */
+  h1,h2,h3{break-after:avoid;page-break-after:avoid}
+}
+</style>
+</head>
+<body>
+  <button class="hamburger" id="hamburger" type="button" aria-label="Ouvrir le sommaire" onclick="toggleDrawer()">☰</button>
+  <div class="drawer-backdrop" id="drawer-bd" onclick="toggleDrawer()"></div>
+  <nav class="drawer" id="drawer" aria-label="Sommaire">
+    <h3>Sommaire</h3>
+    <a href="#resume" onclick="toggleDrawer()">1. Résumé</a>
+    <a href="#notions" onclick="toggleDrawer()">2. Notions clés</a>
+    <a href="#documents" onclick="toggleDrawer()">3. Documents</a>
+    {% if method_doc %}<a href="#method" onclick="toggleDrawer()">3F. Méthode N-D-S-I-D</a>{% endif %}
+    {% if traps %}<a href="#traps" onclick="toggleDrawer()">3G. Pièges</a>{% endif %}
+    {% if doc_exercises %}<a href="#doc-exercises" onclick="toggleDrawer()">3H bis. Exos analyse de doc</a>{% endif %}
+    <a href="#session1" onclick="toggleDrawer()">4. Session 1</a>
+    <a href="#session2" onclick="toggleDrawer()">5. Session 2</a>
+    <a href="#corriges" onclick="toggleDrawer()">6A. Corrigés</a>
+    <a href="#plan" onclick="toggleDrawer()">6B. Plan</a>
+    <a href="#mastery" onclick="toggleDrawer()">6C. Mastery</a>
+    {% if annexes %}<a href="#annexes" onclick="toggleDrawer()">8. Annexes</a>{% endif %}
+    {% if session3 %}<a href="#session3" onclick="toggleDrawer()">9. Contrôle blanc</a>{% endif %}
+  </nav>
+
+  <div class="print-buttons">
+    <button type="button" class="eleve" onclick="printAs('eleve')">🖨️ Élève</button>
+    <button type="button" class="parent" onclick="printAs('parent')">🖨️ Parent</button>
+  </div>
+
+  <div class="page">
+    <header class="app">
+      <h1>{{ meta.title }}</h1>
+      <div class="meta">{% if meta.subject %}{{ meta.subject }}{% endif %}{% if meta.target %} · objectif {{ meta.target }}{% endif %}</div>
+      {% if meta.target_band %}<span class="target-pill">{{ meta.target_band|upper }}</span>{% endif %}
+    </header>
+
+    {# 1 — Résumé #}
+    <section id="resume" class="card resume">
+      <h2>📝 1. Résumé du cours</h2>
+      <ul>{% for b in summary %}<li>{{ b|safe }}</li>{% endfor %}</ul>
+    </section>
+
+    {# 2 — Notions clés #}
+    <section id="notions" class="card notions">
+      <h2>🧠 2. Notions clés</h2>
+      <div class="notion-grid">
+        {% for n in notions %}
+        <div class="notion">
+          <h3>{% if n.icon %}{{ n.icon }} {% endif %}{{ n.name }}</h3>
+          {% if n.svg %}{{ n.svg|safe }}{% endif %}
+          {% if n['items'] %}<ul>{% for it in n['items'] %}<li>{{ it|safe }}</li>{% endfor %}</ul>{% endif %}
+          {% if n.memo %}<div class="memo">💡 {{ n.memo|safe }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    {# 3 — Documents inédits #}
+    <section id="documents" class="card documents">
+      <h2>📊 3. Documents d'exercice</h2>
+      {% for d in documents %}
+      <div class="doc">
+        <div class="doc-title"><span class="doc-tag">{{ d.type }}</span>Document {{ d.letter }} — {{ d.title }}</div>
+        {{ d.html|safe }}
+      </div>
+      {% endfor %}
+    </section>
+
+    {% if method_doc %}
+    <section id="method" class="card method">
+      <h2>📋 3F. Méthode — Analyser un document (N-D-S-I-D)</h2>
+      <div class="method-box">{{ method_doc|safe }}</div>
+    </section>
+    {% endif %}
+
+    {% if traps %}
+    <section id="traps" class="card traps">
+      <h2>⚠️ 3G. Pièges classiques du chapitre</h2>
+      <div class="table-wrap">
+      <table class="traps-table">
+        <thead><tr><th>Confusion</th><th>Distinction</th><th>Mnémo</th></tr></thead>
+        <tbody>
+        {% for t in traps %}<tr><td>{{ t.confusion|safe }}</td><td>{{ t.distinction|safe }}</td><td><em>{{ t.memo|safe }}</em></td></tr>{% endfor %}
+        </tbody>
+      </table>
+      </div>
+    </section>
+    {% endif %}
+
+    {% if doc_exercises %}
+    <section id="doc-exercises" class="card doc-exercises">
+      <h2>📝 3H bis. Exercices complets d'analyse de document</h2>
+      {% for e in doc_exercises %}
+      <h3>Exercice {{ loop.index }} — {{ e.type|capitalize }}</h3>
+      <div class="doc">{{ e.doc_html|safe }}</div>
+      <ol>{% for q in e.questions %}<li>{{ q|safe }}</li>{% endfor %}</ol>
+      <details class="corrige"><summary>📖 Corrigé modèle</summary><div class="body">{{ e.model_answer_html|safe }}{% if e.errors %}<h4>Erreurs à éviter</h4><ul>{% for er in e.errors %}<li>{{ er|safe }}</li>{% endfor %}</ul>{% endif %}</div></details>
+      {% endfor %}
+    </section>
+    {% endif %}
+
+    {# 4 — Session 1 #}
+    <section id="session1" class="card session s1">
+      <h2>🌅 4. Session 1 — Découverte (J0 soir)</h2>
+      {% for q in session1 %}
+      {{ render_question(q) }}
+      {% endfor %}
+    </section>
+
+    {# 5 — Session 2 #}
+    <section id="session2" class="card session s2">
+      <h2>☀️ 5. Session 2 — Consolidation (J2 soir)</h2>
+      {% for q in session2 %}
+      {{ render_question(q) }}
+      {% endfor %}
+    </section>
+
+    {# 6A — Corrigés #}
+    <section id="corriges" class="card corriges">
+      <h2>✅ 6A. Corrigés détaillés</h2>
+      {% for c in corriges %}
+      <details class="corrige"><summary>{{ c.qid }} — Corrigé</summary>
+        <div class="body">
+          <p><span class="ok">✅ Réponse attendue :</span> {{ c.answer_html|safe }}</p>
+          <p><span class="miss">🔍 Ce qui manque souvent :</span> {{ c.common_miss|safe }}</p>
+          <p><span class="memo">💡 Astuce mnémonique :</span> {{ c.mnemonic|safe }}</p>
+        </div>
+      </details>
+      {% endfor %}
+    </section>
+
+    {# 6B — Plan #}
+    <section id="plan" class="card plan">
+      <h2>📅 6B. Plan de révision</h2>
+      <div class="plan-cal">
+        <div class="plan-day"><h3>J0 — Session 1</h3><p>{{ plan.j0|safe }}</p></div>
+        <div class="plan-day"><h3>J1 — Repos actif</h3><p>{{ plan.j1|safe }}</p></div>
+        <div class="plan-day"><h3>J2 — Session 2</h3><p>{{ plan.j2|safe }}</p></div>
+      </div>
+    </section>
+
+    {# 6C — Mastery #}
+    <section id="mastery" class="card mastery">
+      <h2>📈 6C. Tableau de progression mastery</h2>
+      <div class="table-wrap">
+      <table class="mastery-table">
+        <thead><tr><th>Item</th><th>Type</th><th>Notion</th><th>Après S1</th><th>Après S2</th><th>Prochaine révision</th></tr></thead>
+        <tbody>{% for m in mastery %}<tr>
+          <td>{{ m.item|safe }}</td><td>{{ m.type }}</td><td>{{ m.notion }}</td>
+          <td><span class="{% if m.after_s1=='OK' %}ok-st{% elif m.after_s1=='FRAGILE' %}fragile{% else %}unknown{% endif %}">{{ m.after_s1 }}</span></td>
+          <td><span class="{% if m.after_s2=='OK' %}ok-st{% elif m.after_s2=='FRAGILE' %}fragile{% else %}unknown{% endif %}">{{ m.after_s2 }}</span></td>
+          <td>{{ m.next_review }}</td>
+        </tr>{% endfor %}</tbody>
+      </table>
+      </div>
+    </section>
+
+    {# 8 — Annexes #}
+    {% if annexes %}
+    <section id="annexes" class="card annexes">
+      <h2>🏆 8. Annexes objectif {{ meta.target or '20' }}</h2>
+      {% if annexes.frise_html %}<div class="annex-block"><h3>(a) 📅 Frise chronologique</h3>{{ annexes.frise_html|safe }}</div>{% endif %}
+      {% if annexes.vocab %}<div class="annex-block"><h3>(b) 📖 Vocabulaire exhaustif</h3><div class="table-wrap"><table><thead><tr><th>Terme</th><th>Définition</th></tr></thead><tbody>{% for v in annexes.vocab %}<tr><td><strong>{{ v.term }}</strong></td><td>{{ v.def|safe }}</td></tr>{% endfor %}</tbody></table></div></div>{% endif %}
+      {% if annexes.traps_renforces %}<div class="annex-block"><h3>(c) ⚠️ Pièges renforcés</h3><div class="table-wrap"><table class="traps-table"><thead><tr><th>Confusion</th><th>Distinction</th><th>Mnémo</th></tr></thead><tbody>{% for t in annexes.traps_renforces %}<tr><td>{{ t.confusion|safe }}</td><td>{{ t.distinction|safe }}</td><td><em>{{ t.memo|safe }}</em></td></tr>{% endfor %}</tbody></table></div></div>{% endif %}
+      {% if annexes.personnages %}<div class="annex-block"><h3>(d) 👤 Fiches personnages</h3>{% for p in annexes.personnages %}<p><strong>{{ p.name }}</strong>{% if p.dates %} ({{ p.dates }}){% endif %} — {{ p.role|safe }}<br><em>{{ p.ideas|join(' · ')|safe }}</em></p>{% endfor %}</div>{% endif %}
+      {% if annexes.comparatif %}<div class="annex-block"><h3>(e) ⚖️ Tableau comparatif des notions proches</h3><div class="table-wrap"><table><thead><tr><th>Notion A</th><th>Notion B</th><th>Différence clé</th><th>Exemple</th></tr></thead><tbody>{% for c in annexes.comparatif %}<tr><td><strong>{{ c.a }}</strong></td><td><strong>{{ c.b }}</strong></td><td>{{ c.diff|safe }}</td><td>{{ c.example|safe }}</td></tr>{% endfor %}</tbody></table></div></div>{% endif %}
+      {% if annexes.redactions %}<div class="annex-block"><h3>(f) ✍️ Rédactions modèles + grille d'évaluation</h3>{% for r in annexes.redactions %}<h4>{{ r.prompt }}</h4>{{ r.model_html|safe }}<h4>Grille d'évaluation</h4><div class="table-wrap"><table><thead><tr><th>Critère</th><th>Barème</th><th>Indicateurs</th></tr></thead><tbody>{% for g in r.grid %}<tr><td>{{ g.criterion }}</td><td>{{ g.points }}</td><td>{{ g.indicators|safe }}</td></tr>{% endfor %}</tbody></table></div>{% endfor %}</div>{% endif %}
+      {% if annexes.methodes_par_type_doc %}<div class="annex-block"><h3>(g) 📐 Méthodes par type de document</h3>{% for m in annexes.methodes_par_type_doc %}<h4>{{ m.type|capitalize }}</h4><ol>{% for s in m.steps %}<li>{{ s|safe }}</li>{% endfor %}</ol>{% endfor %}</div>{% endif %}
+    </section>
+    {% endif %}
+
+    {# 9 — Session 3 #}
+    {% if session3 %}
+    <section id="session3" class="card session s3">
+      <h2>🏆 9. Session 3 — Contrôle blanc</h2>
+      <p>10 questions Q31→Q40, 20 minutes, simule les conditions du contrôle.</p>
+      {% for q in session3.questions %}
+      {{ render_question(q) }}
+      {% endfor %}
+      {% if session3.rebuild_mindmap_svg %}
+      <h3>MINDMAP_REBUILD — reconstruis la carte du chapitre sur papier</h3>
+      <details class="corrige" open><summary>Voir la carte vide à reconstruire</summary><div class="body">{{ session3.rebuild_mindmap_svg|safe }}</div></details>
+      {% if session3.rebuild_mindmap_corrige_svg %}<details class="corrige"><summary>📖 Corrigé (carte complète)</summary><div class="body">{{ session3.rebuild_mindmap_corrige_svg|safe }}</div></details>{% endif %}
+      {% endif %}
+      {% if session3.corrige_abrege %}
+      <h3>Corrigé abrégé Session 3</h3>
+      <ul>{% for c in session3.corrige_abrege %}<li><strong>{{ c.qid }}</strong> : {{ c.answer|safe }}</li>{% endfor %}</ul>
+      {% endif %}
+    </section>
+    {% endif %}
+  </div>
+
+<script>
+function toggleDrawer(){
+  var d=document.getElementById('drawer'),b=document.getElementById('drawer-bd'),h=document.getElementById('hamburger');
+  if(!d||!b||!h)return;
+  var willOpen=!d.classList.contains('open');
+  d.classList.toggle('open',willOpen);
+  b.classList.toggle('open',willOpen);
+  h.textContent=willOpen?'\u2715':'\u2630';
+  h.setAttribute('aria-expanded',willOpen?'true':'false');
+}
+function printAs(mode){
+  document.body.classList.remove('print-eleve','print-parent');
+  document.body.classList.add('print-'+mode);
+  setTimeout(function(){window.print()},50);
+}
+window.addEventListener('afterprint',function(){document.body.classList.remove('print-eleve','print-parent')});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){var d=document.getElementById('drawer');if(d&&d.classList.contains('open'))toggleDrawer()}});
+if(window.mermaid&&typeof mermaid.initialize==='function'){mermaid.initialize({startOnLoad:true,theme:'default'})}
+</script>
+</body>
+</html>
+

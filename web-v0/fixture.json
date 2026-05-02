@@ -1,0 +1,210 @@
+{
+  "meta": {
+    "title": "Eau & Énergie : des ressources à ménager",
+    "subject": "HG 5ème",
+    "target": "20",
+    "target_band": "excellence"
+  },
+  "summary": [
+    "L'**énergie** se classe en énergies <strong>fossiles</strong> (charbon, pétrole, gaz) et <strong>renouvelables</strong> (solaire, éolien, hydraulique, biomasse).",
+    "Le <strong>mix énergétique</strong> mondial reste dominé par les énergies fossiles (~80%).",
+    "L'<strong>eau douce</strong> ne représente que 2,5% de l'eau sur Terre, l'eau accessible 0,7%.",
+    "La <strong>transition énergétique</strong> est le passage des énergies fossiles aux renouvelables.",
+    "L'<strong>ODD 6</strong> de l'ONU vise l'accès à l'eau propre et à l'assainissement pour tous d'ici 2030."
+  ],
+  "notions": [
+    {
+      "id": "energie",
+      "name": "L'Énergie",
+      "icon": "🔋",
+      "svg": "<svg viewBox='0 0 380 200' style='width:100%;font-family:system-ui'><rect x='130' y='80' width='120' height='40' rx='20' fill='#E85D4C'/><text x='190' y='105' text-anchor='middle' fill='#fff' font-weight='700'>ÉNERGIE</text><rect x='10' y='30' width='100' height='32' rx='6' fill='#F5C542'/><text x='60' y='51' text-anchor='middle' font-size='12'>Fossiles</text><rect x='10' y='130' width='100' height='32' rx='6' fill='#F5C542'/><text x='60' y='151' text-anchor='middle' font-size='12'>Renouvelables</text><rect x='270' y='30' width='100' height='32' rx='6' fill='#F5C542'/><text x='320' y='51' text-anchor='middle' font-size='12'>Mix</text><rect x='270' y='130' width='100' height='32' rx='6' fill='#F5C542'/><text x='320' y='151' text-anchor='middle' font-size='12'>Transition</text></svg>",
+      "items": ["Charbon, pétrole, gaz (fossiles)", "Solaire, éolien, hydro, biomasse (renouvelables)", "Mix énergétique mondial dominé par les fossiles", "Transition énergétique = passage progressif aux renouvelables"],
+      "memo": "Fossiles = sortent du sol ; renouvelables = se reconstituent sans cesse."
+    },
+    {
+      "id": "eau",
+      "name": "L'Eau",
+      "icon": "💧",
+      "svg": "<svg viewBox='0 0 380 200' style='width:100%'><rect x='130' y='80' width='120' height='40' rx='20' fill='#E85D4C'/><text x='190' y='105' text-anchor='middle' fill='#fff' font-weight='700'>EAU</text><rect x='10' y='40' width='100' height='32' rx='6' fill='#F5C542'/><text x='60' y='61' text-anchor='middle' font-size='12'>Salée 97,5%</text><rect x='10' y='120' width='100' height='32' rx='6' fill='#F5C542'/><text x='60' y='141' text-anchor='middle' font-size='12'>Douce 2,5%</text><rect x='270' y='80' width='100' height='32' rx='6' fill='#F5C542'/><text x='320' y='101' text-anchor='middle' font-size='12'>Stress hydrique</text></svg>",
+      "items": ["Eau salée (océans) ≈ 97,5%", "Eau douce ≈ 2,5% (dont 0,7% accessible)", "Stress hydrique : tension entre besoins et ressources"],
+      "memo": "ODD 6 : eau propre et assainissement pour tous d'ici 2030."
+    }
+  ],
+  "documents": [
+    {
+      "letter": "A",
+      "title": "Mix énergétique mondial 2020 vs 2050",
+      "type": "table",
+      "html": "<div class='table-wrap'><table><thead><tr><th>Source</th><th>2020</th><th>2050 (projection)</th><th>Évolution</th></tr></thead><tbody><tr><td>Pétrole</td><td>32%</td><td>?</td><td>↘</td></tr><tr><td>Charbon</td><td>27%</td><td>15%</td><td>?</td></tr><tr><td>Gaz</td><td>23%</td><td>?</td><td>↘</td></tr><tr><td>Renouvelables</td><td>?</td><td>40%</td><td>↗</td></tr></tbody></table></div>"
+    },
+    {
+      "letter": "B",
+      "title": "Conflits de l'eau au Moyen-Orient",
+      "type": "map",
+      "html": "<svg viewBox='0 0 400 260' style='width:100%;max-height:260px'><path d='M50,80 L160,40 L300,60 L350,140 L300,220 L100,230 L40,160 Z' fill='#fdf6e3' stroke='#888' stroke-width='1.5'/><circle cx='180' cy='110' r='8' fill='#E85D4C' opacity='.7'/><text x='190' y='115' font-size='11' font-weight='600'>A</text><circle cx='240' cy='160' r='8' fill='#4A90D9' opacity='.7'/><text x='250' y='165' font-size='11' font-weight='600'>B</text><circle cx='110' cy='180' r='8' fill='#7CB342' opacity='.7'/><text x='120' y='185' font-size='11' font-weight='600'>C</text><text x='40' y='250' font-size='10'>A = bassin du Jourdain · B = nappe phréatique partagée · C = projet de dessalement</text></svg>"
+    },
+    {
+      "letter": "C",
+      "title": "Évolution de la consommation mondiale d'eau",
+      "type": "graph",
+      "html": "<svg viewBox='0 0 400 220' style='width:100%' xmlns='http://www.w3.org/2000/svg'><line x1='50' y1='180' x2='370' y2='180' stroke='#333'/><line x1='50' y1='180' x2='50' y2='20' stroke='#333'/><polyline points='50,170 110,150 170,120 230,90 290,60 350,40' fill='none' stroke='#1A4D4D' stroke-width='3'/><text x='200' y='210' text-anchor='middle' font-size='11'>Année (1900 → 2050)</text><text x='15' y='100' font-size='11' transform='rotate(-90 15 100)'>Consommation (km³/an)</text></svg>"
+    }
+  ],
+  "method_doc": "<ol><li><strong>N</strong>ature : type de document (texte, carte, graphique, photo, miniature, gravure, statistique…). Ne jamais dire « illustration » sans préciser.</li><li><strong>D</strong>ate : siècle ou année si donnée.</li><li><strong>S</strong>ource : titre, auteur, lieu de conservation.</li><li><strong>I</strong>dée principale : ce que le doc montre / dit en 1 phrase.</li><li><strong>D</strong>étails : éléments réutilisables pour répondre aux questions.</li></ol>",
+  "traps": [
+    {"confusion": "Énergie / Électricité", "distinction": "L'électricité est un vecteur (produit à partir d'autre chose), l'énergie est la source (pétrole, vent, soleil…).", "memo": "L'électricité sort de la prise, le pétrole sort du sol."},
+    {"confusion": "Renouvelable / Inépuisable", "distinction": "Toutes les renouvelables ne sont pas inépuisables (le bois ne l'est que si on en plante).", "memo": "Le soleil est inépuisable, le bois doit être planté."},
+    {"confusion": "Mix / Mélange", "distinction": "Le « mix » énergétique est la proportion de chaque énergie dans la production totale.", "memo": "Le mix, c'est la recette du gâteau énergétique."},
+    {"confusion": "Stress hydrique / Pénurie", "distinction": "Stress = tension entre besoins et ressources. Pénurie = absence totale.", "memo": "Le stress c'est la peur de manquer ; la pénurie c'est le manque."}
+  ],
+  "doc_exercises": [
+    {
+      "type": "text",
+      "doc_html": "<blockquote>« La Chine consomme à elle seule 28% du charbon mondial. Cependant, elle est aussi le premier producteur d'énergie solaire et investit massivement dans l'éolien. » <em>(Rapport AIE 2023, adapté)</em></blockquote>",
+      "questions": [
+        "Quelle est la <strong>nature</strong> du document ? Précise.",
+        "Quelle est l'<strong>idée principale</strong> ?",
+        "Quel <strong>paradoxe</strong> énergétique ce texte révèle-t-il sur la Chine ?",
+        "Cite deux <strong>chiffres clés</strong> tirés du texte.",
+        "Comment ce texte illustre-t-il la <strong>transition énergétique</strong> mondiale ?"
+      ],
+      "model_answer_html": "<p>Il s'agit d'un <strong>extrait de rapport</strong> (AIE, 2023). L'idée principale est que la Chine reste le premier consommateur de charbon, tout en étant aussi un leader des renouvelables. Le paradoxe est qu'elle pollue beaucoup tout en investissant massivement dans la transition. Chiffres clés : 28% du charbon mondial ; premier producteur de solaire. Cela illustre la transition énergétique en cours, mais à plusieurs vitesses.</p>",
+      "errors": ["Confondre « consommer » et « produire »", "Dire « article » au lieu de « extrait de rapport »", "Oublier de citer les chiffres entre guillemets"]
+    },
+    {
+      "type": "iconographic",
+      "doc_html": "<p><em>(Imagine une photographie d'un parc éolien offshore en mer du Nord, 2022.)</em></p>",
+      "questions": [
+        "Nature du document ?",
+        "Que représente-t-il ?",
+        "Pourquoi installer les éoliennes en mer ?",
+        "À quel type d'énergie cela renvoie-t-il ?",
+        "Quels avantages et inconvénients ?"
+      ],
+      "model_answer_html": "<p>Photographie contemporaine (2022) d'un parc éolien <strong>offshore</strong>. L'installation en mer permet d'exploiter des vents plus forts et plus réguliers, avec moins de nuisances pour les riverains. Énergie renouvelable, intermittente. Avantages : pas d'émissions de CO₂. Inconvénients : coût d'installation élevé, impact sur faune marine, dépendance au vent.</p>",
+      "errors": ["Dire « image » sans préciser photographie", "Oublier le terme « offshore »"]
+    },
+    {
+      "type": "cartographic",
+      "doc_html": "<p><em>(Imagine une carte schématique du bassin du Jourdain et des pays riverains : Israël, Jordanie, Liban, Syrie, Palestine.)</em></p>",
+      "questions": [
+        "Nature du document ?",
+        "Quels pays partagent ce bassin ?",
+        "Pourquoi ce bassin est-il source de tension ?",
+        "Cite un projet de coopération sur l'eau.",
+        "Comment ce cas illustre-t-il l'enjeu mondial de l'eau ?"
+      ],
+      "model_answer_html": "<p>Carte schématique du <strong>bassin du Jourdain</strong>. Cinq pays partagent ces ressources : Israël, Jordanie, Liban, Syrie, et la Palestine. Ce bassin est une source de tension car la ressource est rare et les besoins sont concurrents (agriculture, eau potable). Un exemple de coopération : les usines de dessalement. Ce cas illustre l'enjeu mondial : l'eau devient un facteur géopolitique.</p>",
+      "errors": ["Dire « illustration » au lieu de « carte »", "Oublier la Palestine ou la Syrie"]
+    }
+  ],
+  "session1": [
+    {"id": "Q1", "type": "FLASH_MCQ", "notion": "Énergie", "stem_html": "Quelle énergie n'est <strong>pas</strong> renouvelable ?", "options": ["Solaire", "Éolien", "Charbon", "Hydraulique"]},
+    {"id": "Q2", "type": "DEF_SHORT", "notion": "Eau", "stem_html": "Définis « stress hydrique »."},
+    {"id": "Q3", "type": "DOC.READ_VALUE", "notion": "Énergie", "stem_html": "D'après le <strong>Document A</strong>, quel est le pourcentage de charbon en 2050 ?"},
+    {"id": "Q4", "type": "FLASH_MCQ", "notion": "Eau", "stem_html": "Quelle proportion d'eau douce sur Terre ?", "options": ["50%", "10%", "2,5%", "0,1%"]},
+    {"id": "Q5", "type": "MINDMAP_PARTIAL", "notion": "Énergie", "stem_html": "Complète la mini-carte de l'Énergie : 1 feuille manque (« ? »)."}
+  ],
+  "session2": [
+    {"id": "Q16", "type": "MISCONCEPTION.MCQ", "notion": "Énergie", "stem_html": "L'<strong>électricité</strong> est :", "options": ["Une énergie primaire", "Un vecteur d'énergie", "Une énergie fossile", "Une énergie renouvelable"]},
+    {"id": "Q17", "type": "CLOZE_KEYWORDS", "notion": "Eau", "stem_html": "L'________ 6 de l'ONU concerne l'accès à l'eau ________ et à l'________."},
+    {"id": "Q18", "type": "DOC.INTERPRET_TREND", "notion": "Eau", "stem_html": "D'après le <strong>Document C</strong>, comment évolue la consommation d'eau ?"},
+    {"id": "Q19", "type": "MINDMAP_RECALL", "notion": "Eau", "stem_html": "Sur papier, retrouve les 3 éléments principaux de la mini-carte « Eau ». Le centre seul est rappelé."},
+    {"id": "Q20", "type": "ASSOC_TERM_DEF", "notion": "Pièges", "stem_html": "Associe : (1) Mix énergétique ; (2) Stress hydrique ; (3) Renouvelable. Aux définitions A/B/C."}
+  ],
+  "corriges": [
+    {"qid": "Q1", "answer_html": "<strong>C</strong> — le charbon est une énergie fossile.", "common_miss": "Confondre charbon et hydraulique.", "mnemonic": "Le charbon vient du sol, donc fossile."},
+    {"qid": "Q2", "answer_html": "Tension entre les besoins en eau et la ressource disponible.", "common_miss": "Dire « pénurie ».", "mnemonic": "Stress = peur de manquer ; pénurie = manque."},
+    {"qid": "Q3", "answer_html": "<strong>15%</strong> en 2050.", "common_miss": "Donner la valeur 2020 (27%).", "mnemonic": "Lis bien la colonne « 2050 »."},
+    {"qid": "Q4", "answer_html": "<strong>C — 2,5%</strong>.", "common_miss": "Confondre avec eau accessible (0,7%).", "mnemonic": "2,5% sur Terre, 0,7% accessible."},
+    {"qid": "Q5", "answer_html": "Fossiles, Renouvelables, Mix, Transition.", "common_miss": "Oublier « Mix » ou « Transition ».", "mnemonic": "Les 4 piliers : F-R-M-T."},
+    {"qid": "Q16", "answer_html": "<strong>B</strong> — vecteur d'énergie.", "common_miss": "Penser qu'elle est primaire.", "mnemonic": "L'électricité transporte l'énergie, elle ne la crée pas."},
+    {"qid": "Q17", "answer_html": "ODD, propre, assainissement.", "common_miss": "Oublier « assainissement ».", "mnemonic": "Eau + assainissement = ODD 6."},
+    {"qid": "Q18", "answer_html": "Forte croissance constante depuis 1900.", "common_miss": "Décrire la pente sans valeurs.", "mnemonic": "La courbe monte, jamais ne baisse."},
+    {"qid": "Q19", "answer_html": "Salée, Douce, Stress hydrique.", "common_miss": "Oublier « Stress hydrique ».", "mnemonic": "S-D-S : Salée, Douce, Stress."},
+    {"qid": "Q20", "answer_html": "1-A, 2-C, 3-B (selon ordre).", "common_miss": "Mélanger mix et renouvelable.", "mnemonic": "Le mix est une recette, pas une source."}
+  ],
+  "plan": {
+    "j0": "Session 1 ce soir, 15 min. Objectif : passer de UNKNOWN à FRAGILE. Seuil ≥70%.",
+    "j1": "Repos actif : relire le résumé (5 min). Pas de questions, le cerveau consolide.",
+    "j2": "Session 2 après-demain soir, 15 min. Objectif : FRAGILE → OK. Si ≥70%, prochaine révision J+5."
+  },
+  "mastery": [
+    {"item": "Définir énergie fossile / renouvelable", "type": "KNOWLEDGE", "notion": "Énergie", "after_s1": "FRAGILE", "after_s2": "OK", "next_review": "J+5"},
+    {"item": "Mix énergétique mondial", "type": "KNOWLEDGE", "notion": "Énergie", "after_s1": "FRAGILE", "after_s2": "OK", "next_review": "J+5"},
+    {"item": "Lecture tableau Document A", "type": "PROCEDURE", "notion": "Énergie", "after_s1": "FRAGILE", "after_s2": "OK", "next_review": "J+3"},
+    {"item": "Stress hydrique vs pénurie", "type": "KNOWLEDGE", "notion": "Eau", "after_s1": "FRAGILE", "after_s2": "OK", "next_review": "J+5"},
+    {"item": "ODD 6 ONU", "type": "KNOWLEDGE", "notion": "Eau", "after_s1": "FRAGILE", "after_s2": "OK", "next_review": "J+5"}
+  ],
+  "annexes": {
+    "frise_html": "<svg viewBox='0 0 600 100' style='width:100%'><line x1='30' y1='60' x2='570' y2='60' stroke='#1A4D4D' stroke-width='2'/><circle cx='90' cy='60' r='5' fill='#E85D4C'/><text x='90' y='40' text-anchor='middle' font-size='11'>1850 Charbon</text><circle cx='220' cy='60' r='5' fill='#E85D4C'/><text x='220' y='40' text-anchor='middle' font-size='11'>1900 Pétrole</text><circle cx='350' cy='60' r='5' fill='#E85D4C'/><text x='350' y='40' text-anchor='middle' font-size='11'>1970 Choc pétrolier</text><circle cx='460' cy='60' r='5' fill='#E85D4C'/><text x='460' y='40' text-anchor='middle' font-size='11'>2015 Accord Paris</text><circle cx='540' cy='60' r='5' fill='#E85D4C'/><text x='540' y='40' text-anchor='middle' font-size='11'>2030 ODD</text></svg>",
+    "vocab": [
+      {"term": "Énergie fossile", "def": "Énergie issue de gisements (charbon, pétrole, gaz)."},
+      {"term": "Énergie renouvelable", "def": "Énergie qui se reconstitue à l'échelle humaine (solaire, éolien…)."},
+      {"term": "Mix énergétique", "def": "Répartition des sources d'énergie dans la production totale."},
+      {"term": "Stress hydrique", "def": "Tension entre besoins en eau et ressources disponibles."},
+      {"term": "ODD", "def": "Objectifs de Développement Durable de l'ONU (17 objectifs, 2030)."},
+      {"term": "Transition énergétique", "def": "Passage progressif des énergies fossiles aux renouvelables."}
+    ],
+    "traps_renforces": [
+      {"confusion": "Énergie primaire / secondaire", "distinction": "Primaire = directement extraite (pétrole brut). Secondaire = transformée (essence, électricité).", "memo": "Primaire avant la raffinerie."},
+      {"confusion": "Eau potable / eau douce", "distinction": "Toute eau potable est douce, mais toute eau douce n'est pas potable (lacs pollués).", "memo": "Potable = bon à boire."},
+      {"confusion": "Pollution / réchauffement", "distinction": "Pollution = altération de l'environnement. Réchauffement = hausse des températures (CO₂).", "memo": "Pollution est large, réchauffement est précis."},
+      {"confusion": "Économies d'énergie / sobriété", "distinction": "Économies = utiliser mieux. Sobriété = utiliser moins.", "memo": "Sobre = qui s'abstient."}
+    ],
+    "personnages": [
+      {"name": "Greta Thunberg", "dates": "née en 2003", "role": "militante climat suédoise", "ideas": ["fondatrice du mouvement Fridays for Future", "discours à l'ONU en 2019"]}
+    ],
+    "comparatif": [
+      {"a": "Énergie primaire", "b": "Énergie secondaire", "diff": "L'une est extraite directement, l'autre est transformée.", "example": "Pétrole brut vs essence."},
+      {"a": "Eau douce", "b": "Eau potable", "diff": "Toute eau potable est douce, l'inverse non.", "example": "Eau du lac (douce) ≠ eau du robinet (potable)."},
+      {"a": "Stress hydrique", "b": "Pénurie d'eau", "diff": "Tension vs absence totale.", "example": "Maroc (stress) vs Sahel saharien (pénurie)."}
+    ],
+    "redactions": [
+      {
+        "prompt": "« Comment la Chine fait-elle face aux défis énergétiques ? » (15 lignes)",
+        "model_html": "<p>La Chine est aujourd'hui le premier consommateur d'énergie au monde, avec un mix encore largement dominé par le charbon (~55% en 2020). Cependant, le pays a investi massivement dans la transition énergétique : il est devenu le premier producteur mondial de solaire et d'éolien. Cette double position — pollueur historique et leader des renouvelables — illustre les <strong>contradictions</strong> de la transition énergétique. La Chine vise la neutralité carbone d'ici 2060. Son modèle révèle qu'un pays peut être à la fois problème et solution : il dépend des fossiles pour sa croissance, mais bâtit l'industrie verte de demain.</p>",
+        "grid": [
+          {"criterion": "Idée principale claire", "points": "4 pts", "indicators": "1 phrase introductive qui annonce la double position de la Chine."},
+          {"criterion": "Chiffres précis cités", "points": "4 pts", "indicators": "Au moins 2 chiffres : %% charbon, neutralité 2060."},
+          {"criterion": "Vocabulaire technique", "points": "4 pts", "indicators": "« mix énergétique », « transition », « neutralité carbone »."},
+          {"criterion": "Argumentation structurée", "points": "4 pts", "indicators": "Une opposition + une synthèse."},
+          {"criterion": "Orthographe / syntaxe", "points": "4 pts", "indicators": "0-2 fautes."}
+        ]
+      }
+    ],
+    "methodes_par_type_doc": [
+      {"type": "graphique / courbe", "steps": ["Lis le titre et les axes (avec leurs unités)", "Repère les valeurs extrêmes (min, max)", "Décris la tendance (croissance, décroissance, palier)", "Cite un point précis avec ses coordonnées", "Conclus en lien avec le cours"]},
+      {"type": "carte schématique", "steps": ["Identifie l'espace représenté (titre, repères)", "Lis la légende intégralement", "Repère les zones / lieux clés", "Décris la répartition spatiale (concentré/dispersé)", "Conclus avec une explication géographique"]},
+      {"type": "texte", "steps": ["Identifie auteur, date, source", "Repère les mots-clés", "Reformule l'idée principale", "Cite entre guillemets les passages utiles", "Critique la fiabilité (source, biais)"]}
+    ]
+  },
+  "session3": {
+    "questions": [
+      {"id": "Q31", "type": "FLASH_MCQ", "stem_html": "Quelle énergie est non renouvelable ?", "options": ["Solaire", "Éolien", "Charbon", "Géothermie"]},
+      {"id": "Q32", "type": "DEF_SHORT", "stem_html": "Définis « pénurie d'eau » en une phrase."},
+      {"id": "Q33", "type": "DOC.READ_VALUE", "stem_html": "D'après le Document A, quel est le pourcentage de pétrole en 2020 ?"},
+      {"id": "Q34", "type": "MISCONCEPTION.MCQ", "stem_html": "L'électricité est :", "options": ["Une énergie primaire", "Un vecteur d'énergie", "Une énergie renouvelable", "Une énergie fossile"]},
+      {"id": "Q35", "type": "CLOZE_KEYWORDS", "stem_html": "Le ________ énergétique mondial reste dominé par les ________ ."},
+      {"id": "Q36", "type": "NUMERIC", "stem_html": "Si une éolienne produit 4 MW, combien d'éoliennes pour atteindre 1 GW ? Donne valeur et unité."},
+      {"id": "Q37", "type": "DOC.INTERPRET_TREND", "stem_html": "D'après le Document C, quelle est la tendance globale ?"},
+      {"id": "Q38", "type": "ASSOC_TERM_DEF", "stem_html": "Associe : ODD 6 / Mix / Stress hydrique aux définitions données."},
+      {"id": "Q39", "type": "MISCONCEPTION.MCQ", "stem_html": "« Renouvelable » signifie :", "options": ["Inépuisable", "Sans CO₂", "Qui se reconstitue à l'échelle humaine", "Gratuit"]},
+      {"id": "Q40", "type": "MINDMAP_REBUILD", "stem_html": "Reconstruis la carte mentale entière du chapitre. Branches : 4-6. Voir le SVG ci-dessous."}
+    ],
+    "rebuild_mindmap_svg": "<svg viewBox='0 0 500 300' style='width:100%;font-family:system-ui'><rect x='200' y='130' width='100' height='40' rx='20' fill='#E85D4C'/><text x='250' y='155' text-anchor='middle' fill='#fff' font-weight='700'>EAU & ÉNERGIE</text><rect x='30' y='40' width='110' height='32' rx='6' fill='#e0e0e0' stroke='#bbb' stroke-dasharray='4'/><text x='85' y='60' text-anchor='middle' fill='#999' font-style='italic'>?</text><rect x='30' y='240' width='110' height='32' rx='6' fill='#e0e0e0' stroke='#bbb' stroke-dasharray='4'/><text x='85' y='260' text-anchor='middle' fill='#999' font-style='italic'>?</text><rect x='360' y='40' width='110' height='32' rx='6' fill='#e0e0e0' stroke='#bbb' stroke-dasharray='4'/><text x='415' y='60' text-anchor='middle' fill='#999' font-style='italic'>?</text><rect x='360' y='240' width='110' height='32' rx='6' fill='#e0e0e0' stroke='#bbb' stroke-dasharray='4'/><text x='415' y='260' text-anchor='middle' fill='#999' font-style='italic'>?</text><line x1='200' y1='150' x2='140' y2='56' stroke='#ccc'/><line x1='200' y1='150' x2='140' y2='256' stroke='#ccc'/><line x1='300' y1='150' x2='360' y2='56' stroke='#ccc'/><line x1='300' y1='150' x2='360' y2='256' stroke='#ccc'/></svg>",
+    "rebuild_mindmap_corrige_svg": "<svg viewBox='0 0 500 300' style='width:100%'><rect x='200' y='130' width='100' height='40' rx='20' fill='#E85D4C'/><text x='250' y='155' text-anchor='middle' fill='#fff' font-weight='700'>EAU & ÉNERGIE</text><rect x='30' y='40' width='110' height='32' rx='6' fill='#F5C542'/><text x='85' y='60' text-anchor='middle'>Fossiles</text><rect x='30' y='240' width='110' height='32' rx='6' fill='#F5C542'/><text x='85' y='260' text-anchor='middle'>Renouvelables</text><rect x='360' y='40' width='110' height='32' rx='6' fill='#F5C542'/><text x='415' y='60' text-anchor='middle'>Eau douce</text><rect x='360' y='240' width='110' height='32' rx='6' fill='#F5C542'/><text x='415' y='260' text-anchor='middle'>ODD 6</text><line x1='200' y1='150' x2='140' y2='56' stroke='#ccc'/><line x1='200' y1='150' x2='140' y2='256' stroke='#ccc'/><line x1='300' y1='150' x2='360' y2='56' stroke='#ccc'/><line x1='300' y1='150' x2='360' y2='256' stroke='#ccc'/></svg>",
+    "corrige_abrege": [
+      {"qid": "Q31", "answer": "C — Charbon (fossile)."},
+      {"qid": "Q32", "answer": "Absence totale d'eau pour satisfaire les besoins."},
+      {"qid": "Q33", "answer": "32%."},
+      {"qid": "Q34", "answer": "B — vecteur d'énergie."},
+      {"qid": "Q35", "answer": "Mix / fossiles."},
+      {"qid": "Q36", "answer": "250 éoliennes (1000 / 4)."},
+      {"qid": "Q37", "answer": "Forte croissance constante depuis 1900."},
+      {"qid": "Q38", "answer": "1-A, 2-B, 3-C (selon ordre)."},
+      {"qid": "Q39", "answer": "C — qui se reconstitue à l'échelle humaine."},
+      {"qid": "Q40", "answer": "Voir le corrigé visuel sous le SVG."}
+    ]
+  }
+}
