@@ -1,0 +1,24 @@
+name: skill prompt sync
+
+# Garde-fou : le SKILL.md de Claude Code doit toujours être la concaténation
+# de prompts/study-guide/skill-frontmatter.yaml + prompts/study-guide/system.md.
+# Si quelqu'un édite l'un sans `make sync-skill-prompt`, ce check échoue.
+
+on:
+  push:
+    paths:
+      - 'prompts/study-guide/**'
+      - '.claude/skills/study-guide/SKILL.md'
+      - '.github/workflows/skill-prompt-sync.yml'
+  pull_request:
+    paths:
+      - 'prompts/study-guide/**'
+      - '.claude/skills/study-guide/SKILL.md'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify SKILL.md is in sync with prompts/study-guide/
+        run: make check-skill-prompt

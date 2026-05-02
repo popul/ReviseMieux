@@ -19,7 +19,8 @@
 
 .PHONY: help setup dev stop test test-unit test-integration lint fmt clean \
         backend-% mobile-% infra-up infra-down infra-reset db-migrate db-reset \
-        bench bench-all bench-report design-system docs-serve docs-deploy
+        bench bench-all bench-report design-system docs-serve docs-deploy \
+        sync-skill-prompt check-skill-prompt
 
 .DEFAULT_GOAL := help
 
@@ -190,6 +191,32 @@ fiche-serve: ## Sert toutes les fiches de révision (FICHES_ROOT=... FICHE_PORT=
 
 fiche-stop: ## Arrête le serveur fiche (tue le process sur FICHE_PORT)
 	@lsof -ti:$(FICHE_PORT) | xargs kill 2>/dev/null && echo "Serveur arrêté." || echo "Aucun serveur sur :$(FICHE_PORT)"
+
+# ------------------------------------------------------------
+# Skill / Lot -1 prompt — source unique
+# ------------------------------------------------------------
+#
+# La source de vérité du prompt système de la skill /study-guide ET du
+# Lot -1 web-v0 vit dans `prompts/study-guide/system.md`. Le SKILL.md de
+# Claude Code est régénéré à partir de ce fichier + `skill-frontmatter.yaml`.
+
+SKILL_PROMPT_SRC := prompts/study-guide/system.md
+SKILL_FRONTMATTER := prompts/study-guide/skill-frontmatter.yaml
+SKILL_TARGET := .claude/skills/study-guide/SKILL.md
+
+sync-skill-prompt: ## Régénère .claude/skills/study-guide/SKILL.md depuis prompts/study-guide/
+	@cat $(SKILL_FRONTMATTER) $(SKILL_PROMPT_SRC) > $(SKILL_TARGET)
+	@echo "$(GREEN)Synced $(SKILL_TARGET) ($$(wc -l < $(SKILL_TARGET)) lines)$(RESET)"
+
+check-skill-prompt: ## Échoue si SKILL.md n'est pas à jour vis-à-vis de la source unique
+	@cat $(SKILL_FRONTMATTER) $(SKILL_PROMPT_SRC) > /tmp/SKILL.expected
+	@if ! diff -q $(SKILL_TARGET) /tmp/SKILL.expected >/dev/null; then \
+		echo "$(YELLOW)$(SKILL_TARGET) is out of sync with $(SKILL_PROMPT_SRC).$(RESET)"; \
+		echo "Run: make sync-skill-prompt"; \
+		diff $(SKILL_TARGET) /tmp/SKILL.expected | head -40; \
+		exit 1; \
+	fi
+	@echo "$(GREEN)$(SKILL_TARGET) is in sync with $(SKILL_PROMPT_SRC).$(RESET)"
 
 # ------------------------------------------------------------
 # Clean

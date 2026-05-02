@@ -5,6 +5,7 @@ on:
     branches: ['**']
     paths:
       - 'web-v0/**'
+      - 'prompts/study-guide/**'
       - '.github/workflows/web-v0.yml'
   workflow_dispatch:
 
@@ -58,7 +59,9 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: ./web-v0
+          # Context is the repo root so the Dockerfile can pull the
+          # shared prompt source at prompts/study-guide/system.md.
+          context: .
           file: ./web-v0/Dockerfile
           push: true
           tags: ${{ steps.tags.outputs.list }}

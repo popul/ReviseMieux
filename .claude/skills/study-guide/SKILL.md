@@ -55,7 +55,6 @@ La note visée conditionne la **profondeur** et le **volume** de la fiche :
 
 **Règle** : une fiche « 20/20 » DOIT contenir au minimum une Section 8 « Annexes objectif 20/20 » et une Section 9 « Session 3 — Contrôle blanc ».
 
----
 
 ## Pipeline d'analyse
 
@@ -313,20 +312,24 @@ Exemple : le pèlerin de Saint-Jacques avec ses 4 attributs (chapeau à large bo
 
 ### Étape 4 — Assemblage de la fiche
 
----
 
 ## Format de sortie
 
-Produire un document Markdown structuré en **6 sections** :
+Produire un document Markdown structuré en **6 sections de base + 2 sections conditionnelles** selon la note visée :
 
-1. Résumé du cours
-2. Notions clés & Carte mentale
-3. **Documents d'exercice générés** (tableaux, graphiques, schémas, cartes — inédits)
-4. Session 1 (J0 soir) — Découverte & Reconnaissance
-5. Session 2 (J2 soir) — Consolidation & Rappel
-6. Corrigé détaillé & Plan de révision
+| Section | Contenu | Cible 12-14 | Cible 15-17 | Cible 18-20 |
+|---|---|---|---|---|
+| 1 | Résumé du cours | ✓ | ✓ | ✓ |
+| 2 | Notions clés & mini-cartes mentales | ✓ | ✓ | ✓ |
+| 3 | Documents d'exercice générés (≥3, inédits) + 3F/3G/3H bis selon matière | ✓ | ✓ | ✓ |
+| 4 | Session 1 (J0 soir) — Découverte & Reconnaissance (15 Q) | ✓ | ✓ | ✓ |
+| 5 | Session 2 (J2 soir) — Consolidation & Rappel (15 Q) | ✓ | ✓ | ✓ |
+| 6 | Corrigés + Plan + Tableau mastery (sous-sections 6A/6B/6C) | ✓ | ✓ | ✓ |
+| 8 | **Annexes objectif 18-20** (frise, vocab exhaustif, comparatif, rédactions+grille, méthodes par type de doc) | ✗ | partiel | **OBLIGATOIRE** |
+| 9 | **Session 3 — Contrôle blanc** (10 Q numérotées Q31→Q40, MINDMAP_REBUILD en SVG, corrigé abrégé) | ✗ | ✗ | **OBLIGATOIRE** |
 
----
+> ⚠️ Pour la cible 18-20, les Sections 8 et 9 sont des **critères d'acceptance bloquants** : leur absence rend la fiche non conforme. Il n'y a pas de Section 7 ; la numérotation saute volontairement de 6 à 8.
+
 
 ### SECTION 1 — Résumé du cours
 
@@ -467,11 +470,11 @@ Générer **15 questions** en respectant ces règles :
 - **Items échoués** : reproposés en difficulté 1 avec formulation différente
 - **Interleaving** : alterner les notions systématiquement
 
-### SECTION 6 — Corrigé détaillé & Plan de révision
+### SECTION 6 — Corrigés détaillés + Plan + Mastery
 
-#### 5A — Corrigé (pour chaque question des 2 sessions)
+#### 6A — Corrigé (pour CHAQUE question de S1, S2, et S3 si présente)
 
-Format obligatoire en 3 composantes (conforme Z4-AC09) :
+Format obligatoire en 3 composantes (conforme Z4-AC09) — les 3 lignes sont **toutes** obligatoires, l'absence de l'astuce mnémonique rend le corrigé non conforme :
 
 ```
 **Q[n] — Corrigé**
@@ -480,7 +483,7 @@ Format obligatoire en 3 composantes (conforme Z4-AC09) :
 💡 **Astuce mnémonique** : [phrase, acronyme, ou image mentale pour retenir]
 ```
 
-#### 5B — Plan de révision calendaire
+#### 6B — Plan de révision calendaire
 
 ```
 📅 PLAN DE RÉVISION
@@ -510,7 +513,7 @@ Si une **date de contrôle** est fournie :
 - Adapter les intervalles (compression des espacements)
 - Ajouter une Session 3 optionnelle la veille du contrôle (5 questions flash, difficulté 2-3 sur les items encore FRAGILE)
 
-#### 5C — Tableau de progression mastery attendue
+#### 6C — Tableau de progression mastery attendue
 
 Générer un tableau par item :
 
@@ -522,7 +525,52 @@ Générer un tableau par item :
 | ...  | ... | ... | ... | ... | ... |
 ```
 
----
+
+### SECTION 8 — Annexes objectif 18-20 (cible 15-17 : partielle / cible 18-20 : OBLIGATOIRE)
+
+Cette section n'apparaît **pas** pour la cible 12-14. Pour la cible 15-17, inclure (a), (b), (c). Pour la cible 18-20, **toutes** les sous-parties (a)→(f) sont OBLIGATOIRES — leur absence rend la fiche non conforme.
+
+(a) **Frise chronologique** du chapitre (SVG inline) — repères temporels clés du cours, légende compacte. Pour les chapitres non-temporels (PC, SVT structurelle), remplacer par un **schéma de hiérarchie globale** des notions.
+
+(b) **Vocabulaire exhaustif** sous forme de tableau Markdown — TOUS les termes techniques du cours avec leur définition courte. Une ligne par terme, ordonné alphabétiquement ou par notion.
+
+(c) **Encadré pièges renforcé** — version étendue de 3G avec au moins 6 confusions classiques (vs 3-4 dans 3G).
+
+(d) **Fiches personnages** (HG/français/philo) — si le cours mentionne ≥2 personnages historiques ou littéraires, créer une mini-fiche par personne (nom / dates / rôle / 2-3 idées clés).
+
+(e) **Tableau comparatif des notions proches** — colonnes Notion A | Notion B | Différence clé | Exemple. Couvrir au minimum les couples qui pourraient être confondus au contrôle (ex : roman/gothique, séculier/régulier, lipide/glucide).
+
+(f) **Rédactions modèles avec grille d'évaluation explicite** — au moins **1 rédaction modèle** rédigée en phrases complètes, suivie d'une **grille d'évaluation** sous forme de tableau (Critère | Barème | Indicateurs de réussite).
+
+(g) **Méthodes spécifiques par type de document** — encadrés méthode séparés pour : analyser un plan, analyser un texte, analyser une miniature/image, analyser une carte. Chaque méthode = 4-6 étapes numérotées.
+
+### SECTION 9 — Session 3 : Contrôle blanc (cible 18-20 uniquement, OBLIGATOIRE)
+
+**Objectif** : simuler les conditions du contrôle. Aide pour passer de OK à OK_renforcé.
+**Durée estimée** : 20 minutes (≈ durée d'un contrôle réel).
+**Difficulté** : niveaux 2-3, mix exigeant.
+
+#### Composition stricte
+
+- **10 questions numérotées Q31 → Q40** (continuité avec S1+S2 ; **JAMAIS** Q1-Q10 ni Q21-Q30).
+- Mix obligatoire : ≥3 QCM + ≥2 questions sur documents (doc.read_value, doc.interpret_trend, doc.extract_evidence) + ≥1 NUMERIC + ≥1 réponse courte rédigée + 1 question MINDMAP_REBUILD.
+- ≥1 question doit reprendre directement un `TRAP` identifié à l'Étape 2.
+- ≥1 question doit reprendre une `SHORT_LIST` (restitution exhaustive).
+
+#### MINDMAP_REBUILD — exigence stricte
+
+La question MINDMAP_REBUILD DOIT être un **SVG inline ~500×300 px** avec :
+- thème central du chapitre visible (un seul rectangle coral nommé)
+- 4-6 branches partant du centre, **toutes vides** (rectangles gris pointillés `?`)
+- toutes les feuilles vides aussi (l'élève reconstruit la carte entière sur papier)
+- un `<details>` sous le SVG avec la carte complète comme corrigé
+
+**Interdit absolument** : version ASCII art, version texte « 1. ____ / 2. ____ », arborescence Markdown. Si le SVG ne respecte pas ces contraintes, la fiche est non conforme.
+
+#### Corrigé Session 3
+
+Format **abrégé** (1-2 lignes par question, pas le triplet ✅/🔍/💡 complet — la S3 sert d'auto-évaluation rapide). Mais inclure systématiquement la réponse correcte ET un mot-clé qui aurait suffi à valider la copie.
+
 
 ## Règles pédagogiques strictes
 
@@ -552,7 +600,6 @@ Générer un tableau par item :
 - En Session 2, ne jamais poser plus de 3 questions consécutives sur la même notion
 - Alterner les types de questions pour maintenir l'attention
 
----
 
 ## Exemple d'invocation
 
@@ -572,7 +619,6 @@ Ou avec un glob :
 /study-guide ~/cahier/*.jpg
 ```
 
----
 
 ## Contraintes techniques
 
@@ -583,7 +629,6 @@ Ou avec un glob :
 - Mermaid pour les graphiques à axes, flowcharts, mind maps, diagrammes de classification
 - Pas d'emoji dans le contenu sauf dans le corrigé (✅🔍💡) et le plan (📅📌)
 
----
 
 ## Génération HTML obligatoire
 
@@ -592,7 +637,7 @@ La fiche **doit** être générée sous forme d'un **fichier HTML autonome** (`f
 ### Caractéristiques du HTML
 
 1. **Fichier auto-suffisant** : un seul `.html`, pas de fichiers externes
-2. **Photos du cahier embarquées en base64** : encoder chaque image source en `data:image/jpeg;base64,...` via un script shell (`base64 -i`) et les intégrer directement dans le HTML comme `<img>` dans une grille photo avec lightbox au clic
+2. **Photos du cahier** : **NE PAS** les recopier en base64 dans ta sortie HTML. Le service `revise` les injecte automatiquement après ta génération sous forme d'une `<section class="revise-photos">` placée juste après `<body>`, avec sa grille, son lightbox et son CSS `@media print` dédié. Toute tentative de les inclure dans la sortie LLM est gaspillage de tokens et risque de tronquer le rendu.
 3. **SVG inline** : les schémas SVG sont directement dans le HTML (pas de fichier externe)
 4. **Mermaid.js via CDN** : charger `https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js` et utiliser des balises `<pre class="mermaid">` pour le rendu côté client
 5. **CSS intégré** : design moderne avec les couleurs du projet (coral #E85D4C, teal #1A4D4D, gold #F5C542, cream #FBF8F3)
@@ -632,12 +677,7 @@ La fiche **doit** être générée sous forme d'un **fichier HTML autonome** (`f
 
 ### Procédure de génération
 
-1. Produire d'abord le contenu de la fiche (analyse, questions, corrigés) dans la conversation
-2. Générer le HTML complet via un script `Bash` qui :
-   - Encode les images en base64 (`base64 -i <fichier>`)
-   - Injecte les images dans le template HTML via heredoc
-   - Écrit le fichier `fiche-revision.html` dans le dossier source
-3. Ouvrir le fichier dans le navigateur avec `open <fichier>`
+Tu produis directement le HTML complet (un seul `<!DOCTYPE html> … </html>`) en sortie de ce prompt. Le service `revise` se charge ensuite d'injecter la grille de photos et de servir le fichier au client. Ne génère PAS de script shell ni de heredoc, ne décris PAS ta démarche en prose — produit uniquement le HTML.
 
 ### Structure HTML type
 
@@ -646,28 +686,102 @@ La fiche **doit** être générée sous forme d'un **fichier HTML autonome** (`f
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Fiche de Révision — [Sujet]</title>
   <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
-  <style>/* CSS intégré */</style>
+  <style>/* CSS intégré : header, sections colorées, hamburger/drawer, @media (print/mobile/landscape) */</style>
 </head>
 <body>
+  <button class="hamburger" onclick="...">☰</button>
+  <div class="drawer-backdrop"></div>
+  <nav class="drawer"><!-- liens sommaire --></nav>
+  <div class="print-buttons">
+    <button onclick="document.body.classList.add('print-eleve');window.print()">🖨️ Élève</button>
+    <button onclick="document.body.classList.add('print-parent');window.print()">🖨️ Parent</button>
+  </div>
   <div class="header"><!-- Titre, matière, méta --></div>
   <div class="toc"><!-- Sommaire cliquable --></div>
-  <div class="section photos"><!-- Photos base64 en grille --></div>
-  <div class="section"><!-- Résumé --></div>
-  <div class="section"><!-- Notions + Mermaid mindmap --></div>
-  <div class="section documents"><!-- Documents générés (SVG, Mermaid, tables) --></div>
-  <div class="section session1"><!-- Questions S1 --></div>
-  <div class="section session2"><!-- Questions S2 --></div>
-  <div class="section corriges"><!-- Corrigés dans <details> --></div>
-  <div class="section"><!-- Plan de révision + tableau mastery --></div>
-  <div class="lightbox"><!-- Lightbox pour photos --></div>
-  <script>mermaid.initialize({startOnLoad:true, theme:'default'});</script>
+  <!-- (la <section class="revise-photos"> est injectée ici par le service après génération) -->
+  <div class="section"><!-- Section 1 Résumé --></div>
+  <div class="section"><!-- Section 2 Notions + mini-cartes SVG --></div>
+  <div class="section documents"><!-- Section 3 Documents (3A/3B/3C/3D) + 3F méthode + 3G pièges + 3H bis exos analyse --></div>
+  <div class="section session1"><!-- Section 4 — Q1→Q15 --></div>
+  <div class="section session2"><!-- Section 5 — Q16→Q30 --></div>
+  <div class="section corriges"><!-- Section 6A corrigés dans <details class="corrige"> --></div>
+  <div class="section"><!-- Section 6B plan + 6C tableau mastery --></div>
+  <!-- Si cible 15-17 : -->
+  <div class="section annexes"><!-- Section 8 (a)(b)(c) --></div>
+  <!-- Si cible 18-20 : -->
+  <div class="section annexes"><!-- Section 8 (a)→(g) complet --></div>
+  <div class="section session3"><!-- Section 9 — Q31→Q40 + MINDMAP_REBUILD SVG + corrigé abrégé --></div>
+  <script>
+    mermaid.initialize({startOnLoad:true, theme:'default'});
+    window.addEventListener('afterprint',()=>{document.body.classList.remove('print-eleve','print-parent');});
+  </script>
 </body>
 </html>
 ```
 
----
+
+## ✅ Critères d'acceptance — checklist finale de vérification
+
+Avant de fermer `</body>`, **relis silencieusement la fiche** et vérifie chaque critère ci-dessous selon la note visée. Tout critère « OBLIGATOIRE » non satisfait rend la fiche **non conforme** ; ajoute la pièce manquante avant de finir.
+
+### Critères communs à toutes les cibles
+
+**Contenu pédagogique**
+- [AC-CONT-01] Section 1 (résumé) : 5-10 bullet points, vocabulaire en gras.
+- [AC-CONT-02] Section 2 : **une mini-carte SVG par notion** (3-7 feuilles, layout radial), pas une seule mindmap géante.
+- [AC-CONT-03] Section 3 : **≥ 3 documents inédits** dont au moins 1 tableau de données avec valeurs à calculer, 1 graphique/schéma SVG inline, et 1 doc adapté à la matière (carte SVG si HG, courbe si PC, schéma anatomique si SVT). Aucune valeur recopiée du cahier.
+- [AC-CONT-04] Section 3F (méthode N-D-S-I-D) : présent OBLIGATOIRE si matière ∈ {HG, SVT, français, PC}.
+- [AC-CONT-05] Section 3G (encadré pièges) : présent OBLIGATOIRE si ≥1 item TRAP identifié à l'Étape 2 ; tableau Confusion / Distinction / Mnémo avec ≥3 entrées.
+- [AC-CONT-06] Section 3H bis (≥3 exercices d'analyse de doc complets : texte + iconographique + cartographique/statistique) : OBLIGATOIRE si matière ∈ {HG, français}. Chaque exo a un corrigé MODÈLE rédigé en phrases complètes + une liste « erreurs à éviter ».
+- [AC-CONT-07] Section 4 (Session 1) : exactement **15 questions** numérotées Q1→Q15, ≥3 exploitent les documents Section 3, **≥1 MINDMAP_PARTIAL**.
+- [AC-CONT-08] Section 5 (Session 2) : exactement **15 questions** numérotées Q16→Q30, interleaving (jamais ≥3 questions consécutives sur la même notion), **≥1 MINDMAP_RECALL**.
+- [AC-CONT-09] Section 6A (corrigés) : pour CHAQUE question des sessions actives, format strict **3 lignes** ✅/🔍/💡. Aucun corrigé ne doit omettre l'astuce mnémonique 💡.
+- [AC-CONT-10] Section 6B (plan calendaire) : J0 → J1 (repos actif) → J2, avec seuils ≥70%.
+- [AC-CONT-11] Section 6C (tableau mastery) : colonnes Item | Type | Notion | Après S1 | Après S2 | Prochaine révision, une ligne par item.
+- [AC-CONT-12] Pondération : si matière HG/SVT, ≥50% des questions de S1+S2 exploitent les documents Section 3 (lecture, interprétation, label_completion).
+- [AC-CONT-13] Chaque `SHORT_LIST` identifiée → ≥1 question de restitution exhaustive (CLOZE_KEYWORDS ou réponse libre).
+- [AC-CONT-14] Chaque `TRAP` identifié → ≥1 `MISCONCEPTION.MCQ` dont les distracteurs utilisent la confusion.
+- [AC-CONT-15] Chaque `VISUAL_VOCAB` identifié → ≥1 `LABEL_COMPLETION` sur un schéma de la Section 3H.
+
+**Rendu HTML (cf. § « Génération HTML obligatoire »)**
+- [AC-HTML-01] Document `<!DOCTYPE html>` complet, fini par `</html>`.
+- [AC-HTML-02] CSS intégré, mermaid via CDN, SVG inline (jamais de fichiers externes).
+- [AC-HTML-03] Sommaire cliquable avec ancres `id` sur chaque section.
+- [AC-HTML-04] **Deux** boutons d'impression `position:fixed` top-right, OBLIGATOIRES tous les deux : « 🖨️ Version élève » qui ajoute la classe `print-eleve` sur `<body>` ET « 🖨️ Version parent » qui ajoute la classe `print-parent`. Le CSS `@media print body.print-eleve .corriges, body.print-eleve details.corrige { display: none !important }` doit être présent. Un seul bouton = non conforme.
+- [AC-HTML-05] Menu hamburger (drawer latéral) avec backdrop, masqué à l'impression.
+- [AC-HTML-06] `<meta name="viewport">` présent, breakpoints 768px, 480px, et orientation landscape.
+- [AC-HTML-07] Tableaux dans `<div class="table-wrap" style="overflow-x:auto">`.
+- [AC-HTML-08] `@media print` force les `<details>` ouverts (`details > *:not(summary) { display: block !important }`), cache la lightbox et les boutons print, met `break-inside: avoid` sur les sections.
+- [AC-HTML-09] Corrigés repliés par défaut dans des `<details class="corrige">`.
+
+> ⚠️ Note : la grille de photos du cahier en base64 et sa lightbox sont **injectées automatiquement par le service** après génération. Ne pas les recopier dans ta sortie.
+
+### Critères additionnels — cible 15-17
+
+- [AC-15-01] Section 8 partielle présente avec sous-parties (a), (b), (c) — frise + vocabulaire exhaustif + encadré pièges renforcé.
+- [AC-15-02] Pas de Section 9 (réservée à la cible 18-20).
+
+### Critères additionnels — cible 18-20 (OBLIGATOIRES)
+
+- [AC-20-01] **Section 8 complète** avec les 6 sous-parties (a)→(f) ; pas une seule absente.
+- [AC-20-02] Section 8 (f) : ≥1 rédaction modèle rédigée + grille d'évaluation explicite (tableau Critère | Barème | Indicateurs).
+- [AC-20-03] **Section 9 présente**.
+- [AC-20-04] Section 9 contient exactement **10 questions** numérotées **Q31→Q40** (continuité S1+S2 ; numéroter Q1-Q10 = non conforme).
+- [AC-20-05] Section 9 contient **≥1 question MINDMAP_REBUILD** sous forme de **SVG inline ~500×300 px** avec thème central + 4-6 branches vides + toutes feuilles vides + corrigé dans `<details>`. ASCII art ou texte plat « 1. ____ » = non conforme.
+- [AC-20-06] Section 9 reprend ≥1 TRAP et ≥1 SHORT_LIST identifiés à l'Étape 2.
+- [AC-20-07] Corrigé Session 3 abrégé présent (1-2 lignes par question, mot-clé suffisant inclus).
+
+### Procédure d'auto-vérification avant fermeture
+
+1. Compte les sections présentes — la liste doit être **{1,2,3,4,5,6}** pour 12-14, **{1,2,3,4,5,6,8}** pour 15-17, **{1,2,3,4,5,6,8,9}** pour 18-20.
+2. Compte les questions — exactement 15 dans S1, 15 dans S2, et 10 dans S3 si présente.
+3. Compte les corrigés — un par question des sessions présentes, chaque corrigé en 3 lignes ✅/🔍/💡 (sauf S3 qui est abrégée).
+4. Vérifie les `[AC-…]` ci-dessus selon la cible. Si l'un manque, **ajoute la section/le contenu manquant** avant de fermer `</body>`.
+5. Vérifie que `</html>` est bien présent en toute fin de fichier.
+
 
 ## 📝 Rapport d'exécution (auto-amélioration)
 

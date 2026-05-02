@@ -1,3 +1,6 @@
+# Build context = repo root (not web-v0/) so we can pull
+# prompts/study-guide/system.md as the canonical prompt source.
+# Cf. .github/workflows/web-v0.yml.
 FROM python:3.12-slim
 
 ENV PYTHONUNBUFFERED=1 \
@@ -7,12 +10,14 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-COPY requirements.txt /app/
+COPY web-v0/requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY main.py schema.py prompt.txt index.html shell.html.j2 fixture.json /app/
+# Application code (web-v0/) and the shared prompt source (prompts/study-guide/).
+COPY web-v0/main.py web-v0/schema.py web-v0/index.html web-v0/shell.html.j2 web-v0/fixture.json /app/
+COPY prompts/study-guide/system.md /app/system.md
 
-ENV PROMPT_PATH=/app/prompt.txt \
+ENV PROMPT_PATH=/app/system.md \
     INDEX_PATH=/app/index.html \
     SHELL_PATH=/app/shell.html.j2 \
     FIXTURE_PATH=/app/fixture.json

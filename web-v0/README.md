@@ -48,12 +48,13 @@ Avoir un produit utilisable **avant** le Lot 0 :
 |---|---|
 | `main.py` | API FastAPI, job queue async, appel LLM, rendu Jinja |
 | `schema.py` | Modèles Pydantic v2 décrivant la JSON attendue du LLM (Stage 2) |
-| `prompt.txt` | Skill `study-guide` complète : pipeline OCR → structuration → fiche, critères d'acceptance |
 | `shell.html.j2` | Shell HTML pré-baké (chrome stable) : drawer, boutons impression élève/parent, theme, mobile, `@media print` |
 | `index.html` | Formulaire upload one-page |
 | `fixture.json` | Fiche-jouet pour valider le shell sans LLM (`/preview`) |
 | `requirements.txt` | Pin Python deps |
-| `Dockerfile` | Image runtime |
+| `Dockerfile` | Image runtime — **build context = racine du dépôt** (pour pouvoir copier `prompts/study-guide/system.md`) |
+
+> Le **prompt système** ne vit pas ici : il est dans [`../prompts/study-guide/system.md`](../prompts/study-guide/) — source unique partagée avec la skill Claude Code `.claude/skills/study-guide/SKILL.md`. Modifier là-bas, puis `make sync-skill-prompt` à la racine.
 
 ## Endpoints
 

@@ -27,9 +27,9 @@ from schema import Fiche
 
 LLM_URL = os.environ.get("LLM_URL", "http://macbook-pro-2.home:1234/v1/chat/completions")
 LLM_MODEL = os.environ.get("LLM_MODEL", "qwen/qwen3.6-35b-a3b")
-PROMPT_PATH = Path(os.environ.get("PROMPT_PATH", "/code/prompt.txt"))
-INDEX_PATH = Path(os.environ.get("INDEX_PATH", "/code/index.html"))
-SHELL_PATH = Path(os.environ.get("SHELL_PATH", "/code/shell.html.j2"))
+PROMPT_PATH = Path(os.environ.get("PROMPT_PATH", "/app/system.md"))
+INDEX_PATH = Path(os.environ.get("INDEX_PATH", "/app/index.html"))
+SHELL_PATH = Path(os.environ.get("SHELL_PATH", "/app/shell.html.j2"))
 LLM_TIMEOUT = float(os.environ.get("LLM_TIMEOUT", "600"))
 JOB_TTL_SECONDS = float(os.environ.get("JOB_TTL_SECONDS", "3600"))
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
