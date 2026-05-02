@@ -1,12 +1,3 @@
----
-name: study-guide
-description: "Crée une fiche de révision complète à partir de photos de cahier pour collégiens"
-disable-model-invocation: true
-hooks:
-  Stop:
-    - type: command
-      command: "${CLAUDE_SKILL_DIR}/scripts/generate-report.sh"
----
 
 # Fiche de Révision Complète — Skill `/study-guide`
 

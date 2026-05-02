@@ -1,0 +1,81 @@
+name: web-v0 image
+
+on:
+  push:
+    branches: ['**']
+    paths:
+      - 'web-v0/**'
+      - 'prompts/study-guide/**'
+      - '.github/workflows/web-v0.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository_owner }}/revisemieux-web-v0
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute lowercase image name
+        id: img
+        run: echo "name=$(echo '${{ env.IMAGE_NAME }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
+      - name: Compute tags
+        id: tags
+        run: |
+          BRANCH="${GITHUB_REF##*/}"
+          SAFE_BRANCH="$(echo "$BRANCH" | tr '/_' '-' | tr -cd 'a-zA-Z0-9.-' | cut -c1-63)"
+          SHA_SHORT="$(echo "${GITHUB_SHA}" | cut -c1-12)"
+          TAGS="${REGISTRY}/${IMG}:sha-${SHA_SHORT}"$'\n'"${REGISTRY}/${IMG}:branch-${SAFE_BRANCH}"
+          if [ "$BRANCH" = "reboot" ] || [ "$BRANCH" = "main" ]; then
+            TAGS="${TAGS}"$'\n'"${REGISTRY}/${IMG}:latest"
+          fi
+          {
+            echo "list<<EOF"
+            echo "${TAGS}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+        env:
+          REGISTRY: ${{ env.REGISTRY }}
+          IMG: ${{ steps.img.outputs.name }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          # Context is the repo root so the Dockerfile can pull the
+          # shared prompt source at prompts/study-guide/system.md.
+          context: .
+          file: ./web-v0/Dockerfile
+          push: true
+          tags: ${{ steps.tags.outputs.list }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false
+
+      - name: Summary
+        run: |
+          {
+            echo "## web-v0 image published"
+            echo
+            echo "Tags:"
+            echo '```'
+            echo "${{ steps.tags.outputs.list }}"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"

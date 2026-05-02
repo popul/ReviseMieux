@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Révise mieux - générer une fiche</title>
+    <style>
+      :root { --coral: #E85D4C; --teal: #1A4D4D; --gold: #F5C542; --cream: #FBF8F3; }
+      * { box-sizing: border-box }
+      body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--cream); color: var(--teal); }
+      .wrap { max-width: 720px; margin: 0 auto; padding: 24px; }
+      h1 { color: var(--coral); margin: 0 0 8px; font-size: 2rem; }
+      p.lead { margin: 0 0 24px; color: #555; }
+      form { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,.06); }
+      label { display: block; font-weight: 600; margin: 12px 0 6px; }
+      input[type=text], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 1rem; font-family: inherit; }
+      textarea { min-height: 80px; resize: vertical }
+      .file-zone { border: 2px dashed var(--gold); border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; transition: background .2s }
+      .file-zone:hover { background: #fffbe6 }
+      .file-zone input { display: none }
+      .file-list { margin-top: 12px; font-size: .9rem; color: #666 }
+      button { display: block; width: 100%; margin-top: 24px; padding: 14px; background: var(--coral); color: white; border: 0; border-radius: 999px; font-size: 1rem; font-weight: 600; cursor: pointer }
+      button:hover:not(:disabled) { background: #d04a3a }
+      button:disabled { background: #ccc; cursor: wait }
+      .status { margin-top: 16px; padding: 12px; border-radius: 8px; display: none }
+      .status.loading { display: block; background: #fff3cd; border-left: 4px solid var(--gold) }
+      .status.error { display: block; background: #ffe6e6; border-left: 4px solid var(--coral); color: #b00 }
+      .status.ok { display: block; background: #e6ffe6; border-left: 4px solid #2a8 }
+      .timer { font-size: .85rem; color: #888; margin-top: 4px }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Révise mieux</h1>
+      <p class="lead">Photos de cours → fiche de révision HTML générée par Qwen 3.6 (mode thinking).</p>
+      <form id="f">
+        <label for="files">Scans / photos du cours</label>
+        <label class="file-zone" for="files">
+          <input id="files" name="files" type="file" multiple accept="image/*" required>
+          <span id="fileLabel">Cliquer pour choisir des images (jpg, png, heic...)</span>
+          <div class="file-list" id="fileList"></div>
+        </label>
+
+        <label for="subject">Matière / niveau (optionnel)</label>
+        <input id="subject" name="subject" type="text" placeholder="ex : Histoire 5ème, PC 4ème">
+
+        <label for="target">Note visée (optionnel)</label>
+        <input id="target" name="target" type="text" placeholder="ex : 15-17 (bonne note)">
+
+        <label for="extra">Précisions (optionnel)</label>
+        <textarea id="extra" name="extra" placeholder="ex : contrôle dans 5 jours, focus sur les définitions"></textarea>
+
+        <button id="submit" type="submit">Générer la fiche</button>
+        <div class="status" id="status"></div>
+        <div class="timer" id="timer"></div>
+      </form>
+    </div>
+    <script>
+      const f = document.getElementById('f');
+      const files = document.getElementById('files');
+      const fileList = document.getElementById('fileList');
+      const status = document.getElementById('status');
+      const timer = document.getElementById('timer');
+      const submit = document.getElementById('submit');
+
+      files.addEventListener('change', () => {
+        fileList.textContent = Array.from(files.files).map(x => x.name).join(', ') || '';
+      });
+
+      async function pollJob(jobId, startedAt) {
+        while (true) {
+          const r = await fetch('/jobs/' + jobId);
+          if (!r.ok) throw new Error('poll failed: HTTP ' + r.status);
+          const j = await r.json();
+          const elapsed = Math.round((Date.now() - startedAt) / 1000);
+          timer.textContent = 'Temps écoulé : ' + elapsed + 's (status : ' + j.status + ')';
+          if (j.status === 'done') return;
+          if (j.status === 'error') throw new Error(j.error || 'job failed');
+          await new Promise(r => setTimeout(r, 3000));
+        }
+      }
+
+      f.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        submit.disabled = true;
+        status.className = 'status loading';
+        status.textContent = 'Lancement de l\u2019analyse Qwen 3.6 (thinking)... peut prendre 2-5 min selon le nombre d\u2019images.';
+        timer.textContent = '';
+        const startedAt = Date.now();
+
+        try {
+          const fd = new FormData(f);
+          const created = await fetch('/jobs', { method: 'POST', body: fd });
+          if (!created.ok) throw new Error(await created.text() || 'HTTP ' + created.status);
+          const { job_id } = await created.json();
+
+          await pollJob(job_id, startedAt);
+
+          const result = await fetch('/jobs/' + job_id + '/result');
+          const blob = await result.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'fiche-revision.html';
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+
+          status.className = 'status ok';
+          status.textContent = 'Fiche générée et téléchargée. Ouvre-la, puis "Imprimer en PDF" depuis ton navigateur.';
+        } catch (err) {
+          status.className = 'status error';
+          status.textContent = 'Erreur : ' + err.message;
+        } finally {
+          submit.disabled = false;
+        }
+      });
+    </script>
+  </body>
+</html>
