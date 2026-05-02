@@ -33,6 +33,10 @@ SHELL_PATH = Path(os.environ.get("SHELL_PATH", "/app/shell.html.j2"))
 LLM_TIMEOUT = float(os.environ.get("LLM_TIMEOUT", "600"))
 JOB_TTL_SECONDS = float(os.environ.get("JOB_TTL_SECONDS", "3600"))
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
+BUILD_SHA = os.environ.get("BUILD_SHA", "dev")
+BUILD_REF = os.environ.get("BUILD_REF", "local")
+BUILD_SHA_SHORT = BUILD_SHA[:12] if BUILD_SHA != "dev" else "dev"
+GITHUB_REPO = os.environ.get("GITHUB_REPO", "popul/ReviseMieux")
 
 logging.basicConfig(
     level=LOG_LEVEL,
@@ -43,7 +47,6 @@ logging.basicConfig(
 log = logging.getLogger("revise")
 
 SYSTEM_PROMPT = PROMPT_PATH.read_text(encoding="utf-8")
-INDEX_HTML = INDEX_PATH.read_text(encoding="utf-8")
 
 # Jinja env trusts |safe-marked HTML emitted by the LLM. Autoescape is enabled
 # for plain `{{ value }}` substitutions so unmarked text is still escaped.
@@ -54,9 +57,21 @@ JINJA_ENV = Environment(
     lstrip_blocks=False,
 )
 SHELL_TEMPLATE = JINJA_ENV.get_template(SHELL_PATH.name)
+
+BUILD_INFO = {
+    "build_sha": BUILD_SHA,
+    "build_sha_short": BUILD_SHA_SHORT,
+    "build_ref": BUILD_REF,
+    "github_repo": GITHUB_REPO,
+}
+
+# index.html is rendered once at boot so the version footer is baked in.
+INDEX_HTML = JINJA_ENV.get_template(INDEX_PATH.name).render(**BUILD_INFO)
+
 log.info(
-    "boot llm_url=%s llm_model=%s timeout=%ss prompt_chars=%d index_chars=%d shell=%s",
+    "boot llm_url=%s llm_model=%s timeout=%ss prompt_chars=%d index_chars=%d shell=%s build_sha=%s build_ref=%s",
     LLM_URL, LLM_MODEL, LLM_TIMEOUT, len(SYSTEM_PROMPT), len(INDEX_HTML), SHELL_PATH.name,
+    BUILD_SHA_SHORT, BUILD_REF,
 )
 
 
@@ -303,7 +318,7 @@ FIXTURE_PATH = Path(os.environ.get("FIXTURE_PATH", "/code/fixture.json"))
 
 
 def _render_fiche(fiche: Fiche) -> str:
-    return SHELL_TEMPLATE.render(**fiche.model_dump(by_alias=True))
+    return SHELL_TEMPLATE.render(**fiche.model_dump(by_alias=True), **BUILD_INFO)
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -314,6 +329,19 @@ async def home() -> HTMLResponse:
 @app.get("/healthz")
 async def healthz() -> dict[str, str]:
     return {"status": "ok"}
+
+
+@app.get("/version")
+async def version() -> JSONResponse:
+    """Build provenance — exposed so the footer link, monitoring, and
+    debugging can all agree on which image is currently serving."""
+    return JSONResponse({
+        "build_sha": BUILD_SHA,
+        "build_ref": BUILD_REF,
+        "model": LLM_MODEL,
+        "llm_url": LLM_URL,
+        "github_repo": GITHUB_REPO,
+    })
 
 
 @app.get("/preview", response_class=HTMLResponse)

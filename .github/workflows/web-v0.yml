@@ -65,6 +65,9 @@ jobs:
           file: ./web-v0/Dockerfile
           push: true
           tags: ${{ steps.tags.outputs.list }}
+          build-args: |
+            BUILD_SHA=${{ github.sha }}
+            BUILD_REF=${{ github.ref_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           provenance: false

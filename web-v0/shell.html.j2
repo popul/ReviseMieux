@@ -128,6 +128,11 @@ details.corrige .body{padding:0 14px 14px}
 .print-buttons button.parent{background:var(--coral)}
 .print-buttons button:active{transform:translateY(1px)}
 
+/* Discreet build version footer */
+.version{text-align:center;padding:24px 12px 32px;color:var(--mute);font-size:11px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;opacity:.55;letter-spacing:.02em}
+.version a,.version span{color:inherit;text-decoration:none}
+.version a:hover{text-decoration:underline;opacity:.85}
+
 /* ===== Mobile ===== */
 @media (max-width:600px){
   .page{padding:10px}
@@ -152,7 +157,7 @@ details.corrige .body{padding:0 14px 14px}
 /* ===== Print ===== */
 @media print{
   body{background:#fff}
-  .hamburger,.drawer,.drawer-backdrop,.print-buttons{display:none !important}
+  .hamburger,.drawer,.drawer-backdrop,.print-buttons,.version{display:none !important}
   .page{max-width:none;padding:0}
   header.app{background:none;color:var(--ink);box-shadow:none;padding:8px 0;margin-bottom:8px;border-bottom:2px solid var(--teal);border-radius:0}
   header.app h1{color:var(--teal)}
@@ -359,6 +364,10 @@ details.corrige .body{padding:0 14px 14px}
     </section>
     {% endif %}
   </div>
+
+  <footer class="version" aria-label="Version de l'application">
+    {% if build_sha and build_sha != 'dev' %}<a href="https://github.com/{{ github_repo }}/commit/{{ build_sha }}" target="_blank" rel="noopener">web-v0 · {{ build_ref }} · {{ build_sha_short }}</a>{% else %}<span>web-v0 · {{ build_ref }} · {{ build_sha_short }}</span>{% endif %}
+  </footer>
 
 <script>
 function toggleDrawer(){
