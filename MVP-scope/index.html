@@ -679,6 +679,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#z0-lot-1-web-v0-one-shot-generator-15-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z0 — Lot -1 (web-v0 one-shot generator) (15 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#z1-transitions-mastery-28-acs" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2154,6 +2165,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#z0-lot-1-web-v0-one-shot-generator-15-acs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z0 — Lot -1 (web-v0 one-shot generator) (15 ACs)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#z1-transitions-mastery-28-acs" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2283,7 +2305,7 @@
 <tbody>
 <tr>
 <td><strong>Total ACs</strong></td>
-<td>171 (8 zones) · dont <strong>53 Lot 0</strong> (33 P1 + 20 P2)</td>
+<td>186 (9 zones) · 15 Lot -1 (Z0) + 53 Lot 0 (Z1-Z8 ⊂) + 118 différés au MVP</td>
 </tr>
 </tbody>
 </table>
@@ -2333,6 +2355,134 @@
 </tr>
 </tbody>
 </table>
+<table>
+<thead>
+<tr>
+<th>Lot -1</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>bloquant</strong></td>
+<td>AC nécessaire à la livraison du site one-shot web-v0. La livraison Lot -1 est atomique : pas de répartition P1/P2.</td>
+</tr>
+<tr>
+<td><strong>—</strong></td>
+<td>N'appartient pas au Lot -1 (s'applique au Lot 0+ uniquement).</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Z0 (Lot -1) est totalement disjoint de Z1-Z8. Voir <a href="../ac/Z0/"><code>ac/Z0.md</code></a> pour le détail des 15 ACs.</p>
+</blockquote>
+<hr />
+<h2 id="z0-lot-1-web-v0-one-shot-generator-15-acs">Z0 — Lot -1 (web-v0 one-shot generator) (15 ACs)<a class="headerlink" href="#z0-lot-1-web-v0-one-shot-generator-15-acs" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>AC</th>
+<th>Titre</th>
+<th>Lot -1</th>
+<th>Zone aval (Lot 0+)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Z0-AC01</td>
+<td>Pipeline end-to-end photos → HTML téléchargeable</td>
+<td>bloquant</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z0-AC02</td>
+<td>Fiche conforme aux critères de contenu de la skill</td>
+<td>bloquant</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z0-AC03</td>
+<td>Annexes obligatoires pour la cible 18-20</td>
+<td>bloquant</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z0-AC04</td>
+<td>Drawer hamburger fonctionnel</td>
+<td>bloquant</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z0-AC05</td>
+<td>Deux boutons d'impression distincts</td>
+<td>bloquant</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z0-AC06</td>
+<td>Mode impression élève masque les corrigés</td>
+<td>bloquant</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z0-AC07</td>
+<td>Mobile-first et safe area iOS</td>
+<td>bloquant</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z0-AC08</td>
+<td>SLA de génération</td>
+<td>bloquant</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z0-AC09</td>
+<td>Survie au timeout de bordure Cloudflare</td>
+<td>bloquant</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z0-AC10</td>
+<td>Observabilité : logs structurés par job</td>
+<td>bloquant</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z0-AC11</td>
+<td>Validation Pydantic du résultat LLM (Stage 2)</td>
+<td>bloquant Stage 2</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z0-AC12</td>
+<td>Endpoint /preview de validation chrome sans LLM</td>
+<td>bloquant</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z0-AC13</td>
+<td>Privacy : pas de persistance des photos</td>
+<td>bloquant</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z0-AC14</td>
+<td>Pas d'authentification mais protection minimale</td>
+<td>bloquant</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Z0-AC15</td>
+<td>Déploiement par image OCI publique</td>
+<td>bloquant</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Note :</strong> les 15 ACs ci-dessus s'appuient sur les critères techniques <code>[AC-CONT-*]</code>, <code>[AC-HTML-*]</code>, <code>[AC-15-*]</code>, <code>[AC-20-*]</code> portés par le prompt système (<code>prompts/study-guide/system.md</code>). Ces derniers sont la <strong>vérité opérationnelle</strong> vérifiée par le LLM au runtime ; les Z0-AC sont leur <strong>encadrement produit</strong> vérifié par tests d'intégration. Cf. <a href="../ac/Z0/"><code>ac/Z0.md</code></a>.</p>
+</blockquote>
 <hr />
 <h2 id="z1-transitions-mastery-28-acs">Z1 — Transitions Mastery (28 ACs)<a class="headerlink" href="#z1-transitions-mastery-28-acs" title="Permanent link">&para;</a></h2>
 <table>
