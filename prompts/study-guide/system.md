@@ -660,7 +660,34 @@ La fiche **doit** être générée sous forme d'un **fichier HTML autonome** (`f
     - Chaque `<section>` doit avoir `break-inside: avoid` quand c'est possible pour éviter les coupures disgracieuses, et chaque titre de session une `page-break-before: auto`.
     - Les SVG doivent avoir une taille max raisonnable (`max-width:100%; max-height:400px`) pour ne pas déborder.
     - Tester mentalement : si Louis imprime la fiche, il DOIT voir toutes les questions ET tous les corrigés sans avoir à cliquer.
-11. **Deux boutons d'impression** fixés en haut à droite (position `fixed`, masqués à l'impression) :
+11. **Liens internes systématiques (ancres)** : la fiche doit être navigable par référence croisée. Toute mention textuelle d'une entité **déjà ancrée ailleurs** doit être un `<a href="#…">` (jamais juste du texte gras / `<strong>`).
+    - **Convention d'IDs stables** :
+      - Sections : `id="s1"` … `id="s9"`, plus `id="s3f"`, `id="s3g"`, `id="s3hb"`, `id="s6a"`, `id="s6b"`, `id="s6c"`, `id="s8a"`…`id="s8g"` pour les sous-parties.
+      - Notions : sur la `<div class="notion-card">` (Section 2), `id="notion-{slug}"` où `{slug}` = nom normalisé (minuscule, accents enlevés, espaces → tirets). Ex : `notion-hugues-capet`, `notion-domaine-royal`.
+      - Documents : sur la `<div class="doc-box">` (Section 3), `id="doc-{lettre-minuscule}"`. Ex : `id="doc-a"`, `id="doc-b"`.
+      - Questions : sur la `<div class="q">`, `id="q{n}"`. Ex : `id="q1"`, `id="q16"`, `id="q31"`. La numérotation reste continue Q1→Q15 (S1), Q16→Q30 (S2), Q31→Q40 (S3).
+      - Corrigés : sur le `<details class="corrige">`, `id="corrige-q{n}"`. Ex : `id="corrige-q1"`.
+      - Pièges : sur chaque `<tr>` du tableau 3G ET du tableau (c) de la Section 8, `id="trap-{slug}"`. Le slug = nom canonique de la confusion (ex : `trap-baillis-senechaux`, `trap-domaine-royaume`).
+      - Items du tableau mastery 6C : `id="item-{slug}"` (optionnel mais bienvenu).
+    - **Règle de réécriture** : chaque fois que tu écris « Document A », « Q3 », « Q12 », « Bouvines » comme nom de notion dans un qnotion, ou que tu cites une confusion piège dans un corrigé, **enveloppe** le terme dans un `<a class="ref-…" href="#id">…</a>` :
+      - `<a class="ref-doc" href="#doc-a">Document A</a>` (dans qbody, corrigé, plan, mastery)
+      - `<a class="ref-q" href="#q3">Q3</a>` (dans corrigés, plan, tableau mastery, « utilisé dans les questions… » sous chaque doc, « voir aussi… »)
+      - `<a class="ref-notion" href="#notion-bouvines">Bouvines</a>` (dans qnotion ET dans le corps des corrigés quand la notion est nommée)
+      - `<a class="ref-trap" href="#trap-baillis-senechaux">baillis/sénéchaux</a>` (dans corrigés des MISCONCEPTION.MCQ, et dans la section c) annexes)
+      - `<a class="ref-corrige" href="#corrige-q3">voir corrigé</a>` (optionnel sur le `qid` Q3, utile sur mobile pour aller directement au corrigé).
+    - **CSS minimal** à inclure (sobre, pas de couleur tape-à-l'œil) :
+      ```css
+      a[class^="ref-"] { color: inherit; text-decoration: none; border-bottom: 1px dashed currentColor; opacity: .85; }
+      a[class^="ref-"]:hover { opacity: 1; border-bottom-style: solid; }
+      a.ref-doc { color: var(--coral); }
+      a.ref-q { color: var(--teal); font-weight: 600; }
+      a.ref-notion { color: var(--violet, #6A4C93); }
+      a.ref-trap { color: #9c2424; }
+      :target { background: rgba(245,197,66,.25); transition: background .8s ease; }
+      ```
+    - **Pas de duplication** : si un terme est déjà imbriqué dans un `<strong>` ou un `<em>`, le `<a>` doit l'envelopper sans dégrader la sémantique. Si la même phrase contient 3 fois « Document A », seule la **première occurrence** est liée — sinon le bruit visuel devient illisible.
+    - **Cibles obligatoires** : toutes les questions, tous les documents, toutes les notions ET au moins toutes les lignes du tableau pièges 3G doivent avoir leur `id`. Les corrigés peuvent en avoir, fortement recommandé.
+12. **Deux boutons d'impression** fixés en haut à droite (position `fixed`, masqués à l'impression) :
     - **🖨️ Imprimer version élève** : cache toute la section corrigés et les `<details>` des corrigés de la Session 3. L'élève reçoit les questions seules pour s'entraîner.
     - **🖨️ Imprimer version parent** : imprime tout (questions + corrigés ouverts + annexes). Le parent peut corriger avec Louis.
     - Implémentation : chaque bouton ajoute une classe (`print-eleve` ou `print-parent`) sur `<body>`, appelle `window.print()`, puis retire la classe via `window.onafterprint`. Le CSS `@media print` utilise ces classes : `body.print-eleve .corriges, body.print-eleve details.corrige { display: none !important }`.
@@ -747,6 +774,10 @@ Avant de fermer `</body>`, **relis silencieusement la fiche** et vérifie chaque
 - [AC-HTML-07] Tableaux dans `<div class="table-wrap" style="overflow-x:auto">`.
 - [AC-HTML-08] `@media print` force les `<details>` ouverts (`details > *:not(summary) { display: block !important }`), cache la lightbox et les boutons print, met `break-inside: avoid` sur les sections.
 - [AC-HTML-09] Corrigés repliés par défaut dans des `<details class="corrige">`.
+- [AC-LINK-01] **IDs stables** présents : chaque `.notion-card` a un `id="notion-{slug}"`, chaque `.doc-box` un `id="doc-{lettre}"`, chaque `.q` un `id="q{n}"`, chaque `<tr>` du tableau pièges 3G un `id="trap-{slug}"`, et chaque `<details class="corrige">` un `id="corrige-q{n}"`. Absence d'un seul de ces IDs = non conforme.
+- [AC-LINK-02] **Liens croisés** : dans le corps des questions, des corrigés, du plan et du tableau mastery, toute mention de « Document {X} » est un `<a class="ref-doc" href="#doc-{x}">` et toute mention « Q{n} » (hors `class="qid"`) est un `<a class="ref-q" href="#q{n}">`. Au moins **5 références croisées** par fiche.
+- [AC-LINK-03] **Notion-card cliquable** : chaque `<span class="qnotion">` dans les en-têtes de questions est un `<a class="ref-notion" href="#notion-{slug}">…</a>`. Le mapping notion → slug est consigné en haut de la Section 2 (commentaire HTML optionnel) si plusieurs notions ont un nom proche.
+- [AC-LINK-04] **CSS `a[class^="ref-"]`** présent dans le `<style>` avec décoration sobre (underline pointillé, pas de couleur fluo) et règle `:target` qui surligne brièvement la cible quand on suit un lien.
 
 > ⚠️ Note : la grille de photos du cahier en base64 et sa lightbox sont **injectées automatiquement par le service** après génération. Ne pas les recopier dans ta sortie.
 
